@@ -8,7 +8,7 @@
     <!-- Favicon (Ícone na aba do navegador) -->
     <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- Meta Tags para Preview em Redes Sociais (Discord, WhatsApp, Twitter, etc.) -->
+    <!-- Meta Tags para Preview em Redes Sociais -->
     <meta property="og:title" content="Apoie a Kamyli Sumire ✨">
     <meta property="og:description" content="Escolha entre LivePix ou Pixie para apoiar as lives!">
     <meta property="og:image" content="https://donate.kamylisumire.com/preview.png">
@@ -27,8 +27,10 @@
     <!-- Cor da barra do navegador em celulares compatíveis -->
     <meta name="theme-color" content="#B35EAF">
 
-    <!-- Fonte carregada via <link> com preconnect: mais rápido que @import
-         no CSS, que atrasa o carregamento por bloquear o parse do arquivo -->
+    <!-- Pré-carregamento da imagem de fundo para performance -->
+    <link rel="preload" as="image" href="fundo.png">
+
+    <!-- Fonte carregada via <link> com preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -38,15 +40,15 @@
 <body>
     <main class="card">
         <!-- Foto de Perfil Redonda -->
-        <img src="avatar.png" alt="Kamyli Sumire" class="profile-img" width="100" height="100">
+        <img src="avatar.png" alt="Kamyli Sumire" class="profile-img" width="100" height="100" draggable="false">
 
         <h1>Apoie a Kamyli! ✨</h1>
         <p class="subtitle">Escolha a opção ideal para você!</p>
 
         <div class="buttons">
-            <!-- Botão Nacional (LivePix) com ícone de Cifrão -->
+            <!-- Botão Nacional (LivePix) -->
             <a href="https://livepix.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                <svg class="pix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="pix-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="1" x2="12" y2="23"></line>
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
@@ -56,9 +58,9 @@
                 </span>
             </a>
 
-            <!-- Botão Internacional (Pixie) com ícone SVG de Globo -->
+            <!-- Botão Internacional (Pixie) -->
             <a href="https://pixie.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-                <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="globe-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M2 12h20"/>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -91,23 +93,7 @@
         </p>
     </footer>
 
-    <script>
-        // Define --vh com a altura real da tela (funciona melhor que a
-        // unidade "vh" nativa, que pula quando a barra do navegador
-        // aparece/desaparece no Chrome Android e no Safari/iOS).
-        function setViewportHeight() {
-            document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
-        }
-        setViewportHeight();
-        window.addEventListener('resize', setViewportHeight);
-        window.addEventListener('orientationchange', setViewportHeight);
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', setViewportHeight);
-        }
-
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-    </script>
+    <!-- Chamada do arquivo JavaScript externo -->
+    <script src="script.js"></script>
 </body>
 </html>
