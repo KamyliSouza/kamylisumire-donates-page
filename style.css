@@ -15,9 +15,20 @@
 }
 
 body {
+    /* Cor de fundo como plano B caso a imagem não carregue */
     background-color: var(--bg-color);
+    
+    /* IMAGEM DE FUNDO AQUI */
+    /* Substitua 'fundo.jpg' pelo link ou nome da sua imagem */
+    background-image: url('fundo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Faz a imagem ficar parada ao rolar a tela no celular */
+    
     font-family: 'Nunito', sans-serif;
     display: flex;
+    flex-direction: column; /* Alterado para empilhar o card e o rodapé */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -30,10 +41,11 @@ body {
     padding: 35px 25px;
     border-radius: 24px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(179, 94, 175, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra um pouco mais forte para destacar do fundo */
     max-width: 380px;
     width: 100%;
     border: 2px solid rgba(179, 94, 175, 0.2);
+    margin: auto; /* Empurra o card para o centro */
 }
 
 /* Estilo da Foto de Perfil Redonda */
@@ -88,7 +100,7 @@ h1 {
 }
 
 .btn-secondary {
-    background-color: transparent;
+    background-color: var(--card-bg); /* Fundo branco para garantir leitura sobre o bg */
     color: var(--primary-color);
     border: 2px solid var(--primary-color);
 }
@@ -98,7 +110,6 @@ h1 {
     transform: translateY(-2px);
 }
 
-/* Caixa de Aviso estilizada */
 .notice-box {
     margin-top: 22px;
     padding: 14px 16px;
@@ -117,4 +128,31 @@ h1 {
 
 .notice-box strong {
     color: var(--primary-color);
+}
+
+/* --- ESTILOS DO RODAPÉ (CRÉDITOS) --- */
+.footer-credits {
+    margin-top: 30px;
+    padding: 10px 22px;
+    background-color: rgba(255, 255, 255, 0.85); /* Fundo branco levemente transparente */
+    backdrop-filter: blur(5px); /* Efeito de desfoque no fundo da imagem */
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 30px;
+    font-size: 0.85rem;
+    color: #444;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(179, 94, 175, 0.2);
+}
+
+.footer-credits a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 800;
+    transition: color 0.2s ease;
+}
+
+.footer-credits a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }
