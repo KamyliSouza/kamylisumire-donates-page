@@ -100,15 +100,30 @@ h1 {
 
 .btn {
     text-decoration: none;
-    padding: 15px 20px;
+    padding: 13px 20px;
     border-radius: 16px;
     font-size: 1rem;
     font-weight: 800;
     transition: all 0.2s ease;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-main {
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+}
+
+.btn-sub {
+    font-size: 0.72rem;
+    font-weight: 700;
+    opacity: 0.8;
+    letter-spacing: 0.2px;
 }
 
 /* Estilização dos ícones SVG embutidos */
