@@ -1,295 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoie a Kamyli Sumire</title>
 
-:root {
-    --primary-color: #B35EAF;
-    --primary-hover: #9b4d97;
-    --bg-color: #f7eff7;
-    --card-bg: rgba(255, 255, 255, 0.88); /* Fundo translúcido (88% opaco) */
-    --card-border: rgba(179, 94, 175, 0.3);
-    --text-color: #2b2b2b;
-    --subtitle-color: #666;
-    --notice-bg: rgba(179, 94, 175, 0.08);
-    --notice-text: #555;
-    --footer-bg: rgba(255, 255, 255, 0.85);
-    --footer-text: #444;
-}
+    <!-- Favicon (Ícone na aba do navegador) -->
+    <link rel="icon" type="image/png" href="favicon.png">
 
-/* Configuração automática para o Modo Noturno do Navegador */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary-color: #d178cd;
-        --primary-hover: #b35eaf;
-        --bg-color: #121212;
-        --card-bg: rgba(30, 24, 32, 0.85); /* Tom escuro translúcido */
-        --card-border: rgba(209, 120, 205, 0.35);
-        --text-color: #f0e6f0;
-        --subtitle-color: #bfa9be;
-        --notice-bg: rgba(209, 120, 205, 0.12);
-        --notice-text: #e0d0df;
-        --footer-bg: rgba(25, 20, 27, 0.85);
-        --footer-text: #d0c0ce;
-    }
-}
+    <!-- Meta Tags para Preview em Redes Sociais (Discord, WhatsApp, Twitter, etc.) -->
+    <meta property="og:title" content="Apoie a Kamyli Sumire ✨">
+    <meta property="og:description" content="Escolha entre LivePix ou Pixie para apoiar as lives!">
+    <meta property="og:image" content="https://donate.kamylisumire.com/preview.png">
+    <meta property="og:url" content="https://donate.kamylisumire.com">
+    <meta property="og:type" content="website">
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    <!-- Cor da barra do navegador em celulares compatíveis -->
+    <meta name="theme-color" content="#B35EAF">
 
-html {
-    /* Trava a altura do documento no tamanho real da tela e impede que
-       ele mesmo role — quem rola é o .page-scroll logo abaixo. Como o
-       navegador só mostra/esconde a barra de endereço quando o
-       DOCUMENTO rola, travando isso aqui a barra para de "empurrar"
-       o fundo de forma abrupta (funciona no Chrome Android também). */
-    height: 100%;
-    overflow: hidden;
-    /* Evita o efeito "elástico" de overscroll do iOS, que acentua
-       o salto visual do fundo ao puxar a página além do limite */
-    overscroll-behavior: none;
-}
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-scroll">
+    <main class="card">
+        <!-- Foto de Perfil Redonda -->
+        <img src="avatar.webp" alt="Kamyli Sumire" class="profile-img">
 
-body {
-    height: 100%;
-    overflow: hidden;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    position: relative;
-}
+        <h1>Apoie a Live! ✨</h1>
+        <p class="subtitle">Escolha a opção ideal para você!</p>
+        
+        <div class="buttons">
 
-/* Camada de fundo fixa, presa ao tamanho de html/body (que não mudam
-   mais), então nunca é afetada pela barra do navegador aparecendo/
-   sumindo — nem no Safari, nem no Chrome Android. */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('fundo.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* Força aceleração por GPU: evita repintura abrupta em elementos fixed */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform;
-    z-index: -1;
-}
+            <div class="buttons">
 
-/* Container interno que realmente rola. Ocupa 100% de html/body (que
-   estão travados) e assume a centralização do conteúdo que antes
-   estava no body. */
-.page-scroll {
-    position: relative;
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    font-family: 'Nunito', sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.card {
-    background-color: var(--card-bg);
-    backdrop-filter: blur(10px); /* Desfoque elegante por trás do card */
-    -webkit-backdrop-filter: blur(10px);
-    padding: 35px 25px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-    max-width: 380px;
-    width: 100%;
-    border: 2px solid var(--card-border);
-    margin: auto;
-}
-
-/* Estilo da Foto de Perfil Redonda */
-.profile-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border: 3px solid var(--primary-color);
-    box-shadow: 0 4px 12px rgba(179, 94, 175, 0.25);
-}
-
-h1 {
-    color: var(--primary-color);
-    font-size: 1.7rem;
-    margin-bottom: 6px;
-}
-
-.subtitle {
-    color: var(--subtitle-color);
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 24px;
-}
-
-.buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.btn {
-    text-decoration: none;
-    padding: 13px 20px;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 800;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.btn-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    gap: 2px;
-}
-
-.btn-title {
-    line-height: 1.15;
-}
-
-.btn-sub {
-    font-size: 0.72rem;
-    font-weight: 700;
-    opacity: 0.8;
-    letter-spacing: 0.2px;
-    line-height: 1.15;
-}
-
-/* Estilização dos ícones SVG embutidos */
-.flag-icon, .globe-icon, .pix-icon {
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-    display: block; /* Garante que o ícone respeite o alinhamento do botão */
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(179, 94, 175, 0.3);
-}
-
-.btn-secondary {
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-}
-
-.btn-secondary:hover {
-    background-color: rgba(179, 94, 175, 0.12);
-    transform: translateY(-2px);
-}
-
-.notice-box {
-    margin-top: 22px;
-    padding: 14px 16px;
-    background-color: var(--notice-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    text-align: left;
-}
-
-.notice-box p {
-    font-size: 0.85rem;
-    color: var(--notice-text);
-    line-height: 1.45;
-    font-weight: 600;
-}
-
-.notice-box strong {
-    color: var(--primary-color);
-}
-
-/* --- ESTILOS DO RODAPÉ (CRÉDITOS) --- */
-.footer-credits {
-    margin-top: 30px;
-    padding: 14px 24px;
-    background-color: var(--footer-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-radius: 20px; /* Borda um pouco menos arredondada para acomodar duas linhas */
-    font-size: 0.85rem;
-    color: var(--footer-text);
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--card-border);
-}
-
-.footer-credits p {
-    margin: 4px 0;
-    line-height: 1.4;
-}
-
-.footer-credits a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 800;
-    transition: color 0.2s ease;
-}
-
-.footer-credits a:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-}
-
-/* Linha divisória sutil entre os créditos de arte e o copyright */
-.footer-divider {
-    border: none;
-    border-top: 1px solid var(--card-border);
-    margin: 10px auto;
-    width: 80%;
-    opacity: 0.6;
-}
-
-/* Estilo menor e mais discreto para o texto de Copyright */
-.copyright-text {
-    font-size: 0.75rem;
-    opacity: 0.85;
-}
-
-.copyright-text a {
-    font-weight: 600;
-}
-
-img {
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-    user-drag: none;
+    <!-- Botão Nacional (LivePix) com ícone de Cifrão -->
+<a href="https://livepix.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+    <svg class="pix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"></line>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+    </svg>
+    <span class="btn-text">
+        <span class="btn-title">Apoiar com PIX (LivePix)</span>
+        <span class="btn-sub">Doações a partir de R$ 1,00</span>
+    </span>
+</a>
     
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+    <!-- Botão Internacional (Pixie) com ícone SVG de Globo -->
+    <a href="https://pixie.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+        <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span class="btn-text">
+            <span class="btn-title">Moeda Estrangeira (Pixie)</span>
+            <span class="btn-sub">Doações a partir de R$ 6,00</span>
+        </span>
+    </a>
+</div>
 
-body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+        <!-- Caixa de Aviso sobre Pixie vs LivePix -->
+        <div class="notice-box">
+            <p>💡 <strong>Aviso:</strong> A doação mínima pelo Pixie é de <strong>R$6</strong> por conta das taxas da plataforma. Para doações a partir de <strong>R$1</strong>, recomendamos usar o LivePix!</p>
+        </div>
+    </main>
+
+    <!-- Rodapé com os Créditos -->
+    <footer class="footer-credits">
+        <p class="art-credits">
+            Arte do Fundo por <a href="https://www.instagram.com/h0wl_oficial/" target="_blank">@h0wl_oficial</a> | 
+            Avatar por <a href="https://bsky.app/profile/maililac.bsky.social" target="_blank">@maililac</a>
+        </p>
+        
+        <hr class="footer-divider">
+        
+        <p class="copyright-text">
+            &copy; 2026 Kamyli Sumire. Todos os direitos reservados.<br>
+            <a href="https://github.com/KamyliSouza/kamylisumire-donates-page" target="_blank" rel="noopener noreferrer">💻 Ver Código Fonte</a>
+        </p>
+    </footer>
+    </div>
+
+    <script>      document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
