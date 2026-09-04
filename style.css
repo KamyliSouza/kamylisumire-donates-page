@@ -163,16 +163,21 @@ h1 {
 /* --- ESTILOS DO RODAPÉ (CRÉDITOS) --- */
 .footer-credits {
     margin-top: 30px;
-    padding: 10px 22px;
+    padding: 14px 24px;
     background-color: var(--footer-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-radius: 30px;
+    border-radius: 20px; /* Borda um pouco menos arredondada para acomodar duas linhas */
     font-size: 0.85rem;
     color: var(--footer-text);
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     border: 1px solid var(--card-border);
+}
+
+.footer-credits p {
+    margin: 4px 0;
+    line-height: 1.4;
 }
 
 .footer-credits a {
@@ -185,4 +190,23 @@ h1 {
 .footer-credits a:hover {
     color: var(--primary-hover);
     text-decoration: underline;
+}
+
+/* Linha divisória sutil entre os créditos de arte e o copyright */
+.footer-divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 10px auto;
+    width: 80%;
+    opacity: 0.6;
+}
+
+/* Estilo menor e mais discreto para o texto de Copyright */
+.copyright-text {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
+.copyright-text a {
+    font-weight: 600;
 }
