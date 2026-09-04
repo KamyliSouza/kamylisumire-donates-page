@@ -4,8 +4,31 @@
     --primary-color: #B35EAF;
     --primary-hover: #9b4d97;
     --bg-color: #f7eff7;
-    --card-bg: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.88); /* Fundo translúcido (88% opaco) */
+    --card-border: rgba(179, 94, 175, 0.3);
     --text-color: #2b2b2b;
+    --subtitle-color: #666;
+    --notice-bg: rgba(179, 94, 175, 0.08);
+    --notice-text: #555;
+    --footer-bg: rgba(255, 255, 255, 0.85);
+    --footer-text: #444;
+}
+
+/* Configuração automática para o Modo Noturno do Navegador */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #d178cd;
+        --primary-hover: #b35eaf;
+        --bg-color: #121212;
+        --card-bg: rgba(30, 24, 32, 0.85); /* Tom escuro translúcido */
+        --card-border: rgba(209, 120, 205, 0.35);
+        --text-color: #f0e6f0;
+        --subtitle-color: #bfa9be;
+        --notice-bg: rgba(209, 120, 205, 0.12);
+        --notice-text: #e0d0df;
+        --footer-bg: rgba(25, 20, 27, 0.85);
+        --footer-text: #d0c0ce;
+    }
 }
 
 * {
@@ -15,20 +38,15 @@
 }
 
 body {
-    /* Cor de fundo como plano B caso a imagem não carregue */
     background-color: var(--bg-color);
-    
-    /* IMAGEM DE FUNDO AQUI */
-    /* Substitua 'fundo.jpg' pelo link ou nome da sua imagem */
     background-image: url('fundo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; /* Faz a imagem ficar parada ao rolar a tela no celular */
-    
+    background-attachment: fixed;
     font-family: 'Nunito', sans-serif;
     display: flex;
-    flex-direction: column; /* Alterado para empilhar o card e o rodapé */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -38,14 +56,16 @@ body {
 
 .card {
     background-color: var(--card-bg);
+    backdrop-filter: blur(10px); /* Desfoque elegante por trás do card */
+    -webkit-backdrop-filter: blur(10px);
     padding: 35px 25px;
     border-radius: 24px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra um pouco mais forte para destacar do fundo */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     max-width: 380px;
     width: 100%;
-    border: 2px solid rgba(179, 94, 175, 0.2);
-    margin: auto; /* Empurra o card para o centro */
+    border: 2px solid var(--card-border);
+    margin: auto;
 }
 
 /* Estilo da Foto de Perfil Redonda */
@@ -66,7 +86,7 @@ h1 {
 }
 
 .subtitle {
-    color: #666;
+    color: var(--subtitle-color);
     font-size: 0.95rem;
     font-weight: 600;
     margin-bottom: 24px;
@@ -85,7 +105,17 @@ h1 {
     font-size: 1rem;
     font-weight: 800;
     transition: all 0.2s ease;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Estilização dos ícones SVG embutidos */
+.flag-icon, .globe-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
 }
 
 .btn-primary {
@@ -100,28 +130,28 @@ h1 {
 }
 
 .btn-secondary {
-    background-color: var(--card-bg); /* Fundo branco para garantir leitura sobre o bg */
+    background-color: transparent;
     color: var(--primary-color);
     border: 2px solid var(--primary-color);
 }
 
 .btn-secondary:hover {
-    background-color: rgba(179, 94, 175, 0.08);
+    background-color: rgba(179, 94, 175, 0.12);
     transform: translateY(-2px);
 }
 
 .notice-box {
     margin-top: 22px;
     padding: 14px 16px;
-    background-color: rgba(179, 94, 175, 0.08);
-    border: 1px solid rgba(179, 94, 175, 0.25);
+    background-color: var(--notice-bg);
+    border: 1px solid var(--card-border);
     border-radius: 14px;
     text-align: left;
 }
 
 .notice-box p {
     font-size: 0.85rem;
-    color: #555;
+    color: var(--notice-text);
     line-height: 1.45;
     font-weight: 600;
 }
@@ -134,15 +164,15 @@ h1 {
 .footer-credits {
     margin-top: 30px;
     padding: 10px 22px;
-    background-color: rgba(255, 255, 255, 0.85); /* Fundo branco levemente transparente */
-    backdrop-filter: blur(5px); /* Efeito de desfoque no fundo da imagem */
-    -webkit-backdrop-filter: blur(5px);
+    background-color: var(--footer-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 30px;
     font-size: 0.85rem;
-    color: #444;
+    color: var(--footer-text);
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(179, 94, 175, 0.2);
+    border: 1px solid var(--card-border);
 }
 
 .footer-credits a {
