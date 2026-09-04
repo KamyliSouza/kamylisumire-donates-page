@@ -1,8 +1,11 @@
+/* =========================================
+   1. VARIÁVEIS E TEMAS
+========================================= */
 :root {
     --primary-color: #B35EAF;
     --primary-hover: #9b4d97;
     --bg-color: #f7eff7;
-    --card-bg: rgba(255, 255, 255, 0.88); /* Fundo translúcido (88% opaco) */
+    --card-bg: rgba(255, 255, 255, 0.88); 
     --card-border: rgba(179, 94, 175, 0.3);
     --text-color: #2b2b2b;
     --subtitle-color: #666;
@@ -12,13 +15,12 @@
     --footer-text: #444;
 }
 
-/* Configuração automática para o Modo Noturno do Navegador */
 @media (prefers-color-scheme: dark) {
     :root {
         --primary-color: #d178cd;
         --primary-hover: #b35eaf;
         --bg-color: #121212;
-        --card-bg: rgba(30, 24, 32, 0.85); /* Tom escuro translúcido */
+        --card-bg: rgba(30, 24, 32, 0.85); 
         --card-border: rgba(209, 120, 205, 0.35);
         --text-color: #f0e6f0;
         --subtitle-color: #bfa9be;
@@ -29,6 +31,9 @@
     }
 }
 
+/* =========================================
+   2. RESET E CONFIGURAÇÕES GERAIS
+========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -36,8 +41,6 @@
 }
 
 html {
-    /* Evita o efeito "elástico" de overscroll do iOS, que acentua
-       o salto visual do fundo ao puxar a página além do limite */
     overscroll-behavior: none;
 }
 
@@ -49,39 +52,49 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    /* --vh é definida via JavaScript com a altura real da tela
-       (window.innerHeight), evitando os saltos causados pela barra
-       do navegador que aparece/some — funciona em Chrome Android e Safari/iOS */
     min-height: calc(var(--vh, 1vh) * 100);
     padding: 20px;
     color: var(--text-color);
     position: relative;
 }
 
-/* Camada de fundo fixa e independente do scroll (mais confiável que
-   background-attachment: fixed, que falha em vários navegadores mobile) */
 body::before {
     content: "";
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh; /* fallback */
-    height: calc(var(--vh, 1vh) * 100); /* altura real da tela, atualizada via JS */
+    height: 100vh; 
+    height: calc(var(--vh, 1vh) * 100); 
     background-image: url('fundo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    /* Força aceleração por GPU: evita repintura abrupta em elementos fixed */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: transform;
     z-index: -1;
 }
 
+/* Proteção contra arrastar e selecionar assets */
+img, body {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* =========================================
+   3. ESTRUTURA PRINCIPAL (CARD)
+========================================= */
 .card {
     background-color: var(--card-bg);
-    backdrop-filter: blur(10px); /* Desfoque elegante por trás do card */
+    backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     padding: 35px 25px;
     border-radius: 24px;
@@ -93,7 +106,6 @@ body::before {
     margin: auto;
 }
 
-/* Estilo da Foto de Perfil Redonda */
 .profile-img {
     width: 100px;
     height: 100px;
@@ -102,6 +114,7 @@ body::before {
     margin-bottom: 15px;
     border: 3px solid var(--primary-color);
     box-shadow: 0 4px 12px rgba(179, 94, 175, 0.25);
+    pointer-events: none; /* Reforço contra interações na imagem */
 }
 
 h1 {
@@ -117,6 +130,9 @@ h1 {
     margin-bottom: 24px;
 }
 
+/* =========================================
+   4. BOTÕES E ÍCONES
+========================================= */
 .buttons {
     display: flex;
     flex-direction: column;
@@ -157,12 +173,11 @@ h1 {
     line-height: 1.15;
 }
 
-/* Estilização dos ícones SVG embutidos */
 .globe-icon, .pix-icon {
     width: 22px;
     height: 22px;
     flex-shrink: 0;
-    display: block; /* Garante que o ícone respeite o alinhamento do botão */
+    display: block; 
 }
 
 .btn-primary {
@@ -187,6 +202,9 @@ h1 {
     transform: translateY(-2px);
 }
 
+/* =========================================
+   5. COMPONENTES EXTRAS (AVISO E RODAPÉ)
+========================================= */
 .notice-box {
     margin-top: 22px;
     padding: 14px 16px;
@@ -207,14 +225,13 @@ h1 {
     color: var(--primary-color);
 }
 
-/* --- ESTILOS DO RODAPÉ (CRÉDITOS) --- */
 .footer-credits {
     margin-top: 30px;
     padding: 14px 24px;
     background-color: var(--footer-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-radius: 20px; /* Borda um pouco menos arredondada para acomodar duas linhas */
+    border-radius: 20px; 
     font-size: 0.85rem;
     color: var(--footer-text);
     text-align: center;
@@ -241,7 +258,6 @@ h1 {
     text-decoration: underline;
 }
 
-/* Linha divisória sutil entre os créditos de arte e o copyright */
 .footer-divider {
     border: none;
     border-top: 1px solid var(--card-border);
@@ -250,7 +266,6 @@ h1 {
     opacity: 0.6;
 }
 
-/* Estilo menor e mais discreto para o texto de Copyright */
 .copyright-text {
     font-size: 0.75rem;
     opacity: 0.85;
@@ -258,18 +273,4 @@ h1 {
 
 .copyright-text a {
     font-weight: 600;
-}
-
-/* Impede seleção/arraste de imagens e do texto da página */
-img, body {
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-    user-drag: none;
-
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
