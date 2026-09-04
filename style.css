@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap');
+
+body {
+    background-color: #7ef2ff; /* Fundo ciano */
+    font-family: 'Nunito', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+.cloud-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative;
+    max-width: 400px;
+    width: 90%;
+    z-index: 1;
+}
+
+/* Efeito visual simulando pequenas nuvens nas bordas */
+.cloud-container::before, .cloud-container::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.cloud-container::before {
+    width: 120px;
+    height: 120px;
+    top: -30px;
+    left: -20px;
+}
+
+.cloud-container::after {
+    width: 100px;
+    height: 100px;
+    bottom: -20px;
+    right: -20px;
+}
+
+h1 {
+    color: #fd73c3; /* Título rosa */
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: 800;
+    color: #333;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 3px solid transparent;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.btn-livepix {
+    background-color: #b6ff82; /* Fundo verde */
+}
+
+.btn-livepix:hover {
+    border-color: #9cdb6d;
+}
+
+.btn-pixie {
+    background-color: #fff677; /* Fundo amarelo */
+}
+
+.btn-pixie:hover {
+    border-color: #d6cf62;
+}
