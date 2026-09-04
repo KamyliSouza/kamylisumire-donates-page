@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Animado OBS</title>
+    <style>
+        /* Fundo transparente essencial para o OBS */
+        body {
+            background-color: transparent;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Nunito', sans-serif; /* Mesma fonte do seu site */
+        }
+
+        /* Container que faz o efeito flutuante */
+        .qr-container {
+            position: relative;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Caixa estilizada em volta do QR Code */
+        .qr-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 20px;
+            border: 3px solid #B35EAF;
+            box-shadow: 0 0 20px rgba(179, 94, 175, 0.6), 
+                        inset 0 0 10px rgba(179, 94, 175, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            
+            /* Animação de pulso no brilho */
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .qr-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .qr-text {
+            color: #B35EAF;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- ANIMAÇÕES --- */
+        
+        /* Efeito flutuando para cima e para baixo */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Efeito de brilho pulsante na borda */
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(179, 94, 175, 0.4);
+            }
+            to {
+                box-shadow: 0 0 25px rgba(179, 94, 175, 0.8), 
+                            0 0 40px rgba(179, 94, 175, 0.4);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="qr-container">
+        <div class="qr-box">
+            <!-- Texto acima do QR (opcional) -->
+            <p class="qr-text">Apoie a Live!</p>
+            
+            <!-- Imagem do seu QR Code gerado -->
+            <img src="qr-donate.png" alt="QR Code" class="qr-image">
+        </div>
+    </div>
+
+</body>
+</html>
