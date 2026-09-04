@@ -112,10 +112,11 @@ h1 {
 }
 
 /* Estilização dos ícones SVG embutidos */
-.flag-icon, .globe-icon .pix-icon {
+.flag-icon, .globe-icon, .pix-icon {
     width: 22px;
     height: 22px;
     flex-shrink: 0;
+    display: block; /* Garante que o ícone respeite o alinhamento do botão */
 }
 
 .btn-primary {
