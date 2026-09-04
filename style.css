@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap');
 
 :root {
     --primary-color: #B35EAF;
@@ -25,10 +25,9 @@ body {
     color: var(--text-color);
 }
 
-/* Card centralizado apenas com bordas suaves e arredondadas */
 .card {
     background-color: var(--card-bg);
-    padding: 40px 30px;
+    padding: 35px 25px;
     border-radius: 24px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(179, 94, 175, 0.15);
@@ -37,17 +36,28 @@ body {
     border: 2px solid rgba(179, 94, 175, 0.2);
 }
 
-h1 {
-    color: var(--primary-color);
-    font-size: 1.8rem;
-    margin-bottom: 8px;
+/* Estilo da Foto de Perfil Redonda */
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(179, 94, 175, 0.25);
 }
 
-p {
+h1 {
+    color: var(--primary-color);
+    font-size: 1.7rem;
+    margin-bottom: 6px;
+}
+
+.subtitle {
     color: #666;
     font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 .buttons {
@@ -58,7 +68,7 @@ p {
 
 .btn {
     text-decoration: none;
-    padding: 16px 20px;
+    padding: 15px 20px;
     border-radius: 16px;
     font-size: 1rem;
     font-weight: 800;
@@ -66,7 +76,6 @@ p {
     display: block;
 }
 
-/* Botão em destaque preenchido com a cor principal */
 .btn-primary {
     background-color: var(--primary-color);
     color: #ffffff;
@@ -78,7 +87,6 @@ p {
     box-shadow: 0 6px 18px rgba(179, 94, 175, 0.3);
 }
 
-/* Botão secundário estilizado com contorno */
 .btn-secondary {
     background-color: transparent;
     color: var(--primary-color);
@@ -88,4 +96,25 @@ p {
 .btn-secondary:hover {
     background-color: rgba(179, 94, 175, 0.08);
     transform: translateY(-2px);
+}
+
+/* Caixa de Aviso estilizada */
+.notice-box {
+    margin-top: 22px;
+    padding: 14px 16px;
+    background-color: rgba(179, 94, 175, 0.08);
+    border: 1px solid rgba(179, 94, 175, 0.25);
+    border-radius: 14px;
+    text-align: left;
+}
+
+.notice-box p {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+.notice-box strong {
+    color: var(--primary-color);
 }
