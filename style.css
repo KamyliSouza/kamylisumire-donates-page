@@ -37,6 +37,12 @@
     padding: 0;
 }
 
+html {
+    /* Evita o efeito "elástico" de overscroll do iOS, que acentua
+       o salto visual do fundo ao puxar a página além do limite */
+    overscroll-behavior: none;
+}
+
 body {
     background-color: var(--bg-color);
     font-family: 'Nunito', sans-serif;
@@ -44,7 +50,8 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 100vh; /* fallback para navegadores sem suporte a dvh */
+    min-height: 100dvh; /* altura real da viewport, sem "pulos" ao esconder a barra de endereço no mobile */
     padding: 20px;
     color: var(--text-color);
     position: relative;
@@ -58,11 +65,17 @@ body::before {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh; /* fallback */
+    height: 100dvh; /* acompanha a altura real da viewport, sem recalcular de forma abrupta */
     background-image: url('fundo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    /* Força aceleração por GPU: evita o "salto"/repintura abrupta
+       que o Safari/iOS causa em elementos fixed durante o scroll */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
     z-index: -1;
 }
 
