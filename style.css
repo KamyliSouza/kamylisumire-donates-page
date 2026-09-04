@@ -220,6 +220,8 @@ h1 {
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     border: 1px solid var(--card-border);
+    max-width: 380px;
+    width: 100%;
 }
 
 .footer-credits p {
