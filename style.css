@@ -38,45 +38,61 @@
 }
 
 html {
+    /* Trava a altura do documento no tamanho real da tela e impede que
+       ele mesmo role — quem rola é o .page-scroll logo abaixo. Como o
+       navegador só mostra/esconde a barra de endereço quando o
+       DOCUMENTO rola, travando isso aqui a barra para de "empurrar"
+       o fundo de forma abrupta (funciona no Chrome Android também). */
+    height: 100%;
+    overflow: hidden;
     /* Evita o efeito "elástico" de overscroll do iOS, que acentua
        o salto visual do fundo ao puxar a página além do limite */
     overscroll-behavior: none;
 }
 
 body {
+    height: 100%;
+    overflow: hidden;
     background-color: var(--bg-color);
-    font-family: 'Nunito', sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* fallback para navegadores sem suporte a dvh */
-    min-height: 100dvh; /* altura real da viewport, sem "pulos" ao esconder a barra de endereço no mobile */
-    padding: 20px;
     color: var(--text-color);
     position: relative;
 }
 
-/* Camada de fundo fixa e independente do scroll (mais confiável que
-   background-attachment: fixed, que falha em vários navegadores mobile) */
+/* Camada de fundo fixa, presa ao tamanho de html/body (que não mudam
+   mais), então nunca é afetada pela barra do navegador aparecendo/
+   sumindo — nem no Safari, nem no Chrome Android. */
 body::before {
     content: "";
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh; /* fallback */
-    height: 100dvh; /* acompanha a altura real da viewport, sem recalcular de forma abrupta */
+    height: 100%;
     background-image: url('fundo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    /* Força aceleração por GPU: evita o "salto"/repintura abrupta
-       que o Safari/iOS causa em elementos fixed durante o scroll */
+    /* Força aceleração por GPU: evita repintura abrupta em elementos fixed */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: transform;
     z-index: -1;
+}
+
+/* Container interno que realmente rola. Ocupa 100% de html/body (que
+   estão travados) e assume a centralização do conteúdo que antes
+   estava no body. */
+.page-scroll {
+    position: relative;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    font-family: 'Nunito', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
 }
 
 .card {
