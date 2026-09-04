@@ -39,11 +39,6 @@
 
 body {
     background-color: var(--bg-color);
-    background-image: url('fundo.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     font-family: 'Nunito', sans-serif;
     display: flex;
     flex-direction: column;
@@ -52,6 +47,23 @@ body {
     min-height: 100vh;
     padding: 20px;
     color: var(--text-color);
+    position: relative;
+}
+
+/* Camada de fundo fixa e independente do scroll (mais confiável que
+   background-attachment: fixed, que falha em vários navegadores mobile) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('fundo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
 }
 
 .card {
@@ -106,17 +118,22 @@ h1 {
     font-weight: 800;
     transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 12px;
 }
 
-.btn-main {
+.btn-text {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 2px;
+}
+
+.btn-title {
+    line-height: 1.15;
 }
 
 .btn-sub {
@@ -124,6 +141,7 @@ h1 {
     font-weight: 700;
     opacity: 0.8;
     letter-spacing: 0.2px;
+    line-height: 1.15;
 }
 
 /* Estilização dos ícones SVG embutidos */
