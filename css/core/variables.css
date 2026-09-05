@@ -1,0 +1,32 @@
+/* ================================
+   IDENTIDADE VISUAL COMPARTILHADA
+================================ */
+:root {
+    --primary-color: #B35EAF;
+    --primary-hover: #9b4d97;
+    --primary-soft: rgba(179, 94, 175, 0.12);
+    --bg-color: #f7eff7;
+    --card-bg: rgba(255, 255, 255, 0.86);
+    --card-border: rgba(179, 94, 175, 0.28);
+    --text-color: #2f2930;
+    --subtitle-color: #6d636d;
+    --nav-bg: rgba(255, 255, 255, 0.72);
+    --shadow: 0 18px 50px rgba(59, 33, 61, 0.16);
+    --radius-xl: 26px;
+    --radius-lg: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #d178cd;
+        --primary-hover: #e08adc;
+        --primary-soft: rgba(209, 120, 205, 0.14);
+        --bg-color: #121012;
+        --card-bg: rgba(29, 24, 31, 0.88);
+        --card-border: rgba(209, 120, 205, 0.32);
+        --text-color: #f2eaf2;
+        --subtitle-color: #c3b3c2;
+        --nav-bg: rgba(23, 19, 24, 0.76);
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+    }
+}

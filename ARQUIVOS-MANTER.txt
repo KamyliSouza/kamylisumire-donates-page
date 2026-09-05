@@ -1,0 +1,5 @@
+Mantenha na raiz os arquivos atuais da branch:
+- avatar.png
+- favicon.png
+- fundo.png
+- preview.png

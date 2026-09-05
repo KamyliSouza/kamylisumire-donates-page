@@ -3,6 +3,7 @@ const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
 function clientId(env) {
   return (env.STREAMLABS_CLIENT_ID || '').trim();
 }
+
 function clientSecret(env) {
   return (env.STREAMLABS_CLIENT_SECRET || '').trim();
 }
@@ -12,7 +13,7 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === 'OPTIONS') {
-      return cors(env, new Response(null, { status: 204 }));
+      return cors(request, env, new Response(null, { status: 204 }));
     }
 
     if (url.pathname === '/oauth/authorize') return handleAuthorize(url, env);
@@ -20,23 +21,59 @@ export default {
     if (url.pathname === '/debug/status') return handleDebugStatus(url, env);
     if (url.pathname === '/debug/sync') return handleDebugSync(url, env);
 
-    return handleRanking(env);
+    return handleRanking(request, env);
   },
 
   async scheduled(event, env, ctx) {
     ctx.waitUntil(
-      syncDonations(env).catch((err) => env.RANKINGS.put('ranking:last_error', String(err.message)))
+      syncDonations(env).catch((err) =>
+        env.RANKINGS.put('ranking:last_error', String(err.message))
+      )
     );
   }
 };
 
 // ---------------------------------------------------------------------
-function cors(env, response) {
+// CORS
+//
+// ALLOWED_ORIGINS aceita vários domínios separados por vírgula.
+// Exemplo:
+// https://kamylisumire.com,https://www.kamylisumire.com,https://donate.kamylisumire.com
+//
+// Compatibilidade: se ALLOWED_ORIGINS não existir, o código ainda aceita
+// a variável antiga ALLOWED_ORIGIN.
+// ---------------------------------------------------------------------
+function getAllowedOrigins(env) {
+  const configured = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*').trim();
+
+  if (configured === '*') return ['*'];
+
+  return configured
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+}
+
+function cors(request, env, response) {
   const headers = new Headers(response.headers);
-  headers.set('Access-Control-Allow-Origin', env.ALLOWED_ORIGIN || '*');
+  const requestOrigin = request.headers.get('Origin');
+  const allowedOrigins = getAllowedOrigins(env);
+
+  if (allowedOrigins.includes('*')) {
+    headers.set('Access-Control-Allow-Origin', '*');
+  } else if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    headers.set('Access-Control-Allow-Origin', requestOrigin);
+    headers.append('Vary', 'Origin');
+  }
+
   headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
   headers.set('Access-Control-Allow-Headers', 'Content-Type');
-  return new Response(response.body, { status: response.status, headers });
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -58,7 +95,10 @@ async function handleAuthorize(url, env) {
 
 async function handleCallback(url, env) {
   const code = url.searchParams.get('code');
-  if (!code) return new Response('Código ausente na URL', { status: 400 });
+
+  if (!code) {
+    return new Response('Código ausente na URL', { status: 400 });
+  }
 
   const tokenRes = await fetch(`${STREAMLABS_API}/token`, {
     method: 'POST',
@@ -76,11 +116,15 @@ async function handleCallback(url, env) {
   });
 
   const text = await tokenRes.text();
-  if (!tokenRes.ok) return new Response('Falha:\n' + text, { status: 500 });
+
+  if (!tokenRes.ok) {
+    return new Response('Falha:\n' + text, { status: 500 });
+  }
 
   await saveTokens(env, JSON.parse(text));
 
   let syncMessage = 'Sincronização executada com sucesso.';
+
   try {
     await syncDonations(env);
   } catch (err) {
@@ -88,11 +132,16 @@ async function handleCallback(url, env) {
     await env.RANKINGS.put('ranking:last_error', String(err.message));
   }
 
-  return new Response('Conectado!\n\n' + syncMessage, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response(
+    'Conectado!\n\n' + syncMessage,
+    { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+  );
 }
 
 async function saveTokens(env, tokenData) {
-  const expiresAt = Date.now() + (Number(tokenData.expires_in) || 3600) * 1000;
+  const expiresAt =
+    Date.now() + (Number(tokenData.expires_in) || 3600) * 1000;
+
   await env.RANKINGS.put('tokens:access', tokenData.access_token);
   await env.RANKINGS.put('tokens:refresh', tokenData.refresh_token);
   await env.RANKINGS.put('tokens:expires_at', String(expiresAt));
@@ -101,11 +150,17 @@ async function saveTokens(env, tokenData) {
 async function getValidAccessToken(env) {
   const accessToken = await env.RANKINGS.get('tokens:access');
   const refreshToken = await env.RANKINGS.get('tokens:refresh');
-  const expiresAt = Number((await env.RANKINGS.get('tokens:expires_at')) || 0);
+  const expiresAt = Number(
+    (await env.RANKINGS.get('tokens:expires_at')) || 0
+  );
 
-  if (!accessToken || !refreshToken) throw new Error('Streamlabs não conectado.');
+  if (!accessToken || !refreshToken) {
+    throw new Error('Streamlabs não conectado.');
+  }
 
-  if (Date.now() < expiresAt - 2 * 60 * 1000) return accessToken;
+  if (Date.now() < expiresAt - 2 * 60 * 1000) {
+    return accessToken;
+  }
 
   const res = await fetch(`${STREAMLABS_API}/token`, {
     method: 'POST',
@@ -122,30 +177,36 @@ async function getValidAccessToken(env) {
     })
   });
 
-  if (!res.ok) throw new Error('Falha ao renovar token');
+  if (!res.ok) {
+    throw new Error('Falha ao renovar token');
+  }
 
   const data = await res.json();
   await saveTokens(env, data);
+
   return data.access_token;
 }
 
 // ---------------------------------------------------------------------
-// Sincronização com Separação por Datas
+// Sincronização de doações
 // ---------------------------------------------------------------------
 async function syncDonations(env) {
   const accessToken = await getValidAccessToken(env);
+  const lastId = Number(
+    (await env.RANKINGS.get('state:last_donation_id')) || 0
+  );
 
-  const lastId = Number((await env.RANKINGS.get('state:last_donation_id')) || 0);
   const now = new Date();
-  const currentMonthKey = monthKey(now); 
+  const currentMonthKey = monthKey(now);
   const storedMonthKey = await env.RANKINGS.get('state:current_month');
 
   let globalTotals = await getJSON(env, 'totals:global', {});
-  let monthlyTotals = storedMonthKey === currentMonthKey
-    ? await getJSON(env, 'totals:monthly', {})
-    : {}; 
+  let monthlyTotals =
+    storedMonthKey === currentMonthKey
+      ? await getJSON(env, 'totals:monthly', {})
+      : {};
 
-  let newDonations = [];
+  const newDonations = [];
   let before = null;
   let keepPaging = true;
 
@@ -153,7 +214,10 @@ async function syncDonations(env) {
     const apiUrl = new URL(`${STREAMLABS_API}/donations`);
     apiUrl.searchParams.set('limit', '100');
     apiUrl.searchParams.set('currency', 'BRL');
-    if (before) apiUrl.searchParams.set('before', before);
+
+    if (before) {
+      apiUrl.searchParams.set('before', before);
+    }
 
     const res = await fetch(apiUrl.toString(), {
       headers: {
@@ -163,10 +227,13 @@ async function syncDonations(env) {
       }
     });
 
-    if (!res.ok) throw new Error(`Erro API: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`Erro API: ${res.status}`);
+    }
 
     const json = await res.json();
     const page = json.data || [];
+
     if (page.length === 0) break;
 
     for (const donation of page) {
@@ -174,11 +241,15 @@ async function syncDonations(env) {
         keepPaging = false;
         break;
       }
+
       newDonations.push(donation);
     }
 
     before = page[page.length - 1].donation_id;
-    if (page.length < 100) keepPaging = false;
+
+    if (page.length < 100) {
+      keepPaging = false;
+    }
   }
 
   if (newDonations.length > 0) {
@@ -187,52 +258,103 @@ async function syncDonations(env) {
     for (const donation of newDonations) {
       const name = (donation.name || 'Anônimo').trim();
       const amount = Number(donation.amount) || 0;
-      
-      // Converte a data da doação. O Streamlabs pode mandar Unix (segundos) ou ISO.
-      let donationDate = new Date(); 
+
+      let donationDate = new Date();
+
       if (donation.created_at) {
-        const isUnix = typeof donation.created_at === 'number' || /^\d{10}$/.test(String(donation.created_at));
-        donationDate = isUnix ? new Date(Number(donation.created_at) * 1000) : new Date(donation.created_at);
+        const isUnix =
+          typeof donation.created_at === 'number' ||
+          /^\d{10}$/.test(String(donation.created_at));
+
+        donationDate = isUnix
+          ? new Date(Number(donation.created_at) * 1000)
+          : new Date(donation.created_at);
       }
 
-      // Adiciona sempre ao global
       globalTotals[name] = (globalTotals[name] || 0) + amount;
 
-      // Adiciona ao mensal APENAS se a doação ocorreu no mês e ano atuais
       if (monthKey(donationDate) === currentMonthKey) {
-        monthlyTotals[name] = (monthlyTotals[name] || 0) + amount;
+        monthlyTotals[name] =
+          (monthlyTotals[name] || 0) + amount;
       }
 
-      if (donation.donation_id > highestId) highestId = donation.donation_id;
+      if (donation.donation_id > highestId) {
+        highestId = donation.donation_id;
+      }
     }
 
-    await env.RANKINGS.put('totals:global', JSON.stringify(globalTotals));
-    await env.RANKINGS.put('totals:monthly', JSON.stringify(monthlyTotals));
-    await env.RANKINGS.put('state:last_donation_id', String(highestId));
+    await env.RANKINGS.put(
+      'totals:global',
+      JSON.stringify(globalTotals)
+    );
+
+    await env.RANKINGS.put(
+      'totals:monthly',
+      JSON.stringify(monthlyTotals)
+    );
+
+    await env.RANKINGS.put(
+      'state:last_donation_id',
+      String(highestId)
+    );
   }
 
-  await env.RANKINGS.put('state:current_month', currentMonthKey);
-  await env.RANKINGS.put('ranking:monthly', JSON.stringify(getTopFive(monthlyTotals)));
-  await env.RANKINGS.put('ranking:allTime', JSON.stringify(getTopFive(globalTotals)));
-  await env.RANKINGS.put('ranking:updated_at', String(Date.now()));
-  await env.RANKINGS.put('ranking:last_error', '');
+  await env.RANKINGS.put(
+    'state:current_month',
+    currentMonthKey
+  );
+
+  await env.RANKINGS.put(
+    'ranking:monthly',
+    JSON.stringify(getTopFive(monthlyTotals))
+  );
+
+  await env.RANKINGS.put(
+    'ranking:allTime',
+    JSON.stringify(getTopFive(globalTotals))
+  );
+
+  await env.RANKINGS.put(
+    'ranking:updated_at',
+    String(Date.now())
+  );
+
+  await env.RANKINGS.put(
+    'ranking:last_error',
+    ''
+  );
 }
 
 // ---------------------------------------------------------------------
 // Diagnóstico
 // ---------------------------------------------------------------------
 async function handleDebugStatus(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) return new Response('Não autorizado', { status: 403 });
-  return new Response(JSON.stringify({ status: 'ok' }), { headers: { 'Content-Type': 'application/json' } });
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
+    return new Response('Não autorizado', { status: 403 });
+  }
+
+  return new Response(
+    JSON.stringify({ status: 'ok' }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
 }
 
 async function handleDebugSync(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) return new Response('Não autorizado', { status: 403 });
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
+    return new Response('Não autorizado', { status: 403 });
+  }
+
   try {
     await syncDonations(env);
-    return new Response('Sincronização rodou com sucesso.', { status: 200 });
+    return new Response(
+      'Sincronização rodou com sucesso.',
+      { status: 200 }
+    );
   } catch (err) {
-    return new Response('Erro:\n' + err.message, { status: 500 });
+    return new Response(
+      'Erro:\n' + err.message,
+      { status: 500 }
+    );
   }
 }
 
@@ -243,14 +365,19 @@ function getTopFive(totals) {
   return Object.entries(totals)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([name, amount]) => ({ 
-        name, 
-        amount: amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) 
+    .map(([name, amount]) => ({
+      name,
+      amount: amount.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
     }));
 }
 
 function monthKey(date) {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+  return `${date.getUTCFullYear()}-${String(
+    date.getUTCMonth() + 1
+  ).padStart(2, '0')}`;
 }
 
 async function getJSON(env, key, fallback) {
@@ -258,14 +385,30 @@ async function getJSON(env, key, fallback) {
   return raw ? JSON.parse(raw) : fallback;
 }
 
-async function handleRanking(env) {
-  const monthly = await getJSON(env, 'ranking:monthly', []);
-  const allTime = await getJSON(env, 'ranking:allTime', []);
+async function handleRanking(request, env) {
+  const monthly = await getJSON(
+    env,
+    'ranking:monthly',
+    []
+  );
 
-  return cors(env, new Response(JSON.stringify({ monthly, allTime }), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 's-maxage=1800' 
-    }
-  }));
+  const allTime = await getJSON(
+    env,
+    'ranking:allTime',
+    []
+  );
+
+  return cors(
+    request,
+    env,
+    new Response(
+      JSON.stringify({ monthly, allTime }),
+      {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'public, max-age=0, s-maxage=1800'
+        }
+      }
+    )
+  );
 }

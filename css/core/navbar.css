@@ -1,0 +1,105 @@
+/* NAVBAR */
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.site-nav-inner {
+    width: min(1120px, calc(100% - 28px));
+    min-height: 68px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.site-brand {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 900;
+    white-space: nowrap;
+    letter-spacing: .01em;
+}
+
+.site-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.site-nav-link {
+    text-decoration: none;
+    padding: 9px 11px;
+    border-radius: 12px;
+    color: var(--text-color);
+    font-size: .9rem;
+    font-weight: 800;
+    transition: background .18s ease, color .18s ease;
+}
+
+.site-nav-link:hover,
+.site-nav-link.is-active {
+    color: var(--primary-color);
+    background: var(--primary-soft);
+}
+
+.site-nav-donate {
+    color: #fff;
+    background: var(--primary-color);
+}
+
+.site-nav-donate:hover,
+.site-nav-donate.is-active {
+    color: #fff;
+    background: var(--primary-hover);
+}
+
+.nav-toggle {
+    display: none;
+    min-width: 42px;
+    min-height: 42px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--text-color);
+    background: var(--card-bg);
+    font: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+
+@media (max-width: 760px) {
+    .site-nav-inner { position: relative; }
+
+    .nav-toggle {
+        display: inline-grid;
+        place-items: center;
+    }
+
+    .site-nav-links {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        display: none;
+        padding: 10px;
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .site-nav-links.is-open { display: flex; }
+    .site-nav-link { padding: 12px 14px; }
+}
