@@ -32,6 +32,15 @@
 
 const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
 
+// Remove espaços/quebras de linha acidentais que às vezes entram ao colar
+// credenciais em painéis de configuração (ex: Cloudflare dashboard)
+function clientId(env) {
+  return (env.STREAMLABS_CLIENT_ID || '').trim();
+}
+function clientSecret(env) {
+  return (env.STREAMLABS_CLIENT_SECRET || '').trim();
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -48,6 +57,14 @@ export default {
       return handleCallback(url, env);
     }
 
+    if (url.pathname === '/debug/status') {
+      return handleDebugStatus(url, env);
+    }
+
+    if (url.pathname === '/debug/sync') {
+      return handleDebugSync(url, env);
+    }
+
     // Qualquer outra rota (inclusive "/") devolve o ranking pronto,
     // igual ao comportamento que o ranking.js já espera.
     return handleRanking(env);
@@ -55,7 +72,9 @@ export default {
 
   // Roda sozinho a cada 30 min (configurado no wrangler.toml)
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(syncDonations(env));
+    ctx.waitUntil(
+      syncDonations(env).catch((err) => env.RANKINGS.put('ranking:last_error', String(err.message)))
+    );
   }
 };
 
@@ -78,7 +97,7 @@ async function handleAuthorize(url, env) {
   }
 
   const authUrl = new URL(`${STREAMLABS_API}/authorize`);
-  authUrl.searchParams.set('client_id', env.STREAMLABS_CLIENT_ID);
+  authUrl.searchParams.set('client_id', clientId(env));
   authUrl.searchParams.set('redirect_uri', env.REDIRECT_URI);
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('scope', 'donations.read');
@@ -93,18 +112,19 @@ async function handleCallback(url, env) {
   const code = url.searchParams.get('code');
   if (!code) return new Response('Código ausente na URL', { status: 400 });
 
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    client_id: env.STREAMLABS_CLIENT_ID,
-    client_secret: env.STREAMLABS_CLIENT_SECRET,
-    redirect_uri: env.REDIRECT_URI,
-    code
-  });
-
   const tokenRes = await fetch(`${STREAMLABS_API}/token`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: JSON.stringify({
+      grant_type: 'authorization_code',
+      client_id: clientId(env),
+      client_secret: clientSecret(env),
+      redirect_uri: env.REDIRECT_URI,
+      code
+    })
   });
 
   const text = await tokenRes.text();
@@ -115,11 +135,18 @@ async function handleCallback(url, env) {
   await saveTokens(env, JSON.parse(text));
 
   // Já dispara uma primeira sincronização pra não esperar o próximo Cron
-  await syncDonations(env).catch(() => {});
+  let syncMessage = 'Primeira sincronização das doações rodou com sucesso.';
+  try {
+    await syncDonations(env);
+  } catch (err) {
+    syncMessage = 'ATENÇÃO: a conexão OAuth funcionou, mas a primeira sincronização falhou: ' + err.message;
+    await env.RANKINGS.put('ranking:last_error', String(err.message));
+  }
 
-  return new Response('Conectado ao Streamlabs com sucesso! Pode fechar esta aba.', {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-  });
+  return new Response(
+    'Conectado ao Streamlabs com sucesso!\n\n' + syncMessage + '\n\nPode fechar esta aba.',
+    { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+  );
 }
 
 async function saveTokens(env, tokenData) {
@@ -146,18 +173,19 @@ async function getValidAccessToken(env) {
   }
 
   // Expirado: renova automaticamente
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id: env.STREAMLABS_CLIENT_ID,
-    client_secret: env.STREAMLABS_CLIENT_SECRET,
-    redirect_uri: env.REDIRECT_URI,
-    refresh_token: refreshToken
-  });
-
   const res = await fetch(`${STREAMLABS_API}/token`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: JSON.stringify({
+      grant_type: 'refresh_token',
+      client_id: clientId(env),
+      client_secret: clientSecret(env),
+      redirect_uri: env.REDIRECT_URI,
+      refresh_token: refreshToken
+    })
   });
 
   if (!res.ok) {
@@ -197,7 +225,8 @@ async function syncDonations(env) {
     const res = await fetch(apiUrl.toString(), {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       }
     });
 
@@ -246,6 +275,73 @@ async function syncDonations(env) {
   await env.RANKINGS.put('ranking:last_error', '');
 }
 
+// ---------------------------------------------------------------------
+// Diagnóstico: acesse manualmente 1x
+//   https://SEU-WORKER.workers.dev/debug/status?key=SEU_OAUTH_SETUP_TOKEN
+// Mostra o estado interno sem expor os tokens em si.
+// ---------------------------------------------------------------------
+async function handleDebugStatus(url, env) {
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
+    return new Response('Não autorizado', { status: 403 });
+  }
+
+  const hasAccess = Boolean(await env.RANKINGS.get('tokens:access'));
+  const hasRefresh = Boolean(await env.RANKINGS.get('tokens:refresh'));
+  const expiresAt = Number((await env.RANKINGS.get('tokens:expires_at')) || 0);
+  const lastError = (await env.RANKINGS.get('ranking:last_error')) || null;
+  const updatedAt = Number((await env.RANKINGS.get('ranking:updated_at')) || 0);
+  const lastDonationId = (await env.RANKINGS.get('state:last_donation_id')) || null;
+  const globalTotals = await getJSON(env, 'totals:global', {});
+  const monthlyTotals = await getJSON(env, 'totals:monthly', {});
+
+  const rawClientId = env.STREAMLABS_CLIENT_ID || '';
+  const rawClientSecret = env.STREAMLABS_CLIENT_SECRET || '';
+
+  const status = {
+    conectado_ao_streamlabs: hasAccess && hasRefresh,
+    token_expira_em: expiresAt ? new Date(expiresAt).toISOString() : null,
+    token_ja_expirado: expiresAt ? Date.now() > expiresAt : null,
+    ultima_sincronizacao: updatedAt ? new Date(updatedAt).toISOString() : 'nunca rodou',
+    ultimo_erro: lastError || null,
+    ultimo_donation_id_processado: lastDonationId,
+    doadores_no_total_global: Object.keys(globalTotals).length,
+    doadores_no_total_mensal: Object.keys(monthlyTotals).length,
+    diagnostico_credenciais: {
+      client_id_preenchido: rawClientId.length > 0,
+      client_id_tamanho: rawClientId.length,
+      client_id_tem_espaco_ou_quebra_de_linha: rawClientId !== rawClientId.trim(),
+      client_id_comeca_com: rawClientId.slice(0, 4),
+      client_secret_preenchido: rawClientSecret.length > 0,
+      client_secret_tamanho: rawClientSecret.length,
+      client_secret_tem_espaco_ou_quebra_de_linha: rawClientSecret !== rawClientSecret.trim(),
+      redirect_uri_configurado: env.REDIRECT_URI || null
+    }
+  };
+
+  return new Response(JSON.stringify(status, null, 2), {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+// ---------------------------------------------------------------------
+// Diagnóstico: força uma sincronização na hora (sem esperar o Cron)
+//   https://SEU-WORKER.workers.dev/debug/sync?key=SEU_OAUTH_SETUP_TOKEN
+// ---------------------------------------------------------------------
+async function handleDebugSync(url, env) {
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
+    return new Response('Não autorizado', { status: 403 });
+  }
+
+  try {
+    await syncDonations(env);
+    return new Response('Sincronização rodou com sucesso.', { status: 200 });
+  } catch (err) {
+    await env.RANKINGS.put('ranking:last_error', String(err.message));
+    return new Response('Erro na sincronização:\n' + err.message, { status: 500 });
+  }
+}
+
+// ---------------------------------------------------------------------
 function topTen(totals) {
   return Object.entries(totals)
     .map(([name, amount]) => ({ name, amount: Number(amount.toFixed(2)) }))
