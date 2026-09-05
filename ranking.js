@@ -1,5 +1,5 @@
 // Substitua pela URL gerada pelo seu Worker no Cloudflare
-const WORKER_URL = 'https://api.kamylisumire.com'; 
+const WORKER_URL = 'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev/'; 
 
 let rankingData = { monthly: [], allTime: [] };
 let currentTab = 'monthly';
