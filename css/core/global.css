@@ -24,7 +24,7 @@ body::before {
     z-index: -2;
     background:
         linear-gradient(rgba(247, 239, 247, 0.58), rgba(247, 239, 247, 0.66)),
-        url('../../fundo.png') center / cover no-repeat;
+        url('../../assets/fundo.png') center / cover no-repeat;
 }
 
 body::after {
@@ -42,7 +42,7 @@ body::after {
     body::before {
         background:
             linear-gradient(rgba(18, 16, 18, 0.72), rgba(18, 16, 18, 0.78)),
-            url('../../fundo.png') center / cover no-repeat;
+            url('../../assets/fundo.png') center / cover no-repeat;
     }
 }
 

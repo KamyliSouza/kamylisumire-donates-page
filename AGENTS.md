@@ -67,10 +67,11 @@ Regra principal:
 ├── .nojekyll
 ├── workers.js
 │
-├── avatar.png
-├── favicon.png
-├── fundo.png
-├── preview.png
+├── assets/
+│   ├── avatar.png
+│   ├── favicon.png
+│   ├── fundo.png
+│   └── preview.png
 │
 ├── doacoes/
 │   └── index.html
@@ -316,6 +317,25 @@ Regra crítica:
 
 ---
 
+
+## 4.1. Organização de assets
+
+Todos os arquivos visuais estáticos devem ficar sob `/assets/`.
+
+Não adicionar novas imagens na raiz do repositório, salvo arquivos que tenham
+exigência técnica específica. Referências devem usar caminhos compatíveis com
+a posição da página ou CSS.
+
+Exemplos:
+
+```text
+/assets/avatar.png
+/assets/favicon.png
+/assets/fundo.png
+/assets/preview.png
+```
+
+
 ## 5. Invariantes
 
 ### API atual
@@ -373,12 +393,20 @@ Usar:
 
 ### Assets oficiais
 
-Não substituir automaticamente:
+Os assets visuais oficiais ficam exclusivamente em:
 
-- `avatar.png`;
-- `favicon.png`;
-- `fundo.png`;
-- `preview.png`.
+```text
+/assets/
+```
+
+Arquivos atuais:
+
+- `assets/avatar.png`;
+- `assets/favicon.png`;
+- `assets/fundo.png`;
+- `assets/preview.png`.
+
+Não substituir automaticamente esses arquivos e não criar cópias duplicadas na raiz.
 
 ### Branches
 
