@@ -1,0 +1,8 @@
+Assets a mover da raiz da branch/main para a pasta assets/:
+
+- avatar.png   -> assets/avatar.png
+- favicon.png  -> assets/favicon.png
+- fundo.png    -> assets/fundo.png
+- preview.png  -> assets/preview.png
+
+Depois de confirmar o funcionamento, não mantenha cópias duplicadas na raiz.

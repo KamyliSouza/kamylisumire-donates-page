@@ -1,0 +1,207 @@
+/* =========================================================
+   DOAÇÕES
+   Mantém a experiência visual da branch main, acrescentando
+   apenas a navbar compartilhada da arquitetura modular.
+   ========================================================= */
+
+.donation-body {
+    min-height: calc(var(--vh, 1vh) * 100);
+}
+
+.donation-shell {
+    width: min(380px, calc(100% - 32px));
+    margin: 28px auto 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.donation-card,
+.ranking-card {
+    width: 100%;
+    padding: 35px 25px;
+
+    text-align: center;
+}
+
+.donation-profile-img {
+    width: 100px;
+    height: 100px;
+
+    margin-bottom: 15px;
+
+    object-fit: cover;
+
+    border: 3px solid var(--primary-color);
+    border-radius: 50%;
+
+    box-shadow: 0 4px 12px rgba(179, 94, 175, .25);
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.donation-card h1 {
+    margin: 8px 0 6px;
+
+    color: var(--primary-color);
+
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.donation-subtitle {
+    margin: 0 0 24px;
+
+    color: var(--subtitle-color);
+
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+   BOTÕES DE DOAÇÃO
+   ========================================================= */
+
+.donation-buttons {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.donation-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    min-height: 58px;
+    padding: 13px 20px;
+
+    border: 2px solid transparent;
+    border-radius: var(--radius-button);
+
+    font-size: 1rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background-color .2s ease;
+}
+
+.donation-btn:hover {
+    transform: translateY(-2px);
+}
+
+.donation-btn-primary {
+    color: #fff;
+    background-color: var(--primary-color);
+}
+
+.donation-btn-primary:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 18px rgba(179, 94, 175, .30);
+}
+
+.donation-btn-secondary {
+    color: var(--primary-color);
+    background-color: transparent;
+
+    border-color: var(--primary-color);
+}
+
+.donation-btn-secondary:hover {
+    background-color: var(--notice-bg);
+}
+
+.donation-btn-icon {
+    display: grid;
+    place-items: center;
+
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.donation-btn-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 2px;
+
+    text-align: left;
+}
+
+.donation-btn-title {
+    line-height: 1.15;
+}
+
+.donation-btn-sub {
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.15;
+
+    opacity: .8;
+}
+
+/* =========================================================
+   AVISO
+   ========================================================= */
+
+.donation-notice {
+    margin-top: 22px;
+    padding: 14px 16px;
+
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-small);
+
+    text-align: left;
+}
+
+.donation-notice p {
+    margin: 0;
+
+    color: var(--notice-text);
+
+    font-size: .85rem;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.donation-notice strong {
+    color: var(--primary-color);
+}
+
+/* =========================================================
+   FOOTER DA PÁGINA
+   ========================================================= */
+
+.donation-footer {
+    width: min(380px, calc(100% - 32px));
+    margin-bottom: 28px;
+}
+
+@media (max-width: 430px) {
+    .donation-shell,
+    .donation-footer {
+        width: calc(100% - 24px);
+    }
+
+    .donation-card,
+    .ranking-card {
+        padding: 30px 20px;
+    }
+}
