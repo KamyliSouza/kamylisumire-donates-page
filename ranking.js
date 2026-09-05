@@ -37,6 +37,8 @@ function fetchRankingData() {
         })
         .then(function(data) {
             console.log('[Ranking] Dados recebidos:', data);
+            console.log('[Ranking] PRIMEIRO MENSAL:', JSON.stringify(data.monthly[0], null, 2));
+            console.log('[Ranking] PRIMEIRO GLOBAL:', JSON.stringify(data.allTime[0], null, 2));
 
             rankingData.monthly =
                 Array.isArray(data.monthly)
