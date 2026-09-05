@@ -67,11 +67,10 @@ Regra principal:
 ├── .nojekyll
 ├── workers.js
 │
-├── assets/
-│   ├── avatar.png
-│   ├── favicon.png
-│   ├── fundo.png
-│   └── preview.png
+├── avatar.png
+├── favicon.png
+├── fundo.png
+├── preview.png
 │
 ├── doacoes/
 │   └── index.html
@@ -317,25 +316,6 @@ Regra crítica:
 
 ---
 
-
-## 4.1. Organização de assets
-
-Todos os arquivos visuais estáticos devem ficar sob `/assets/`.
-
-Não adicionar novas imagens na raiz do repositório, salvo arquivos que tenham
-exigência técnica específica. Referências devem usar caminhos compatíveis com
-a posição da página ou CSS.
-
-Exemplos:
-
-```text
-/assets/avatar.png
-/assets/favicon.png
-/assets/fundo.png
-/assets/preview.png
-```
-
-
 ## 5. Invariantes
 
 ### API atual
@@ -393,20 +373,12 @@ Usar:
 
 ### Assets oficiais
 
-Os assets visuais oficiais ficam exclusivamente em:
+Não substituir automaticamente:
 
-```text
-/assets/
-```
-
-Arquivos atuais:
-
-- `assets/avatar.png`;
-- `assets/favicon.png`;
-- `assets/fundo.png`;
-- `assets/preview.png`.
-
-Não substituir automaticamente esses arquivos e não criar cópias duplicadas na raiz.
+- `avatar.png`;
+- `favicon.png`;
+- `fundo.png`;
+- `preview.png`.
 
 ### Branches
 
@@ -703,3 +675,44 @@ trate-a como uma alteração de infraestrutura.
 
 Prefira mudanças locais, modulares, testáveis e reversíveis.
 
+
+---
+
+## 18. Design system e identidade visual
+
+A branch `main` é a referência histórica da identidade visual do projeto.
+
+Na arquitetura modular, a fonte de verdade operacional é:
+
+```text
+/css/core/variables.css
+```
+
+Novos componentes e páginas devem reutilizar os tokens definidos nesse arquivo em vez de criar paletas próprias.
+
+Parâmetros históricos principais:
+
+```text
+Cor principal:        #B35EAF
+Hover principal:      #9b4d97
+Card claro:           rgba(255, 255, 255, 0.92)
+Borda clara:          rgba(179, 94, 175, 0.30)
+Card escuro:          rgba(30, 24, 32, 0.85)
+Borda escura:         rgba(209, 120, 205, 0.35)
+Raio de card:         24px
+Raio de botão:        16px
+Blur:                 10px
+Sombra histórica:     0 10px 30px rgba(0,0,0,.15)
+Fonte:                Nunito
+```
+
+Regras para agentes:
+
+1. Não criar uma nova paleta para cada página.
+2. Usar `.glass-panel` para superfícies principais.
+3. Usar `.button` e variantes para ações genéricas.
+4. Usar `--notice-bg` para superfícies internas discretas.
+5. O dark mode deve ser controlado principalmente por `variables.css`.
+6. `/doacoes/` deve permanecer visualmente reconhecível em relação à página da branch `main`.
+7. Novas aplicações podem ter layouts próprios, mas devem manter tokens, tipografia, bordas e estilo de botões.
+8. Consulte `DESIGN-SYSTEM.md` antes de redesenhar componentes globais.

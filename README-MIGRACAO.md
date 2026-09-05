@@ -114,3 +114,22 @@ Edite somente `data/agenda.json`.
 - Build command: `exit 0`
 - Root directory: vazio
 - Output directory: `.`
+
+
+## Padronização visual
+
+A identidade visual modular é baseada na branch `main`.
+
+Consulte:
+
+```text
+DESIGN-SYSTEM.md
+```
+
+A fonte de verdade de cores, superfícies, sombras e raios é:
+
+```text
+css/core/variables.css
+```
+
+Evite redefinir cores globais em CSS de página. A Home pode ter um layout mais amplo, enquanto `/doacoes/` preserva propositalmente a aparência compacta e familiar do site original.

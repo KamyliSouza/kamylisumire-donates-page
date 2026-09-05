@@ -1,64 +1,99 @@
+/* =========================================================
+   DOAÇÕES
+   Mantém a experiência visual da branch main, acrescentando
+   apenas a navbar compartilhada da arquitetura modular.
+   ========================================================= */
+
 .donation-body {
     min-height: calc(var(--vh, 1vh) * 100);
 }
 
 .donation-shell {
-    width: min(860px, calc(100% - 28px));
-    margin: 34px auto 36px;
-    display: grid;
-    grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
-    align-items: start;
-    gap: 22px;
+    width: min(380px, calc(100% - 32px));
+    margin: 28px auto 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.donation-card {
-    padding: 34px 25px;
+.donation-card,
+.ranking-card {
+    width: 100%;
+    padding: 35px 25px;
+
     text-align: center;
 }
 
 .donation-profile-img {
-    width: 110px;
-    height: 110px;
+    width: 100px;
+    height: 100px;
+
     margin-bottom: 15px;
+
+    object-fit: cover;
+
     border: 3px solid var(--primary-color);
     border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 6px 18px rgba(179, 94, 175, .26);
+
+    box-shadow: 0 4px 12px rgba(179, 94, 175, .25);
+
     user-select: none;
     -webkit-user-drag: none;
 }
 
 .donation-card h1 {
-    margin: 11px 0 5px;
+    margin: 8px 0 6px;
+
     color: var(--primary-color);
-    font-size: 1.75rem;
+
+    font-size: 1.7rem;
+    font-weight: 800;
 }
 
 .donation-subtitle {
     margin: 0 0 24px;
+
     color: var(--subtitle-color);
+
     font-size: .95rem;
-    font-weight: 700;
+    font-weight: 600;
 }
+
+/* =========================================================
+   BOTÕES DE DOAÇÃO
+   ========================================================= */
 
 .donation-buttons {
     display: flex;
     flex-direction: column;
-    gap: 13px;
+
+    gap: 14px;
 }
 
 .donation-btn {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+
     gap: 12px;
+
     min-height: 58px;
-    padding: 11px 17px;
+    padding: 13px 20px;
+
     border: 2px solid transparent;
-    border-radius: 16px;
+    border-radius: var(--radius-button);
+
+    font-size: 1rem;
+    font-weight: 800;
+
     text-decoration: none;
-    font-weight: 900;
-    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background-color .2s ease;
 }
 
 .donation-btn:hover {
@@ -67,41 +102,45 @@
 
 .donation-btn-primary {
     color: #fff;
-    background: var(--primary-color);
+    background-color: var(--primary-color);
 }
 
 .donation-btn-primary:hover {
-    background: var(--primary-hover);
-    box-shadow: 0 7px 20px rgba(179,94,175,.28);
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 18px rgba(179, 94, 175, .30);
 }
 
 .donation-btn-secondary {
     color: var(--primary-color);
+    background-color: transparent;
+
     border-color: var(--primary-color);
-    background: transparent;
 }
 
 .donation-btn-secondary:hover {
-    background: var(--primary-soft);
+    background-color: var(--notice-bg);
 }
 
 .donation-btn-icon {
     display: grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
+
+    width: 24px;
+    height: 24px;
     flex: 0 0 auto;
-    border-radius: 50%;
+
     font-size: 1rem;
-    font-weight: 900;
+    font-weight: 800;
 }
 
 .donation-btn-text {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    text-align: left;
+
     gap: 2px;
+
+    text-align: left;
 }
 
 .donation-btn-title {
@@ -111,23 +150,34 @@
 .donation-btn-sub {
     font-size: .72rem;
     font-weight: 700;
-    opacity: .82;
+    line-height: 1.15;
+
+    opacity: .8;
 }
+
+/* =========================================================
+   AVISO
+   ========================================================= */
 
 .donation-notice {
     margin-top: 22px;
     padding: 14px 16px;
+
+    background-color: var(--notice-bg);
+
     border: 1px solid var(--card-border);
-    border-radius: 14px;
-    background: var(--primary-soft);
+    border-radius: var(--radius-small);
+
     text-align: left;
 }
 
 .donation-notice p {
     margin: 0;
-    color: var(--subtitle-color);
-    font-size: .84rem;
-    font-weight: 700;
+
+    color: var(--notice-text);
+
+    font-size: .85rem;
+    font-weight: 600;
     line-height: 1.45;
 }
 
@@ -135,14 +185,23 @@
     color: var(--primary-color);
 }
 
+/* =========================================================
+   FOOTER DA PÁGINA
+   ========================================================= */
+
 .donation-footer {
-    max-width: 860px;
+    width: min(380px, calc(100% - 32px));
+    margin-bottom: 28px;
 }
 
-@media (max-width: 760px) {
-    .donation-shell {
-        grid-template-columns: 1fr;
-        max-width: 440px;
-        margin-top: 22px;
+@media (max-width: 430px) {
+    .donation-shell,
+    .donation-footer {
+        width: calc(100% - 24px);
+    }
+
+    .donation-card,
+    .ranking-card {
+        padding: 30px 20px;
     }
 }
