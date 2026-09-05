@@ -702,3 +702,4 @@ Se uma alteração puder quebrar:
 trate-a como uma alteração de infraestrutura.
 
 Prefira mudanças locais, modulares, testáveis e reversíveis.
+
