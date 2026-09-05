@@ -1,4 +1,3 @@
-js
 const API_URL = 'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev';
 
 var rankingData = {
