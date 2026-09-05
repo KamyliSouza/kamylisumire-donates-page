@@ -1,39 +1,5 @@
-/**
- * Worker da API de doações da Kamyli Sumire
- * -----------------------------------------------------------------
- * Correções em relação à versão anterior:
- *   1. Trocado /api/v1.0/donations por /api/v2.0/donations — o token
- *      Bearer obtido via OAuth (client_id/secret + code) só funciona
- *      no v2.0. O v1.0 usa outro tipo de token, passado por query
- *      string (?access_token=...), não por header Authorization.
- *      Misturar os dois é a causa mais provável do ranking não vir.
- *   2. Fluxo OAuth completo (/oauth/authorize, /oauth/callback) que
- *      salva access_token + refresh_token no KV e renova sozinho
- *      quando o token expira — antes o Worker dependia de um único
- *      access_token colado à mão, que para de funcionar quando expira
- *      e ninguém percebe (a resposta simplesmente fica vazia).
- *   3. Checagem de erro na resposta do Streamlabs (antes, uma falha
- *      de autenticação virava silenciosamente um ranking vazio).
- *   4. Ranking agora é a SOMA de doações por doador (mensal e global),
- *      não apenas os 5 registros mais recentes da lista bruta.
- *
- * Variáveis de ambiente (wrangler secret put ...):
- *   STREAMLABS_CLIENT_ID
- *   STREAMLABS_CLIENT_SECRET
- *   OAUTH_SETUP_TOKEN   (senha sua, só pra proteger /oauth/authorize)
- *
- * Variáveis normais (wrangler.toml [vars]):
- *   REDIRECT_URI     ex: https://SEU-WORKER.workers.dev/oauth/callback
- *   ALLOWED_ORIGIN   ex: https://donate.kamylisumire.com
- *
- * Binding KV necessário: RANKINGS
- *   wrangler kv namespace create RANKINGS
- */
-
 const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
 
-// Remove espaços/quebras de linha acidentais que às vezes entram ao colar
-// credenciais em painéis de configuração (ex: Cloudflare dashboard)
 function clientId(env) {
   return (env.STREAMLABS_CLIENT_ID || '').trim();
 }
@@ -49,28 +15,14 @@ export default {
       return cors(env, new Response(null, { status: 204 }));
     }
 
-    if (url.pathname === '/oauth/authorize') {
-      return handleAuthorize(url, env);
-    }
+    if (url.pathname === '/oauth/authorize') return handleAuthorize(url, env);
+    if (url.pathname === '/oauth/callback') return handleCallback(url, env);
+    if (url.pathname === '/debug/status') return handleDebugStatus(url, env);
+    if (url.pathname === '/debug/sync') return handleDebugSync(url, env);
 
-    if (url.pathname === '/oauth/callback') {
-      return handleCallback(url, env);
-    }
-
-    if (url.pathname === '/debug/status') {
-      return handleDebugStatus(url, env);
-    }
-
-    if (url.pathname === '/debug/sync') {
-      return handleDebugSync(url, env);
-    }
-
-    // Qualquer outra rota (inclusive "/") devolve o ranking pronto,
-    // igual ao comportamento que o ranking.js já espera.
     return handleRanking(env);
   },
 
-  // Roda sozinho a cada 30 min (configurado no wrangler.toml)
   async scheduled(event, env, ctx) {
     ctx.waitUntil(
       syncDonations(env).catch((err) => env.RANKINGS.put('ranking:last_error', String(err.message)))
@@ -88,8 +40,7 @@ function cors(env, response) {
 }
 
 // ---------------------------------------------------------------------
-// OAuth passo 1: acesse manualmente 1x
-//   https://SEU-WORKER.workers.dev/oauth/authorize?key=SEU_OAUTH_SETUP_TOKEN
+// OAuth
 // ---------------------------------------------------------------------
 async function handleAuthorize(url, env) {
   if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
@@ -105,9 +56,6 @@ async function handleAuthorize(url, env) {
   return Response.redirect(authUrl.toString(), 302);
 }
 
-// ---------------------------------------------------------------------
-// OAuth passo 2: troca o "code" por access_token + refresh_token
-// ---------------------------------------------------------------------
 async function handleCallback(url, env) {
   const code = url.searchParams.get('code');
   if (!code) return new Response('Código ausente na URL', { status: 400 });
@@ -128,25 +76,19 @@ async function handleCallback(url, env) {
   });
 
   const text = await tokenRes.text();
-  if (!tokenRes.ok) {
-    return new Response('Falha ao trocar o código por token:\n' + text, { status: 500 });
-  }
+  if (!tokenRes.ok) return new Response('Falha:\n' + text, { status: 500 });
 
   await saveTokens(env, JSON.parse(text));
 
-  // Já dispara uma primeira sincronização pra não esperar o próximo Cron
-  let syncMessage = 'Primeira sincronização das doações rodou com sucesso.';
+  let syncMessage = 'Sincronização executada com sucesso.';
   try {
     await syncDonations(env);
   } catch (err) {
-    syncMessage = 'ATENÇÃO: a conexão OAuth funcionou, mas a primeira sincronização falhou: ' + err.message;
+    syncMessage = 'OAuth funcionou, mas a sincronização falhou: ' + err.message;
     await env.RANKINGS.put('ranking:last_error', String(err.message));
   }
 
-  return new Response(
-    'Conectado ao Streamlabs com sucesso!\n\n' + syncMessage + '\n\nPode fechar esta aba.',
-    { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
-  );
+  return new Response('Conectado!\n\n' + syncMessage, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
 
 async function saveTokens(env, tokenData) {
@@ -161,18 +103,10 @@ async function getValidAccessToken(env) {
   const refreshToken = await env.RANKINGS.get('tokens:refresh');
   const expiresAt = Number((await env.RANKINGS.get('tokens:expires_at')) || 0);
 
-  if (!accessToken || !refreshToken) {
-    throw new Error(
-      'Streamlabs ainda não foi conectado (ou precisa reconectar). Acesse /oauth/authorize?key=... uma vez.'
-    );
-  }
+  if (!accessToken || !refreshToken) throw new Error('Streamlabs não conectado.');
 
-  // Ainda válido (com 2 min de margem de segurança)
-  if (Date.now() < expiresAt - 2 * 60 * 1000) {
-    return accessToken;
-  }
+  if (Date.now() < expiresAt - 2 * 60 * 1000) return accessToken;
 
-  // Expirado: renova automaticamente
   const res = await fetch(`${STREAMLABS_API}/token`, {
     method: 'POST',
     headers: {
@@ -188,9 +122,7 @@ async function getValidAccessToken(env) {
     })
   });
 
-  if (!res.ok) {
-    throw new Error('Falha ao renovar o token do Streamlabs: ' + (await res.text()));
-  }
+  if (!res.ok) throw new Error('Falha ao renovar token');
 
   const data = await res.json();
   await saveTokens(env, data);
@@ -198,19 +130,20 @@ async function getValidAccessToken(env) {
 }
 
 // ---------------------------------------------------------------------
-// Busca doações novas no Streamlabs e acumula os totais por doador
+// Sincronização com Separação por Datas
 // ---------------------------------------------------------------------
 async function syncDonations(env) {
   const accessToken = await getValidAccessToken(env);
 
   const lastId = Number((await env.RANKINGS.get('state:last_donation_id')) || 0);
-  const currentMonthKey = monthKey(new Date());
+  const now = new Date();
+  const currentMonthKey = monthKey(now); 
   const storedMonthKey = await env.RANKINGS.get('state:current_month');
 
   let globalTotals = await getJSON(env, 'totals:global', {});
   let monthlyTotals = storedMonthKey === currentMonthKey
     ? await getJSON(env, 'totals:monthly', {})
-    : {}; // virou o mês: zera o acumulado mensal
+    : {}; 
 
   let newDonations = [];
   let before = null;
@@ -230,9 +163,7 @@ async function syncDonations(env) {
       }
     });
 
-    if (!res.ok) {
-      throw new Error(`Streamlabs /donations retornou ${res.status}: ${await res.text()}`);
-    }
+    if (!res.ok) throw new Error(`Erro API: ${res.status}`);
 
     const json = await res.json();
     const page = json.data || [];
@@ -256,9 +187,21 @@ async function syncDonations(env) {
     for (const donation of newDonations) {
       const name = (donation.name || 'Anônimo').trim();
       const amount = Number(donation.amount) || 0;
+      
+      // Converte a data da doação. O Streamlabs pode mandar Unix (segundos) ou ISO.
+      let donationDate = new Date(); 
+      if (donation.created_at) {
+        const isUnix = typeof donation.created_at === 'number' || /^\d{10}$/.test(String(donation.created_at));
+        donationDate = isUnix ? new Date(Number(donation.created_at) * 1000) : new Date(donation.created_at);
+      }
 
+      // Adiciona sempre ao global
       globalTotals[name] = (globalTotals[name] || 0) + amount;
-      monthlyTotals[name] = (monthlyTotals[name] || 0) + amount;
+
+      // Adiciona ao mensal APENAS se a doação ocorreu no mês e ano atuais
+      if (monthKey(donationDate) === currentMonthKey) {
+        monthlyTotals[name] = (monthlyTotals[name] || 0) + amount;
+      }
 
       if (donation.donation_id > highestId) highestId = donation.donation_id;
     }
@@ -269,84 +212,41 @@ async function syncDonations(env) {
   }
 
   await env.RANKINGS.put('state:current_month', currentMonthKey);
-  await env.RANKINGS.put('ranking:monthly', JSON.stringify(topTen(monthlyTotals)));
-  await env.RANKINGS.put('ranking:allTime', JSON.stringify(topTen(globalTotals)));
+  await env.RANKINGS.put('ranking:monthly', JSON.stringify(getTopFive(monthlyTotals)));
+  await env.RANKINGS.put('ranking:allTime', JSON.stringify(getTopFive(globalTotals)));
   await env.RANKINGS.put('ranking:updated_at', String(Date.now()));
   await env.RANKINGS.put('ranking:last_error', '');
 }
 
 // ---------------------------------------------------------------------
-// Diagnóstico: acesse manualmente 1x
-//   https://SEU-WORKER.workers.dev/debug/status?key=SEU_OAUTH_SETUP_TOKEN
-// Mostra o estado interno sem expor os tokens em si.
+// Diagnóstico
 // ---------------------------------------------------------------------
 async function handleDebugStatus(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
-    return new Response('Não autorizado', { status: 403 });
-  }
-
-  const hasAccess = Boolean(await env.RANKINGS.get('tokens:access'));
-  const hasRefresh = Boolean(await env.RANKINGS.get('tokens:refresh'));
-  const expiresAt = Number((await env.RANKINGS.get('tokens:expires_at')) || 0);
-  const lastError = (await env.RANKINGS.get('ranking:last_error')) || null;
-  const updatedAt = Number((await env.RANKINGS.get('ranking:updated_at')) || 0);
-  const lastDonationId = (await env.RANKINGS.get('state:last_donation_id')) || null;
-  const globalTotals = await getJSON(env, 'totals:global', {});
-  const monthlyTotals = await getJSON(env, 'totals:monthly', {});
-
-  const rawClientId = env.STREAMLABS_CLIENT_ID || '';
-  const rawClientSecret = env.STREAMLABS_CLIENT_SECRET || '';
-
-  const status = {
-    conectado_ao_streamlabs: hasAccess && hasRefresh,
-    token_expira_em: expiresAt ? new Date(expiresAt).toISOString() : null,
-    token_ja_expirado: expiresAt ? Date.now() > expiresAt : null,
-    ultima_sincronizacao: updatedAt ? new Date(updatedAt).toISOString() : 'nunca rodou',
-    ultimo_erro: lastError || null,
-    ultimo_donation_id_processado: lastDonationId,
-    doadores_no_total_global: Object.keys(globalTotals).length,
-    doadores_no_total_mensal: Object.keys(monthlyTotals).length,
-    diagnostico_credenciais: {
-      client_id_preenchido: rawClientId.length > 0,
-      client_id_tamanho: rawClientId.length,
-      client_id_tem_espaco_ou_quebra_de_linha: rawClientId !== rawClientId.trim(),
-      client_id_comeca_com: rawClientId.slice(0, 4),
-      client_secret_preenchido: rawClientSecret.length > 0,
-      client_secret_tamanho: rawClientSecret.length,
-      client_secret_tem_espaco_ou_quebra_de_linha: rawClientSecret !== rawClientSecret.trim(),
-      redirect_uri_configurado: env.REDIRECT_URI || null
-    }
-  };
-
-  return new Response(JSON.stringify(status, null, 2), {
-    headers: { 'Content-Type': 'application/json' }
-  });
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) return new Response('Não autorizado', { status: 403 });
+  return new Response(JSON.stringify({ status: 'ok' }), { headers: { 'Content-Type': 'application/json' } });
 }
 
-// ---------------------------------------------------------------------
-// Diagnóstico: força uma sincronização na hora (sem esperar o Cron)
-//   https://SEU-WORKER.workers.dev/debug/sync?key=SEU_OAUTH_SETUP_TOKEN
-// ---------------------------------------------------------------------
 async function handleDebugSync(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
-    return new Response('Não autorizado', { status: 403 });
-  }
-
+  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) return new Response('Não autorizado', { status: 403 });
   try {
     await syncDonations(env);
     return new Response('Sincronização rodou com sucesso.', { status: 200 });
   } catch (err) {
-    await env.RANKINGS.put('ranking:last_error', String(err.message));
-    return new Response('Erro na sincronização:\n' + err.message, { status: 500 });
+    return new Response('Erro:\n' + err.message, { status: 500 });
   }
 }
 
 // ---------------------------------------------------------------------
-function topTen(totals) {
+// Helpers
+// ---------------------------------------------------------------------
+function getTopFive(totals) {
   return Object.entries(totals)
-    .map(([name, amount]) => ({ name, amount: Number(amount.toFixed(2)) }))
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 10);
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, amount]) => ({ 
+        name, 
+        amount: amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) 
+    }));
 }
 
 function monthKey(date) {
@@ -358,11 +258,6 @@ async function getJSON(env, key, fallback) {
   return raw ? JSON.parse(raw) : fallback;
 }
 
-// ---------------------------------------------------------------------
-// Endpoint público — só lê o que o Cron já deixou pronto no KV.
-// Nunca chama o Streamlabs diretamente, então pode ser consultado à
-// vontade pelo site sem risco de bater cota nenhuma.
-// ---------------------------------------------------------------------
 async function handleRanking(env) {
   const monthly = await getJSON(env, 'ranking:monthly', []);
   const allTime = await getJSON(env, 'ranking:allTime', []);
@@ -370,7 +265,7 @@ async function handleRanking(env) {
   return cors(env, new Response(JSON.stringify({ monthly, allTime }), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 's-maxage=1800' // 30 min de cache na borda da Cloudflare
+      'Cache-Control': 's-maxage=1800' 
     }
   }));
 }
