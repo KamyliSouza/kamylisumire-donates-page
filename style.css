@@ -13,6 +13,8 @@
     --subtitle-color: #666;
     --notice-bg: rgba(179, 94, 175, 0.08);
     --notice-text: #555;
+    --footer-bg: rgba(255, 255, 255, 0.85);
+    --footer-text: #444;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +28,8 @@
         --subtitle-color: #bfa9be;
         --notice-bg: rgba(209, 120, 205, 0.12);
         --notice-text: #e0d0df;
+        --footer-bg: rgba(25, 20, 27, 0.85);
+        --footer-text: #d0c0ce;
     }
 }
 
@@ -125,8 +129,8 @@ h1 { color: var(--primary-color); font-size: 1.7rem; margin-bottom: 6px; }
 .notice-box strong { color: var(--primary-color); }
 
 .footer-credits {
-    padding: 14px 24px; background-color: rgba(255,255,255,0.85); border-radius: 20px;
-    font-size: 0.85rem; color: #444; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 14px 24px; background-color: var(--footer-bg); border-radius: 20px;
+    font-size: 0.85rem; color: var(--footer-text); text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--card-border); max-width: 380px; width: 100%;
 }
 .footer-credits p { margin: 4px 0; line-height: 1.4; }
