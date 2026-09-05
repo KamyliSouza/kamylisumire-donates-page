@@ -1,25 +1,18 @@
-// URL original do Worker mantida
 const API_URL = 'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev'; 
 
-let rankingData = {
-    monthly: [],
-    allTime: []
-};
+let rankingData = { monthly: [], allTime: [] };
 let currentTab = 'monthly';
 
-// Mapeamento dos elementos do DOM
-const listElement = document.getElementById('ranking-list');
-const monthlyTab = document.getElementById('tab-monthly');
-const allTimeTab = document.getElementById('tab-all-time');
-
-// Busca os dados do Cloudflare Worker
 async function fetchRankingData() {
+    const listElement = document.getElementById('ranking-list');
+    if (!listElement) return; // Evita que o código quebre se o ID não for encontrado
+
     try {
         listElement.innerHTML = '<div class="ranking-status">Carregando ranking... ☁️</div>';
         
         const response = await fetch(API_URL);
         if (!response.ok) {
-            throw new Error('Erro ao buscar os dados da API');
+            throw new Error(`Erro na API: ${response.status}`);
         }
         
         const data = await response.json();
@@ -33,7 +26,6 @@ async function fetchRankingData() {
     }
 }
 
-// Define os ícones e classes dos primeiros colocados
 function getRankStyle(index) {
     switch(index) {
         case 0: return { class: 'rank-1', symbol: '🥇' };
@@ -43,8 +35,10 @@ function getRankStyle(index) {
     }
 }
 
-// Renderiza a lista na tela com a trava do Top 5
 function renderRanking() {
+    const listElement = document.getElementById('ranking-list');
+    if (!listElement) return;
+
     listElement.innerHTML = '';
     const dataToRender = rankingData[currentTab];
 
@@ -53,13 +47,12 @@ function renderRanking() {
         return;
     }
 
-    // TRAVA DE SEGURANÇA: .slice(0, 5) garante que o frontend nunca renderize mais de 5 itens
+    // Trava do Top 5 em ação
     dataToRender.slice(0, 5).forEach((donator, index) => {
         const rankInfo = getRankStyle(index);
         const li = document.createElement('li');
         li.className = `ranking-item ${rankInfo.class}`;
         
-        // Como o Worker já envia o valor formatado, usamos apenas "R$ " + donator.amount
         li.innerHTML = `
             <span class="ranking-rank">${rankInfo.symbol}</span>
             <span class="ranking-name">${donator.name}</span>
@@ -69,24 +62,31 @@ function renderRanking() {
     });
 }
 
-// Alterna entre as abas Mensal e Global
 function setTab(tab) {
     currentTab = tab;
+    const monthlyTab = document.getElementById('tab-monthly');
+    const allTimeTab = document.getElementById('tab-all-time');
     
-    if (tab === 'monthly') {
-        monthlyTab.classList.add('active');
-        allTimeTab.classList.remove('active');
-    } else {
-        allTimeTab.classList.add('active');
-        monthlyTab.classList.remove('active');
+    if (monthlyTab && allTimeTab) {
+        if (tab === 'monthly') {
+            monthlyTab.classList.add('active');
+            allTimeTab.classList.remove('active');
+        } else {
+            allTimeTab.classList.add('active');
+            monthlyTab.classList.remove('active');
+        }
     }
     
     renderRanking();
 }
 
-// Event Listeners dos botões
-monthlyTab.addEventListener('click', () => setTab('monthly'));
-allTimeTab.addEventListener('click', () => setTab('allTime'));
+// O código abaixo garante que o script só inicie DEPOIS que a página HTML inteira carregar
+document.addEventListener('DOMContentLoaded', () => {
+    const monthlyTab = document.getElementById('tab-monthly');
+    const allTimeTab = document.getElementById('tab-all-time');
+    
+    if (monthlyTab) monthlyTab.addEventListener('click', () => setTab('monthly'));
+    if (allTimeTab) allTimeTab.addEventListener('click', () => setTab('allTime'));
 
-// Dispara a busca inicial quando o script carrega
-fetchRankingData();
+    fetchRankingData();
+});
