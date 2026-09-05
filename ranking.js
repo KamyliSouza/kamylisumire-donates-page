@@ -1,5 +1,4 @@
 ```js
-// URL da API
 const WORKER_URL =
     'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev/';
 
@@ -10,76 +9,67 @@ let rankingData = {
 
 let currentTab = 'monthly';
 
-const listElement =
-    document.getElementById('rankingList');
-
-const tabButtons =
-    document.querySelectorAll('.tab-btn');
-
-// ---------------------------------------------------------
-// Estilo da posição
-// ---------------------------------------------------------
+const listElement = document.getElementById('rankingList');
+const tabButtons = document.querySelectorAll('.tab-btn');
 
 function getRankStyle(index) {
-    const pos = index + 1;
+    const position = index + 1;
 
-    if (pos === 1) {
+    if (position === 1) {
         return {
             symbol: '🥇',
-            class: 'rank-1'
+            className: 'rank-1'
         };
     }
 
-    if (pos === 2) {
+    if (position === 2) {
         return {
             symbol: '🥈',
-            class: 'rank-2'
+            className: 'rank-2'
         };
     }
 
-    if (pos === 3) {
+    if (position === 3) {
         return {
             symbol: '🥉',
-            class: 'rank-3'
+            className: 'rank-3'
         };
     }
 
     return {
-        symbol: `#${pos}`,
-        class: 'rank-other'
+        symbol: `#${position}`,
+        className: 'rank-other'
     };
 }
 
-// ---------------------------------------------------------
-// Renderiza o ranking
-// ---------------------------------------------------------
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 function renderRanking() {
     if (!listElement) {
-        console.error(
-            '[Ranking] #rankingList não encontrado.'
-        );
+        console.error('[Ranking] #rankingList não encontrado.');
         return;
     }
 
-    listElement.innerHTML = '';
+    let dataToRender = Array.isArray(rankingData[currentTab])
+        ? rankingData[currentTab]
+        : [];
 
-    let dataToRender =
-        Array.isArray(rankingData[currentTab])
-            ? rankingData[currentTab]
-            : [];
-
-    // Segurança:
-    // o site nunca mostra mais de 5 posições,
-    // mesmo que a API envie mais.
+    // Garante que o site nunca mostre mais de 5.
     dataToRender = dataToRender
         .slice()
-        .sort(
-            (a, b) =>
-                Number(b.amount || 0) -
-                Number(a.amount || 0)
-        )
+        .sort((a, b) => {
+            return Number(b.amount || 0) - Number(a.amount || 0);
+        })
         .slice(0, 5);
+
+    listElement.innerHTML = '';
 
     if (dataToRender.length === 0) {
         listElement.innerHTML = `
@@ -87,136 +77,84 @@ function renderRanking() {
                 Nenhuma doação registrada ainda. 🥺
             </div>
         `;
-
         return;
     }
 
-    dataToRender.forEach(
-        (donator, index) => {
-            const rankInfo =
-                getRankStyle(index);
+    dataToRender.forEach((donator, index) => {
+        const rankInfo = getRankStyle(index);
 
-            const li =
-                document.createElement('li');
+        const item = document.createElement('li');
 
-            li.className =
-                `ranking-item ${rankInfo.class}`;
+        item.className = `ranking-item ${rankInfo.className}`;
 
-            const name =
-                donator.name ||
-                'Anônimo';
+        const name = donator.name || 'Anônimo';
 
-            const amount =
-                Number(donator.amount || 0)
-                    .toLocaleString(
-                        'pt-BR',
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    );
+        const amount = Number(donator.amount || 0).toLocaleString(
+            'pt-BR',
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
 
-            li.innerHTML = `
-                <span class="ranking-rank">
-                    ${rankInfo.symbol}
-                </span>
+        item.innerHTML = `
+            <span class="ranking-rank">
+                ${rankInfo.symbol}
+            </span>
 
-                <span class="ranking-name">
-                    ${escapeHtml(name)}
-                </span>
+            <span class="ranking-name">
+                ${escapeHtml(name)}
+            </span>
 
-                <span class="ranking-amount">
-                    R$ ${amount}
-                </span>
-            `;
+            <span class="ranking-amount">
+                R$ ${amount}
+            </span>
+        `;
 
-            listElement.appendChild(li);
-        }
-    );
+        listElement.appendChild(item);
+    });
 }
 
-// ---------------------------------------------------------
-// Evita HTML vindo do nome do doador
-// ---------------------------------------------------------
+tabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        tabButtons.forEach((btn) => {
+            btn.classList.remove('active');
+        });
 
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-}
+        button.classList.add('active');
 
-// ---------------------------------------------------------
-// Abas
-// ---------------------------------------------------------
+        currentTab = button.dataset.tab;
 
-tabButtons.forEach(button => {
-    button.addEventListener(
-        'click',
-        () => {
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active');
-            });
+        console.log('[Ranking] Aba selecionada:', currentTab);
 
-            button.classList.add('active');
-
-            currentTab =
-                button.dataset.tab;
-
-            console.log(
-                '[Ranking] Aba selecionada:',
-                currentTab
-            );
-
-            renderRanking();
-        }
-    );
+        renderRanking();
+    });
 });
-
-// ---------------------------------------------------------
-// Busca API
-// ---------------------------------------------------------
 
 async function fetchRankingData() {
     if (!listElement) {
-        console.error(
-            '[Ranking] Elemento #rankingList não existe.'
-        );
-
+        console.error('[Ranking] Elemento #rankingList não existe.');
         return;
     }
 
-    console.log(
-        '[Ranking] Buscando dados:',
-        WORKER_URL
-    );
+    console.log('[Ranking] Buscando dados:', WORKER_URL);
+
+    listElement.innerHTML = `
+        <div class="ranking-status">
+            Carregando dados...
+        </div>
+    `;
 
     try {
-        listElement.innerHTML = `
-            <div class="ranking-status">
-                Carregando dados...
-            </div>
-        `;
+        const response = await fetch(WORKER_URL, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: {
+                Accept: 'application/json'
+            }
+        });
 
-        const response =
-            await fetch(
-                WORKER_URL,
-                {
-                    method: 'GET',
-                    cache: 'no-store',
-                    headers: {
-                        'Accept':
-                            'application/json'
-                    }
-                }
-            );
-
-        console.log(
-            '[Ranking] HTTP:',
-            response.status
-        );
+        console.log('[Ranking] HTTP:', response.status);
 
         if (!response.ok) {
             throw new Error(
@@ -225,39 +163,26 @@ async function fetchRankingData() {
         }
 
         const contentType =
-            response.headers.get(
-                'content-type'
-            ) || '';
+            response.headers.get('content-type') || '';
 
-        if (
-            !contentType.includes(
-                'application/json'
-            )
-        ) {
+        if (!contentType.includes('application/json')) {
             throw new Error(
                 'A API não retornou JSON.'
             );
         }
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        console.log(
-            '[Ranking] Dados recebidos:',
-            data
-        );
+        console.log('[Ranking] Dados recebidos:', data);
 
-        // Validação
         rankingData = {
-            monthly:
-                Array.isArray(data.monthly)
-                    ? data.monthly
-                    : [],
+            monthly: Array.isArray(data.monthly)
+                ? data.monthly
+                : [],
 
-            allTime:
-                Array.isArray(data.allTime)
-                    ? data.allTime
-                    : []
+            allTime: Array.isArray(data.allTime)
+                ? data.allTime
+                : []
         };
 
         console.log(
@@ -273,10 +198,7 @@ async function fetchRankingData() {
         renderRanking();
 
     } catch (error) {
-        console.error(
-            '[Ranking] Erro:',
-            error
-        );
+        console.error('[Ranking] Erro:', error);
 
         listElement.innerHTML = `
             <div class="ranking-status">
@@ -290,13 +212,7 @@ async function fetchRankingData() {
     }
 }
 
-// ---------------------------------------------------------
-// IMPORTANTE
-//
-// ranking.js é carregado no final do body,
-// então o DOM já existe.
-// Não precisamos esperar DOMContentLoaded.
-// ---------------------------------------------------------
-
+// O ranking.js é carregado no final do body,
+// então o DOM já está disponível.
 fetchRankingData();
 ```
