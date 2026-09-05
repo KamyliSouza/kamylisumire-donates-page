@@ -1,92 +1,302 @@
-const API_URL = 'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev'; 
+```js
+// URL da API
+const WORKER_URL =
+    'https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev/';
 
-let rankingData = { monthly: [], allTime: [] };
+let rankingData = {
+    monthly: [],
+    allTime: []
+};
+
 let currentTab = 'monthly';
 
-async function fetchRankingData() {
-    const listElement = document.getElementById('ranking-list');
-    if (!listElement) return; // Evita que o código quebre se o ID não for encontrado
+const listElement =
+    document.getElementById('rankingList');
 
-    try {
-        listElement.innerHTML = '<div class="ranking-status">Carregando ranking... ☁️</div>';
-        
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`Erro na API: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        rankingData.monthly = data.monthly || [];
-        rankingData.allTime = data.allTime || [];
-        
-        renderRanking();
-    } catch (error) {
-        console.error('Erro ao buscar doações:', error);
-        listElement.innerHTML = '<div class="ranking-status">Erro ao carregar o ranking. Tente novamente mais tarde! 🌧️</div>';
-    }
-}
+const tabButtons =
+    document.querySelectorAll('.tab-btn');
+
+// ---------------------------------------------------------
+// Estilo da posição
+// ---------------------------------------------------------
 
 function getRankStyle(index) {
-    switch(index) {
-        case 0: return { class: 'rank-1', symbol: '🥇' };
-        case 1: return { class: 'rank-2', symbol: '🥈' };
-        case 2: return { class: 'rank-3', symbol: '🥉' };
-        default: return { class: 'rank-other', symbol: `${index + 1}º` };
+    const pos = index + 1;
+
+    if (pos === 1) {
+        return {
+            symbol: '🥇',
+            class: 'rank-1'
+        };
     }
+
+    if (pos === 2) {
+        return {
+            symbol: '🥈',
+            class: 'rank-2'
+        };
+    }
+
+    if (pos === 3) {
+        return {
+            symbol: '🥉',
+            class: 'rank-3'
+        };
+    }
+
+    return {
+        symbol: `#${pos}`,
+        class: 'rank-other'
+    };
 }
 
+// ---------------------------------------------------------
+// Renderiza o ranking
+// ---------------------------------------------------------
+
 function renderRanking() {
-    const listElement = document.getElementById('ranking-list');
-    if (!listElement) return;
-
-    listElement.innerHTML = '';
-    const dataToRender = rankingData[currentTab];
-
-    if (!dataToRender || dataToRender.length === 0) {
-        listElement.innerHTML = '<div class="ranking-status">Nenhuma doação registrada ainda. 🥺</div>';
+    if (!listElement) {
+        console.error(
+            '[Ranking] #rankingList não encontrado.'
+        );
         return;
     }
 
-    // Trava do Top 5 em ação
-    dataToRender.slice(0, 5).forEach((donator, index) => {
-        const rankInfo = getRankStyle(index);
-        const li = document.createElement('li');
-        li.className = `ranking-item ${rankInfo.class}`;
-        
-        li.innerHTML = `
-            <span class="ranking-rank">${rankInfo.symbol}</span>
-            <span class="ranking-name">${donator.name}</span>
-            <span class="ranking-amount">R$ ${donator.amount}</span>
+    listElement.innerHTML = '';
+
+    let dataToRender =
+        Array.isArray(rankingData[currentTab])
+            ? rankingData[currentTab]
+            : [];
+
+    // Segurança:
+    // o site nunca mostra mais de 5 posições,
+    // mesmo que a API envie mais.
+    dataToRender = dataToRender
+        .slice()
+        .sort(
+            (a, b) =>
+                Number(b.amount || 0) -
+                Number(a.amount || 0)
+        )
+        .slice(0, 5);
+
+    if (dataToRender.length === 0) {
+        listElement.innerHTML = `
+            <div class="ranking-status">
+                Nenhuma doação registrada ainda. 🥺
+            </div>
         `;
-        listElement.appendChild(li);
-    });
-}
 
-function setTab(tab) {
-    currentTab = tab;
-    const monthlyTab = document.getElementById('tab-monthly');
-    const allTimeTab = document.getElementById('tab-all-time');
-    
-    if (monthlyTab && allTimeTab) {
-        if (tab === 'monthly') {
-            monthlyTab.classList.add('active');
-            allTimeTab.classList.remove('active');
-        } else {
-            allTimeTab.classList.add('active');
-            monthlyTab.classList.remove('active');
-        }
+        return;
     }
-    
-    renderRanking();
+
+    dataToRender.forEach(
+        (donator, index) => {
+            const rankInfo =
+                getRankStyle(index);
+
+            const li =
+                document.createElement('li');
+
+            li.className =
+                `ranking-item ${rankInfo.class}`;
+
+            const name =
+                donator.name ||
+                'Anônimo';
+
+            const amount =
+                Number(donator.amount || 0)
+                    .toLocaleString(
+                        'pt-BR',
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+
+            li.innerHTML = `
+                <span class="ranking-rank">
+                    ${rankInfo.symbol}
+                </span>
+
+                <span class="ranking-name">
+                    ${escapeHtml(name)}
+                </span>
+
+                <span class="ranking-amount">
+                    R$ ${amount}
+                </span>
+            `;
+
+            listElement.appendChild(li);
+        }
+    );
 }
 
-// O código abaixo garante que o script só inicie DEPOIS que a página HTML inteira carregar
-document.addEventListener('DOMContentLoaded', () => {
-    const monthlyTab = document.getElementById('tab-monthly');
-    const allTimeTab = document.getElementById('tab-all-time');
-    
-    if (monthlyTab) monthlyTab.addEventListener('click', () => setTab('monthly'));
-    if (allTimeTab) allTimeTab.addEventListener('click', () => setTab('allTime'));
+// ---------------------------------------------------------
+// Evita HTML vindo do nome do doador
+// ---------------------------------------------------------
 
-    fetchRankingData();
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+// ---------------------------------------------------------
+// Abas
+// ---------------------------------------------------------
+
+tabButtons.forEach(button => {
+    button.addEventListener(
+        'click',
+        () => {
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            button.classList.add('active');
+
+            currentTab =
+                button.dataset.tab;
+
+            console.log(
+                '[Ranking] Aba selecionada:',
+                currentTab
+            );
+
+            renderRanking();
+        }
+    );
 });
+
+// ---------------------------------------------------------
+// Busca API
+// ---------------------------------------------------------
+
+async function fetchRankingData() {
+    if (!listElement) {
+        console.error(
+            '[Ranking] Elemento #rankingList não existe.'
+        );
+
+        return;
+    }
+
+    console.log(
+        '[Ranking] Buscando dados:',
+        WORKER_URL
+    );
+
+    try {
+        listElement.innerHTML = `
+            <div class="ranking-status">
+                Carregando dados...
+            </div>
+        `;
+
+        const response =
+            await fetch(
+                WORKER_URL,
+                {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: {
+                        'Accept':
+                            'application/json'
+                    }
+                }
+            );
+
+        console.log(
+            '[Ranking] HTTP:',
+            response.status
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `API retornou HTTP ${response.status}`
+            );
+        }
+
+        const contentType =
+            response.headers.get(
+                'content-type'
+            ) || '';
+
+        if (
+            !contentType.includes(
+                'application/json'
+            )
+        ) {
+            throw new Error(
+                'A API não retornou JSON.'
+            );
+        }
+
+        const data =
+            await response.json();
+
+        console.log(
+            '[Ranking] Dados recebidos:',
+            data
+        );
+
+        // Validação
+        rankingData = {
+            monthly:
+                Array.isArray(data.monthly)
+                    ? data.monthly
+                    : [],
+
+            allTime:
+                Array.isArray(data.allTime)
+                    ? data.allTime
+                    : []
+        };
+
+        console.log(
+            '[Ranking] Mensal:',
+            rankingData.monthly
+        );
+
+        console.log(
+            '[Ranking] Global:',
+            rankingData.allTime
+        );
+
+        renderRanking();
+
+    } catch (error) {
+        console.error(
+            '[Ranking] Erro:',
+            error
+        );
+
+        listElement.innerHTML = `
+            <div class="ranking-status">
+                Erro ao carregar o ranking.
+                <br>
+                <small>
+                    Tente atualizar a página.
+                </small>
+            </div>
+        `;
+    }
+}
+
+// ---------------------------------------------------------
+// IMPORTANTE
+//
+// ranking.js é carregado no final do body,
+// então o DOM já existe.
+// Não precisamos esperar DOMContentLoaded.
+// ---------------------------------------------------------
+
+fetchRankingData();
+```
