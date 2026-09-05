@@ -1,0 +1,98 @@
+/* =========================================
+   ESTILOS EXCLUSIVOS DO RANKING
+========================================= */
+.ranking-card h2 { 
+    color: var(--primary-color); 
+    font-size: 1.3rem; 
+    margin-bottom: 16px; 
+}
+
+/* Abas */
+.ranking-tabs { 
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 16px; 
+}
+
+.tab-btn {
+    flex: 1; 
+    padding: 10px; 
+    border-radius: 12px; 
+    border: 2px solid var(--card-border);
+    background: transparent; 
+    color: var(--text-color); 
+    font-family: inherit;
+    font-weight: 800; 
+    font-size: 0.9rem; 
+    cursor: pointer; 
+    transition: all 0.2s;
+}
+
+.tab-btn.active { 
+    background-color: var(--primary-color); 
+    border-color: var(--primary-color); 
+    color: #fff; 
+}
+
+/* Lista e Itens */
+.ranking-list { 
+    list-style: none; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    text-align: left; 
+    min-height: 150px; 
+}
+
+.ranking-item {
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    padding: 10px 14px;
+    background-color: var(--notice-bg); 
+    border: 1px solid var(--card-border); 
+    border-radius: 12px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(4px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* Posições e Cores do Pódio */
+.ranking-rank { 
+    font-weight: 800; 
+    min-width: 24px; 
+    text-align: center; 
+    font-size: 1.1rem; 
+}
+
+.rank-1 .ranking-rank { color: #fff677; text-shadow: 0 1px 2px rgba(0,0,0,0.3); } 
+.rank-2 .ranking-rank { color: #7ef2ff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); } 
+.rank-3 .ranking-rank { color: #fd73c3; } 
+.rank-other .ranking-rank { color: #b6ff82; font-size: 0.9rem; }
+
+.ranking-name { 
+    flex: 1; 
+    font-weight: 700; 
+    font-size: 0.9rem; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+
+.ranking-amount { 
+    font-weight: 800; 
+    font-size: 0.9rem; 
+    color: var(--primary-color); 
+    white-space: nowrap; 
+}
+
+.ranking-status { 
+    font-size: 0.85rem; 
+    color: var(--subtitle-color); 
+    text-align: center; 
+    margin-top: 20px; 
+    font-weight: 600; 
+}

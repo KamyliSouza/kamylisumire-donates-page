@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Apoie a Kamyli!</title>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="ranking.css">
+</head>
+<body>
+    <main class="card">
+        <img src="avatar.png" alt="Kamyli Sumire" class="profile-img" width="100" height="100" draggable="false">
+
+        <h1>Apoie a Kamyli! ✨</h1>
+        <p class="subtitle">Escolha a opção ideal para você!</p>
+
+        <div class="buttons">
+            <a href="https://livepix.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                <svg class="pix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <span class="btn-text">
+                    <span class="btn-title">Apoiar com PIX (LivePix)</span>
+                    <span class="btn-sub">Doações a partir de R$ 1,00</span>
+                </span>
+            </a>
+
+            <a href="https://pixie.gg/kamyli" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M2 12h20"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <span class="btn-text">
+                    <span class="btn-title">Moeda Estrangeira (Pixie)</span>
+                    <span class="btn-sub">Doações a partir de R$ 6,00</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="notice-box">
+            <p>💡 <strong>Aviso:</strong> A doação mínima pelo Pixie é de <strong>R$6</strong> por conta das taxas da plataforma.<br> Para doações a partir de <strong>R$1</strong>, recomendo usar o LivePix!</p>
+        </div>
+    </main>
+
+    <!-- Estrutura do Ranking isolada no segundo card -->
+    <section class="card ranking-card">
+        <h2>🏆 Top Doações</h2>
+
+        <div class="ranking-tabs">
+            <button type="button" class="tab-btn active" data-tab="monthly">Mensal</button>
+            <button type="button" class="tab-btn" data-tab="allTime">Global</button>
+        </div>
+
+        <ol class="ranking-list" id="rankingList">
+            <div class="ranking-status">Carregando dados...</div>
+        </ol>
+    </section>
+
+    <footer class="footer-credits">
+        <p class="art-credits">
+            Arte do Fundo por <a href="https://twitter.com/I_h0wl_I" target="_blank">@I_h0wl_I</a> <br>
+            Avatar por <a href="https://twitter.com/maililac" target="_blank">@maililac</a>
+        </p>
+        
+        <hr class="footer-divider">
+        
+        <p class="copyright-text">
+            &copy; 2026 Kamyli Sumire. Todos os direitos reservados.<br>
+            <a href="https://github.com/KamyliSouza/kamylisumire-donates-page" target="_blank" rel="noopener noreferrer">💻 Ver Código Fonte</a>
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="ranking.js"></script>
+</body>
+</html>
