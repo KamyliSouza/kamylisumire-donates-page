@@ -9,7 +9,6 @@ function readRankingCache({ allowExpired = false } = {}) {
 
         const cached = JSON.parse(raw);
         const age = Date.now() - Number(cached.savedAt || 0);
-
         if (!allowExpired && age > RANKING_CACHE_TTL_MS) {
             return null;
         }
@@ -67,7 +66,6 @@ function getDisplayName(name) {
     if (!name) return RANKING_PRIVACY.replacement;
 
     const normalizedName = String(name).trim().toLowerCase();
-
     const isPrivate = RANKING_PRIVACY.names.some(
         privateName =>
             String(privateName).trim().toLowerCase() === normalizedName
@@ -84,7 +82,7 @@ function formatAmount(value) {
 }
 
 const rankingList = document.getElementById("rankingList");
-const tabButtons = document.querySelectorAll(".tab-btn");
+const tabButtons = [...document.querySelectorAll(".tab-btn")];
 
 let rankingData = {
     monthly: [],
@@ -139,9 +137,14 @@ async function loadRanking() {
 
     if (freshCache) {
         rankingData = {
-            monthly: Array.isArray(freshCache.monthly) ? freshCache.monthly : [],
-            allTime: Array.isArray(freshCache.allTime) ? freshCache.allTime : []
+            monthly: Array.isArray(freshCache.monthly)
+                ? freshCache.monthly
+                : [],
+            allTime: Array.isArray(freshCache.allTime)
+                ? freshCache.allTime
+                : []
         };
+
         renderRanking(rankingData.monthly);
         return;
     }
@@ -154,8 +157,12 @@ async function loadRanking() {
         const data = await fetchRankingData();
 
         rankingData = {
-            monthly: Array.isArray(data.monthly) ? data.monthly : [],
-            allTime: Array.isArray(data.allTime) ? data.allTime : []
+            monthly: Array.isArray(data.monthly)
+                ? data.monthly
+                : [],
+            allTime: Array.isArray(data.allTime)
+                ? data.allTime
+                : []
         };
 
         writeRankingCache(rankingData);
@@ -169,9 +176,14 @@ async function loadRanking() {
 
         if (staleCache) {
             rankingData = {
-                monthly: Array.isArray(staleCache.monthly) ? staleCache.monthly : [],
-                allTime: Array.isArray(staleCache.allTime) ? staleCache.allTime : []
+                monthly: Array.isArray(staleCache.monthly)
+                    ? staleCache.monthly
+                    : [],
+                allTime: Array.isArray(staleCache.allTime)
+                    ? staleCache.allTime
+                    : []
             };
+
             renderRanking(rankingData.monthly);
             return;
         }
@@ -184,24 +196,98 @@ async function loadRanking() {
     }
 }
 
-function setActiveTab(tab) {
+function setActiveTab(tab, { focus = false } = {}) {
+    let activeButton = null;
+
     tabButtons.forEach(button => {
         const active = button.dataset.tab === tab;
+
         button.classList.toggle("active", active);
         button.setAttribute("aria-selected", String(active));
+        button.tabIndex = active ? 0 : -1;
+
+        if (active) {
+            activeButton = button;
+        }
     });
+
+    if (rankingList && activeButton?.id) {
+        rankingList.setAttribute(
+            "aria-labelledby",
+            activeButton.id
+        );
+    }
 
     renderRanking(
         tab === "allTime"
             ? rankingData.allTime
             : rankingData.monthly
     );
+
+    if (focus) {
+        activeButton?.focus();
+    }
+}
+
+function getTabIndex(button) {
+    return tabButtons.indexOf(button);
+}
+
+function handleTabKeydown(event) {
+    const currentIndex = getTabIndex(event.currentTarget);
+
+    if (currentIndex < 0) return;
+
+    let nextIndex = currentIndex;
+
+    switch (event.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+            nextIndex = (currentIndex + 1) % tabButtons.length;
+            break;
+
+        case "ArrowLeft":
+        case "ArrowUp":
+            nextIndex =
+                (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+            break;
+
+        case "Home":
+            nextIndex = 0;
+            break;
+
+        case "End":
+            nextIndex = tabButtons.length - 1;
+            break;
+
+        default:
+            return;
+    }
+
+    event.preventDefault();
+
+    const nextButton = tabButtons[nextIndex];
+
+    if (nextButton) {
+        setActiveTab(
+            nextButton.dataset.tab,
+            { focus: true }
+        );
+    }
 }
 
 tabButtons.forEach(button => {
     button.addEventListener("click", () => {
         setActiveTab(button.dataset.tab);
     });
+
+    button.addEventListener(
+        "keydown",
+        handleTabKeydown
+    );
 });
 
-document.addEventListener("DOMContentLoaded", loadRanking);
+document.addEventListener("DOMContentLoaded", () => {
+    setActiveTab("monthly");
+    loadRanking();
+});

@@ -32,13 +32,22 @@ Créditos de fundo/avatar possuem fallback em `js/core/footer.js`.
 
 ## Validação
 
-Push/PR com mudanças em `data/**/*.json` executa:
+Push/PR com mudanças editoriais executa:
 
 ```text
 .github/workflows/validate-json.yml
 ```
 
-JSON inválido faz a checagem falhar.
+A validação agora verifica:
+
+- JSON sintaticamente válido;
+- chaves JSON duplicadas;
+- esquema e datas da agenda;
+- os sete dias esperados;
+- campos incompatíveis com `temLive=false`;
+- sincronização entre `hero.json`, fallback da Home, SEO e social preview;
+- `CNAME` de produção;
+- presença da proteção `_headers` para previews.
 
 ## Não colocar aqui
 

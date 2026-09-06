@@ -4,6 +4,7 @@
 
     const path = window.location.pathname;
     const onDonations = path.includes("/doacoes");
+    const onHome = Boolean(document.getElementById("inicio"));
     const sitePath = window.KAMYLI_SITE_PATH || (value => value);
 
     mount.innerHTML = `
@@ -220,7 +221,20 @@
 
     function setActiveLink(link, behavior = "smooth") {
         mount.querySelectorAll(".site-nav-link").forEach(item => {
-            item.classList.toggle("is-active", item === link);
+            const active = item === link;
+
+            item.classList.toggle("is-active", active);
+
+            if (active) {
+                item.setAttribute(
+                    "aria-current",
+                    onDonations && item === donationsLink
+                        ? "page"
+                        : "location"
+                );
+            } else {
+                item.removeAttribute("aria-current");
+            }
         });
 
         if (link) {
@@ -432,7 +446,7 @@
                 window.location.href = sitePath("/");
             });
         });
-    } else {
+    } else if (onHome) {
         const sectionMap = new Map();
 
         navSectionLinks.forEach(link => {

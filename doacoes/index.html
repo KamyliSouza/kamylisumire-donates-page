@@ -201,9 +201,12 @@
                 <button
                     class="tab-btn active"
                     type="button"
+                    id="rankingTabMonthly"
                     data-tab="monthly"
                     role="tab"
                     aria-selected="true"
+                    aria-controls="rankingList"
+                    tabindex="0"
                 >
                     <span id="rankingMonthlyTab">Este mês</span>
                 </button>
@@ -211,15 +214,25 @@
                 <button
                     class="tab-btn"
                     type="button"
+                    id="rankingTabAllTime"
                     data-tab="allTime"
                     role="tab"
                     aria-selected="false"
+                    aria-controls="rankingList"
+                    tabindex="-1"
                 >
                     <span id="rankingAllTimeTab">Todos os tempos</span>
                 </button>
             </div>
 
-            <ol id="rankingList" class="ranking-list" aria-live="polite">
+            <ol
+                id="rankingList"
+                class="ranking-list"
+                role="tabpanel"
+                aria-live="polite"
+                aria-labelledby="rankingTabMonthly"
+                tabindex="0"
+            >
                 <li class="ranking-status">Carregando ranking...</li>
             </ol>
         </section>

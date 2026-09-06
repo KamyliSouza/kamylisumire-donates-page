@@ -1,154 +1,101 @@
-# README-MIGRACAO.md — Estado e plano
+# README-MIGRACAO.md — Migração concluída e estado de produção
+
+> A migração do novo site para o domínio principal foi concluída em setembro de 2026. Este arquivo permanece como registro operacional e checklist pós-migração.
 
 ## Estado atual
 
-A `site-v2` contém a arquitetura modular:
+Produção:
 
 ```text
-/           → Home
-/doacoes/   → Doações + ranking
+https://kamylisumire.com/          → Home
+https://kamylisumire.com/doacoes/ → Doações + ranking
 ```
 
-Preview:
+Hostname legado:
 
 ```text
-https://site-v2.kamylisumire-site.pages.dev
+https://donate.kamylisumire.com
+301 → https://kamylisumire.com/doacoes/
 ```
 
 Branches:
 
 ```text
-site-v2 → preview/desenvolvimento
-main    → produção
+main    → produção no GitHub Pages
+site-v2 → desenvolvimento/preview no Cloudflare Pages
 ```
 
-## Já consolidado
-
-- Home e Doações isoladas;
-- navbar/footer compartilhados;
-- modo claro/escuro;
-- blur ligado/desligado;
-- loader com favicon;
-- conteúdo editorial em JSON;
-- agenda em JSON;
-- Regras/Créditos editáveis;
-- ranking isolado;
-- 404 atualizada;
-- validação automática de JSON.
-
-## Conteúdo editável
+Preview técnico:
 
 ```text
-data/agenda.json
-data/content/
+https://site-v2.kamylisumire-site.pages.dev
 ```
 
-Guia:
+Os hosts `pages.dev` devem permanecer `noindex`.
+
+## Domínio e HTTPS
+
+O GitHub Pages está configurado com:
 
 ```text
-data/content/README.md
+Custom domain: kamylisumire.com
+Enforce HTTPS: habilitado
 ```
 
-## Preview Cloudflare Pages
-
-Configuração esperada:
+O arquivo da raiz deve permanecer:
 
 ```text
-Framework: None
-Build command: vazio ou exit 0
-Root: raiz
-Output: .
-Production branch: main
-Preview branch: site-v2
+CNAME
+→ kamylisumire.com
 ```
 
-## Checklist antes do merge
+Não trocar o `CNAME` de volta para `donate.kamylisumire.com`.
 
-### Home
+## DNS de produção
 
-- [ ] navbar;
-- [ ] tema e blur;
-- [ ] loader;
-- [ ] avatar/favicon;
-- [ ] agenda/carrossel;
-- [ ] Regras/Créditos;
-- [ ] scroll com mais de cinco itens;
-- [ ] navegação mobile para Agenda/Regras/Créditos;
-- [ ] footer;
-- [ ] aviso de saída em links externos das redes, créditos e footer.
-
-### Doações
-
-- [ ] layout desktop;
-- [ ] layout mobile;
-- [ ] LivePix/Pixie;
-- [ ] aviso alinhado;
-- [ ] ranking;
-- [ ] cache/fallback do ranking;
-- [ ] footer;
-- [ ] aviso de saída no LivePix/Pixie e demais links externos.
-
-### 404
-
-- [ ] navbar;
-- [ ] tema/blur;
-- [ ] footer;
-- [ ] botão para Home;
-- [ ] URL aninhada;
-- [ ] pages.dev;
-- [ ] GitHub Pages de projeto, se usado.
-
-## Migração do domínio principal
-
-Após aprovação do preview:
-
-1. merge `site-v2` → `main`;
-2. confirmar GitHub Pages;
-3. confirmar `kamylisumire.com`;
-4. testar HTTPS;
-5. testar `/doacoes/`;
-6. só então tratar `donate.kamylisumire.com`.
-
-Redirect desejado:
+O apex utiliza os endereços do GitHub Pages e o `www` aponta para:
 
 ```text
-https://donate.kamylisumire.com
-301 →
-https://kamylisumire.com/doacoes/
+kamylisouza.github.io
 ```
 
+O hostname `donate` é tratado pelo Cloudflare como redirect permanente para `/doacoes/`.
+
+Mudanças futuras de DNS devem ser tratadas como infraestrutura e separadas de alterações de frontend.
 
 ## SEO e indexação
 
-A versão de produção deve publicar:
+Produção publica:
 
 ```text
-/robots.txt
-/sitemap.xml
+https://kamylisumire.com/robots.txt
+https://kamylisumire.com/sitemap.xml
 ```
 
-Depois do cutover:
-
-1. criar/verificar a propriedade de domínio `kamylisumire.com` no Google Search Console;
-2. enviar `https://kamylisumire.com/sitemap.xml`;
-3. inspecionar `/` e `/doacoes/`;
-4. solicitar indexação das duas páginas;
-5. monitorar indexação e canônicos escolhidos pelo Google.
-
-O hostname legado `donate.kamylisumire.com` deve responder com 301 para
-`https://kamylisumire.com/doacoes/`.
-
-
-## Proteção dos ambientes de preview
-
-O domínio oficial indexável é:
+URLs canônicas atualmente indexáveis:
 
 ```text
-https://kamylisumire.com
+https://kamylisumire.com/
+https://kamylisumire.com/doacoes/
 ```
 
-Os endereços Cloudflare Pages são ambientes técnicos e não devem competir
-com a produção nos mecanismos de busca.
+A 404 permanece `noindex`.
+
+O Google Search Console já pode usar a propriedade:
+
+```text
+kamylisumire.com
+```
+
+Fluxo de manutenção:
+
+1. manter o sitemap acessível;
+2. adicionar novas páginas públicas ao sitemap quando apropriado;
+3. manter canonical sempre no domínio principal;
+4. não enviar URLs `pages.dev` ao Search Console;
+5. manter o redirect legado como 301.
+
+## Proteção dos previews
 
 O arquivo:
 
@@ -156,28 +103,72 @@ O arquivo:
 _headers
 ```
 
-aplica `X-Robots-Tag: noindex` a:
+aplica:
 
 ```text
-*.pages.dev
-*.*.pages.dev
+X-Robots-Tag: noindex
 ```
 
-Cloudflare Pages já adiciona `noindex` automaticamente a preview deployments,
-mas a regra explícita também protege o domínio padrão do projeto
-`kamylisumire-site.pages.dev`.
+nos hosts do Cloudflare Pages.
 
-Checklist:
+Objetivo: evitar conteúdo duplicado entre preview e produção.
 
-- [ ] `kamylisumire.com` permanece indexável;
-- [ ] `site-v2.kamylisumire-site.pages.dev` retorna `X-Robots-Tag: noindex`;
-- [ ] `kamylisumire-site.pages.dev` retorna `X-Robots-Tag: noindex`;
-- [ ] nenhuma URL `pages.dev` entra no sitemap;
-- [ ] canonical continua apontando para `kamylisumire.com`.
+## Conteúdo editável
+
+Agenda:
+
+```text
+data/agenda.json
+```
+
+Textos:
+
+```text
+data/content/
+```
+
+A V33 adiciona validação automática de conteúdo para impedir:
+
+- JSON inválido;
+- chaves duplicadas;
+- datas de agenda fora de `AAAA-MM-DD`;
+- IDs/dias inconsistentes;
+- campos de live inconsistentes;
+- divergência entre Hero, fallback HTML, SEO e social preview;
+- `CNAME` incorreto;
+- ausência da proteção `_headers`.
+
+Workflow:
+
+```text
+.github/workflows/validate-json.yml
+```
+
+Validador:
+
+```text
+.github/scripts/validate-content.py
+```
+
+## Checklist de deploy
+
+Antes de publicar alterações em `main`:
+
+- [ ] GitHub Actions verde;
+- [ ] Home funcionando;
+- [ ] Agenda carregando;
+- [ ] Regras e Créditos carregando;
+- [ ] `/doacoes/` funcionando;
+- [ ] ranking carregando ou usando fallback de cache;
+- [ ] tema/blur funcionando;
+- [ ] links externos exibindo confirmação;
+- [ ] footer correto;
+- [ ] `robots.txt` e `sitemap.xml` acessíveis;
+- [ ] preview `pages.dev` continua `noindex`.
 
 ## API / Worker
 
-A V28 não altera:
+A estabilização V33 não altera:
 
 ```text
 workers.js
@@ -185,22 +176,24 @@ OAuth
 KV RANKINGS
 CORS
 REDIRECT_URI
-endpoint
+endpoint da API
 ```
 
-A futura migração para:
+A possível migração futura para:
 
 ```text
 https://api.kamylisumire.com
 ```
 
-deve ser uma tarefa de infraestrutura separada, reutilizando o mesmo Worker e mantendo `workers.dev` durante a transição.
+continua sendo uma tarefa de infraestrutura separada e deve reutilizar o mesmo Worker, mantendo `workers.dev` durante a transição.
 
-## Pós-migração
+## Próxima etapa técnica sugerida
 
-Depois de estabilizar `main`:
+Depois da estabilização, melhorias de performance podem ser tratadas isoladamente:
 
-- revisar SEO/canonical;
-- revisar acessibilidade avançada do ranking;
-- avaliar cache dos JSONs;
-- avaliar domínio customizado da API em tarefa separada.
+- otimização de `fundo.png`;
+- otimização de avatar/favicon;
+- revisão dos preloads;
+- redução da espera artificial do loader.
+
+Essas otimizações não fazem parte da V33.

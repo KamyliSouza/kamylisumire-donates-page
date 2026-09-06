@@ -1,0 +1,27 @@
+V33 — aplicação sobre a main atual
+
+Este pacote é um overlay, não uma cópia completa do repositório.
+
+Copie/substitua os arquivos mantendo os mesmos caminhos.
+
+Principais mudanças:
+- CNAME correto para kamylisumire.com
+- _headers da V32 incluído
+- agenda.json normalizado
+- hero.json sincronizado com SEO/preview
+- validação semântica no GitHub Actions
+- aria-current na navbar
+- ranking com tabs acessíveis e teclado
+- documentação marcada como pós-migração
+
+Não alterado:
+- workers.js
+- js/core/api.js
+- js/core/config.js
+- OAuth/KV/CORS/DNS
+
+Depois de aplicar:
+1. revise o diff no GitHub Desktop/WinMerge;
+2. faça commit/push;
+3. confirme o workflow "Validate site content" verde;
+4. teste Home, Agenda, 404 e /doacoes/.

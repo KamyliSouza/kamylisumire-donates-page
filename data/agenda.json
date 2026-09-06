@@ -2,13 +2,13 @@
   "ultimaAtualizacao": "05/09/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
-      {
+    {
       "id": "domingo",
       "nome": "Domingo",
-      "data": "2026-09-6",
+      "data": "2026-09-06",
       "temLive": false,
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "horario": "",
+      "titulo": "",
       "descricao": "",
       "plataformas": [
         "YouTube",
@@ -60,8 +60,8 @@
       "data": "2026-09-10",
       "temLive": false,
       "horario": "",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "titulo": "",
+      "descricao": "",
       "plataformas": [
         "YouTube",
         "Twitch"

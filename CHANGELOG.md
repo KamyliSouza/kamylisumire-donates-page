@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## V33 — estabilização pós-migração
+
+- `CNAME` consolidado como `kamylisumire.com`;
+- proteção `_headers` da V32 incorporada ao estado esperado de produção;
+- `agenda.json` normalizado e limpo;
+- chave duplicada de `descricao` removida;
+- datas da agenda normalizadas para `AAAA-MM-DD`;
+- campos de dias sem live limpos;
+- `hero.json` sincronizado com fallback HTML, SEO e social preview;
+- CI substituído por validação sintática + semântica com biblioteca padrão Python;
+- CI detecta chaves JSON duplicadas;
+- CI valida esquema/dias/datas da agenda;
+- CI impede divergência Hero/SEO/preview;
+- navbar adiciona `aria-current` e deixa 404 sem seção ativa;
+- tabs do ranking recebem padrão ARIA completo e navegação por teclado;
+- documentação atualizada para refletir migração concluída;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V32 — proteção SEO dos previews
 
 - `_headers` adicionado na raiz;

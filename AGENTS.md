@@ -1,6 +1,6 @@
 # AGENTS.md — Referência operacional para agentes de IA
 
-Este arquivo descreve o estado atual da branch `site-v2` e as regras que devem ser preservadas por qualquer agente que edite o projeto.
+Este arquivo descreve o estado atual do projeto em produção e as regras que devem ser preservadas por qualquer agente que edite `main` ou `site-v2`.
 
 ## Objetivo
 
@@ -10,14 +10,32 @@ URLs-alvo:
 
 - `https://kamylisumire.com/` → Home;
 - `https://kamylisumire.com/doacoes/` → Doações;
-- `https://donate.kamylisumire.com` → futuramente 301 para `/doacoes/`.
+- `https://donate.kamylisumire.com` → 301 permanente para `https://kamylisumire.com/doacoes/`.
 
 Branches:
 
-- `main` → produção;
-- `site-v2` → desenvolvimento/preview.
+- `main` → produção no GitHub Pages;
+- `site-v2` → desenvolvimento/preview no Cloudflare Pages.
 
 Não introduza framework, bundler ou build obrigatório sem solicitação explícita.
+
+## Estado de produção
+
+A migração para o domínio principal está concluída.
+
+```text
+kamylisumire.com          → produção
+donate.kamylisumire.com  → 301 para /doacoes/
+site-v2...pages.dev       → preview noindex
+```
+
+O arquivo `CNAME` da `main` deve conter somente:
+
+```text
+kamylisumire.com
+```
+
+Não tratar a migração do domínio principal como tarefa pendente.
 
 ## Estrutura atual
 
@@ -390,6 +408,46 @@ Não colocar os domínios `pages.dev` em:
 - `sitemap.xml`;
 - canonical;
 - Search Console como URLs de produção.
+
+## Validação automática V33
+
+O workflow `.github/workflows/validate-json.yml` executa:
+
+```text
+.github/scripts/validate-content.py
+```
+
+Ele valida:
+
+- todos os JSONs sem chaves duplicadas;
+- esquema semântico da agenda;
+- datas em `AAAA-MM-DD`;
+- sete dias/IDs esperados;
+- coerência de `temLive`;
+- Hero sincronizado com fallback HTML, SEO e social preview;
+- `CNAME = kamylisumire.com`;
+- presença de `_headers` com `noindex` para previews.
+
+Não enfraquecer essas checagens sem motivo explícito.
+
+## Acessibilidade da navegação e ranking
+
+A navbar deve manter `aria-current` no destino ativo:
+
+- `page` em `/doacoes/`;
+- `location` na seção ativa da Home.
+
+A 404 não deve marcar Início como página/seção atual.
+
+As abas do ranking usam o padrão ARIA de tabs:
+
+- `role=tablist`;
+- `role=tab`;
+- `aria-selected`;
+- `aria-controls`;
+- `role=tabpanel`;
+- roving `tabindex`;
+- ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End.
 
 ## API / Worker — invariantes críticos
 

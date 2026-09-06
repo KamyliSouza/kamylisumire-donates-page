@@ -2,18 +2,41 @@
 
 Site estático e modular da Kamyli Sumire.
 
-## Páginas
+## Produção
+
+```text
+https://kamylisumire.com/
+```
+
+Páginas públicas:
 
 ```text
 /          Home
 /doacoes/  Doações + ranking
 ```
 
-Preview:
+O endereço legado:
+
+```text
+https://donate.kamylisumire.com
+```
+
+redireciona permanentemente para `/doacoes/`.
+
+## Ambientes
+
+```text
+main    → produção / GitHub Pages
+site-v2 → preview / Cloudflare Pages
+```
+
+Preview técnico:
 
 ```text
 https://site-v2.kamylisumire-site.pages.dev
 ```
+
+Os ambientes `pages.dev` não devem ser indexados.
 
 ## Stack
 
@@ -21,8 +44,11 @@ https://site-v2.kamylisumire-site.pages.dev
 - CSS;
 - JavaScript vanilla;
 - JSON para conteúdo editorial;
-- GitHub Pages / Cloudflare Pages;
+- GitHub Pages em produção;
+- Cloudflare Pages para preview;
 - Worker existente somente para API/ranking.
+
+Não há framework ou build obrigatório.
 
 ## Conteúdo
 
@@ -37,11 +63,27 @@ data/content/
 css/core/        compartilhado
 css/components/  componentes
 css/pages/       páginas
-js/core/         módulos compartilhados, incluindo aviso global de links externos
+js/core/         módulos compartilhados
 js/pages/        lógica por página
 data/            conteúdo editável
 assets/          identidade visual
 ```
+
+## Validação automática
+
+O workflow:
+
+```text
+.github/workflows/validate-json.yml
+```
+
+executa:
+
+```text
+.github/scripts/validate-content.py
+```
+
+para validar JSONs, agenda, sincronização Hero/SEO/preview e arquivos de produção.
 
 ## Desenvolvimento local
 
@@ -62,7 +104,8 @@ http://localhost:8000/doacoes/
 
 - `AGENTS.md` → arquitetura/invariantes;
 - `DESIGN-SYSTEM.md` → identidade visual;
-- `README-MIGRACAO.md` → migração;
-- `CHANGELOG.md` → histórico consolidado.
+- `README-MIGRACAO.md` → estado de produção e registro da migração;
+- `CHANGELOG.md` → histórico consolidado;
+- `docs/` → notas técnicas por versão.
 
-Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente.
+Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente das alterações de frontend.
