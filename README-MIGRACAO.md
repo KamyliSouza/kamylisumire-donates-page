@@ -1,135 +1,146 @@
-# Kamyli Sumire — estrutura modular (site-v2)
+# README-MIGRACAO.md — Estado e plano
 
-Esta versão reorganiza o projeto para permitir novas páginas e miniaplicações sem acoplar a lógica entre elas.
+## Estado atual
 
-## Estrutura
-
-```text
-/
-├── index.html
-├── 404.html
-├── CNAME
-├── .nojekyll
-├── workers.js
-├── avatar.png          # manter o arquivo atual do repositório
-├── favicon.png         # manter o arquivo atual do repositório
-├── fundo.png           # manter o arquivo atual do repositório
-├── preview.png         # manter o arquivo atual do repositório
-│
-├── doacoes/
-│   └── index.html
-│
-├── css/
-│   ├── core/
-│   │   ├── variables.css
-│   │   ├── global.css
-│   │   └── navbar.css
-│   ├── components/
-│   │   └── ranking.css
-│   └── pages/
-│       ├── home.css
-│       └── doacoes.css
-│
-├── js/
-│   ├── core/
-│   │   ├── config.js
-│   │   ├── api.js
-│   │   └── navbar.js
-│   └── pages/
-│       ├── home/
-│       │   └── home.js
-│       └── doacoes/
-│           ├── doacoes.js
-│           └── ranking.js
-│
-└── data/
-    └── agenda.json
-```
-
-## Princípio da modularidade
-
-- `css/core/` e `js/core/` são compartilhados por todo o site.
-- `css/pages/` e `js/pages/` pertencem somente à página/aplicação correspondente.
-- `css/components/` contém componentes reutilizáveis, como o ranking.
-- `js/core/api.js` é a única camada que decide qual URL da API usar e como fazer fallback.
-
-## API atual
-
-`js/core/config.js` continua com `useCustomDomain: false`, portanto a página de doações continua usando exatamente:
-
-`https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev`
-
-Quando `api.kamylisumire.com` estiver pronto, altere apenas `useCustomDomain` para `true`. O endereço `workers.dev` permanece como fallback.
-
-## Como adicionar uma nova aplicação
-
-Exemplo: `/sorteio/`
-
-Crie:
+A `site-v2` contém a arquitetura modular:
 
 ```text
-sorteio/index.html
-css/pages/sorteio.css
-js/pages/sorteio/sorteio.js
+/           → Home
+/doacoes/   → Doações + ranking
 ```
 
-No HTML da aplicação carregue primeiro os módulos compartilhados:
+Preview:
 
-```html
-<link rel="stylesheet" href="../css/core/variables.css">
-<link rel="stylesheet" href="../css/core/global.css">
-<link rel="stylesheet" href="../css/core/navbar.css">
-<link rel="stylesheet" href="../css/pages/sorteio.css">
-
-<script src="../js/core/config.js"></script>
-<script src="../js/core/api.js"></script>
-<script src="../js/core/navbar.js"></script>
-<script src="../js/pages/sorteio/sorteio.js"></script>
+```text
+https://site-v2.kamylisumire-site.pages.dev
 ```
 
-Se precisar da API:
+Branches:
 
-```js
-const dados = await KamyliAPI.getJSON("/sorteio");
+```text
+site-v2 → preview/desenvolvimento
+main    → produção
 ```
 
-Assim a aplicação continua integrada à navbar, identidade visual e API, mas seu CSS e JavaScript ficam isolados.
+## Já consolidado
 
-## Agenda
+- Home e Doações isoladas;
+- navbar/footer compartilhados;
+- modo claro/escuro;
+- blur ligado/desligado;
+- loader com favicon;
+- conteúdo editorial em JSON;
+- agenda em JSON;
+- Regras/Créditos editáveis;
+- ranking isolado;
+- 404 atualizada;
+- validação automática de JSON.
 
-Edite somente `data/agenda.json`.
+## Conteúdo editável
 
-## Arquivos antigos que podem ser removidos da raiz da branch
+```text
+data/agenda.json
+data/content/
+```
 
-- `style.css`
-- `script.js`
-- `ranking.css`
-- `ranking.js`
+Guia:
+
+```text
+data/content/README.md
+```
 
 ## Preview Cloudflare Pages
 
-- Production branch: `main`
-- Preview branch: `site-v2`
-- Framework: `None`
-- Build command: `exit 0`
-- Root directory: vazio
-- Output directory: `.`
-
-
-## Padronização visual
-
-A identidade visual modular é baseada na branch `main`.
-
-Consulte:
+Configuração esperada:
 
 ```text
-DESIGN-SYSTEM.md
+Framework: None
+Build command: vazio ou exit 0
+Root: raiz
+Output: .
+Production branch: main
+Preview branch: site-v2
 ```
 
-A fonte de verdade de cores, superfícies, sombras e raios é:
+## Checklist antes do merge
+
+### Home
+
+- [ ] navbar;
+- [ ] tema e blur;
+- [ ] loader;
+- [ ] avatar/favicon;
+- [ ] agenda/carrossel;
+- [ ] Regras/Créditos;
+- [ ] scroll com mais de cinco itens;
+- [ ] navegação mobile para Agenda/Regras/Créditos;
+- [ ] footer.
+
+### Doações
+
+- [ ] layout desktop;
+- [ ] layout mobile;
+- [ ] LivePix/Pixie;
+- [ ] aviso alinhado;
+- [ ] ranking;
+- [ ] cache/fallback do ranking;
+- [ ] footer.
+
+### 404
+
+- [ ] navbar;
+- [ ] tema/blur;
+- [ ] footer;
+- [ ] botão para Home;
+- [ ] URL aninhada;
+- [ ] pages.dev;
+- [ ] GitHub Pages de projeto, se usado.
+
+## Migração do domínio principal
+
+Após aprovação do preview:
+
+1. merge `site-v2` → `main`;
+2. confirmar GitHub Pages;
+3. confirmar `kamylisumire.com`;
+4. testar HTTPS;
+5. testar `/doacoes/`;
+6. só então tratar `donate.kamylisumire.com`.
+
+Redirect desejado:
 
 ```text
-css/core/variables.css
+https://donate.kamylisumire.com
+301 →
+https://kamylisumire.com/doacoes/
 ```
 
-Evite redefinir cores globais em CSS de página. A Home pode ter um layout mais amplo, enquanto `/doacoes/` preserva propositalmente a aparência compacta e familiar do site original.
+## API / Worker
+
+A V28 não altera:
+
+```text
+workers.js
+OAuth
+KV RANKINGS
+CORS
+REDIRECT_URI
+endpoint
+```
+
+A futura migração para:
+
+```text
+https://api.kamylisumire.com
+```
+
+deve ser uma tarefa de infraestrutura separada, reutilizando o mesmo Worker e mantendo `workers.dev` durante a transição.
+
+## Pós-migração
+
+Depois de estabilizar `main`:
+
+- revisar SEO/canonical;
+- revisar acessibilidade avançada do ranking;
+- avaliar cache dos JSONs;
+- avaliar domínio customizado da API em tarefa separada.

@@ -245,6 +245,20 @@ a {
 }
 
 @media (max-width: 760px) {
+    /*
+     * "fixed" exige mais repaints em vários navegadores móveis.
+     * Em telas pequenas usamos scroll sem alterar a identidade visual.
+     */
+    body {
+        background-attachment: scroll;
+    }
+
+    .site-shell {
+        width: min(100% - 24px, 1120px);
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
     .site-footer {
         width: min(100% - 24px, 1120px);
         padding: 16px 18px;
@@ -279,14 +293,6 @@ a {
     -webkit-backdrop-filter: none;
 }
 
-@media (max-width: 760px) {
-    .site-shell {
-        width: min(100% - 24px, 1120px);
-        margin-top: 20px;
-        margin-bottom: 40px;
-    }
-
-}
 
 @media (prefers-reduced-motion: reduce) {
     body,

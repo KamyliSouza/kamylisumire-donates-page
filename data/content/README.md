@@ -1,67 +1,50 @@
-# Editando o conteúdo do site
-
-Os textos editáveis dos cards ficam concentrados em `data/content/`.
+# Conteúdo editável
 
 ## Arquivos
 
-| Arquivo | Área |
-| --- | --- |
-| `hero.json` | Card principal da Home |
-| `home-doacoes.json` | CTA de doações da Home |
-| `regras.json` | Card de Regras |
-| `creditos.json` | Card de Créditos |
-| `doacoes.json` | Card principal de `/doacoes/` |
-| `ranking.json` | Cabeçalho e abas do Ranking |
-| `footer.json` | Créditos fixos e textos do Footer |
+```text
+hero.json          → Hero da Home
+home-doacoes.json  → CTA de Doações
+regras.json        → Regras
+creditos.json      → Créditos
+doacoes.json       → textos de /doacoes/
+ranking.json       → textos do Ranking
+footer.json        → Footer
+```
 
-A agenda permanece em:
+Agenda:
 
 ```text
-data/agenda.json
+../agenda.json
 ```
 
-## O que editar no JSON
+## Edição
 
-Edite somente os valores à direita de cada chave.
+Edite valores mantendo JSON válido.
 
-Exemplo:
+Para Regras/Créditos, adicione objetos em `itens`.
 
-```json
-{
-  "titulo": "Meu novo título"
-}
-```
-
-Não remova:
-
-- aspas;
-- vírgulas necessárias;
-- chaves `{}`;
-- colchetes `[]`.
-
-## Regras e Créditos
-
-Para adicionar elementos, inclua novos objetos dentro de `itens`.
-
-Com mais de cinco itens, o scroll interno é ativado automaticamente.
+Mais de cinco itens ativa scroll interno automaticamente.
 
 ## Footer
 
-`footer.json` pode ser editado, mas o código possui fallback para os créditos
-do avatar e da arte de fundo. Assim, esses créditos continuam aparecendo se o
-JSON falhar.
+Créditos de fundo/avatar possuem fallback em `js/core/footer.js`.
 
-## O que NÃO foi colocado em JSON
+## Validação
 
-Continuam no código:
+Push/PR com mudanças em `data/**/*.json` executa:
 
-- domínio/API/Worker;
-- rotas internas;
+```text
+.github/workflows/validate-json.yml
+```
+
+JSON inválido faz a checagem falhar.
+
+## Não colocar aqui
+
+- endpoint do Worker;
+- secrets/OAuth;
+- DNS;
 - chaves de cache;
-- comportamento da navbar;
-- animações;
-- lógica do ranking;
-- SVGs;
-- layout e CSS.
-
-Isso mantém conteúdo editorial separado da infraestrutura.
+- lógica JavaScript;
+- rotas técnicas.

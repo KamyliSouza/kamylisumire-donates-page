@@ -198,30 +198,6 @@
     isolation: isolate;
 }
 
-.agenda-carousel::before {
-    left: 0;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--card-bg) 0%,
-            var(--card-bg) 14%,
-            transparent 100%
-        );
-}
-
-.agenda-carousel::after {
-    right: 0;
-
-    background:
-        linear-gradient(
-            270deg,
-            var(--card-bg) 0%,
-            var(--card-bg) 14%,
-            transparent 100%
-        );
-}
-
 .agenda-carousel-track {
     position: relative;
     z-index: 1;
@@ -525,45 +501,6 @@
     font-weight: 600;
 }
 
-@media (max-width: 900px) {
-    .agenda-card {
-        flex-basis: clamp(220px, 40vw, 280px);
-    }
-}
-
-@media (max-width: 720px) {
-    .agenda-card {
-        flex-basis: min(78vw, 280px);
-    }
-}
-
-@media (max-width: 500px) {
-    .agenda-card {
-        flex-basis: min(82vw, 270px);
-        min-height: 210px;
-        height: auto;
-    }
-
-    .agenda-card-top {
-        gap: 8px;
-    }
-
-    .agenda-status {
-        padding: 5px 7px;
-
-        font-size: .62rem;
-    }
-
-    .agenda-date,
-    .agenda-time {
-        font-size: 1.02rem;
-    }
-
-    .agenda-title {
-        font-size: 1.12rem;
-    }
-}
-
 /* =========================================================
    REGRAS / CRÉDITOS — CONTEÚDO EDITÁVEL VIA JSON
    ========================================================= */
@@ -824,16 +761,6 @@
         flex-direction: column;
     }
 
-    .agenda-heading-actions {
-        width: 100%;
-
-        justify-content: space-between;
-    }
-
-    .agenda-heading-actions .section-note {
-        text-align: left;
-    }
-
     .agenda-card {
         flex-basis: min(78vw, 280px);
     }
@@ -885,6 +812,27 @@
 
     .agenda-card {
         flex-basis: min(82vw, 270px);
+        min-height: 210px;
+        height: auto;
+    }
+
+    .agenda-card-top {
+        gap: 8px;
+    }
+
+    .agenda-status {
+        padding: 5px 7px;
+
+        font-size: .62rem;
+    }
+
+    .agenda-date,
+    .agenda-time {
+        font-size: 1.02rem;
+    }
+
+    .agenda-title {
+        font-size: 1.12rem;
     }
 
     .agenda-carousel-button {
