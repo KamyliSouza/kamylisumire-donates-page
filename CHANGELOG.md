@@ -1,4 +1,10 @@
 # CHANGELOG
+## V42.2 — ajuste visual do seletor de configurações
+- remove a linha divisória entre os grupos Aparência e Blur;
+- a separação passa a usar somente espaçamento vertical;
+- evita a interrupção visual causada pelo comportamento de `fieldset`/`legend`;
+- não altera tema, blur, navbar, loader, transições, fonte local ou CI.
+
 ## V42.1 — loader com superfície adaptativa
 - loader deixa de usar fundo totalmente transparente;
 - overlay passa a usar `var(--card-bg)`, acompanhando tema claro/escuro;

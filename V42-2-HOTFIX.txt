@@ -1,0 +1,13 @@
+V42.2 — HOTFIX DO DIVISOR DE CONFIGURAÇÕES
+
+Aplicação:
+1. extraia este ZIP sobre a raiz da V42.1;
+2. permita substituir os arquivos existentes;
+3. commit/push.
+
+Não há arquivos para remover.
+
+Mudança:
+- remove a linha entre Aparência e Blur;
+- mantém somente espaçamento vertical entre os grupos;
+- nenhuma lógica de tema/blur/loader/navbar foi alterada.

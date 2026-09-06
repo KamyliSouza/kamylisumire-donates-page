@@ -78,3 +78,13 @@ pelos tokens reforçados usados quando o blur está desligado.
 Isso mantém o loader visualmente integrado aos cards sem alterar sua duração,
 logo ou transições.
 
+## Hotfix V42.2 — grupos sem divisor
+
+A linha entre os seletores de Aparência e Blur foi removida.
+
+O elemento é um `fieldset` com `legend`; uma borda superior nesse contexto pode
+ser visualmente interrompida pelo `legend`, produzindo uma linha inconsistente.
+
+A separação entre os grupos agora é feita somente por espaçamento vertical,
+mantendo o popover mais limpo e uniforme em tema claro, escuro e automático.
+

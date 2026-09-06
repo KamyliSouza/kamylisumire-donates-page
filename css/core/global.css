@@ -410,10 +410,15 @@ a {
 }
 
 .site-settings-group + .site-settings-group {
-    margin-top: 18px;
-    padding-top: 16px;
+    /*
+     * V42.2: fieldset + legend pode interromper visualmente um border-top.
+     * A separação entre Aparência e Blur passa a ser somente por espaço,
+     * evitando uma linha quebrada/desalinhada entre os seletores.
+     */
+    margin-top: 20px;
+    padding-top: 0;
 
-    border-top: 1px solid var(--card-border);
+    border-top: 0;
 }
 
 .site-settings-group legend {
