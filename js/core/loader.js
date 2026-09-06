@@ -14,32 +14,33 @@
 
         delete root.dataset.pageTransition;
 
-        root.classList.add(
-            "site-ready"
-        );
-
+        root.classList.add("site-ready");
         return;
     }
 
-    const SHOW_DELAY_MS = 180;
-    const MIN_VISIBLE_AFTER_SHOW_MS = 160;
-    const MAX_WAIT_MS = 2400;
+    const MIN_DISPLAY_MS = 1000;
+    const MAX_WAIT_MS = 4000;
     const EXIT_MS = 320;
     const REVEAL_STATE_MS = 420;
 
+    const startedAt =
+        Number(window.KAMYLI_LOADER_STARTED_AT) ||
+        performance.now();
+
     const needsAgenda =
         Boolean(
-            document.getElementById(
-                "agendaGrid"
-            )
+            document.getElementById("agendaGrid")
         );
 
     let domReady =
         document.readyState !== "loading";
 
     let finished = false;
-    let loaderShownAt = 0;
-    let showTimer = null;
+    let finishTimer = null;
+
+    root.classList.add(
+        "site-loading-visible"
+    );
 
     function localContentReady() {
         const pageContentReady =
@@ -59,19 +60,17 @@
         );
     }
 
-    function dispatchRevealed(
-        loaderWasShown
-    ) {
+    function dispatchRevealed() {
         window.dispatchEvent(
             new CustomEvent(
                 "kamyli:site-revealed",
                 {
                     detail: {
-                        loaderShown:
-                            loaderWasShown,
+                        loaderShown: true,
+                        minimumDisplayMs:
+                            MIN_DISPLAY_MS,
                         pageTransition:
-                            root.dataset
-                                .pageTransition ||
+                            root.dataset.pageTransition ||
                             null
                     }
                 }
@@ -87,11 +86,22 @@
         delete root.dataset.pageTransition;
     }
 
-    function beginReveal(
-        loaderWasShown
-    ) {
+    function beginReveal() {
+        if (finished) return;
+
+        finished = true;
+
+        if (finishTimer !== null) {
+            window.clearTimeout(finishTimer);
+            finishTimer = null;
+        }
+
         root.classList.add(
             "site-revealing"
+        );
+
+        loader.classList.add(
+            "is-leaving"
         );
 
         root.classList.remove(
@@ -99,18 +109,10 @@
             "site-loading-visible"
         );
 
-        if (loaderWasShown) {
-            loader.classList.add(
-                "is-leaving"
-            );
-
-            window.setTimeout(
-                () => loader.remove(),
-                EXIT_MS
-            );
-        } else {
-            loader.remove();
-        }
+        window.setTimeout(
+            () => loader.remove(),
+            EXIT_MS
+        );
 
         window.setTimeout(
             () => {
@@ -122,50 +124,14 @@
                     "site-ready"
                 );
 
-                dispatchRevealed(
-                    loaderWasShown
-                );
-
+                dispatchRevealed();
                 clearPageArrival();
             },
             REVEAL_STATE_MS
         );
     }
 
-    function finishWithoutShowingLoader() {
-        /*
-         * Fast-path normal da V39 permanece imediato.
-         * Só uma chegada marcada Home -> Doações recebe
-         * o reveal mesmo sem o loader aparecer.
-         */
-        if (
-            root.classList.contains(
-                "site-page-arriving"
-            )
-        ) {
-            beginReveal(false);
-            return;
-        }
-
-        root.classList.remove(
-            "site-loading-pending",
-            "site-loading-visible",
-            "site-revealing"
-        );
-
-        root.classList.add(
-            "site-ready"
-        );
-
-        loader.remove();
-
-        dispatchRevealed(false);
-        clearPageArrival();
-    }
-
-    function completeLoader(
-        force = false
-    ) {
+    function scheduleReveal(force = false) {
         if (finished) return;
 
         if (
@@ -178,63 +144,33 @@
             return;
         }
 
-        finished = true;
-
-        if (showTimer !== null) {
-            window.clearTimeout(
-                showTimer
-            );
-
-            showTimer = null;
-        }
-
-        if (!loaderShownAt) {
-            finishWithoutShowingLoader();
-            return;
-        }
-
-        const visibleFor =
-            performance.now() -
-            loaderShownAt;
+        const elapsed =
+            performance.now() - startedAt;
 
         const remaining =
-            force
-                ? 0
-                : Math.max(
-                    0,
-                    MIN_VISIBLE_AFTER_SHOW_MS -
-                        visibleFor
-                );
+            Math.max(
+                0,
+                MIN_DISPLAY_MS - elapsed
+            );
 
-        window.setTimeout(
-            () => beginReveal(true),
-            remaining
-        );
-    }
-
-    function showLoaderIfStillNeeded() {
-        showTimer = null;
-
-        if (finished) return;
-
-        if (
-            domReady &&
-            localContentReady()
-        ) {
-            completeLoader(false);
+        if (remaining === 0) {
+            beginReveal();
             return;
         }
 
-        loaderShownAt =
-            performance.now();
+        if (finishTimer !== null) {
+            return;
+        }
 
-        root.classList.add(
-            "site-loading-visible"
-        );
+        finishTimer =
+            window.setTimeout(
+                beginReveal,
+                remaining
+            );
     }
 
     function checkReady() {
-        completeLoader(false);
+        scheduleReveal(false);
     }
 
     if (!domReady) {
@@ -253,14 +189,8 @@
         checkReady
     );
 
-    showTimer =
-        window.setTimeout(
-            showLoaderIfStillNeeded,
-            SHOW_DELAY_MS
-        );
-
     window.setTimeout(
-        () => completeLoader(true),
+        () => scheduleReveal(true),
         MAX_WAIT_MS
     );
 

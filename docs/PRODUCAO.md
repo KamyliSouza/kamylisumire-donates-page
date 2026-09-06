@@ -120,3 +120,14 @@ Home, Doações e 404 fazem preload do WOFF2.
 A CI valida fonte/licença, ausência de Google Fonts, CSS modular e transições.
 
 A transição Home → Doações não altera Worker, OAuth, KV, CORS, DNS ou ranking.
+
+## V42 — preferências e loader
+
+A preferência de tema agora aceita `auto`, `light` e `dark`; o blur aceita
+`auto`, `on` e `off`.
+
+A CI valida os três estados, o botão Apoiar fixo à direita, o menu no rodapé e
+o loader transparente de no mínimo 1 segundo.
+
+A mudança é somente de frontend e não altera Worker, API, OAuth, KV, CORS ou
+DNS.

@@ -254,6 +254,263 @@ a {
     outline: none;
 }
 
+
+/* =========================================================
+   CONFIGURAÇÕES NO RODAPÉ — V42
+   ========================================================= */
+
+.site-footer-settings {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.site-footer-settings-toggle {
+    min-height: 36px;
+    padding: 7px 11px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.site-footer-settings-toggle svg {
+    width: 16px;
+    height: 16px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.site-footer-settings-toggle:hover,
+.site-footer-settings-toggle:focus-visible,
+.site-footer-settings-toggle[aria-expanded="true"] {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    outline: none;
+}
+
+.site-footer-settings-toggle:hover {
+    transform: translateY(-1px);
+}
+
+.site-settings-popover {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 12px);
+    z-index: 1200;
+
+    width: min(340px, calc(100vw - 32px));
+    padding: 18px;
+
+    color: var(--text-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+
+    text-align: left;
+}
+
+.site-settings-popover[hidden] {
+    display: none;
+}
+
+.site-settings-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.site-settings-eyebrow {
+    color: var(--primary-color);
+
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.site-settings-header h2 {
+    margin: 2px 0 0;
+
+    color: var(--text-color);
+
+    font-size: 1.08rem;
+    font-weight: 900;
+}
+
+.site-settings-close {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--subtitle-color);
+    background: transparent;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    font: inherit;
+    font-size: 1.35rem;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.site-settings-close:hover,
+.site-settings-close:focus-visible {
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+    border-color: var(--card-border);
+
+    outline: none;
+}
+
+.site-settings-group {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+}
+
+.site-settings-group + .site-settings-group {
+    margin-top: 18px;
+    padding-top: 16px;
+
+    border-top: 1px solid var(--card-border);
+}
+
+.site-settings-group legend {
+    margin-bottom: 9px;
+    padding: 0;
+
+    color: var(--text-color);
+
+    font-size: .86rem;
+    font-weight: 900;
+}
+
+.site-settings-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 6px;
+}
+
+.site-settings-option {
+    position: relative;
+    min-width: 0;
+}
+
+.site-settings-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.site-settings-option span {
+    min-height: 38px;
+    padding: 7px 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-color);
+    background-color: transparent;
+
+    border: 1px solid var(--card-border);
+    border-radius: 11px;
+
+    font-size: .78rem;
+    font-weight: 800;
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.site-settings-option input:checked + span {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.site-settings-option input:focus-visible + span {
+    outline: 3px solid var(--primary-soft);
+    outline-offset: 2px;
+}
+
+.site-settings-option input:not(:disabled) + span:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.site-settings-option input:disabled + span {
+    opacity: .48;
+    cursor: not-allowed;
+}
+
+.site-settings-status {
+    min-height: 1.25em;
+    margin: 8px 1px 0 !important;
+
+    color: var(--subtitle-color);
+
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.35 !important;
+}
+
+:root[data-blur="off"] .site-settings-popover {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
 @media (max-width: 760px) {
     /*
      * Mobile usa uma arte 720p dedicada.
@@ -303,6 +560,24 @@ a {
         justify-content: center;
 
         text-align: center;
+    }
+}
+
+
+
+@media (max-width: 760px) {
+    .site-footer-settings {
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .site-footer-settings-toggle {
+        min-height: 38px;
+    }
+
+    .site-settings-popover {
+        right: 50%;
+        transform: translateX(50%);
     }
 }
 
@@ -506,8 +781,8 @@ html[data-performance="reduced"].site-page-leaving .site-footer {
 }
 
 /* =========================================================
-   PRELOADER GLOBAL
-   Mostra o favicon pulsando enquanto o conteúdo local monta.
+   PRELOADER GLOBAL — V42
+   Mínimo de 1 segundo, fundo transparente e logo pulsando.
    ========================================================= */
 
 html.site-loading-pending,
@@ -525,18 +800,7 @@ html.site-loading-pending body {
 
     padding: 24px;
 
-    /*
-     * O loader não carrega a arte pesada do fundo.
-     * Um gradiente CSS mantém a identidade visual sem disputar banda
-     * com avatar, fontes, JSONs e scripts da primeira renderização.
-     */
-    background:
-        radial-gradient(
-            circle at 50% 42%,
-            var(--primary-soft) 0,
-            transparent 46%
-        ),
-        var(--bg-color);
+    background: transparent;
 
     opacity: 0;
     visibility: hidden;
@@ -547,6 +811,7 @@ html.site-loading-pending body {
         visibility .32s ease;
 }
 
+html.site-loading-pending .site-loader:not(.is-leaving),
 html.site-loading-visible .site-loader:not(.is-leaving) {
     opacity: 1;
     visibility: visible;
@@ -559,20 +824,18 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
 
     display: grid;
     place-items: center;
-
-    gap: 0;
 }
 
 .site-loader-logo {
-    width: 58px;
-    height: 58px;
+    width: 76px;
+    height: 76px;
 
     display: block;
 
     background-color: var(--primary-color);
 
-    -webkit-mask-image: url('../../assets/favicon.webp');
-    mask-image: url('../../assets/favicon.webp');
+    -webkit-mask-image: url('../../assets/logo.webp');
+    mask-image: url('../../assets/logo.webp');
 
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
@@ -584,12 +847,15 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
     mask-size: contain;
 
     animation:
-        site-loader-pulse 1.05s ease-in-out infinite;
+        site-loader-logo-pulse
+        1s
+        ease-in-out
+        infinite;
 
     filter:
         drop-shadow(
-            0 5px 14px
-            rgba(179, 94, 175, .18)
+            0 6px 16px
+            rgba(179, 94, 175, .22)
         );
 }
 
@@ -600,23 +866,23 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
     pointer-events: none;
 }
 
-@keyframes site-loader-pulse {
+@keyframes site-loader-logo-pulse {
     0%,
     100% {
-        opacity: .66;
-        transform: scale(.92);
+        opacity: .7;
+        transform: scale(.94);
     }
 
     50% {
         opacity: 1;
-        transform: scale(1.06);
+        transform: scale(1.04);
     }
 }
 
 @supports not ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
     .site-loader-logo {
         background-color: transparent;
-        background-image: url('../../assets/favicon.png');
+        background-image: url('../../assets/logo.webp');
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
@@ -636,3 +902,9 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
     }
 }
 
+html[data-performance="reduced"] .site-loader-logo {
+    animation: none;
+
+    opacity: 1;
+    transform: none;
+}

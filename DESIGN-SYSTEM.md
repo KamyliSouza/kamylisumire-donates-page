@@ -171,3 +171,27 @@ direita.
 - reduced motion elimina o efeito;
 - performance reduzida elimina o efeito;
 - loader continua dominante quando realmente aparece.
+
+## Configurações — V42
+
+O rodapé ganha um botão discreto de configurações. O popover usa as mesmas
+superfícies, bordas, raio e cor primária do restante do site.
+
+As escolhas são segmentadas em três opções por grupo:
+
+- Aparência: Automático, Claro, Escuro;
+- Blur: Automático, Ligado, Desligado.
+
+## Navbar — V42
+
+A área central continua rolável no mobile. O CTA `Apoiar` fica fora dela e
+permanece no lado direito da navbar.
+
+## Loader — V42
+
+- fundo transparente;
+- logo de 76 px;
+- pulsação de escala 0,94 → 1,04;
+- duração mínima de 1 segundo;
+- fade-out de 320 ms;
+- sem pulsação em reduced motion/performance reduzida.

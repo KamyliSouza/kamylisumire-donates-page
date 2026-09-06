@@ -1,4 +1,17 @@
 # CHANGELOG
+## V42 — configurações no rodapé, Apoiar fixo e loader estético
+- move tema e blur da navbar para um popover de Configurações no rodapé;
+- tema passa a oferecer Automático, Claro e Escuro;
+- modo Automático acompanha `prefers-color-scheme` em tempo real;
+- blur oferece Automático, Ligado e Desligado, preservando heurísticas adaptativas;
+- remove `themeToggle` e `blurToggle` da navbar;
+- move o CTA `Apoiar` para a direita da navbar, fora da área rolável;
+- Home, Doações e 404 usam loader com duração mínima de 1 segundo;
+- loader passa a ter fundo transparente e `logo.webp` pulsando;
+- reduced motion/performance reduzida desativam a pulsação, mas preservam o tempo mínimo;
+- mantém Nunito local, CSS modular, transição Home → Doações e CI customizada;
+- Worker/API/OAuth/KV/CORS/DNS/SEO não alterados.
+
 ## V41 — Nunito local e transição Home → Doações
 - remove `fonts.googleapis.com` e `fonts.gstatic.com` de Home, Doações e 404;
 - Nunito passa a ser servida localmente em `assets/fonts/nunito-variable.woff2`;

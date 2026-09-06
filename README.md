@@ -215,3 +215,24 @@ transição.
 
 A arquitetura final volta aos CSS modulares; `css/build/` não faz parte do
 estado consolidado.
+
+## V42 — configurações no rodapé e loader estético
+
+A navbar deixa de exibir os toggles de tema/blur. No lugar deles, o botão
+`Apoiar` fica fora da área rolável e permanece fixo à direita da navbar.
+
+As preferências visuais passam para um menu no rodapé:
+
+```text
+Aparência: Automático | Claro | Escuro
+Blur:      Automático | Ligado | Desligado
+```
+
+`Automático` no tema acompanha `prefers-color-scheme` em tempo real.
+
+O blur automático preserva as heurísticas de suporte, redução de transparência,
+Save-Data, memória e CPU.
+
+Home, Doações e 404 passam pelo loader por no mínimo 1 segundo. O overlay é
+transparente e `assets/logo.webp` pulsa no centro. Reduced motion e perfil de
+performance reduzida mantêm o segundo de espera, mas removem a pulsação.

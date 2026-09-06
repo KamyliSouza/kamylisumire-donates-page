@@ -79,10 +79,22 @@
             );
 
             const savedTheme = read(THEME_KEY);
-            const theme =
-                savedTheme === "dark" || savedTheme === "light"
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
                     ? savedTheme
-                    : (media("(prefers-color-scheme: dark)") ? "dark" : "light");
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
 
             const savedBlur = read(BLUR_KEY);
             const blurPreference =
@@ -140,6 +152,9 @@
             }
 
             root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
             root.dataset.blur = blur;
             root.dataset.blurMode =
                 blurPreference === "auto" ? "auto" : "manual";
@@ -151,6 +166,7 @@
 
             window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
                 theme,
+                themePreference,
                 blur,
                 blurPreference,
                 blurReason,

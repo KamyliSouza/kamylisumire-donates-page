@@ -2,6 +2,10 @@
     const THEME_KEY = "kamyli:ui-theme";
     const BLUR_KEY = "kamyli:ui-blur";
 
+    const THEME_AUTO = "auto";
+    const THEME_LIGHT = "light";
+    const THEME_DARK = "dark";
+
     const BLUR_AUTO = "auto";
     const BLUR_ON = "on";
     const BLUR_OFF = "off";
@@ -24,44 +28,53 @@
         try {
             localStorage.setItem(key, value);
         } catch {
-            // Preferência continua válida durante a sessão mesmo sem storage.
-        }
-    }
-
-    function safeRemove(key) {
-        try {
-            localStorage.removeItem(key);
-        } catch {
-            // O modo automático continua válido durante a sessão sem storage.
+            // A preferência continua válida durante a sessão sem storage.
         }
     }
 
     function getSystemTheme() {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+        return mediaMatches("(prefers-color-scheme: dark)")
+            ? THEME_DARK
+            : THEME_LIGHT;
     }
 
-    function normalizeTheme(value) {
-        return value === "dark" || value === "light"
+    function normalizeThemePreference(value) {
+        return (
+            value === THEME_AUTO ||
+            value === THEME_LIGHT ||
+            value === THEME_DARK
+        )
             ? value
-            : getSystemTheme();
+            : THEME_AUTO;
     }
 
     function normalizeBlurPreference(value) {
-        return value === BLUR_ON || value === BLUR_OFF
+        return (
+            value === BLUR_AUTO ||
+            value === BLUR_ON ||
+            value === BLUR_OFF
+        )
             ? value
             : BLUR_AUTO;
     }
 
     function supportsBackdropBlur() {
-        if (!window.CSS || typeof window.CSS.supports !== "function") {
+        if (
+            !window.CSS ||
+            typeof window.CSS.supports !== "function"
+        ) {
             return false;
         }
 
         return (
-            window.CSS.supports("backdrop-filter", "blur(8px)") ||
-            window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+            window.CSS.supports(
+                "backdrop-filter",
+                "blur(8px)"
+            ) ||
+            window.CSS.supports(
+                "-webkit-backdrop-filter",
+                "blur(8px)"
+            )
         );
     }
 
@@ -126,7 +139,11 @@
             };
         }
 
-        if (mediaMatches("(prefers-reduced-transparency: reduce)")) {
+        if (
+            mediaMatches(
+                "(prefers-reduced-transparency: reduce)"
+            )
+        ) {
             return {
                 blur: BLUR_OFF,
                 reason: "reduced-transparency"
@@ -134,6 +151,7 @@
         }
 
         const connection = getConnection();
+
         if (connection?.saveData) {
             return {
                 blur: BLUR_OFF,
@@ -167,16 +185,41 @@
         };
     }
 
-    let theme = normalizeTheme(safeGet(THEME_KEY));
-    let blurPreference = normalizeBlurPreference(safeGet(BLUR_KEY));
+    let themePreference =
+        normalizeThemePreference(
+            safeGet(THEME_KEY)
+        );
+
+    let theme = THEME_LIGHT;
+
+    let blurPreference =
+        normalizeBlurPreference(
+            safeGet(BLUR_KEY)
+        );
+
     let blur = BLUR_ON;
     let blurReason = "supported";
     let blurSupported = supportsBackdropBlur();
+
     let performanceProfile = PERFORMANCE_NORMAL;
     let performanceReason = "standard";
 
+    function resolveTheme() {
+        theme =
+            themePreference === THEME_AUTO
+                ? getSystemTheme()
+                : themePreference;
+    }
+
+    function getThemeMode() {
+        return themePreference === THEME_AUTO
+            ? "auto"
+            : "manual";
+    }
+
     function resolvePerformance() {
         const evaluation = evaluatePerformance();
+
         performanceProfile = evaluation.profile;
         performanceReason = evaluation.reason;
     }
@@ -186,6 +229,7 @@
 
         if (blurPreference === BLUR_AUTO) {
             const automatic = evaluateAutomaticBlur();
+
             blur = automatic.blur;
             blurReason = automatic.reason;
             return;
@@ -208,19 +252,29 @@
     }
 
     function apply() {
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.dataset.blur = blur;
-        document.documentElement.dataset.blurMode = getBlurMode();
-        document.documentElement.dataset.blurPreference = blurPreference;
-        document.documentElement.dataset.blurReason = blurReason;
-        document.documentElement.dataset.performance = performanceProfile;
-        document.documentElement.dataset.performanceReason = performanceReason;
-        document.documentElement.style.colorScheme = theme;
+        const root = document.documentElement;
+
+        root.dataset.theme = theme;
+        root.dataset.themeMode = getThemeMode();
+        root.dataset.themePreference = themePreference;
+
+        root.dataset.blur = blur;
+        root.dataset.blurMode = getBlurMode();
+        root.dataset.blurPreference = blurPreference;
+        root.dataset.blurReason = blurReason;
+
+        root.dataset.performance = performanceProfile;
+        root.dataset.performanceReason = performanceReason;
+
+        root.style.colorScheme = theme;
     }
 
     function getState() {
         return {
             theme,
+            themeMode: getThemeMode(),
+            themePreference,
+            systemTheme: getSystemTheme(),
             blur,
             blurMode: getBlurMode(),
             blurPreference,
@@ -233,36 +287,34 @@
 
     function dispatchPreferenceChange() {
         window.dispatchEvent(
-            new CustomEvent("kamyli:ui-preference-change", {
-                detail: getState()
-            })
+            new CustomEvent(
+                "kamyli:ui-preference-change",
+                {
+                    detail: getState()
+                }
+            )
         );
     }
 
     function refreshAdaptiveConditions(notify = true) {
-        const previousBlur = blur;
-        const previousReason = blurReason;
-        const previousSupport = blurSupported;
-        const previousPerformance = performanceProfile;
-        const previousPerformanceReason = performanceReason;
+        const previous = getState();
 
-        /*
-         * Performance e blur são reavaliados juntos, mas continuam conceitos
-         * independentes. resolveBlur() preserva override manual quando o
-         * navegador suporta o filtro.
-         */
+        resolveTheme();
         resolvePerformance();
         resolveBlur();
         apply();
 
+        const current = getState();
+
         if (
             notify &&
             (
-                blur !== previousBlur ||
-                blurReason !== previousReason ||
-                blurSupported !== previousSupport ||
-                performanceProfile !== previousPerformance ||
-                performanceReason !== previousPerformanceReason
+                current.theme !== previous.theme ||
+                current.blur !== previous.blur ||
+                current.blurReason !== previous.blurReason ||
+                current.blurSupported !== previous.blurSupported ||
+                current.performance !== previous.performance ||
+                current.performanceReason !== previous.performanceReason
             )
         ) {
             dispatchPreferenceChange();
@@ -274,25 +326,30 @@
     }
 
     function setTheme(value, persist = true) {
-        theme = normalizeTheme(value);
+        themePreference =
+            normalizeThemePreference(value);
 
         if (persist) {
-            safeSet(THEME_KEY, theme);
+            safeSet(
+                THEME_KEY,
+                themePreference
+            );
         }
 
+        resolveTheme();
         apply();
         dispatchPreferenceChange();
     }
 
     function setBlur(value, persist = true) {
-        blurPreference = normalizeBlurPreference(value);
+        blurPreference =
+            normalizeBlurPreference(value);
 
         if (persist) {
-            if (blurPreference === BLUR_AUTO) {
-                safeRemove(BLUR_KEY);
-            } else {
-                safeSet(BLUR_KEY, blurPreference);
-            }
+            safeSet(
+                BLUR_KEY,
+                blurPreference
+            );
         }
 
         resolveBlur();
@@ -301,35 +358,88 @@
     }
 
     function toggleTheme() {
-        setTheme(theme === "dark" ? "light" : "dark");
+        setTheme(
+            theme === THEME_DARK
+                ? THEME_LIGHT
+                : THEME_DARK
+        );
     }
 
     function toggleBlur() {
-        setBlur(blur === BLUR_ON ? BLUR_OFF : BLUR_ON);
+        setBlur(
+            blur === BLUR_ON
+                ? BLUR_OFF
+                : BLUR_ON
+        );
+    }
+
+    function resetThemeToAuto() {
+        setTheme(THEME_AUTO);
     }
 
     function resetBlurToAuto() {
         setBlur(BLUR_AUTO);
     }
 
+    function addMediaChangeListener(query, callback) {
+        if (!query) return;
+
+        if (
+            typeof query.addEventListener === "function"
+        ) {
+            query.addEventListener(
+                "change",
+                callback
+            );
+            return;
+        }
+
+        if (
+            typeof query.addListener === "function"
+        ) {
+            query.addListener(callback);
+        }
+    }
+
     function listenForAutomaticConditionChanges() {
+        const themeQuery = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        );
+
+        addMediaChangeListener(
+            themeQuery,
+            () => {
+                if (
+                    themePreference !== THEME_AUTO
+                ) {
+                    return;
+                }
+
+                const previousTheme = theme;
+
+                resolveTheme();
+                apply();
+
+                if (theme !== previousTheme) {
+                    dispatchPreferenceChange();
+                }
+            }
+        );
+
         const transparencyQuery = window.matchMedia(
             "(prefers-reduced-transparency: reduce)"
         );
 
-        if (typeof transparencyQuery.addEventListener === "function") {
-            transparencyQuery.addEventListener(
-                "change",
-                () => refreshAdaptiveConditions()
-            );
-        } else if (typeof transparencyQuery.addListener === "function") {
-            transparencyQuery.addListener(
-                () => refreshAdaptiveConditions()
-            );
-        }
+        addMediaChangeListener(
+            transparencyQuery,
+            () => refreshAdaptiveConditions()
+        );
 
         const connection = getConnection();
-        if (typeof connection?.addEventListener === "function") {
+
+        if (
+            typeof connection?.addEventListener === "function"
+        ) {
             connection.addEventListener(
                 "change",
                 () => refreshAdaptiveConditions()
@@ -342,6 +452,7 @@
         );
     }
 
+    resolveTheme();
     resolvePerformance();
     resolveBlur();
     apply();
@@ -353,6 +464,7 @@
         setBlur,
         toggleTheme,
         toggleBlur,
+        resetThemeToAuto,
         resetBlurToAuto,
         refreshAutomaticBlur,
         refreshAdaptiveConditions

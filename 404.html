@@ -67,10 +67,22 @@
             );
 
             const savedTheme = read(THEME_KEY);
-            const theme =
-                savedTheme === "dark" || savedTheme === "light"
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
                     ? savedTheme
-                    : (media("(prefers-color-scheme: dark)") ? "dark" : "light");
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
 
             const savedBlur = read(BLUR_KEY);
             const blurPreference =
@@ -128,6 +140,9 @@
             }
 
             root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
             root.dataset.blur = blur;
             root.dataset.blurMode =
                 blurPreference === "auto" ? "auto" : "manual";
@@ -139,6 +154,7 @@
 
             window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
                 theme,
+                themePreference,
                 blur,
                 blurPreference,
                 blurReason,
@@ -147,6 +163,11 @@
                 performanceReason
             });
         })();
+    </script>
+
+    <script>
+        window.KAMYLI_LOADER_STARTED_AT = performance.now();
+        document.documentElement.classList.add("site-loading-pending");
     </script>
 
     <link
@@ -164,6 +185,29 @@
 </head>
 
 <body>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span
+                class="site-loader-logo"
+                aria-hidden="true"
+            ></span>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+
     <header id="site-navbar"></header>
 
     <main class="not-found">
@@ -194,5 +238,9 @@
     <script src="js/core/navbar.js"></script>
     <script src="js/core/external-links.js"></script>
     <script src="js/core/footer.js"></script>
+    <script>
+        window.KAMYLI_PAGE_CONTENT_READY = true;
+    </script>
+    <script src="js/core/loader.js"></script>
 </body>
 </html>

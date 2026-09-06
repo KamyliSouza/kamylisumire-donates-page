@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V41.
+"""Validação editorial/semântica do site Kamyli Sumire — V42.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -42,6 +42,8 @@ LEGACY_ROOT_FILES = [
     "V39-2-APLICACAO.txt",
     "V40-APLICACAO.txt",
     "V40-REMOVER.txt",
+    "V41-FONTE.txt",
+    "V41-REMOVER.txt",
 ]
 
 
@@ -626,11 +628,12 @@ def validate_visual_assets() -> None:
         "Navbar usa logo.webp":
             "assets/logo.webp" in navbar_css,
 
-        "Loader usa favicon.webp":
-            "assets/favicon.webp" in global_css,
+        "Loader usa logo.webp":
+            "assets/logo.webp" in global_css,
 
-        "Loader não usa fundo pesado":
-            "assets/fundo." not in loader_css,
+        "Loader mantém fundo transparente":
+            "background: transparent" in loader_css
+            and "assets/fundo." not in loader_css,
 
         "Perfil de performance é exposto":
             "dataset.performance"
@@ -671,14 +674,16 @@ def validate_visual_assets() -> None:
                 'src="js/core/preferences.js"'
             ) > not_found.find("</head>"),
 
-        "Loader usa estado pendente atrasado":
+        "Loader V42 mantém mínimo estético de 1 segundo":
             "site-loading-pending"
             in loader_js
-            and "SHOW_DELAY_MS = 180"
+            and "MIN_DISPLAY_MS = 1000"
             in loader_js,
 
-        "Loader rápido pode não aparecer":
-            "finishWithoutShowingLoader"
+        "Loader V42 sempre participa do reveal":
+            "site-loading-visible"
+            in loader_js
+            and "beginReveal"
             in loader_js,
 
         "Agenda agrupa renderização":
@@ -1088,6 +1093,7 @@ def validate_repository_hygiene() -> None:
         "docs/PRODUCAO.md",
         "docs/V40-AUDITORIA.md",
         "docs/V41-FONTES-TRANSICOES.md",
+        "docs/V42-CONFIGURACOES-LOADER.md",
     ]
 
     missing = [
@@ -1148,11 +1154,11 @@ def validate_repository_hygiene() -> None:
         )
 
     print(
-        "✓ Higiene do repositório V41 válida"
+        "✓ Higiene do repositório V42 válida"
     )
 
 
-def validate_v41_fonts_and_transitions() -> None:
+def validate_v42_interface() -> None:
     font_path = (
         ROOT /
         "assets/fonts/nunito-variable.woff2"
@@ -1355,10 +1361,10 @@ def validate_v41_fonts_and_transitions() -> None:
             'dataset.performance !== "reduced"'
             in transition_js,
 
-        "loader integra chegada rápida":
+        "loader integra chegada da transição":
             "site-page-arriving"
             in loader_js
-            and "beginReveal(false)"
+            and "pageTransition"
             in loader_js,
 
         "CSS entrada direcional":
@@ -1387,12 +1393,124 @@ def validate_v41_fonts_and_transitions() -> None:
 
     if failures:
         raise ValidationError(
-            "integração V41 incompleta: "
+            "integração V42 incompleta: "
             + ", ".join(failures)
         )
 
     print(
-        "✓ Nunito local e transições V41 integradas"
+        "✓ Nunito local e transições V41 preservadas"
+    )
+
+    preferences_js = (
+        ROOT / "js/core/preferences.js"
+    ).read_text(encoding="utf-8")
+
+    navbar_js = (
+        ROOT / "js/core/navbar.js"
+    ).read_text(encoding="utf-8")
+
+    footer_js = (
+        ROOT / "js/core/footer.js"
+    ).read_text(encoding="utf-8")
+
+    navbar_css = (
+        ROOT / "css/core/navbar.css"
+    ).read_text(encoding="utf-8")
+
+    v42_expectations = {
+        "tema possui auto/claro/escuro":
+            "themePreference" in preferences_js
+            and "THEME_AUTO" in preferences_js
+            and "THEME_LIGHT" in preferences_js
+            and "THEME_DARK" in preferences_js,
+
+        "tema automático acompanha sistema":
+            "prefers-color-scheme: dark"
+            in preferences_js
+            and "resolveTheme" in preferences_js,
+
+        "blur possui auto/on/off":
+            "BLUR_AUTO" in preferences_js
+            and "BLUR_ON" in preferences_js
+            and "BLUR_OFF" in preferences_js,
+
+        "navbar remove toggles antigos":
+            "themeToggle" not in navbar_js
+            and "blurToggle" not in navbar_js,
+
+        "navbar fixa botão Apoiar fora do scroll":
+            "site-nav-support-wrap" in navbar_js
+            and "site-nav-support" in navbar_css
+            and ">Apoiar<"
+                in navbar_js.replace("\n", ""),
+
+        "footer possui botão de configurações":
+            "footerSettingsToggle" in footer_js
+            and "footerSettingsPopover" in footer_js,
+
+        "footer oferece três opções de tema":
+            'name="site-theme-preference"' in footer_js
+            and 'value="auto"' in footer_js
+            and 'value="light"' in footer_js
+            and 'value="dark"' in footer_js,
+
+        "footer oferece três opções de blur":
+            'name="site-blur-preference"' in footer_js
+            and 'value="on"' in footer_js
+            and 'value="off"' in footer_js,
+
+        "loader dura no mínimo 1 segundo":
+            "MIN_DISPLAY_MS = 1000" in loader_js,
+
+        "loader usa fundo transparente":
+            "background: transparent" in global_css,
+
+        "loader pulsa logo.webp":
+            "site-loader-logo-pulse" in global_css
+            and "assets/logo.webp" in global_css,
+
+        "404 também usa loader V42":
+            'id="site-loader"' in (
+                ROOT / "404.html"
+            ).read_text(encoding="utf-8")
+            and 'src="js/core/loader.js"' in (
+                ROOT / "404.html"
+            ).read_text(encoding="utf-8"),
+    }
+
+    v42_failures = [
+        label
+        for label, ok
+        in v42_expectations.items()
+        if not ok
+    ]
+
+    if v42_failures:
+        raise ValidationError(
+            "interface V42 incompleta: "
+            + ", ".join(v42_failures)
+        )
+
+    for rel in [
+        "index.html",
+        "doacoes/index.html",
+        "404.html",
+    ]:
+        html = (ROOT / rel).read_text(
+            encoding="utf-8"
+        )
+
+        if (
+            "themePreference" not in html
+            or 'savedTheme === "auto"' not in html
+        ):
+            raise ValidationError(
+                f"{rel} não possui bootstrap "
+                "de tema automático V42"
+            )
+
+    print(
+        "✓ Configurações, navbar e loader V42 integrados"
     )
 
 def main() -> int:
@@ -1404,7 +1522,7 @@ def main() -> int:
         validate_production_files,
         validate_local_references,
         validate_seo_files,
-        validate_v41_fonts_and_transitions,
+        validate_v42_interface,
         validate_repository_hygiene,
     ]
 

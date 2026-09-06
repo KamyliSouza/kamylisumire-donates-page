@@ -433,3 +433,56 @@ A animação é desativada por `prefers-reduced-motion` ou
 ### CSS modular
 
 Não usar `css/build/` nem `.github/scripts/build-css.py`.
+
+## V42 — configurações e loader
+
+### Navbar
+
+A navbar não possui mais `themeToggle` ou `blurToggle`.
+
+`Apoiar` fica em `.site-nav-support-wrap`, fora de `.site-nav-links`, para não
+rolar junto com os links no mobile.
+
+### Preferências no footer
+
+`js/core/footer.js` renderiza o botão `Configurações` e um popover não modal.
+
+Tema:
+
+```text
+auto | light | dark
+```
+
+Blur:
+
+```text
+auto | on | off
+```
+
+Persistência:
+
+```text
+kamyli:ui-theme
+kamyli:ui-blur
+```
+
+`data-theme` continua contendo o tema resolvido (`light|dark`). A preferência
+fica em `data-theme-preference` e o modo em `data-theme-mode`.
+
+O menu fecha por botão, Escape ou clique fora e usa radios nativos para
+navegação por teclado.
+
+### Loader
+
+Home, Doações e 404 usam o loader V42.
+
+```text
+MIN_DISPLAY_MS = 1000
+```
+
+O fundo do overlay é transparente. A marca é `assets/logo.webp` via máscara
+CSS. O loader pode permanecer além de 1 segundo se o conteúdo local ainda não
+estiver pronto, com timeout de segurança.
+
+`prefers-reduced-motion` e `data-performance="reduced"` removem somente a
+pulsação; não removem o tempo mínimo solicitado.

@@ -1,4 +1,4 @@
-name: Validate V41 site content, fonts and transitions
+name: Validate V42 site content and interface
 
 on:
   push:

@@ -64,69 +64,28 @@
                     >
                         Créditos
                     </a>
-
-                    <a
-                        class="site-nav-link site-nav-donate"
-                        data-nav-page="doacoes"
-                        href="${sitePath("/doacoes/")}"
-                    >
-                        Doações
-                    </a>
                 </div>
 
                 <span
-                    class="site-nav-divider site-nav-settings-divider"
+                    class="site-nav-divider site-nav-support-divider"
                     aria-hidden="true"
                 ></span>
 
-                <div class="site-nav-settings" aria-label="Preferências visuais">
-                    <button
-                        class="site-nav-setting"
-                        id="themeToggle"
-                        type="button"
-                        aria-label="Alternar modo claro e escuro"
-                        aria-pressed="false"
+                <div class="site-nav-support-wrap">
+                    <a
+                        class="site-nav-link site-nav-donate site-nav-support"
+                        data-nav-page="doacoes"
+                        href="${sitePath("/doacoes/")}"
                     >
                         <svg
-                            class="setting-icon setting-icon-sun"
+                            class="site-nav-support-icon"
                             viewBox="0 0 24 24"
                             aria-hidden="true"
                         >
-                            <circle cx="12" cy="12" r="4"></circle>
-                            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+                            <path d="M12 21s-7.2-4.35-9.6-8.35C.65 9.95 1.5 6.4 4.6 5.1c2-.85 4.25-.3 5.65 1.35L12 8.5l1.75-2.05c1.4-1.65 3.65-2.2 5.65-1.35 3.1 1.3 3.95 4.85 2.2 7.55C19.2 16.65 12 21 12 21Z"></path>
                         </svg>
-
-                        <svg
-                            class="setting-icon setting-icon-moon"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"></path>
-                        </svg>
-                    </button>
-
-                    <button
-                        class="site-nav-setting"
-                        id="blurToggle"
-                        type="button"
-                        aria-label="Alternar blur dos painéis"
-                        aria-pressed="true"
-                    >
-                        <svg
-                            class="setting-icon setting-icon-blur"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                class="blur-drop"
-                                d="M12 3.5c-1.8 2.4-5.5 6.6-5.5 10.5a5.5 5.5 0 0 0 11 0c0-3.9-3.7-8.1-5.5-10.5Z"
-                            ></path>
-                            <path
-                                class="blur-off-slash"
-                                d="M5 5l14 14"
-                            ></path>
-                        </svg>
-                    </button>
+                        <span>Apoiar</span>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -136,123 +95,18 @@
     const navSectionLinks = [
         ...mount.querySelectorAll("[data-nav-section]")
     ];
-    const donationsLink = mount.querySelector('[data-nav-page="doacoes"]');
-
-    const themeToggle = mount.querySelector("#themeToggle");
-    const blurToggle = mount.querySelector("#blurToggle");
-    const uiPrefs = window.KAMYLI_UI_PREFS;
-
-    function updatePreferenceControls() {
-        if (!uiPrefs) return;
-
-        const { theme, blur } = uiPrefs.getState();
-
-        if (themeToggle) {
-            const dark = theme === "dark";
-
-            themeToggle.setAttribute("aria-pressed", String(dark));
-            themeToggle.setAttribute(
-                "aria-label",
-                dark
-                    ? "Ativar modo claro"
-                    : "Ativar modo escuro"
-            );
-
-            themeToggle.title = dark
-                ? "Mudar para modo claro"
-                : "Mudar para modo escuro";
-        }
-
-        if (blurToggle) {
-            const {
-                blurMode,
-                blurPreference,
-                blurReason,
-                blurSupported
-            } = uiPrefs.getState();
-
-            const enabled = blur === "on";
-            const automatic = blurMode === "auto";
-
-            blurToggle.disabled = !blurSupported;
-            blurToggle.dataset.mode = blurMode;
-            blurToggle.dataset.preference = blurPreference;
-            blurToggle.dataset.reason = blurReason;
-
-            blurToggle.setAttribute(
-                "aria-pressed",
-                String(enabled)
-            );
-
-            if (!blurSupported) {
-                blurToggle.setAttribute(
-                    "aria-label",
-                    "Blur indisponível neste navegador"
-                );
-                blurToggle.title = "Blur não suportado neste navegador";
-                return;
-            }
-
-            if (automatic) {
-                const automaticReasonLabels = {
-                    "reduced-transparency":
-                        "preferência de reduzir transparência",
-                    "save-data": "economia de dados",
-                    "low-memory": "memória limitada",
-                    "low-cpu": "capacidade de processamento limitada",
-                    "supported": "condições adequadas"
-                };
-
-                const reasonLabel =
-                    automaticReasonLabels[blurReason] ||
-                    "condições do dispositivo";
-
-                blurToggle.setAttribute(
-                    "aria-label",
-                    enabled
-                        ? `Blur automático ativado (${reasonLabel}). Clique para desativar manualmente`
-                        : `Blur automático desativado (${reasonLabel}). Clique para ativar manualmente`
-                );
-
-                blurToggle.title = enabled
-                    ? `Blur automático: ativado — ${reasonLabel}`
-                    : `Blur automático: desativado — ${reasonLabel}`;
-
-                return;
-            }
-
-            blurToggle.setAttribute(
-                "aria-label",
-                enabled
-                    ? "Desativar blur dos painéis"
-                    : "Ativar blur dos painéis"
-            );
-
-            blurToggle.title = enabled
-                ? "Blur ativado manualmente"
-                : "Blur desativado manualmente";
-        }
-    }
-
-    themeToggle?.addEventListener("click", () => {
-        uiPrefs?.toggleTheme();
-        updatePreferenceControls();
-    });
-
-    blurToggle?.addEventListener("click", () => {
-        uiPrefs?.toggleBlur();
-        updatePreferenceControls();
-    });
-
-    window.addEventListener(
-        "kamyli:ui-preference-change",
-        updatePreferenceControls
+    const donationsLink = mount.querySelector(
+        '[data-nav-page="doacoes"]'
     );
 
-    updatePreferenceControls();
-
     function keepActiveLinkVisible(link, behavior = "smooth") {
-        if (!link || !navLinksContainer) return;
+        if (
+            !link ||
+            !navLinksContainer ||
+            !navLinksContainer.contains(link)
+        ) {
+            return;
+        }
 
         const containerRect = navLinksContainer.getBoundingClientRect();
         const linkRect = link.getBoundingClientRect();
