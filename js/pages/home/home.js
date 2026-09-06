@@ -204,23 +204,39 @@ function renderAgenda(data) {
             : "";
 
         card.innerHTML = `
-            <span class="agenda-day">${escapeHtml(dia.nome)}</span>
-            <span class="agenda-date">${formatDate(dia.data)}</span>
+            <div class="agenda-card-top">
+                <div class="agenda-card-date">
+                    <span class="agenda-day">${escapeHtml(dia.nome)}</span>
+                    <span class="agenda-date">${formatDate(dia.data)}</span>
+                </div>
 
-            <span class="agenda-status">
-                ${dia.temLive ? "● TEM LIVE" : "○ SEM LIVE"}
-            </span>
+                <div class="agenda-card-live">
+                    <span class="agenda-status">
+                        ${dia.temLive ? "● TEM LIVE" : "○ SEM LIVE"}
+                    </span>
 
-            ${
-                dia.temLive
-                    ? `
-                        <strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>
-                        <h3 class="agenda-title">${escapeHtml(dia.titulo || "Live")}</h3>
-                        ${dia.descricao ? `<p class="agenda-description">${escapeHtml(dia.descricao)}</p>` : ""}
-                        ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
-                    `
-                    : `<p class="agenda-description">Sem transmissão programada.</p>`
-            }
+                    ${
+                        dia.temLive
+                            ? `<strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>`
+                            : ""
+                    }
+                </div>
+            </div>
+
+            <div class="agenda-card-content">
+                ${
+                    dia.temLive
+                        ? `
+                            <h3 class="agenda-title">${escapeHtml(dia.titulo || "Live")}</h3>
+                            ${dia.descricao ? `<p class="agenda-description">${escapeHtml(dia.descricao)}</p>` : ""}
+                            ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
+                        `
+                        : `
+                            <h3 class="agenda-title agenda-title-off">Sem live</h3>
+                            <p class="agenda-description">Sem transmissão programada.</p>
+                        `
+                }
+            </div>
         `;
 
         agendaGrid.appendChild(card);
