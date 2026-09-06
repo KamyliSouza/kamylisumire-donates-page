@@ -207,19 +207,25 @@ function renderAgenda(data) {
             <div class="agenda-card-top">
                 <div class="agenda-card-date">
                     <span class="agenda-day">${escapeHtml(dia.nome)}</span>
-                    <span class="agenda-date">${formatDate(dia.data)}</span>
+
+                    <div class="agenda-date-time">
+                        <span class="agenda-date">${formatDate(dia.data)}</span>
+
+                        ${
+                            dia.temLive
+                                ? `
+                                    <span class="agenda-date-time-separator" aria-hidden="true">•</span>
+                                    <strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>
+                                `
+                                : ""
+                        }
+                    </div>
                 </div>
 
                 <div class="agenda-card-live">
                     <span class="agenda-status">
                         ${dia.temLive ? "● TEM LIVE" : "○ SEM LIVE"}
                     </span>
-
-                    ${
-                        dia.temLive
-                            ? `<strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>`
-                            : ""
-                    }
                 </div>
             </div>
 
