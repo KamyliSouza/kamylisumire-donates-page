@@ -177,12 +177,82 @@
 
         setActiveLink(initialLink, "auto");
 
-        // Ao clicar em uma seção da própria Home, atualiza imediatamente.
+        if (initialHash) {
+            const initialSection = document.getElementById(initialHash);
+
+            if (initialSection && initialLink) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const nav = mount.querySelector(".site-nav");
+                        const navHeight =
+                            nav?.getBoundingClientRect().height || 68;
+
+                        const targetTop =
+                            window.scrollY +
+                            initialSection.getBoundingClientRect().top -
+                            navHeight -
+                            14;
+
+                        window.scrollTo({
+                            top: Math.max(0, targetTop),
+                            behavior: "auto"
+                        });
+                    });
+                });
+            }
+        }
+
+        function scrollToSection(section, link) {
+            if (!section) return;
+
+            const nav = mount.querySelector(".site-nav");
+            const navHeight = nav?.getBoundingClientRect().height || 68;
+            const extraGap = 14;
+
+            const targetTop =
+                window.scrollY +
+                section.getBoundingClientRect().top -
+                navHeight -
+                extraGap;
+
+            setActiveLink(link);
+
+            window.scrollTo({
+                top: Math.max(0, targetTop),
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                    ? "auto"
+                    : "smooth"
+            });
+
+            const sectionId = section.id;
+
+            if (sectionId) {
+                history.replaceState(
+                    null,
+                    "",
+                    `${window.location.pathname}${window.location.search}#${sectionId}`
+                );
+            }
+        }
+
+        // Navegação interna explícita: compensa a navbar fixa.
+        // Isso evita, principalmente no mobile, que "Créditos"
+        // pare visualmente na seção "Regras".
         navSectionLinks.forEach(link => {
-            link.addEventListener("click", () => {
-                if (window.location.pathname === new URL(link.href).pathname) {
-                    setActiveLink(link);
+            link.addEventListener("click", event => {
+                const targetUrl = new URL(link.href, window.location.href);
+
+                if (targetUrl.pathname !== window.location.pathname) {
+                    return;
                 }
+
+                const sectionId = link.dataset.navSection;
+                const section = document.getElementById(sectionId);
+
+                if (!section) return;
+
+                event.preventDefault();
+                scrollToSection(section, link);
             });
         });
     }

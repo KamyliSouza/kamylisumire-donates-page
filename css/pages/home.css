@@ -227,6 +227,7 @@
     z-index: 1;
 
     display: flex;
+    align-items: stretch;
 
     gap: 12px;
 
@@ -353,12 +354,14 @@
     flex: 0 0 clamp(220px, 26vw, 276px);
 
     min-height: 210px;
+    height: auto;
     padding: 16px;
 
     display: flex;
     flex-direction: column;
+    align-self: stretch;
 
-    overflow: hidden;
+    overflow: visible;
 
     background-color: var(--notice-bg);
 
@@ -470,6 +473,8 @@
 .agenda-title {
     margin: 0;
 
+    max-width: 100%;
+
     color: var(--text-color);
 
     font-size: 1.2rem;
@@ -477,6 +482,9 @@
     line-height: 1.15;
 
     letter-spacing: -.015em;
+
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .agenda-title-off {
@@ -486,11 +494,15 @@
 .agenda-description {
     margin: 7px 0 0;
 
+    max-width: 100%;
+
     color: var(--subtitle-color);
 
     font-size: .8rem;
     font-weight: 600;
     line-height: 1.42;
+
+    overflow-wrap: anywhere;
 }
 
 .agenda-platforms {
@@ -501,6 +513,8 @@
 
     font-size: .72rem;
     font-weight: 800;
+
+    overflow-wrap: anywhere;
 }
 
 .loading-message {
@@ -526,7 +540,8 @@
 @media (max-width: 500px) {
     .agenda-card {
         flex-basis: min(82vw, 270px);
-        min-height: 205px;
+        min-height: 210px;
+        height: auto;
     }
 
     .agenda-card-top {
