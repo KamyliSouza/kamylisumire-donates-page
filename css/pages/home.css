@@ -187,28 +187,87 @@
 }
 
 /* =========================================================
-   AGENDA — CARROSSEL COM SETAS LATERAIS
+   AGENDA — CARROSSEL FLUIDO COM SETAS SOBREPOSTAS
    ========================================================= */
 
 .agenda-carousel {
     position: relative;
 
     margin-inline: -8px;
+
+    isolation: isolate;
+}
+
+/*
+ * Fade lateral:
+ * cria uma transição suave entre os cards e as setas sem
+ * bloquear cliques/touch no carrossel.
+ */
+.agenda-carousel::before,
+.agenda-carousel::after {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    bottom: 10px;
+    z-index: 3;
+
+    width: 78px;
+
+    pointer-events: none;
+
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+}
+
+.agenda-carousel::before {
+    left: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--card-bg) 0%,
+            var(--card-bg) 14%,
+            transparent 100%
+        );
+}
+
+.agenda-carousel::after {
+    right: 0;
+
+    background:
+        linear-gradient(
+            270deg,
+            var(--card-bg) 0%,
+            var(--card-bg) 14%,
+            transparent 100%
+        );
 }
 
 .agenda-carousel-track {
+    position: relative;
+    z-index: 1;
+
     display: flex;
 
     gap: 12px;
 
-    padding: 4px 54px 12px;
+    /*
+     * Os cards podem passar visualmente por baixo das setas.
+     * O padding mínimo preserva o primeiro/último card.
+     */
+    padding: 4px 20px 12px;
 
     overflow-x: auto;
     overflow-y: hidden;
 
-    scroll-behavior: smooth;
+    /*
+     * O clique nas setas usa animação JS própria.
+     * O scroll manual/touch continua natural.
+     */
+    scroll-behavior: auto;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 54px;
+    scroll-padding-inline: 20px;
     overscroll-behavior-inline: contain;
 
     scrollbar-width: thin;
@@ -233,10 +292,10 @@
 .agenda-carousel-button {
     position: absolute;
     top: 50%;
-    z-index: 5;
+    z-index: 6;
 
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
 
     display: grid;
     place-items: center;
@@ -244,18 +303,33 @@
     padding: 0;
 
     color: var(--primary-color);
-    background-color: var(--card-bg);
 
-    border: 2px solid var(--card-border);
+    /*
+     * Fundo translúcido para deixar parte do card visível
+     * sob a seta.
+     */
+    background-color: color-mix(
+        in srgb,
+        var(--card-bg) 76%,
+        transparent
+    );
+
+    border: 1px solid var(--card-border);
     border-radius: 50%;
 
-    box-shadow: 0 7px 20px rgba(0, 0, 0, .14);
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, .14),
+        0 0 0 5px color-mix(
+            in srgb,
+            var(--card-bg) 22%,
+            transparent
+        );
 
-    backdrop-filter: blur(var(--blur-card));
-    -webkit-backdrop-filter: blur(var(--blur-card));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     font: inherit;
-    font-size: 1.8rem;
+    font-size: 1.85rem;
     font-weight: 800;
     line-height: 1;
 
@@ -264,20 +338,20 @@
     transform: translateY(-50%);
 
     transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease,
-        opacity .18s ease,
-        transform .18s ease;
+        color .2s ease,
+        background-color .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease,
+        transform .2s ease;
 }
 
 .agenda-carousel-prev {
-    left: 8px;
+    left: 12px;
 }
 
 .agenda-carousel-next {
-    right: 8px;
+    right: 12px;
 }
 
 .agenda-carousel-button:hover:not(:disabled),
@@ -286,15 +360,25 @@
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 
-    box-shadow: 0 8px 24px rgba(179, 94, 175, .28);
+    box-shadow:
+        0 9px 26px rgba(179, 94, 175, .28),
+        0 0 0 5px color-mix(
+            in srgb,
+            var(--primary-color) 12%,
+            transparent
+        );
 
-    transform: translateY(-50%) scale(1.06);
+    transform: translateY(-50%) scale(1.07);
 
     outline: none;
 }
 
+.agenda-carousel-button:active:not(:disabled) {
+    transform: translateY(-50%) scale(.98);
+}
+
 .agenda-carousel-button:disabled {
-    opacity: .3;
+    opacity: .24;
     cursor: default;
 }
 
@@ -428,24 +512,29 @@
         flex-basis: min(78vw, 280px);
     }
 
+    .agenda-carousel::before,
+    .agenda-carousel::after {
+        width: 64px;
+    }
+
     .agenda-carousel-track {
-        padding-inline: 48px;
-        scroll-padding-inline: 48px;
+        padding-inline: 16px;
+        scroll-padding-inline: 16px;
     }
 
     .agenda-carousel-button {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
 
-        font-size: 1.65rem;
+        font-size: 1.7rem;
     }
 
     .agenda-carousel-prev {
-        left: 5px;
+        left: 8px;
     }
 
     .agenda-carousel-next {
-        right: 5px;
+        right: 8px;
     }
 }
 
@@ -454,14 +543,19 @@
         flex-basis: min(82vw, 270px);
     }
 
+    .agenda-carousel::before,
+    .agenda-carousel::after {
+        width: 58px;
+    }
+
     .agenda-carousel-track {
-        padding-inline: 44px;
-        scroll-padding-inline: 44px;
+        padding-inline: 14px;
+        scroll-padding-inline: 14px;
     }
 
     .agenda-carousel-button {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -666,5 +760,20 @@
     .agenda-carousel-button {
         width: 36px;
         height: 36px;
+    }
+}
+
+
+@supports not (background: color-mix(in srgb, white, transparent)) {
+    .agenda-carousel-button {
+        background-color: var(--card-bg);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .agenda-carousel-button,
+    .agenda-card {
+        transition-duration: .01ms;
     }
 }

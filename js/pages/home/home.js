@@ -47,13 +47,83 @@ function updateCarouselButtons() {
     agendaNext.disabled = agendaGrid.scrollLeft >= maxScrollLeft - 2;
 }
 
+let agendaAnimationFrame = null;
+
+function easeInOutQuint(t) {
+    return t < 0.5
+        ? 16 * t * t * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 5) / 2;
+}
+
+function animateAgendaTo(targetLeft, duration = 520) {
+    if (!agendaGrid) return;
+
+    if (agendaAnimationFrame) {
+        cancelAnimationFrame(agendaAnimationFrame);
+        agendaAnimationFrame = null;
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const maxLeft = Math.max(
+        0,
+        agendaGrid.scrollWidth - agendaGrid.clientWidth
+    );
+
+    const destination = Math.max(
+        0,
+        Math.min(targetLeft, maxLeft)
+    );
+
+    if (prefersReducedMotion) {
+        agendaGrid.scrollLeft = destination;
+        updateCarouselButtons();
+        return;
+    }
+
+    const startLeft = agendaGrid.scrollLeft;
+    const distance = destination - startLeft;
+
+    if (Math.abs(distance) < 1) {
+        updateCarouselButtons();
+        return;
+    }
+
+    const startTime = performance.now();
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeInOutQuint(progress);
+
+        agendaGrid.scrollLeft =
+            startLeft + (distance * eased);
+
+        updateCarouselButtons();
+
+        if (progress < 1) {
+            agendaAnimationFrame =
+                requestAnimationFrame(step);
+        } else {
+            agendaGrid.scrollLeft = destination;
+            agendaAnimationFrame = null;
+            updateCarouselButtons();
+        }
+    }
+
+    agendaAnimationFrame = requestAnimationFrame(step);
+}
+
 function scrollAgenda(direction) {
     if (!agendaGrid) return;
 
-    agendaGrid.scrollBy({
-        left: getCarouselStep() * direction,
-        behavior: "smooth"
-    });
+    const target =
+        agendaGrid.scrollLeft +
+        (getCarouselStep() * direction);
+
+    animateAgendaTo(target);
 }
 
 function setupAgendaCarousel() {
@@ -67,6 +137,31 @@ function setupAgendaCarousel() {
     agendaGrid.addEventListener("scroll", () => {
         window.requestAnimationFrame(updateCarouselButtons);
     }, { passive: true });
+
+    const cancelProgrammaticAnimation = () => {
+        if (!agendaAnimationFrame) return;
+
+        cancelAnimationFrame(agendaAnimationFrame);
+        agendaAnimationFrame = null;
+    };
+
+    agendaGrid.addEventListener(
+        "pointerdown",
+        cancelProgrammaticAnimation,
+        { passive: true }
+    );
+
+    agendaGrid.addEventListener(
+        "touchstart",
+        cancelProgrammaticAnimation,
+        { passive: true }
+    );
+
+    agendaGrid.addEventListener(
+        "wheel",
+        cancelProgrammaticAnimation,
+        { passive: true }
+    );
 
     if ("onscrollend" in window) {
         agendaGrid.addEventListener("scrollend", updateCarouselButtons);
