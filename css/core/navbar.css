@@ -1,13 +1,25 @@
 /* =========================================================
    NAVBAR COMPARTILHADA
-   Logo + divisória + lista completa de páginas à esquerda.
-   Em telas estreitas a lista permanece no topo e pode ser
-   rolada horizontalmente.
+   - Barra fixa no topo
+   - Grupo completo centralizado
+   - Logo + divisória + links
+   - Scroll horizontal no mobile
    ========================================================= */
 
+/*
+ * A navbar fixa sai do fluxo normal.
+ * Este espaço evita que o conteúdo da página fique escondido
+ * atrás dela.
+ */
+#site-navbar {
+    height: 68px;
+}
+
 .site-nav {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
 
     width: 100%;
@@ -23,10 +35,11 @@
 .site-nav-inner {
     width: min(1120px, calc(100% - 28px));
     min-height: 68px;
-    margin: auto;
+    margin: 0 auto;
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
     gap: 12px;
 }
@@ -75,10 +88,17 @@
 }
 
 .site-nav-links {
+    /*
+     * flex: 0 1 auto evita que a lista ocupe todo o espaço
+     * disponível. Assim o grupo logo + links fica realmente
+     * centralizado como um único bloco.
+     */
+    flex: 0 1 auto;
     min-width: 0;
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
     gap: 4px;
 
@@ -146,10 +166,22 @@
     background-color: var(--primary-hover);
 }
 
+/* =========================================================
+   MOBILE
+   O bloco continua centralizado enquanto couber.
+   Quando ultrapassar a largura, a lista passa a rolar.
+   ========================================================= */
+
 @media (max-width: 760px) {
+    #site-navbar {
+        height: 62px;
+    }
+
     .site-nav-inner {
-        width: calc(100% - 20px);
+        width: calc(100% - 16px);
         min-height: 62px;
+
+        justify-content: flex-start;
 
         gap: 8px;
     }
@@ -167,6 +199,12 @@
     .site-nav-divider {
         height: 28px;
         margin-right: 0;
+    }
+
+    .site-nav-links {
+        flex: 1 1 auto;
+
+        justify-content: flex-start;
     }
 
     .site-nav-link {
