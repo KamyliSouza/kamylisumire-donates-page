@@ -2,7 +2,6 @@
   "copyright": {
     "nome": "Kamyli Sumire",
     "texto": "Todos os direitos reservados."
-    }
   },
   "creditos": {
     "fundo": {
@@ -14,9 +13,10 @@
       "prefixo": "Avatar por",
       "nome": "@maililac",
       "url": "https://bsky.app/profile/maililac.bsky.social"
-  },
-  "codigoFonte": {
-    "texto": "Ver código fonte",
-    "url": "https://github.com/KamyliSouza/kamylisumire-donates-page"
+    },
+    "codigoFonte": {
+      "texto": "Ver código fonte",
+      "url": "https://github.com/KamyliSouza/kamylisumire-donates-page"
+    }
   }
 }
