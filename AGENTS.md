@@ -58,6 +58,7 @@ Não introduza framework, bundler ou build obrigatório sem solicitação explí
 │   │   ├── content.js
 │   │   ├── preferences.js
 │   │   ├── navbar.js
+│   │   ├── external-links.js
 │   │   ├── footer.js
 │   │   └── loader.js
 │   └── pages/
@@ -87,6 +88,7 @@ Não introduza framework, bundler ou build obrigatório sem solicitação explí
 - `content.js` → JSON editorial;
 - `preferences.js` → tema e blur;
 - `navbar.js` → navbar;
+- `external-links.js` → confirmação global de links externos;
 - `footer.js` → footer;
 - `loader.js` → preloader das páginas principais.
 
@@ -199,7 +201,6 @@ Estado atual:
 - centralizada no desktop;
 - scroll horizontal no mobile;
 - links diretos: Início, Agenda, Jogos, Regras, Créditos, Doações;
-- aviso para links externos;
 - scrollspy;
 - rolagem animada para seções;
 - favicon como máscara em `--primary-color`;
@@ -207,6 +208,36 @@ Estado atual:
 - toggle de blur com gota SVG.
 
 Não duplicar navbar em HTMLs.
+
+## Links externos
+
+O aviso de redirecionamento é global e pertence a:
+
+```text
+js/core/external-links.js
+```
+
+Ele intercepta qualquer link `http/https` cujo `origin` seja diferente do site atual, inclusive links inseridos dinamicamente por JSON.
+
+Isso inclui, por exemplo:
+
+- Trello;
+- redes sociais;
+- LivePix;
+- Pixie;
+- Créditos;
+- GitHub;
+- links do Footer.
+
+Links internos não exibem aviso.
+
+Para uma exceção intencional futura, usar:
+
+```html
+data-external-warning="skip"
+```
+
+Não reimplementar o modal em páginas ou componentes individuais.
 
 ## Footer
 

@@ -74,7 +74,8 @@ Preview branch: site-v2
 - [ ] Regras/Créditos;
 - [ ] scroll com mais de cinco itens;
 - [ ] navegação mobile para Agenda/Regras/Créditos;
-- [ ] footer.
+- [ ] footer;
+- [ ] aviso de saída em links externos das redes, créditos e footer.
 
 ### Doações
 
@@ -84,7 +85,8 @@ Preview branch: site-v2
 - [ ] aviso alinhado;
 - [ ] ranking;
 - [ ] cache/fallback do ranking;
-- [ ] footer.
+- [ ] footer;
+- [ ] aviso de saída no LivePix/Pixie e demais links externos.
 
 ### 404
 

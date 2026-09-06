@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## V29 — aviso global de links externos
+
+- aviso de redirecionamento removido de `navbar.js`;
+- novo `js/core/external-links.js`;
+- confirmação aplicada a todos os links externos `http/https`;
+- funciona também em links inseridos dinamicamente por JSON;
+- preserva `target="_blank"` e intenção de nova aba;
+- links internos continuam sem confirmação;
+- Home, Doações e 404 carregam o mesmo módulo;
+- suporte opcional a `data-external-warning="skip"` para exceções futuras;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V28 — saneamento e documentação
 
 - 404 atualizada;

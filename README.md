@@ -37,7 +37,7 @@ data/content/
 css/core/        compartilhado
 css/components/  componentes
 css/pages/       páginas
-js/core/         módulos compartilhados
+js/core/         módulos compartilhados, incluindo aviso global de links externos
 js/pages/        lógica por página
 data/            conteúdo editável
 assets/          identidade visual

@@ -105,7 +105,9 @@ Estado atual:
 - sem dropdown;
 - favicon = máscara de `assets/favicon.png`;
 - cor = `var(--primary-color)`;
-- Jogos usa confirmação de link externo.
+- links externos usam confirmação global antes do redirecionamento.
+
+O modal de saída é compartilhado por todo o site e mantém a mesma identidade visual da navbar.
 
 ## Home
 
