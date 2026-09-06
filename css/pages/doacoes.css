@@ -183,13 +183,17 @@
 }
 
 .donation-service-icon-livepix {
-    width: 25px;
-    height: 25px;
+    width: 24px;
+    height: 24px;
+
+    stroke-width: 2;
 }
 
 .donation-service-icon-pixie {
     width: 23px;
     height: 23px;
+
+    stroke-width: 1.8;
 }
 
 .donation-btn-text {
@@ -221,7 +225,10 @@
    ========================================================= */
 
 .donation-notice {
-    margin-top: 22px;
+    width: 100%;
+    max-width: 420px;
+
+    margin: 22px auto 0;
     padding: 14px 16px;
 
     background-color: var(--notice-bg);
@@ -304,7 +311,8 @@
         height: 96px;
     }
 
-    .donation-buttons {
+    .donation-buttons,
+    .donation-notice {
         max-width: 100%;
     }
 
