@@ -274,6 +274,48 @@ A 404 deve:
 - funcionar em URLs aninhadas;
 - funcionar em GitHub Pages de projeto.
 
+
+## Preview social
+
+Home e Doações possuem metadados estáticos Open Graph e Twitter/X no `<head>`.
+
+### Home
+
+A preview deve espelhar os textos do Hero:
+
+```text
+Oiê! Eu sou a Kamyli ✨
+
+Faço lives de joguinhos enquanto troco uma ideia com você.
+Por aqui você encontra minha agenda, minhas redes e todas as
+formas de acompanhar o conteúdo.
+```
+
+Imagem:
+
+```text
+https://kamylisumire.com/assets/preview.png
+```
+
+### Doações
+
+Manter os textos históricos da preview da branch `main`:
+
+```text
+Apoie a Kamyli Sumire ✨
+Escolha entre LivePix ou Pixie para apoiar as lives!
+```
+
+### Importante
+
+Scrapers sociais normalmente não executam JavaScript.
+
+Por isso os textos da preview da Home são duplicados estaticamente no
+`index.html`, mesmo que o Hero também exista em `data/content/hero.json`.
+
+Ao alterar o título ou descrição do Hero, atualizar também os metadados
+Open Graph/Twitter da Home.
+
 ## API / Worker — invariantes críticos
 
 `workers.js` é infraestrutura.

@@ -181,6 +181,34 @@ Home e Doações usam favicon pulsando na cor primária, sem texto visual.
 
 Respeitar `prefers-reduced-motion`.
 
+
+## Preview social
+
+As previews usam uma imagem grande:
+
+```text
+assets/preview.png
+1200 × 630
+```
+
+Home:
+
+```text
+Oiê! Eu sou a Kamyli ✨
++ descrição do Hero
+```
+
+Doações:
+
+```text
+Apoie a Kamyli Sumire ✨
+Escolha entre LivePix ou Pixie para apoiar as lives!
+```
+
+Open Graph é a referência para Discord, WhatsApp, Telegram, Facebook e
+outros serviços compatíveis. Twitter/X recebe os equivalentes
+`twitter:*`.
+
 ## Mobile e performance
 
 Até 760px:

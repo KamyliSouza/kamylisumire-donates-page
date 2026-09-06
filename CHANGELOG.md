@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## V30 — social preview
+
+- Home recebe preview Open Graph/Twitter completa;
+- título da preview da Home espelha o título do Hero;
+- descrição da preview da Home espelha a descrição do Hero;
+- `assets/preview.png` é usado como imagem grande;
+- metadados `og:image:width`, `height`, `type` e `alt` adicionados;
+- Doações preserva exatamente os textos de preview da branch `main`;
+- `canonical`, `og:locale` e `og:site_name` adicionados;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V29 — aviso global de links externos
 
 - aviso de redirecionamento removido de `navbar.js`;
