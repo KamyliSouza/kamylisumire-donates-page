@@ -113,7 +113,7 @@ Não tratar a migração do domínio principal como tarefa pendente.
 - `navbar.js` → navbar;
 - `external-links.js` → confirmação global de links externos;
 - `footer.js` → footer;
-- `loader.js` → preloader das páginas principais.
+- `loader.js` → preloader das páginas principais e coordenação da entrada suave pós-loader.
 
 ### Home
 
@@ -583,3 +583,27 @@ Se não usa backend, não carregue `api.js`.
 Prefira mudanças pequenas, modulares, testáveis e reversíveis.
 
 Qualquer alteração em Worker, OAuth, KV, DNS, domínio, CORS, ranking backend ou redirects deve ser tratada como infraestrutura e separada das mudanças de frontend.
+
+
+## Entrada suave pós-loader
+
+Home e Doações utilizam os estados globais:
+
+```text
+site-loading
+site-revealing
+site-ready
+```
+
+A entrada deve continuar mínima e aplicada apenas a:
+
+```text
+.site-nav
+body > main
+.site-footer
+```
+
+Não criar cascatas longas ou animação card-a-card sem solicitação explícita.
+
+O reveal deve sempre respeitar `prefers-reduced-motion: reduce`.
+A página 404 não usa loader e não depende desses estados.

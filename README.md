@@ -147,3 +147,10 @@ demais casos              → comportamento visual normal
 ```
 
 O override manual de blur não desativa essas otimizações de performance.
+
+
+### Entrada pós-loader
+
+Home e Doações fazem uma transição curta de opacidade e poucos pixels quando
+o loader termina. O efeito é propositalmente discreto e é desativado quando o
+sistema informa `prefers-reduced-motion: reduce`.

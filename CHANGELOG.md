@@ -1,4 +1,17 @@
 # CHANGELOG
+## V37 — entrada suave pós-loader
+
+- adiciona uma animação mínima de entrada após o loader;
+- navbar faz fade com deslocamento vertical de apenas 3 px;
+- conteúdo principal e footer fazem fade com deslocamento de apenas 5 px;
+- animação ocorre nos blocos principais, sem animar card por card;
+- entrada começa durante o final do fade-out do loader para evitar troca abrupta;
+- `site-revealing` é temporário e termina em `site-ready`;
+- novo evento `kamyli:site-revealed` disponível para integrações futuras;
+- `prefers-reduced-motion: reduce` remove totalmente a animação;
+- 404 continua sem loader e não recebe a transição;
+- Worker/API/OAuth/KV/CORS/DNS/SEO não alterados.
+
 ## V36 — performance adaptativa + fundo AVIF
 - `fundo.avif` passa a ser a primeira opção do background, com WebP e PNG como fallbacks;
 - loader deixa de carregar a arte pesada do fundo e usa apenas gradiente CSS + favicon;

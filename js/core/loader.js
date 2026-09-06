@@ -6,6 +6,9 @@
         document.documentElement.classList.remove(
             "site-loading"
         );
+        document.documentElement.classList.add(
+            "site-ready"
+        );
         return;
     }
 
@@ -17,6 +20,7 @@
     const MIN_VISIBLE_MS = 280;
     const MAX_WAIT_MS = 2400;
     const EXIT_MS = 300;
+    const REVEAL_STATE_MS = 420;
 
     const needsAgenda =
         Boolean(
@@ -73,17 +77,45 @@
                 );
 
         window.setTimeout(() => {
+            const root =
+                document.documentElement;
+
+            /*
+             * Começa a entrada do conteúdo no mesmo ciclo em que o
+             * loader inicia o fade-out. O CSS aplica delays curtos,
+             * criando um crossfade discreto sem deixar a tela vazia.
+             */
+            root.classList.add(
+                "site-revealing"
+            );
+
             loader.classList.add(
                 "is-leaving"
             );
 
-            document.documentElement.classList.remove(
+            root.classList.remove(
                 "site-loading"
             );
 
             window.setTimeout(() => {
                 loader.remove();
             }, EXIT_MS);
+
+            window.setTimeout(() => {
+                root.classList.remove(
+                    "site-revealing"
+                );
+
+                root.classList.add(
+                    "site-ready"
+                );
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        "kamyli:site-revealed"
+                    )
+                );
+            }, REVEAL_STATE_MS);
         }, remaining);
     }
 

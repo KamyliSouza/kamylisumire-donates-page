@@ -274,3 +274,35 @@ preload de imagens puramente decorativas.
 5. Manter legibilidade sem blur.
 6. Novas páginas podem ter layout próprio, não identidade própria.
 7. Hover não pode ser a única forma de acessar uma ação.
+
+
+## Movimento e entrada da página
+
+Home e Doações usam uma transição mínima quando o loader termina.
+
+Estados:
+
+```text
+site-loading
+→ site-revealing
+→ site-ready
+```
+
+A animação deve permanecer discreta:
+
+```text
+navbar: 3 px
+main/footer: 5 px
+duração: ~240–280 ms
+```
+
+Não animar individualmente todos os cards ou textos na primeira entrada. O
+objetivo é apenas suavizar a troca entre loader e conteúdo pronto.
+
+A transição deve respeitar:
+
+```text
+prefers-reduced-motion: reduce
+```
+
+Nesse modo o conteúdo aparece imediatamente, sem deslocamento ou fade.
