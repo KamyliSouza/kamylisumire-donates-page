@@ -435,6 +435,25 @@
     stroke-linejoin: round;
 }
 
+.site-nav-setting .setting-icon-blur {
+    width: 18px;
+    height: 18px;
+}
+
+.site-nav-setting .blur-drop {
+    fill: color-mix(
+        in srgb,
+        currentColor 16%,
+        transparent
+    );
+}
+
+@supports not (fill: color-mix(in srgb, white, transparent)) {
+    .site-nav-setting .blur-drop {
+        fill: none;
+    }
+}
+
 /* O ícone mostra o estado atual do tema. */
 .setting-icon-moon {
     display: none;

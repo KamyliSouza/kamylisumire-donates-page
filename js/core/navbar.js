@@ -112,13 +112,18 @@
                         aria-pressed="true"
                     >
                         <svg
-                            class="setting-icon"
+                            class="setting-icon setting-icon-blur"
                             viewBox="0 0 24 24"
                             aria-hidden="true"
                         >
-                            <rect x="4" y="6" width="12" height="12" rx="3"></rect>
-                            <rect x="8" y="3" width="12" height="12" rx="3"></rect>
-                            <path class="blur-off-slash" d="M4 4l16 16"></path>
+                            <path
+                                class="blur-drop"
+                                d="M12 3.5c-1.8 2.4-5.5 6.6-5.5 10.5a5.5 5.5 0 0 0 11 0c0-3.9-3.7-8.1-5.5-10.5Z"
+                            ></path>
+                            <path
+                                class="blur-off-slash"
+                                d="M5 5l14 14"
+                            ></path>
                         </svg>
                     </button>
                 </div>

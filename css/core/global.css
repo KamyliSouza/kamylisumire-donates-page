@@ -349,9 +349,7 @@ html.site-loading body {
     display: grid;
     place-items: center;
 
-    gap: 12px;
-
-    text-align: center;
+    gap: 0;
 }
 
 .site-loader-logo {
@@ -382,16 +380,6 @@ html.site-loading body {
             0 5px 14px
             rgba(179, 94, 175, .18)
         );
-}
-
-.site-loader-label {
-    margin: 0;
-
-    color: var(--subtitle-color);
-
-    font-size: .78rem;
-    font-weight: 800;
-    letter-spacing: .04em;
 }
 
 .site-loader.is-leaving {
