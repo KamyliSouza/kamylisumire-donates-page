@@ -167,7 +167,25 @@
      */
     render(fallback);
 
-    if (!content) return;
+    function signalFooterReady() {
+        window.KAMYLI_FOOTER_READY = true;
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "kamyli:loader-ready",
+                {
+                    detail: {
+                        key: "footer"
+                    }
+                }
+            )
+        );
+    }
+
+    if (!content) {
+        signalFooterReady();
+        return;
+    }
 
     content
         .getJSON("/data/content/footer.json")
@@ -177,5 +195,6 @@
                 "Erro ao carregar footer.json:",
                 error
             );
-        });
+        })
+        .finally(signalFooterReady);
 })();

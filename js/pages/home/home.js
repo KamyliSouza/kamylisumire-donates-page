@@ -287,5 +287,28 @@ async function carregarAgenda() {
     }
 }
 
+function signalAgendaReady() {
+    window.KAMYLI_AGENDA_READY = true;
+
+    window.dispatchEvent(
+        new CustomEvent(
+            "kamyli:loader-ready",
+            {
+                detail: {
+                    key: "agenda"
+                }
+            }
+        )
+    );
+}
+
 setupAgendaCarousel();
-carregarAgenda();
+
+carregarAgenda()
+    .catch(error => {
+        console.error(
+            "Erro inesperado ao finalizar a agenda:",
+            error
+        );
+    })
+    .finally(signalAgendaReady);

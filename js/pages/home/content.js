@@ -409,5 +409,27 @@
         }
     }
 
-    loadHomeContent();
+    function signalContentReady() {
+        window.KAMYLI_PAGE_CONTENT_READY = true;
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "kamyli:loader-ready",
+                {
+                    detail: {
+                        key: "page-content"
+                    }
+                }
+            )
+        );
+    }
+
+    loadHomeContent()
+        .catch(error => {
+            console.error(
+                "Erro inesperado ao montar conteúdo da Home:",
+                error
+            );
+        })
+        .finally(signalContentReady);
 })();

@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#B35EAF">
 
     <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="preload" as="image" href="assets/favicon.png">
     <link rel="preload" as="image" href="assets/fundo.png">
 
     <meta property="og:title" content="Kamyli Sumire ✨">
@@ -21,6 +22,11 @@
 
     <script src="js/core/preferences.js"></script>
 
+    <script>
+        window.KAMYLI_LOADER_STARTED_AT = performance.now();
+        document.documentElement.classList.add("site-loading");
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -32,6 +38,33 @@
 </head>
 
 <body>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span
+                class="site-loader-logo"
+                aria-hidden="true"
+            ></span>
+
+            <p class="site-loader-label">
+                Carregando...
+            </p>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+
     <header id="site-navbar"></header>
 
     <main class="site-shell">
@@ -263,5 +296,6 @@
     <script src="js/core/footer.js"></script>
     <script src="js/pages/home/home.js"></script>
     <script src="js/pages/home/content.js"></script>
+    <script src="js/core/loader.js"></script>
 </body>
 </html>
