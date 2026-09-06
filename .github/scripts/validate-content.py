@@ -313,7 +313,8 @@ def validate_hero_sync() -> None:
 
 def validate_visual_assets() -> None:
     required_webp = {
-        "avatar": ROOT / "assets/avatar.webp",
+        "avatar-192": ROOT / "assets/avatar-192.webp",
+        "avatar-384": ROOT / "assets/avatar-384.webp",
         "favicon": ROOT / "assets/favicon.webp",
         "fundo": ROOT / "assets/fundo.webp",
         "logo": ROOT / "assets/logo.webp",
@@ -374,6 +375,8 @@ def validate_visual_assets() -> None:
     global_css = (ROOT / "css/core/global.css").read_text(encoding="utf-8")
     navbar_css = (ROOT / "css/core/navbar.css").read_text(encoding="utf-8")
     preferences_js = (ROOT / "js/core/preferences.js").read_text(encoding="utf-8")
+    loader_js = (ROOT / "js/core/loader.js").read_text(encoding="utf-8")
+    home_js = (ROOT / "js/pages/home/home.js").read_text(encoding="utf-8")
 
     loader_start = global_css.find(".site-loader {")
     loader_end = global_css.find(".site-loader-inner", loader_start)
@@ -384,8 +387,12 @@ def validate_visual_assets() -> None:
     )
 
     expectations = {
-        "Home usa avatar.webp": "assets/avatar.webp" in home_html,
-        "Doações usa avatar.webp": "../assets/avatar.webp" in donations_html,
+        "Home usa avatar responsivo 192/384":
+            "assets/avatar-192.webp 192w" in home_html
+            and "assets/avatar-384.webp 384w" in home_html,
+        "Doações usa avatar responsivo 192/384":
+            "../assets/avatar-192.webp 192w" in donations_html
+            and "../assets/avatar-384.webp 384w" in donations_html,
         "Home usa favicon.webp": "assets/favicon.webp" in home_html,
         "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
         "Background desktop prioriza fundo.avif": "assets/fundo.avif" in global_css,
@@ -413,6 +420,17 @@ def validate_visual_assets() -> None:
             donations_html.find('src="../js/core/preferences.js"') > donations_html.find("</head>"),
         "404 não bloqueia head com preferences.js":
             not_found_html.find('src="js/core/preferences.js"') > not_found_html.find("</head>"),
+        "Loader usa estado pendente atrasado":
+            "site-loading-pending" in loader_js
+            and "SHOW_DELAY_MS = 180" in loader_js,
+        "Loader rápido pode não aparecer":
+            "finishWithoutShowingLoader" in loader_js,
+        "Agenda agrupa renderização em DocumentFragment":
+            "createDocumentFragment" in home_js
+            and "replaceChildren(fragment)" in home_js,
+        "Agenda reutiliza métricas de layout":
+            "agendaMetrics" in home_js
+            and "scheduleCarouselMeasure" in home_js,
     }
 
     failures = [label for label, ok in expectations.items() if not ok]
@@ -423,7 +441,7 @@ def validate_visual_assets() -> None:
             + ", ".join(failures)
         )
 
-    print("✓ Assets AVIF/WebP, fundo mobile e bootstrap crítico integrados")
+    print("✓ Assets responsivos, loader atrasado e performance V39 integrados")
 
 
 def validate_production_files() -> None:

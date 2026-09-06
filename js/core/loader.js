@@ -2,24 +2,28 @@
     const loader =
         document.getElementById("site-loader");
 
+    const root =
+        document.documentElement;
+
     if (!loader) {
-        document.documentElement.classList.remove(
-            "site-loading"
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible"
         );
-        document.documentElement.classList.add(
+        root.classList.add(
             "site-ready"
         );
         return;
     }
 
-    const startedAt =
-        Number(
-            window.KAMYLI_LOADER_STARTED_AT
-        ) || performance.now();
-
-    const MIN_VISIBLE_MS = 280;
+    /*
+     * O loader fica inicialmente oculto. Em visitas rápidas o conteúdo
+     * termina antes deste atraso e o loader nunca entra no paint/LCP.
+     */
+    const SHOW_DELAY_MS = 180;
+    const MIN_VISIBLE_AFTER_SHOW_MS = 160;
     const MAX_WAIT_MS = 2400;
-    const EXIT_MS = 300;
+    const EXIT_MS = 320;
     const REVEAL_STATE_MS = 420;
 
     const needsAgenda =
@@ -31,11 +35,12 @@
         document.readyState !== "loading";
 
     let finished = false;
+    let loaderShownAt = 0;
+    let showTimer = null;
 
     function localContentReady() {
         const pageContentReady =
             window.KAMYLI_PAGE_CONTENT_READY === true;
-
         const footerReady =
             window.KAMYLI_FOOTER_READY === true;
 
@@ -50,7 +55,65 @@
         );
     }
 
-    function hideLoader(force = false) {
+    function dispatchRevealed(loaderWasShown) {
+        window.dispatchEvent(
+            new CustomEvent(
+                "kamyli:site-revealed",
+                {
+                    detail: {
+                        loaderShown: loaderWasShown
+                    }
+                }
+            )
+        );
+    }
+
+    function finishWithoutShowingLoader() {
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible",
+            "site-revealing"
+        );
+        root.classList.add(
+            "site-ready"
+        );
+
+        loader.remove();
+        dispatchRevealed(false);
+    }
+
+    function beginReveal() {
+        root.classList.add(
+            "site-revealing"
+        );
+
+        loader.classList.add(
+            "is-leaving"
+        );
+
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible"
+        );
+
+        window.setTimeout(() => {
+            loader.remove();
+        }, EXIT_MS);
+
+        window.setTimeout(() => {
+            root.classList.remove(
+                "site-revealing"
+            );
+
+            root.classList.add(
+                "site-ready"
+            );
+
+            dispatchRevealed(true);
+        }, REVEAL_STATE_MS);
+    }
+
+    function completeLoader(force = false) {
         if (finished) return;
 
         if (
@@ -65,62 +128,54 @@
 
         finished = true;
 
-        const elapsed =
-            performance.now() - startedAt;
+        if (showTimer !== null) {
+            window.clearTimeout(showTimer);
+            showTimer = null;
+        }
+
+        if (!loaderShownAt) {
+            finishWithoutShowingLoader();
+            return;
+        }
+
+        const visibleFor =
+            performance.now() - loaderShownAt;
 
         const remaining =
             force
                 ? 0
                 : Math.max(
                     0,
-                    MIN_VISIBLE_MS - elapsed
+                    MIN_VISIBLE_AFTER_SHOW_MS - visibleFor
                 );
 
-        window.setTimeout(() => {
-            const root =
-                document.documentElement;
+        window.setTimeout(
+            beginReveal,
+            remaining
+        );
+    }
 
-            /*
-             * Começa a entrada do conteúdo no mesmo ciclo em que o
-             * loader inicia o fade-out. O CSS aplica delays curtos,
-             * criando um crossfade discreto sem deixar a tela vazia.
-             */
-            root.classList.add(
-                "site-revealing"
-            );
+    function showLoaderIfStillNeeded() {
+        showTimer = null;
 
-            loader.classList.add(
-                "is-leaving"
-            );
+        if (finished) return;
 
-            root.classList.remove(
-                "site-loading"
-            );
+        if (
+            domReady &&
+            localContentReady()
+        ) {
+            completeLoader(false);
+            return;
+        }
 
-            window.setTimeout(() => {
-                loader.remove();
-            }, EXIT_MS);
-
-            window.setTimeout(() => {
-                root.classList.remove(
-                    "site-revealing"
-                );
-
-                root.classList.add(
-                    "site-ready"
-                );
-
-                window.dispatchEvent(
-                    new CustomEvent(
-                        "kamyli:site-revealed"
-                    )
-                );
-            }, REVEAL_STATE_MS);
-        }, remaining);
+        loaderShownAt = performance.now();
+        root.classList.add(
+            "site-loading-visible"
+        );
     }
 
     function checkReady() {
-        hideLoader(false);
+        completeLoader(false);
     }
 
     if (!domReady) {
@@ -139,12 +194,17 @@
         checkReady
     );
 
+    showTimer = window.setTimeout(
+        showLoaderIfStillNeeded,
+        SHOW_DELAY_MS
+    );
+
     /*
-     * Proteção contra JSON quebrado, script bloqueado ou
-     * conexão inesperadamente lenta. O loader nunca prende o site.
+     * Proteção contra JSON quebrado, script bloqueado ou conexão lenta.
+     * O estado pendente nunca pode prender a interface indefinidamente.
      */
     window.setTimeout(
-        () => hideLoader(true),
+        () => completeLoader(true),
         MAX_WAIT_MS
     );
 

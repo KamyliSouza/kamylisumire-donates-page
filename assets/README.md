@@ -5,7 +5,9 @@
 A interface usa formatos progressivos, preservando fallbacks históricos.
 
 ```text
-avatar.webp   → avatar exibido na Home e em Doações
+avatar-192.webp → avatar responsivo 1x / telas pequenas
+avatar-384.webp → avatar responsivo para alta densidade
+avatar.webp     → asset legado preservado
 favicon.webp  → favicon moderno + ícone do loader
 fundo.avif         → background principal para desktop/tablet
 fundo-mobile.avif  → background 720p dedicado a telas até 760 px
@@ -57,3 +59,10 @@ O workflow verifica:
 - referências de fallback;
 - ausência do fundo pesado no loader;
 - integração do perfil de performance adaptativa.
+
+
+### Avatar responsivo
+
+Home e Doações usam `srcset` com `avatar-192.webp` e `avatar-384.webp`.
+O navegador escolhe o arquivo adequado conforme tamanho renderizado e densidade
+de pixels. `avatar.png` permanece como fallback para navegadores sem WebP.

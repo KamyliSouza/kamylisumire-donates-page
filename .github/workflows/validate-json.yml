@@ -15,6 +15,8 @@ on:
       - "css/core/global.css"
       - "css/core/navbar.css"
       - "js/core/preferences.js"
+      - "js/core/loader.js"
+      - "js/pages/home/home.js"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -31,6 +33,8 @@ on:
       - "css/core/global.css"
       - "css/core/navbar.css"
       - "js/core/preferences.js"
+      - "js/core/loader.js"
+      - "js/pages/home/home.js"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -49,3 +53,8 @@ jobs:
 
       - name: Validate content, SEO and optimized assets
         run: python .github/scripts/validate-content.py
+
+      - name: Check modified JavaScript syntax
+        run: |
+          node --check js/core/loader.js
+          node --check js/pages/home/home.js

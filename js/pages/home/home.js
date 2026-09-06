@@ -25,29 +25,89 @@ function formatDate(dateString) {
     }).format(new Date(year, month - 1, day));
 }
 
-function getCarouselStep() {
-    const card = agendaGrid?.querySelector(".agenda-card");
-    if (!card) return 280;
+const DEFAULT_CAROUSEL_STEP = 280;
 
-    const styles = getComputedStyle(agendaGrid);
-    const gap = Number.parseFloat(styles.columnGap || styles.gap || "0") || 0;
-
-    return card.getBoundingClientRect().width + gap;
-}
-
-function updateCarouselButtons() {
-    if (!agendaGrid || !agendaPrev || !agendaNext) return;
-
-    const maxScrollLeft = Math.max(
-        0,
-        agendaGrid.scrollWidth - agendaGrid.clientWidth
-    );
-
-    agendaPrev.disabled = agendaGrid.scrollLeft <= 2;
-    agendaNext.disabled = agendaGrid.scrollLeft >= maxScrollLeft - 2;
-}
+const agendaMetrics = {
+    step: DEFAULT_CAROUSEL_STEP,
+    maxScrollLeft: 0
+};
 
 let agendaAnimationFrame = null;
+let agendaMeasureFrame = null;
+let agendaButtonFrame = null;
+let agendaResizeObserver = null;
+
+function applyCarouselButtonState() {
+    if (!agendaGrid || !agendaPrev || !agendaNext) return;
+
+    const currentLeft = agendaGrid.scrollLeft;
+    const prevDisabled = currentLeft <= 2;
+    const nextDisabled =
+        currentLeft >= agendaMetrics.maxScrollLeft - 2;
+
+    if (agendaPrev.disabled !== prevDisabled) {
+        agendaPrev.disabled = prevDisabled;
+    }
+
+    if (agendaNext.disabled !== nextDisabled) {
+        agendaNext.disabled = nextDisabled;
+    }
+}
+
+function scheduleCarouselButtonUpdate() {
+    if (agendaButtonFrame !== null) return;
+
+    agendaButtonFrame = requestAnimationFrame(() => {
+        agendaButtonFrame = null;
+        applyCarouselButtonState();
+    });
+}
+
+function measureCarousel() {
+    if (!agendaGrid) return;
+
+    /*
+     * Todas as leituras geométricas ficam agrupadas neste único frame.
+     * Durante a animação do scroll reutilizamos os valores em cache.
+     */
+    const card =
+        agendaGrid.querySelector(".agenda-card");
+    const styles =
+        getComputedStyle(agendaGrid);
+    const gap =
+        Number.parseFloat(
+            styles.columnGap || styles.gap || "0"
+        ) || 0;
+    const cardWidth =
+        card
+            ? card.getBoundingClientRect().width
+            : 0;
+    const clientWidth =
+        agendaGrid.clientWidth;
+    const scrollWidth =
+        agendaGrid.scrollWidth;
+
+    agendaMetrics.step =
+        cardWidth > 0
+            ? cardWidth + gap
+            : DEFAULT_CAROUSEL_STEP;
+    agendaMetrics.maxScrollLeft =
+        Math.max(
+            0,
+            scrollWidth - clientWidth
+        );
+
+    applyCarouselButtonState();
+}
+
+function scheduleCarouselMeasure() {
+    if (agendaMeasureFrame !== null) return;
+
+    agendaMeasureFrame = requestAnimationFrame(() => {
+        agendaMeasureFrame = null;
+        measureCarousel();
+    });
+}
 
 function easeInOutQuint(t) {
     return t < 0.5
@@ -67,19 +127,17 @@ function animateAgendaTo(targetLeft, duration = 520) {
         "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    const maxLeft = Math.max(
-        0,
-        agendaGrid.scrollWidth - agendaGrid.clientWidth
-    );
-
     const destination = Math.max(
         0,
-        Math.min(targetLeft, maxLeft)
+        Math.min(
+            targetLeft,
+            agendaMetrics.maxScrollLeft
+        )
     );
 
     if (prefersReducedMotion) {
         agendaGrid.scrollLeft = destination;
-        updateCarouselButtons();
+        scheduleCarouselButtonUpdate();
         return;
     }
 
@@ -87,7 +145,7 @@ function animateAgendaTo(targetLeft, duration = 520) {
     const distance = destination - startLeft;
 
     if (Math.abs(distance) < 1) {
-        updateCarouselButtons();
+        scheduleCarouselButtonUpdate();
         return;
     }
 
@@ -98,10 +156,12 @@ function animateAgendaTo(targetLeft, duration = 520) {
         const progress = Math.min(elapsed / duration, 1);
         const eased = easeInOutQuint(progress);
 
+        /*
+         * Só escrevemos scrollLeft neste loop. Leituras de largura ficam
+         * fora da animação para evitar layout síncrono a cada frame.
+         */
         agendaGrid.scrollLeft =
             startLeft + (distance * eased);
-
-        updateCarouselButtons();
 
         if (progress < 1) {
             agendaAnimationFrame =
@@ -109,7 +169,7 @@ function animateAgendaTo(targetLeft, duration = 520) {
         } else {
             agendaGrid.scrollLeft = destination;
             agendaAnimationFrame = null;
-            updateCarouselButtons();
+            scheduleCarouselButtonUpdate();
         }
     }
 
@@ -121,7 +181,7 @@ function scrollAgenda(direction) {
 
     const target =
         agendaGrid.scrollLeft +
-        (getCarouselStep() * direction);
+        (agendaMetrics.step * direction);
 
     animateAgendaTo(target);
 }
@@ -129,20 +189,29 @@ function scrollAgenda(direction) {
 function setupAgendaCarousel() {
     if (!agendaGrid) return;
 
-    updateCarouselButtons();
+    scheduleCarouselMeasure();
 
-    agendaPrev?.addEventListener("click", () => scrollAgenda(-1));
-    agendaNext?.addEventListener("click", () => scrollAgenda(1));
+    agendaPrev?.addEventListener(
+        "click",
+        () => scrollAgenda(-1)
+    );
+    agendaNext?.addEventListener(
+        "click",
+        () => scrollAgenda(1)
+    );
 
-    agendaGrid.addEventListener("scroll", () => {
-        window.requestAnimationFrame(updateCarouselButtons);
-    }, { passive: true });
+    agendaGrid.addEventListener(
+        "scroll",
+        scheduleCarouselButtonUpdate,
+        { passive: true }
+    );
 
     const cancelProgrammaticAnimation = () => {
         if (!agendaAnimationFrame) return;
 
         cancelAnimationFrame(agendaAnimationFrame);
         agendaAnimationFrame = null;
+        scheduleCarouselButtonUpdate();
     };
 
     agendaGrid.addEventListener(
@@ -150,13 +219,11 @@ function setupAgendaCarousel() {
         cancelProgrammaticAnimation,
         { passive: true }
     );
-
     agendaGrid.addEventListener(
         "touchstart",
         cancelProgrammaticAnimation,
         { passive: true }
     );
-
     agendaGrid.addEventListener(
         "wheel",
         cancelProgrammaticAnimation,
@@ -164,7 +231,10 @@ function setupAgendaCarousel() {
     );
 
     if ("onscrollend" in window) {
-        agendaGrid.addEventListener("scrollend", updateCarouselButtons);
+        agendaGrid.addEventListener(
+            "scrollend",
+            scheduleCarouselButtonUpdate
+        );
     }
 
     agendaGrid.addEventListener("keydown", event => {
@@ -179,21 +249,43 @@ function setupAgendaCarousel() {
         }
     });
 
-    window.addEventListener("resize", updateCarouselButtons);
+    if ("ResizeObserver" in window) {
+        agendaResizeObserver =
+            new ResizeObserver(
+                scheduleCarouselMeasure
+            );
+        agendaResizeObserver.observe(
+            agendaGrid
+        );
+    } else {
+        window.addEventListener(
+            "resize",
+            scheduleCarouselMeasure,
+            { passive: true }
+        );
+    }
 }
 
 function renderAgenda(data) {
     const dias = Array.isArray(data.dias) ? data.dias : [];
 
-    agendaGrid.innerHTML = "";
-
     if (!dias.length) {
-        agendaGrid.innerHTML =
-            '<p class="loading-message">Nenhum dia configurado na agenda.</p>';
+        const emptyMessage =
+            document.createElement("p");
+        emptyMessage.className =
+            "loading-message";
+        emptyMessage.textContent =
+            "Nenhum dia configurado na agenda.";
 
-        updateCarouselButtons();
+        agendaGrid.replaceChildren(
+            emptyMessage
+        );
+        scheduleCarouselMeasure();
         return;
     }
+
+    const fragment =
+        document.createDocumentFragment();
 
     dias.forEach(dia => {
         const card = document.createElement("article");
@@ -245,8 +337,10 @@ function renderAgenda(data) {
             </div>
         `;
 
-        agendaGrid.appendChild(card);
+        fragment.appendChild(card);
     });
+
+    agendaGrid.replaceChildren(fragment);
 
     if (data.ultimaAtualizacao) {
         agendaAtualizacao.textContent =
@@ -256,7 +350,7 @@ function renderAgenda(data) {
     agendaObservacao.textContent = data.observacao || "";
 
     agendaGrid.scrollLeft = 0;
-    window.requestAnimationFrame(updateCarouselButtons);
+    scheduleCarouselMeasure();
 }
 
 async function carregarAgenda() {
@@ -283,7 +377,7 @@ async function carregarAgenda() {
             </p>
         `;
 
-        updateCarouselButtons();
+        scheduleCarouselMeasure();
     }
 }
 

@@ -172,7 +172,7 @@
 
     <script>
         window.KAMYLI_LOADER_STARTED_AT = performance.now();
-        document.documentElement.classList.add("site-loading");
+        document.documentElement.classList.add("site-loading-pending");
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -278,13 +278,16 @@
                 <div class="hero-avatar-frame">
                     <picture>
                         <source
-                            srcset="assets/avatar.webp"
+                            srcset="assets/avatar-192.webp 192w, assets/avatar-384.webp 384w"
+                            sizes="(max-width: 720px) 150px, 184px"
                             type="image/webp"
                         >
                         <img
                             src="assets/avatar.png"
                             alt="Avatar da Kamyli Sumire"
                             class="hero-avatar"
+                            width="384"
+                            height="384"
                             loading="eager"
                             decoding="async"
                             fetchpriority="high"

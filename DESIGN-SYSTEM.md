@@ -321,3 +321,23 @@ Fallbacks globais permanecem em WebP e PNG. Em `Save-Data`, nenhuma arte de
 fundo é carregada.
 
 O background é decorativo e não deve receber preload.
+
+
+## Avatar responsivo
+
+A Home usa um frame de até 184 px e Doações usa 110 px. O navegador escolhe
+entre:
+
+```text
+avatar-192.webp
+avatar-384.webp
+```
+
+por `srcset`/`sizes`, mantendo `avatar.png` como fallback. Não voltar a servir
+`avatar.webp` grande como única fonte para esses componentes.
+
+## Loader atrasado
+
+O loader visual não deve aparecer imediatamente. Há um atraso curto para que
+visitas rápidas cheguem direto ao conteúdo. Quando o loader realmente aparece,
+a entrada suave da V37 continua sendo usada.

@@ -349,9 +349,9 @@ a {
    excesso de movimento e custo de composição.
    ========================================================= */
 
-html.site-loading .site-nav,
-html.site-loading body > main,
-html.site-loading .site-footer {
+html.site-loading-pending .site-nav,
+html.site-loading-pending body > main,
+html.site-loading-pending .site-footer {
     opacity: 0;
 }
 
@@ -434,8 +434,8 @@ html.site-revealing .site-footer {
    Mostra o favicon pulsando enquanto o conteúdo local monta.
    ========================================================= */
 
-html.site-loading,
-html.site-loading body {
+html.site-loading-pending,
+html.site-loading-pending body {
     overflow: hidden;
 }
 
@@ -462,12 +462,19 @@ html.site-loading body {
         ),
         var(--bg-color);
 
-    opacity: 1;
-    visibility: visible;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 
     transition:
         opacity .32s ease,
         visibility .32s ease;
+}
+
+html.site-loading-visible .site-loader:not(.is-leaving) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .site-loader-inner {

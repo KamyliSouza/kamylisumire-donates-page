@@ -632,3 +632,25 @@ Save-Data      → sem imagem decorativa
 ```
 
 Não adicionar preload para nenhum fundo.
+
+
+## V39 — loader atrasado e carrossel sem reflow repetido
+
+O carregamento inicial usa:
+
+```text
+site-loading-pending
+→ (180 ms, se necessário) site-loading-visible
+→ site-revealing
+→ site-ready
+```
+
+Se conteúdo local, footer e agenda ficarem prontos antes do atraso, o loader
+visual não deve aparecer. Não remover esse fast-path.
+
+A agenda deve agrupar leituras de layout em `measureCarousel()` e reutilizar
+`agendaMetrics` durante a animação. Evitar `scrollWidth`, `clientWidth`,
+`getBoundingClientRect()` ou `getComputedStyle()` dentro do loop de scroll.
+
+Avatares visíveis usam `avatar-192.webp` / `avatar-384.webp` via `srcset`;
+`avatar.png` permanece como fallback.

@@ -162,3 +162,11 @@ Em telas de até 760 px o site usa `assets/fundo-mobile.avif`, reduzindo bytes e
 decodificação em celulares. Tema, blur e perfil de performance recebem um
 bootstrap mínimo inline antes dos estilos; o módulo completo de preferências
 carrega no fim do documento.
+
+
+### V39 — LCP e agenda
+
+A Home/Doações usam avatares WebP responsivos de 192/384 px. O loader só é
+mostrado após um pequeno atraso quando o conteúdo ainda não ficou pronto, e o
+carrossel da agenda mantém métricas de layout em cache para evitar reflows
+repetidos durante a animação.

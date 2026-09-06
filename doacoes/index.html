@@ -163,7 +163,7 @@
 
     <script>
         window.KAMYLI_LOADER_STARTED_AT = performance.now();
-        document.documentElement.classList.add("site-loading");
+        document.documentElement.classList.add("site-loading-pending");
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -228,7 +228,8 @@
             <div class="donation-profile" aria-hidden="true">
                 <picture>
                     <source
-                        srcset="../assets/avatar.webp"
+                        srcset="../assets/avatar-192.webp 192w, ../assets/avatar-384.webp 384w"
+                        sizes="110px"
                         type="image/webp"
                     >
                     <img
@@ -239,6 +240,7 @@
                         height="110"
                         loading="eager"
                         decoding="async"
+                        fetchpriority="high"
                         draggable="false"
                     >
                 </picture>

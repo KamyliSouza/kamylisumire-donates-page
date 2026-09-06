@@ -1,4 +1,20 @@
 # CHANGELOG
+## V39 — avatar responsivo, loader atrasado e agenda otimizada
+- Home e Doações passam a usar `avatar-192.webp` e `avatar-384.webp` via `srcset`;
+- o navegador escolhe automaticamente a resolução conforme tamanho e DPR;
+- avatar PNG continua como fallback;
+- loader começa oculto e só aparece após 180 ms se o conteúdo ainda não estiver pronto;
+- visitas rápidas podem pular totalmente o loader, reduzindo competição pelo LCP;
+- loader exibido por pouco tempo mantém uma janela mínima de 160 ms para evitar flash;
+- fade do loader fica alinhado em 320 ms entre CSS e JavaScript;
+- estado inicial passa de `site-loading` para `site-loading-pending`;
+- agenda agrupa criação dos cards com `DocumentFragment`;
+- métricas do carrossel são medidas em um único frame e reutilizadas durante a animação;
+- eventos de scroll atualizam botões em `requestAnimationFrame` sem recalcular larguras a cada frame;
+- `ResizeObserver` recalcula métricas apenas quando o carrossel muda de tamanho;
+- CI valida os novos avatares e faz `node --check` nos JavaScripts alterados;
+- Worker/API/OAuth/KV/CORS/DNS/SEO não alterados.
+
 ## V38 — fundo mobile AVIF e caminho crítico
 
 - adiciona suporte a `assets/fundo-mobile.avif` para telas de até 760 px;
