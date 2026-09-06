@@ -8,21 +8,25 @@
 }
 
 .donation-shell {
-    width: min(380px, calc(100% - 32px));
-    margin: 28px auto 20px;
+    /*
+     * Mesma largura-base da Home no desktop.
+     */
+    width: min(1120px, calc(100% - 32px));
+    margin: 28px auto 36px;
 
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
 
-    gap: 20px;
+    gap: 22px;
 }
 
 .donation-card,
 .ranking-card {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
 
-    padding: 35px 25px;
+    padding: 35px 30px;
 
     text-align: center;
 }
@@ -237,7 +241,7 @@
    ========================================================= */
 
 .donation-footer {
-    width: min(380px, calc(100% - 32px));
+    width: min(1120px, calc(100% - 32px));
     margin-bottom: 28px;
 }
 
@@ -253,8 +257,12 @@
     }
 
     .donation-shell {
+        grid-template-columns: 1fr;
+
         margin-top: 20px;
         margin-bottom: 20px;
+
+        gap: 20px;
     }
 
     .donation-card,
@@ -275,3 +283,16 @@
         padding: 13px 16px;
     }
 }
+
+@media (min-width: 761px) and (max-width: 920px) {
+    .donation-shell {
+        grid-template-columns: 1fr;
+
+        max-width: 720px;
+    }
+
+    .donation-footer {
+        max-width: 720px;
+    }
+}
+
