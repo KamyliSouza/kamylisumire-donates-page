@@ -1,0 +1,47 @@
+V40 — ARQUIVOS PARA REMOVER
+
+Este ZIP foi feito para ser extraído/sobreposto diretamente sobre a pasta do
+repositório V39.2.
+
+Depois de copiar/sobrepor os arquivos, remova os itens abaixo SE EXISTIREM:
+
+ARQUIVOS-MANTER.txt
+LIMPEZA-V28.txt
+README-MIGRACAO.md
+V33-APLICACAO.txt
+V34-APLICACAO.txt
+V35-APLICACAO.txt
+V39-APLICACAO.txt
+V39-1-APLICACAO.txt
+V39-2-APLICACAO.txt
+
+assets/avatar.webp
+
+NÃO REMOVER A CI:
+
+.github/scripts/validate-content.py
+.github/workflows/validate-json.yml
+
+NÃO REMOVER:
+
+.nojekyll
+_headers
+CNAME
+robots.txt
+sitemap.xml
+workers.js
+
+assets/avatar-192.webp
+assets/avatar-384.webp
+assets/avatar.png
+assets/favicon.webp
+assets/favicon.png
+assets/fundo.avif
+assets/fundo-mobile.avif
+assets/fundo.webp
+assets/fundo.png
+assets/logo.webp
+assets/preview.png
+
+V40-REMOVER.txt é apenas uma instrução de aplicação. Ele pode ser apagado antes
+do commit.

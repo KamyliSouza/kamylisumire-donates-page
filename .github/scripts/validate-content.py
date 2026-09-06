@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire.
+"""Validação editorial/semântica do site Kamyli Sumire — V40.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -9,11 +9,14 @@ from __future__ import annotations
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
+
 EXPECTED_DAY_IDS = [
     "domingo",
     "segunda",
@@ -22,6 +25,18 @@ EXPECTED_DAY_IDS = [
     "quinta",
     "sexta",
     "sabado",
+]
+
+LEGACY_ROOT_FILES = [
+    "ARQUIVOS-MANTER.txt",
+    "LIMPEZA-V28.txt",
+    "README-MIGRACAO.md",
+    "V33-APLICACAO.txt",
+    "V34-APLICACAO.txt",
+    "V35-APLICACAO.txt",
+    "V39-APLICACAO.txt",
+    "V39-1-APLICACAO.txt",
+    "V39-2-APLICACAO.txt",
 ]
 
 
@@ -53,7 +68,9 @@ def load_json_strict(path: Path):
             object_pairs_hook=no_duplicate_object,
         )
     except (json.JSONDecodeError, ValidationError) as exc:
-        raise ValidationError(f"{path.relative_to(ROOT)}: {exc}") from exc
+        raise ValidationError(
+            f"{path.relative_to(ROOT)}: {exc}"
+        ) from exc
 
 
 def validate_all_json_files() -> None:
@@ -79,13 +96,19 @@ def require_string(obj, key: str, context: str) -> str:
 
 
 def validate_agenda() -> None:
-    path = ROOT / "data/agenda.json"
-    data = load_json_strict(path)
+    data = load_json_strict(ROOT / "data/agenda.json")
 
     if not isinstance(data, dict):
-        raise ValidationError("data/agenda.json deve conter um objeto")
+        raise ValidationError(
+            "data/agenda.json deve conter um objeto"
+        )
 
-    updated = require_string(data, "ultimaAtualizacao", "agenda")
+    updated = require_string(
+        data,
+        "ultimaAtualizacao",
+        "agenda",
+    )
+
     try:
         datetime.strptime(updated, "%d/%m/%Y")
     except ValueError as exc:
@@ -96,10 +119,15 @@ def validate_agenda() -> None:
     require_string(data, "observacao", "agenda")
 
     days = data.get("dias")
+
     if not isinstance(days, list):
         raise ValidationError("agenda.dias deve ser um array")
 
-    ids = [day.get("id") for day in days if isinstance(day, dict)]
+    ids = [
+        day.get("id")
+        for day in days
+        if isinstance(day, dict)
+    ]
 
     if ids != EXPECTED_DAY_IDS:
         raise ValidationError(
@@ -108,13 +136,17 @@ def validate_agenda() -> None:
         )
 
     if len(set(ids)) != len(ids):
-        raise ValidationError("agenda.dias possui IDs duplicados")
+        raise ValidationError(
+            "agenda.dias possui IDs duplicados"
+        )
 
     for index, day in enumerate(days):
         context = f"agenda.dias[{index}]"
 
         if not isinstance(day, dict):
-            raise ValidationError(f"{context} deve ser um objeto")
+            raise ValidationError(
+                f"{context} deve ser um objeto"
+            )
 
         required = {
             "id",
@@ -128,6 +160,7 @@ def validate_agenda() -> None:
         }
 
         missing = required - day.keys()
+
         if missing:
             raise ValidationError(
                 f"{context} sem campos obrigatórios: "
@@ -136,13 +169,33 @@ def validate_agenda() -> None:
 
         require_string(day, "id", context)
         require_string(day, "nome", context)
-        date_value = require_string(day, "data", context)
-        time_value = require_string(day, "horario", context)
-        title = require_string(day, "titulo", context)
-        description = require_string(day, "descricao", context)
+
+        date_value = require_string(
+            day,
+            "data",
+            context,
+        )
+        time_value = require_string(
+            day,
+            "horario",
+            context,
+        )
+        title = require_string(
+            day,
+            "titulo",
+            context,
+        )
+        description = require_string(
+            day,
+            "descricao",
+            context,
+        )
 
         try:
-            parsed = datetime.strptime(date_value, "%Y-%m-%d")
+            parsed = datetime.strptime(
+                date_value,
+                "%Y-%m-%d",
+            )
         except ValueError as exc:
             raise ValidationError(
                 f"{context}.data deve ser uma data real em AAAA-MM-DD"
@@ -150,7 +203,8 @@ def validate_agenda() -> None:
 
         if parsed.strftime("%Y-%m-%d") != date_value:
             raise ValidationError(
-                f"{context}.data deve preservar zero à esquerda em AAAA-MM-DD"
+                f"{context}.data deve preservar zero à esquerda "
+                "em AAAA-MM-DD"
             )
 
         if time_value and not re.fullmatch(
@@ -167,25 +221,39 @@ def validate_agenda() -> None:
             )
 
         platforms = day.get("plataformas")
+
         if (
             not isinstance(platforms, list)
             or not platforms
-            or any(not isinstance(item, str) or not item.strip() for item in platforms)
+            or any(
+                not isinstance(item, str)
+                or not item.strip()
+                for item in platforms
+            )
         ):
             raise ValidationError(
-                f"{context}.plataformas deve ser um array não vazio de strings"
+                f"{context}.plataformas deve ser um array "
+                "não vazio de strings"
             )
 
         if day["temLive"]:
             if not title.strip():
                 raise ValidationError(
-                    f"{context}.titulo deve ser preenchido quando temLive=true"
+                    f"{context}.titulo deve ser preenchido "
+                    "quando temLive=true"
                 )
-        else:
-            if any(value.strip() for value in (time_value, title, description)):
-                raise ValidationError(
-                    f"{context}: horario/titulo/descricao devem ficar vazios quando temLive=false"
-                )
+        elif any(
+            value.strip()
+            for value in (
+                time_value,
+                title,
+                description,
+            )
+        ):
+            raise ValidationError(
+                f"{context}: horario/titulo/descricao "
+                "devem ficar vazios quando temLive=false"
+            )
 
     print("✓ Agenda semanticamente válida")
 
@@ -201,7 +269,10 @@ class HomeHTMLParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.meta = {}
-        self.text_by_id = {key: [] for key in self.target_ids}
+        self.text_by_id = {
+            key: []
+            for key in self.target_ids
+        }
         self.stack = []
 
     def handle_starttag(self, tag, attrs):
@@ -210,21 +281,33 @@ class HomeHTMLParser(HTMLParser):
         self.stack.append((tag, element_id))
 
         if tag == "meta":
-            key = attrs_dict.get("name") or attrs_dict.get("property")
+            key = (
+                attrs_dict.get("name")
+                or attrs_dict.get("property")
+            )
             content = attrs_dict.get("content")
+
             if key and content is not None:
                 self.meta[key] = content
 
     def handle_startendtag(self, tag, attrs):
         if tag == "meta":
             attrs_dict = dict(attrs)
-            key = attrs_dict.get("name") or attrs_dict.get("property")
+            key = (
+                attrs_dict.get("name")
+                or attrs_dict.get("property")
+            )
             content = attrs_dict.get("content")
+
             if key and content is not None:
                 self.meta[key] = content
 
     def handle_endtag(self, tag):
-        for index in range(len(self.stack) - 1, -1, -1):
+        for index in range(
+            len(self.stack) - 1,
+            -1,
+            -1,
+        ):
             if self.stack[index][0] == tag:
                 del self.stack[index:]
                 break
@@ -237,66 +320,128 @@ class HomeHTMLParser(HTMLParser):
 
 
 def validate_hero_sync() -> None:
-    hero_path = ROOT / "data/content/hero.json"
-    hero = load_json_strict(hero_path)
+    hero = load_json_strict(
+        ROOT / "data/content/hero.json"
+    )
 
     title_obj = hero.get("titulo")
+
     if not isinstance(title_obj, dict):
-        raise ValidationError("hero.titulo deve ser um objeto")
+        raise ValidationError(
+            "hero.titulo deve ser um objeto"
+        )
 
     expected_title = normalize_text(
-        require_string(title_obj, "prefixo", "hero.titulo")
-        + require_string(title_obj, "destaque", "hero.titulo")
-        + require_string(title_obj, "sufixo", "hero.titulo")
-    )
-    expected_description = normalize_text(
-        require_string(hero, "descricao", "hero")
+        require_string(
+            title_obj,
+            "prefixo",
+            "hero.titulo",
+        )
+        + require_string(
+            title_obj,
+            "destaque",
+            "hero.titulo",
+        )
+        + require_string(
+            title_obj,
+            "sufixo",
+            "hero.titulo",
+        )
     )
 
-    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    expected_description = normalize_text(
+        require_string(
+            hero,
+            "descricao",
+            "hero",
+        )
+    )
+
     parser = HomeHTMLParser()
-    parser.feed(html)
+    parser.feed(
+        (ROOT / "index.html").read_text(
+            encoding="utf-8"
+        )
+    )
 
     visible_title = normalize_text(
-        "".join(parser.text_by_id["heroTitlePrefix"])
-        + "".join(parser.text_by_id["heroTitleHighlight"])
-        + "".join(parser.text_by_id["heroTitleSuffix"])
+        "".join(
+            parser.text_by_id["heroTitlePrefix"]
+        )
+        + "".join(
+            parser.text_by_id["heroTitleHighlight"]
+        )
+        + "".join(
+            parser.text_by_id["heroTitleSuffix"]
+        )
     )
+
     visible_description = normalize_text(
-        "".join(parser.text_by_id["heroDescription"])
+        "".join(
+            parser.text_by_id["heroDescription"]
+        )
     )
 
     comparisons = {
-        "Hero visível (título)": (visible_title, expected_title),
+        "Hero visível (título)": (
+            visible_title,
+            expected_title,
+        ),
         "Hero visível (descrição)": (
             visible_description,
             expected_description,
         ),
         "og:title": (
-            normalize_text(parser.meta.get("og:title", "")),
+            normalize_text(
+                parser.meta.get("og:title", "")
+            ),
             expected_title,
         ),
         "og:description": (
-            normalize_text(parser.meta.get("og:description", "")),
+            normalize_text(
+                parser.meta.get(
+                    "og:description",
+                    "",
+                )
+            ),
             expected_description,
         ),
         "twitter:title": (
-            normalize_text(parser.meta.get("twitter:title", "")),
+            normalize_text(
+                parser.meta.get(
+                    "twitter:title",
+                    "",
+                )
+            ),
             expected_title,
         ),
         "twitter:description": (
-            normalize_text(parser.meta.get("twitter:description", "")),
+            normalize_text(
+                parser.meta.get(
+                    "twitter:description",
+                    "",
+                )
+            ),
             expected_description,
         ),
         "meta description": (
-            normalize_text(parser.meta.get("description", "")),
+            normalize_text(
+                parser.meta.get(
+                    "description",
+                    "",
+                )
+            ),
             expected_description,
         ),
     }
 
     failures = [
-        f"{label}: esperado {expected!r}, encontrado {actual!r}"
-        for label, (actual, expected) in comparisons.items()
+        (
+            f"{label}: esperado {expected!r}, "
+            f"encontrado {actual!r}"
+        )
+        for label, (actual, expected)
+        in comparisons.items()
         if actual != expected
     ]
 
@@ -306,28 +451,39 @@ def validate_hero_sync() -> None:
             + "\n- ".join(failures)
         )
 
-    print("✓ Hero, fallback HTML, SEO e preview estão sincronizados")
-
-
+    print(
+        "✓ Hero, fallback HTML, SEO e preview "
+        "estão sincronizados"
+    )
 
 
 def validate_visual_assets() -> None:
     required_webp = {
-        "avatar-192": ROOT / "assets/avatar-192.webp",
-        "avatar-384": ROOT / "assets/avatar-384.webp",
-        "favicon": ROOT / "assets/favicon.webp",
-        "fundo": ROOT / "assets/fundo.webp",
-        "logo": ROOT / "assets/logo.webp",
+        "avatar-192":
+            ROOT / "assets/avatar-192.webp",
+        "avatar-384":
+            ROOT / "assets/avatar-384.webp",
+        "favicon":
+            ROOT / "assets/favicon.webp",
+        "fundo":
+            ROOT / "assets/fundo.webp",
+        "logo":
+            ROOT / "assets/logo.webp",
     }
 
     required_avif = {
-        "fundo": ROOT / "assets/fundo.avif",
-        "fundo-mobile": ROOT / "assets/fundo-mobile.avif",
+        "fundo":
+            ROOT / "assets/fundo.avif",
+        "fundo-mobile":
+            ROOT / "assets/fundo-mobile.avif",
     }
 
     missing = [
         str(path.relative_to(ROOT))
-        for path in [*required_webp.values(), *required_avif.values()]
+        for path in [
+            *required_webp.values(),
+            *required_avif.values(),
+        ]
         if not path.exists()
     ]
 
@@ -340,198 +496,632 @@ def validate_visual_assets() -> None:
     for label, path in required_webp.items():
         data = path.read_bytes()
 
-        if len(data) < 12 or data[:4] != b"RIFF" or data[8:12] != b"WEBP":
+        if (
+            len(data) < 12
+            or data[:4] != b"RIFF"
+            or data[8:12] != b"WEBP"
+        ):
             raise ValidationError(
-                f"{path.relative_to(ROOT)} não parece ser um arquivo WebP válido"
+                f"{path.relative_to(ROOT)} "
+                "não parece ser um arquivo WebP válido"
             )
 
-        size_kib = len(data) / 1024
         print(
             f"✓ WebP válido: {label} "
-            f"({path.relative_to(ROOT)}, {size_kib:.1f} KiB)"
+            f"({path.relative_to(ROOT)}, "
+            f"{len(data) / 1024:.1f} KiB)"
         )
 
     for label, path in required_avif.items():
-        avif_data = path.read_bytes()
-        avif_probe = avif_data[8:40]
+        data = path.read_bytes()
+        probe = data[8:40]
 
         if (
-            len(avif_data) < 16
-            or avif_data[4:8] != b"ftyp"
-            or (b"avif" not in avif_probe and b"avis" not in avif_probe)
+            len(data) < 16
+            or data[4:8] != b"ftyp"
+            or (
+                b"avif" not in probe
+                and b"avis" not in probe
+            )
         ):
             raise ValidationError(
-                f"{path.relative_to(ROOT)} não parece ser um arquivo AVIF válido"
+                f"{path.relative_to(ROOT)} "
+                "não parece ser um arquivo AVIF válido"
             )
 
         print(
             f"✓ AVIF válido: {label} "
-            f"({path.relative_to(ROOT)}, {len(avif_data) / 1024:.1f} KiB)"
+            f"({path.relative_to(ROOT)}, "
+            f"{len(data) / 1024:.1f} KiB)"
         )
 
-    home_html = (ROOT / "index.html").read_text(encoding="utf-8")
-    donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
-    not_found_html = (ROOT / "404.html").read_text(encoding="utf-8")
-    global_css = (ROOT / "css/core/global.css").read_text(encoding="utf-8")
-    navbar_css = (ROOT / "css/core/navbar.css").read_text(encoding="utf-8")
-    preferences_js = (ROOT / "js/core/preferences.js").read_text(encoding="utf-8")
-    loader_js = (ROOT / "js/core/loader.js").read_text(encoding="utf-8")
-    home_js = (ROOT / "js/pages/home/home.js").read_text(encoding="utf-8")
+    home = (
+        ROOT / "index.html"
+    ).read_text(encoding="utf-8")
 
-    loader_start = global_css.find(".site-loader {")
-    loader_end = global_css.find(".site-loader-inner", loader_start)
+    donations = (
+        ROOT / "doacoes/index.html"
+    ).read_text(encoding="utf-8")
+
+    not_found = (
+        ROOT / "404.html"
+    ).read_text(encoding="utf-8")
+
+    global_css = (
+        ROOT / "css/core/global.css"
+    ).read_text(encoding="utf-8")
+
+    navbar_css = (
+        ROOT / "css/core/navbar.css"
+    ).read_text(encoding="utf-8")
+
+    preferences_js = (
+        ROOT / "js/core/preferences.js"
+    ).read_text(encoding="utf-8")
+
+    loader_js = (
+        ROOT / "js/core/loader.js"
+    ).read_text(encoding="utf-8")
+
+    home_js = (
+        ROOT / "js/pages/home/home.js"
+    ).read_text(encoding="utf-8")
+
+    loader_start = global_css.find(
+        ".site-loader {"
+    )
+    loader_end = global_css.find(
+        ".site-loader-inner",
+        loader_start,
+    )
+
     loader_css = (
         global_css[loader_start:loader_end]
-        if loader_start >= 0 and loader_end > loader_start
+        if loader_start >= 0
+        and loader_end > loader_start
         else ""
     )
 
     expectations = {
         "Home usa avatar responsivo 192/384":
-            "assets/avatar-192.webp 192w" in home_html
-            and "assets/avatar-384.webp 384w" in home_html,
+            "assets/avatar-192.webp 192w" in home
+            and "assets/avatar-384.webp 384w" in home,
+
         "Doações usa avatar responsivo 192/384":
-            "../assets/avatar-192.webp 192w" in donations_html
-            and "../assets/avatar-384.webp 384w" in donations_html,
-        "Home usa favicon.webp": "assets/favicon.webp" in home_html,
-        "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
-        "Background desktop prioriza fundo.avif de produção":
+            "../assets/avatar-192.webp 192w"
+            in donations
+            and "../assets/avatar-384.webp 384w"
+            in donations,
+
+        "Home mantém avatar.png fallback":
+            'src="assets/avatar.png"' in home,
+
+        "Doações mantém avatar.png fallback":
+            'src="../assets/avatar.png"'
+            in donations,
+
+        "Home usa favicon.webp":
+            "assets/favicon.webp" in home,
+
+        "Doações usa favicon.webp":
+            "../assets/favicon.webp" in donations,
+
+        "Background desktop prioriza fundo.avif":
             "assets/fundo.avif" in global_css,
+
         "Background mobile prioriza fundo-mobile.avif":
             "assets/fundo-mobile.avif" in global_css,
-        "Background mantém fundo.webp": "assets/fundo.webp" in global_css,
-        "Background mantém fundo.png": "assets/fundo.png" in global_css,
-        "Navbar usa logo.webp": "assets/logo.webp" in navbar_css,
-        "Loader usa favicon.webp": "assets/favicon.webp" in global_css,
-        "Loader não usa fundo pesado": "assets/fundo." not in loader_css,
-        "Perfil de performance é exposto": "dataset.performance" in preferences_js,
+
+        "Background mantém fundo.webp":
+            "assets/fundo.webp" in global_css,
+
+        "Background mantém fundo.png":
+            "assets/fundo.png" in global_css,
+
+        "Navbar usa logo.webp":
+            "assets/logo.webp" in navbar_css,
+
+        "Loader usa favicon.webp":
+            "assets/favicon.webp" in global_css,
+
+        "Loader não usa fundo pesado":
+            "assets/fundo." not in loader_css,
+
+        "Perfil de performance é exposto":
+            "dataset.performance"
+            in preferences_js,
+
         "Motivo de performance é exposto":
-            "dataset.performanceReason" in preferences_js,
+            "dataset.performanceReason"
+            in preferences_js,
+
         "Save-Data pode remover fundo decorativo":
-            'data-performance-reason="save-data"' in global_css,
-        "Home possui bootstrap crítico de preferências":
-            "KAMYLI_UI_BOOTSTRAP_STATE" in home_html,
-        "Doações possui bootstrap crítico de preferências":
-            "KAMYLI_UI_BOOTSTRAP_STATE" in donations_html,
-        "404 possui bootstrap crítico de preferências":
-            "KAMYLI_UI_BOOTSTRAP_STATE" in not_found_html,
+            'data-performance-reason="save-data"'
+            in global_css,
+
+        "Home possui bootstrap crítico":
+            "KAMYLI_UI_BOOTSTRAP_STATE"
+            in home,
+
+        "Doações possui bootstrap crítico":
+            "KAMYLI_UI_BOOTSTRAP_STATE"
+            in donations,
+
+        "404 possui bootstrap crítico":
+            "KAMYLI_UI_BOOTSTRAP_STATE"
+            in not_found,
+
         "Home não bloqueia head com preferences.js":
-            home_html.find('src="js/core/preferences.js"') > home_html.find("</head>"),
+            home.find(
+                'src="js/core/preferences.js"'
+            ) > home.find("</head>"),
+
         "Doações não bloqueia head com preferences.js":
-            donations_html.find('src="../js/core/preferences.js"') > donations_html.find("</head>"),
+            donations.find(
+                'src="../js/core/preferences.js"'
+            ) > donations.find("</head>"),
+
         "404 não bloqueia head com preferences.js":
-            not_found_html.find('src="js/core/preferences.js"') > not_found_html.find("</head>"),
+            not_found.find(
+                'src="js/core/preferences.js"'
+            ) > not_found.find("</head>"),
+
         "Loader usa estado pendente atrasado":
-            "site-loading-pending" in loader_js
-            and "SHOW_DELAY_MS = 180" in loader_js,
+            "site-loading-pending"
+            in loader_js
+            and "SHOW_DELAY_MS = 180"
+            in loader_js,
+
         "Loader rápido pode não aparecer":
-            "finishWithoutShowingLoader" in loader_js,
-        "Agenda agrupa renderização em DocumentFragment":
-            "createDocumentFragment" in home_js
-            and "replaceChildren(fragment)" in home_js,
-        "Agenda reutiliza métricas de layout":
-            "agendaMetrics" in home_js
-            and "scheduleCarouselMeasure" in home_js,
+            "finishWithoutShowingLoader"
+            in loader_js,
+
+        "Agenda agrupa renderização":
+            "createDocumentFragment"
+            in home_js
+            and "replaceChildren(fragment)"
+            in home_js,
+
+        "Agenda reutiliza métricas":
+            "agendaMetrics"
+            in home_js
+            and "scheduleCarouselMeasure"
+            in home_js,
     }
 
-    failures = [label for label, ok in expectations.items() if not ok]
+    failures = [
+        label
+        for label, ok in expectations.items()
+        if not ok
+    ]
 
     if failures:
         raise ValidationError(
-            "integração de assets/performance incompleta: "
+            "integração de assets/performance "
+            "incompleta: "
             + ", ".join(failures)
         )
 
-    print("✓ Assets responsivos, loader atrasado e performance V39 integrados")
+    if (
+        ROOT / "assets/avatar.webp"
+    ).exists():
+        raise ValidationError(
+            "assets/avatar.webp é legado "
+            "e deve permanecer removido"
+        )
+
+    print(
+        "✓ Assets responsivos, loader atrasado "
+        "e performance V39/V40 integrados"
+    )
 
 
+def validate_production_files() -> None:
+    cname = (
+        ROOT / "CNAME"
+    ).read_text(encoding="utf-8").strip()
 
-def validate_css_bundles() -> None:
-    required_bundles = {
-        "Home": ROOT / "css/build/home.css",
-        "Doações": ROOT / "css/build/doacoes.css",
-        "404": ROOT / "css/build/404.css",
+    if cname != "kamylisumire.com":
+        raise ValidationError(
+            "CNAME deve conter somente "
+            "kamylisumire.com"
+        )
+
+    headers_path = ROOT / "_headers"
+
+    if not headers_path.exists():
+        raise ValidationError(
+            "_headers ausente: previews do "
+            "Cloudflare Pages devem permanecer noindex"
+        )
+
+    headers = headers_path.read_text(
+        encoding="utf-8"
+    )
+
+    if (
+        "X-Robots-Tag: noindex"
+        not in headers
+    ):
+        raise ValidationError(
+            "_headers deve aplicar "
+            "X-Robots-Tag: noindex aos previews"
+        )
+
+    print(
+        "✓ Arquivos de produção/preview coerentes"
+    )
+
+
+class LocalReferenceParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.references = []
+        self.robots = ""
+
+    def handle_starttag(self, tag, attrs):
+        attrs_dict = dict(attrs)
+
+        if (
+            tag in {"script", "img"}
+            and attrs_dict.get("src")
+        ):
+            self.references.append(
+                (tag, attrs_dict["src"])
+            )
+
+        if tag == "source":
+            if attrs_dict.get("src"):
+                self.references.append(
+                    (
+                        tag,
+                        attrs_dict["src"],
+                    )
+                )
+
+            srcset = attrs_dict.get(
+                "srcset",
+                "",
+            )
+
+            for candidate in srcset.split(","):
+                url = (
+                    candidate.strip()
+                    .split(" ", 1)[0]
+                )
+
+                if url:
+                    self.references.append(
+                        ("srcset", url)
+                    )
+
+        if (
+            tag in {"a", "link"}
+            and attrs_dict.get("href")
+        ):
+            self.references.append(
+                (
+                    tag,
+                    attrs_dict["href"],
+                )
+            )
+
+        if (
+            tag == "meta"
+            and attrs_dict.get("name")
+            == "robots"
+        ):
+            self.robots = attrs_dict.get(
+                "content",
+                "",
+            )
+
+
+def local_target(
+    source: Path,
+    raw_value: str,
+):
+    value = str(
+        raw_value or ""
+    ).strip()
+
+    if (
+        not value
+        or value.startswith("#")
+        or value.startswith("//")
+        or value.startswith("data:")
+        or value.startswith("mailto:")
+        or value.startswith("tel:")
+        or value.startswith("javascript:")
+    ):
+        return None
+
+    parsed = urlsplit(value)
+
+    if (
+        parsed.scheme
+        or parsed.netloc
+        or not parsed.path
+    ):
+        return None
+
+    if parsed.path.startswith("/"):
+        return (
+            ROOT
+            / parsed.path.lstrip("/")
+        ).resolve()
+
+    return (
+        source.parent
+        / parsed.path
+    ).resolve()
+
+
+def validate_local_references() -> None:
+    failures = []
+
+    for html_path in [
+        ROOT / "index.html",
+        ROOT / "doacoes/index.html",
+        ROOT / "404.html",
+    ]:
+        parser = LocalReferenceParser()
+        parser.feed(
+            html_path.read_text(
+                encoding="utf-8"
+            )
+        )
+
+        for kind, value in parser.references:
+            target = local_target(
+                html_path,
+                value,
+            )
+
+            if target is None:
+                continue
+
+            try:
+                target.relative_to(
+                    ROOT.resolve()
+                )
+            except ValueError:
+                failures.append(
+                    f"{html_path.relative_to(ROOT)}: "
+                    f"{value!r} sai da raiz"
+                )
+                continue
+
+            if not target.exists():
+                failures.append(
+                    f"{html_path.relative_to(ROOT)}: "
+                    f"referência {kind} ausente: "
+                    f"{value}"
+                )
+
+    css_url_re = re.compile(
+        r"url\(\s*(['\"]?)(.*?)\1\s*\)",
+        re.IGNORECASE,
+    )
+
+    for css_path in sorted(
+        (ROOT / "css").rglob("*.css")
+    ):
+        css = css_path.read_text(
+            encoding="utf-8"
+        )
+
+        for _, value in css_url_re.findall(
+            css
+        ):
+            target = local_target(
+                css_path,
+                value,
+            )
+
+            if target is None:
+                continue
+
+            try:
+                target.relative_to(
+                    ROOT.resolve()
+                )
+            except ValueError:
+                failures.append(
+                    f"{css_path.relative_to(ROOT)}: "
+                    f"url {value!r} sai da raiz"
+                )
+                continue
+
+            if not target.exists():
+                failures.append(
+                    f"{css_path.relative_to(ROOT)}: "
+                    f"url ausente: {value}"
+                )
+
+    if failures:
+        raise ValidationError(
+            "referências locais quebradas:\n- "
+            + "\n- ".join(failures)
+        )
+
+    print(
+        "✓ Referências locais de HTML/CSS válidas"
+    )
+
+
+def validate_seo_files() -> None:
+    robots_path = ROOT / "robots.txt"
+    sitemap_path = ROOT / "sitemap.xml"
+
+    if (
+        not robots_path.exists()
+        or not sitemap_path.exists()
+    ):
+        raise ValidationError(
+            "robots.txt e sitemap.xml "
+            "são obrigatórios"
+        )
+
+    robots = robots_path.read_text(
+        encoding="utf-8"
+    )
+
+    if (
+        "User-agent: *" not in robots
+        or "Allow: /" not in robots
+    ):
+        raise ValidationError(
+            "robots.txt deve permitir rastreamento"
+        )
+
+    expected_sitemap = (
+        "Sitemap: "
+        "https://kamylisumire.com/sitemap.xml"
+    )
+
+    if expected_sitemap not in robots:
+        raise ValidationError(
+            "robots.txt deve conter "
+            + expected_sitemap
+        )
+
+    try:
+        tree = ET.parse(sitemap_path)
+    except ET.ParseError as exc:
+        raise ValidationError(
+            f"sitemap.xml inválido: {exc}"
+        ) from exc
+
+    ns = {
+        "sm":
+            "http://www.sitemaps.org/"
+            "schemas/sitemap/0.9"
     }
 
+    locations = [
+        (element.text or "").strip()
+        for element in tree.findall(
+            ".//sm:loc",
+            ns,
+        )
+    ]
+
+    expected = [
+        "https://kamylisumire.com/",
+        "https://kamylisumire.com/doacoes/",
+    ]
+
+    if locations != expected:
+        raise ValidationError(
+            "sitemap.xml deve conter somente, "
+            "nesta ordem: "
+            + ", ".join(expected)
+        )
+
+    parser = LocalReferenceParser()
+    parser.feed(
+        (
+            ROOT / "404.html"
+        ).read_text(encoding="utf-8")
+    )
+
+    if (
+        "noindex"
+        not in parser.robots.lower()
+    ):
+        raise ValidationError(
+            "404.html deve permanecer noindex"
+        )
+
+    print(
+        "✓ robots, sitemap e 404 noindex coerentes"
+    )
+
+
+def validate_repository_hygiene() -> None:
+    leftovers = [
+        rel
+        for rel in LEGACY_ROOT_FILES
+        if (ROOT / rel).exists()
+    ]
+
+    if leftovers:
+        raise ValidationError(
+            "resíduos históricos ainda presentes: "
+            + ", ".join(leftovers)
+        )
+
+    required_docs = [
+        "README.md",
+        "AGENTS.md",
+        "DESIGN-SYSTEM.md",
+        "CHANGELOG.md",
+        "assets/README.md",
+        "docs/PRODUCAO.md",
+        "docs/V40-AUDITORIA.md",
+    ]
+
     missing = [
-        str(path.relative_to(ROOT))
-        for path in required_bundles.values()
-        if not path.exists()
+        rel
+        for rel in required_docs
+        if not (ROOT / rel).exists()
     ]
 
     if missing:
         raise ValidationError(
-            "bundles CSS obrigatórios ausentes: " + ", ".join(missing)
+            "documentação V40 ausente: "
+            + ", ".join(missing)
         )
 
-    home_html = (ROOT / "index.html").read_text(encoding="utf-8")
-    donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
-    not_found_html = (ROOT / "404.html").read_text(encoding="utf-8")
-
-    expectations = {
-        "Home carrega somente o bundle local":
-            'href="css/build/home.css"' in home_html
-            and 'href="css/core/' not in home_html
-            and 'href="css/pages/' not in home_html,
-        "Doações carrega somente o bundle local":
-            'href="../css/build/doacoes.css"' in donations_html
-            and 'href="../css/core/' not in donations_html
-            and 'href="../css/pages/' not in donations_html
-            and 'href="../css/components/' not in donations_html,
-        "404 carrega somente o bundle local":
-            'href="css/build/404.css"' in not_found_html
-            and 'href="css/core/' not in not_found_html
-            and 'href="css/pages/' not in not_found_html,
-    }
-
-    failures = [label for label, ok in expectations.items() if not ok]
-
-    if failures:
+    if (
+        ROOT / "assets/avatar.webp"
+    ).exists():
         raise ValidationError(
-            "integração dos bundles CSS incompleta: "
-            + ", ".join(failures)
+            "assets/avatar.webp é legado "
+            "e deve permanecer removido"
         )
 
-    for label, path in required_bundles.items():
-        content = path.read_text(encoding="utf-8")
+    runtime_files = [
+        ROOT / "index.html",
+        ROOT / "doacoes/index.html",
+        ROOT / "404.html",
+        *sorted(
+            (ROOT / "css").rglob("*.css")
+        ),
+        *sorted(
+            (ROOT / "js").rglob("*.js")
+        ),
+        *sorted(
+            (ROOT / "data").rglob("*.json")
+        ),
+    ]
 
-        if "ARQUIVO GERADO — NÃO EDITAR MANUALMENTE" not in content:
-            raise ValidationError(
-                f"{path.relative_to(ROOT)} não possui o cabeçalho de bundle gerado"
+    references = []
+
+    for path in runtime_files:
+        text = path.read_text(
+            encoding="utf-8"
+        )
+
+        if re.search(
+            r"(?<![-\w])avatar\.webp(?![-\w])",
+            text,
+        ):
+            references.append(
+                str(path.relative_to(ROOT))
             )
 
-        if len(content) < 1000:
-            raise ValidationError(
-                f"{path.relative_to(ROOT)} parece incompleto"
-            )
-
-        print(
-            f"✓ Bundle CSS presente: {label} "
-            f"({len(content.encode('utf-8')) / 1024:.1f} KiB)"
-        )
-
-    print("✓ HTML usa um único bundle CSS local por página")
-
-def validate_production_files() -> None:
-    cname = (ROOT / "CNAME").read_text(encoding="utf-8").strip()
-    if cname != "kamylisumire.com":
+    if references:
         raise ValidationError(
-            "CNAME deve conter somente kamylisumire.com"
+            "runtime ainda referencia "
+            "avatar.webp legado: "
+            + ", ".join(references)
         )
 
-    headers_path = ROOT / "_headers"
-    if not headers_path.exists():
-        raise ValidationError(
-            "_headers ausente: previews do Cloudflare Pages devem permanecer noindex"
-        )
-
-    headers = headers_path.read_text(encoding="utf-8")
-    if "X-Robots-Tag: noindex" not in headers:
-        raise ValidationError(
-            "_headers deve aplicar X-Robots-Tag: noindex aos previews"
-        )
-
-    print("✓ Arquivos de produção/preview coerentes")
+    print(
+        "✓ Higiene do repositório V40 válida"
+    )
 
 
 def main() -> int:
@@ -540,18 +1130,29 @@ def main() -> int:
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,
-        validate_css_bundles,
         validate_production_files,
+        validate_local_references,
+        validate_seo_files,
+        validate_repository_hygiene,
     ]
 
     try:
         for check in checks:
             check()
-    except ValidationError as exc:
-        print(f"\nERRO: {exc}", file=sys.stderr)
+    except (
+        ValidationError,
+        FileNotFoundError,
+        OSError,
+    ) as exc:
+        print(
+            f"\nERRO: {exc}",
+            file=sys.stderr,
+        )
         return 1
 
-    print("\nTodas as validações passaram.")
+    print(
+        "\nTodas as validações passaram."
+    )
     return 0
 
 

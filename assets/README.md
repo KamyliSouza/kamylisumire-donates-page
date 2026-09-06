@@ -1,80 +1,64 @@
 # Assets
 
-## Formatos otimizados
-
-A interface usa formatos progressivos, preservando fallbacks históricos.
+## Assets de produção
 
 ```text
-avatar-192.webp → avatar responsivo 1x / telas pequenas
-avatar-384.webp → avatar responsivo para alta densidade
-avatar.webp     → asset legado preservado
-favicon.webp  → favicon moderno + ícone do loader
-fundo.avif         → background AVIF de produção para desktop/tablet (já presente na main)
-fundo-mobile.avif  → background 720p dedicado a telas até 760 px
-fundo.webp         → fallback otimizado do background
-logo.webp     → marca monocromática da navbar
+avatar-192.webp    avatar responsivo
+avatar-384.webp    avatar para maior densidade
+avatar.png         fallback do avatar
+
+favicon.webp       favicon moderno + loader
+favicon.png        fallback do favicon
+
+fundo.avif         background desktop/tablet
+fundo-mobile.avif  background mobile
+fundo.webp         fallback otimizado
+fundo.png          fallback legado
+
+logo.webp          máscara monocromática da navbar
+preview.png        preview social 1200 × 630
 ```
 
-PNGs preservados:
+`avatar.webp` foi removido na V40 porque não existe referência de runtime.
+
+## Avatar
+
+Home:
 
 ```text
-avatar.png
-favicon.png
-fundo.png
-preview.png
+avatar-192.webp 192w
+avatar-384.webp 384w
 ```
 
-`preview.png` continua em PNG porque é a imagem 1200 × 630 declarada nos
-metadados Open Graph/Twitter.
+Doações usa os mesmos arquivos.
 
-### Logo
+`avatar.png` continua como fallback.
 
-`logo.webp` deve preservar transparência, pois a navbar o usa como máscara CSS
-preenchida com `var(--primary-color)`.
+## Logo
 
-### Fundo
+`logo.webp` precisa continuar com fundo transparente porque é usado como
+máscara CSS preenchida pela cor primária.
 
-A ordem do background é:
+## Background
 
 ```text
-Desktop/tablet:
+desktop/tablet:
 fundo.avif → fundo.webp → fundo.png
 
-Mobile (até 760 px):
+mobile <= 760 px:
 fundo-mobile.avif → fundo.webp → fundo.png
 ```
 
-Não adicionar preload para `fundo.avif`, `fundo.webp` ou `fundo.png`: a arte é
-decorativa e não deve competir com conteúdo crítico da primeira renderização.
+Não adicionar preload ao background decorativo.
 
-No modo `Save-Data`, a imagem decorativa é omitida e o site mantém
-`var(--bg-color)` como fundo.
+Com `Save-Data`, a imagem decorativa pode ser omitida.
 
-### Validação
+## Preview social
 
-O workflow verifica:
+`preview.png` permanece PNG 1200 × 630 e é referenciado estaticamente por Open
+Graph e Twitter/X.
 
-- assinatura dos cinco WebP obrigatórios (`avatar-192`, `avatar-384`, favicon, fundo e logo);
-- assinatura ISO-BMFF compatível com AVIF em `fundo.avif` e `fundo-mobile.avif`;
-- referências de fallback;
-- ausência do fundo pesado no loader;
-- integração do perfil de performance adaptativa.
+## CI
 
-
-### Avatar responsivo
-
-Home e Doações usam `srcset` com `avatar-192.webp` e `avatar-384.webp`.
-O navegador escolhe o arquivo adequado conforme tamanho renderizado e densidade
-de pixels. `avatar.png` permanece como fallback para navegadores sem WebP.
-
-
-### Estado do AVIF de produção
-
-`assets/fundo.avif` já faz parte da `main` e é o arquivo servido para
-desktop/tablet. Ele não é um pré-requisito pendente da V39.
-
-Uma nova compressão pode substituir esse arquivo mantendo o mesmo nome e
-caminho. O CI valida presença e assinatura AVIF, mas não fixa um tamanho em
-bytes, para permitir novas otimizações sem alterar código ou documentação.
-
-O mobile continua usando `assets/fundo-mobile.avif`.
+`.github/scripts/validate-content.py` verifica presença/assinatura dos
+WebP/AVIF, integração dos fallbacks e ausência do `avatar.webp` legado.

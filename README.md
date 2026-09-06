@@ -5,89 +5,82 @@ Site estático e modular da Kamyli Sumire.
 ## Produção
 
 ```text
-https://kamylisumire.com/
+https://kamylisumire.com/          Home
+https://kamylisumire.com/doacoes/  Doações + ranking
 ```
 
-Páginas públicas:
-
-```text
-/          Home
-/doacoes/  Doações + ranking
-```
-
-O endereço legado:
-
-```text
-https://donate.kamylisumire.com
-```
-
-redireciona permanentemente para `/doacoes/`.
+O endereço legado `https://donate.kamylisumire.com` redireciona
+permanentemente para `/doacoes/`.
 
 ## Ambientes
 
 ```text
-main    → produção / GitHub Pages
-site-v2 → preview / Cloudflare Pages
+main     → produção / GitHub Pages
+site-v2  → desenvolvimento e preview / Cloudflare Pages
 ```
 
 Preview técnico:
 
 ```text
-https://site-v2.kamylisumire-site.pages.dev
+https://site-v2.kamylisumire-site.pages.dev/
 ```
 
-Os ambientes `pages.dev` não devem ser indexados.
+Os previews `*.pages.dev` permanecem com `X-Robots-Tag: noindex` por meio de
+`_headers`.
+
+A migração para o domínio principal está concluída.
 
 ## Stack
 
 - HTML;
-- CSS;
+- CSS modular;
 - JavaScript vanilla;
 - JSON para conteúdo editorial;
 - GitHub Pages em produção;
 - Cloudflare Pages para preview;
-- Worker existente somente para API/ranking.
+- Cloudflare Worker somente para API/ranking;
+- GitHub Actions para validação customizada.
 
-Não há framework ou build obrigatório.
-
-## Conteúdo
-
-```text
-data/agenda.json
-data/content/
-```
+Não há framework, bundler ou build obrigatório.
 
 ## Estrutura
 
 ```text
-css/core/        compartilhado
-css/components/  componentes
-css/pages/       páginas
-js/core/         módulos compartilhados
-js/pages/        lógica por página
-data/            conteúdo editável
-assets/          identidade visual
+.github/
+  scripts/validate-content.py
+  workflows/validate-json.yml
+assets/
+css/core/
+css/components/
+css/pages/
+data/agenda.json
+data/content/
+doacoes/
+docs/
+js/core/
+js/pages/
 ```
 
-## Validação automática
-
-O workflow:
+Arquivos operacionais da raiz:
 
 ```text
-.github/workflows/validate-json.yml
+index.html
+404.html
+CNAME
+.nojekyll
+_headers
+robots.txt
+sitemap.xml
+workers.js
+README.md
+AGENTS.md
+DESIGN-SYSTEM.md
+CHANGELOG.md
 ```
-
-executa:
-
-```text
-.github/scripts/validate-content.py
-```
-
-para validar JSONs, agenda, sincronização Hero/SEO/preview e arquivos de produção.
 
 ## Desenvolvimento local
 
-Sirva a raiz por HTTP, pois os JSONs usam `fetch`.
+Os JSONs usam `fetch`, então sirva a raiz por HTTP:
 
 ```bash
 python -m http.server 8000
@@ -100,103 +93,88 @@ http://localhost:8000/
 http://localhost:8000/doacoes/
 ```
 
+## CI customizada
+
+O workflow:
+
+```text
+.github/workflows/validate-json.yml
+```
+
+executa:
+
+```text
+python .github/scripts/validate-content.py
+```
+
+e verifica a sintaxe de todos os arquivos:
+
+```text
+js/**/*.js
+```
+
+A validação cobre:
+
+- JSON sem chaves duplicadas;
+- esquema da agenda;
+- Hero, fallback HTML, SEO e preview social;
+- WebP/AVIF e fallbacks;
+- estados de performance/loader da V39;
+- `CNAME` e `_headers`;
+- referências locais de HTML/CSS;
+- `robots.txt`, `sitemap.xml` e 404 `noindex`;
+- ausência de resíduos históricos consolidados na V40.
+
+A CI é uma proteção de qualidade; o site continua sendo publicado como
+arquivos estáticos pelo GitHub Pages, sem build do projeto.
+
+## Conteúdo editável
+
+Agenda:
+
+```text
+data/agenda.json
+```
+
+Textos:
+
+```text
+data/content/
+```
+
+## Assets
+
+Avatar:
+
+```text
+avatar-192.webp
+avatar-384.webp
+avatar.png        fallback
+```
+
+Background:
+
+```text
+desktop/tablet:
+fundo.avif → fundo.webp → fundo.png
+
+mobile até 760 px:
+fundo-mobile.avif → fundo.webp → fundo.png
+```
+
+`avatar.webp` legado foi removido na V40.
+
+## API
+
+A Home continua sem depender do Worker.
+
+Somente `/doacoes/` usa `js/core/api.js` para o ranking. Worker, OAuth, KV,
+CORS e domínio da API continuam sendo infraestrutura separada.
+
 ## Documentação
 
-- `AGENTS.md` → arquitetura/invariantes;
-- `DESIGN-SYSTEM.md` → identidade visual;
-- `README-MIGRACAO.md` → estado de produção e registro da migração;
-- `CHANGELOG.md` → histórico consolidado;
-- `docs/` → notas técnicas por versão.
-
-Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente das alterações de frontend.
-
-
-## Assets otimizados
-
-A interface usa `avatar-192.webp` / `avatar-384.webp` responsivos, além de
-`favicon.webp` e `logo.webp`. O background desktop usa
-`fundo.avif → fundo.webp → fundo.png`; até 760 px usa
-`fundo-mobile.avif → fundo.webp → fundo.png`, sem preload da arte decorativa.
-
-`assets/fundo.avif` já está presente na `main` como asset desktop de produção.
-
-## Blur adaptativo
-
-Sem preferência manual salva, o site decide automaticamente se deve usar `backdrop-filter`. A heurística considera suporte do navegador, redução de transparência, economia de dados e sinais opcionais de capacidade de hardware.
-
-```text
-kamyli:ui-blur ausente → auto
-kamyli:ui-blur=on      → ligado manualmente
-kamyli:ui-blur=off     → desligado manualmente
-```
-
-A implementação não usa User-Agent para classificar celulares ou navegadores.
-
-## Performance adaptativa
-
-Além do blur adaptativo, `preferences.js` expõe um perfil independente:
-
-```text
-data-performance="normal|reduced"
-data-performance-reason="standard|save-data|low-memory|low-cpu"
-```
-
-Regras atuais:
-
-```text
-Save-Data                 → remove a imagem decorativa do fundo
-deviceMemory <= 2 GB      → background-attachment: scroll
-hardwareConcurrency <= 2  → background-attachment: scroll
-demais casos              → comportamento visual normal
-```
-
-O override manual de blur não desativa essas otimizações de performance.
-
-
-### Entrada pós-loader
-
-Home e Doações fazem uma transição curta de opacidade e poucos pixels quando
-o loader termina. O efeito é propositalmente discreto e é desativado quando o
-sistema informa `prefers-reduced-motion: reduce`.
-
-
-### V38 — mobile e caminho crítico
-
-Em telas de até 760 px o site usa `assets/fundo-mobile.avif`, reduzindo bytes e
-decodificação em celulares. Tema, blur e perfil de performance recebem um
-bootstrap mínimo inline antes dos estilos; o módulo completo de preferências
-carrega no fim do documento.
-
-
-### V39 — LCP e agenda
-
-A Home/Doações usam avatares WebP responsivos de 192/384 px. O loader só é
-mostrado após um pequeno atraso quando o conteúdo ainda não ficou pronto, e o
-carrossel da agenda mantém métricas de layout em cache para evitar reflows
-repetidos durante a animação.
-
-
-### CI V39
-
-Além das validações editoriais, o workflow confere os avatares responsivos,
-os AVIF desktop/mobile e executa `node --check` em `loader.js` e `home.js`.
-
-
-### V40 — bundles CSS
-
-O projeto continua com CSS modular para desenvolvimento. Em produção, cada
-página carrega somente um bundle local:
-
-```text
-css/build/home.css
-css/build/doacoes.css
-css/build/404.css
-```
-
-Após alterar qualquer CSS fonte:
-
-```bash
-python .github/scripts/build-css.py
-```
-
-A CI usa `--check` e bloqueia bundles desatualizados.
+- `AGENTS.md` — arquitetura e invariantes;
+- `DESIGN-SYSTEM.md` — identidade visual;
+- `CHANGELOG.md` — histórico consolidado;
+- `docs/PRODUCAO.md` — ambientes, publicação e SEO;
+- `docs/V40-AUDITORIA.md` — saneamento/auditoria da V40.

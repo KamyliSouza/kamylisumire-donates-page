@@ -10,15 +10,18 @@ on:
       - "index.html"
       - "doacoes/index.html"
       - "404.html"
-      - "assets/*.webp"
-      - "assets/*.avif"
+      - "assets/**"
       - "css/**/*.css"
-      - "js/core/preferences.js"
-      - "js/core/loader.js"
-      - "js/pages/home/home.js"
+      - "js/**/*.js"
+      - "robots.txt"
+      - "sitemap.xml"
       - "CNAME"
       - "_headers"
-      - ".github/scripts/build-css.py"
+      - "README.md"
+      - "AGENTS.md"
+      - "DESIGN-SYSTEM.md"
+      - "CHANGELOG.md"
+      - "docs/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 
@@ -28,15 +31,18 @@ on:
       - "index.html"
       - "doacoes/index.html"
       - "404.html"
-      - "assets/*.webp"
-      - "assets/*.avif"
+      - "assets/**"
       - "css/**/*.css"
-      - "js/core/preferences.js"
-      - "js/core/loader.js"
-      - "js/pages/home/home.js"
+      - "js/**/*.js"
+      - "robots.txt"
+      - "sitemap.xml"
       - "CNAME"
       - "_headers"
-      - ".github/scripts/build-css.py"
+      - "README.md"
+      - "AGENTS.md"
+      - "DESIGN-SYSTEM.md"
+      - "CHANGELOG.md"
+      - "docs/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 
@@ -51,13 +57,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate generated CSS bundles
-        run: python .github/scripts/build-css.py --check
-
-      - name: Validate content, SEO and optimized assets
+      - name: Validate content, SEO, references and assets
         run: python .github/scripts/validate-content.py
 
-      - name: Check modified JavaScript syntax
+      - name: Check all JavaScript syntax
         run: |
-          node --check js/core/loader.js
-          node --check js/pages/home/home.js
+          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
