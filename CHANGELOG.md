@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## V35 — blur adaptativo
+
+- blur passa a usar modo automático quando não existe preferência manual salva;
+- nenhuma detecção baseada em User-Agent, Android/iPhone ou largura de tela;
+- verifica suporte real a `backdrop-filter`;
+- respeita `prefers-reduced-transparency: reduce`;
+- considera `navigator.connection.saveData` quando disponível;
+- desliga automaticamente em `deviceMemory <= 2` GB ou `hardwareConcurrency <= 2` quando essas APIs existem;
+- APIs não suportadas são ignoradas sem penalizar o dispositivo;
+- `kamyli:ui-blur=on/off` continua sendo override manual persistente;
+- preferência manual pode ser removida via `KAMYLI_UI_PREFS.resetBlurToAuto()`;
+- estado de diagnóstico exposto em `data-blur-mode`, `data-blur-preference` e `data-blur-reason`;
+- mudanças de redução de transparência/economia de dados podem reavaliar o modo automático durante a sessão;
+- controle da navbar informa estado automático/manual e fica desabilitado se blur não for suportado;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V34 — performance com assets WebP
 
 - `avatar.webp` passa a ser preferido com fallback para `avatar.png`;

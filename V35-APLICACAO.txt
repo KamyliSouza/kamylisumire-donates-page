@@ -1,0 +1,37 @@
+V35 — BLUR ADAPTATIVO
+
+Aplicar este ZIP sobre a V34/main atual.
+
+Arquivos alterados:
+- js/core/preferences.js
+- js/core/navbar.js
+- css/core/navbar.css
+- AGENTS.md
+- DESIGN-SYSTEM.md
+- README.md
+- CHANGELOG.md
+- docs/V35-BLUR-ADAPTATIVO.md
+
+Não altera Worker/API/OAuth/KV/CORS/DNS.
+
+TESTE RECOMENDADO
+
+1. Abra o site sem preferência manual salva.
+2. No console:
+   KAMYLI_UI_PREFS.getState()
+3. Espere blurMode: "auto".
+4. Clique no botão de blur.
+5. Confira blurMode: "manual" e localStorage "kamyli:ui-blur" = "on" ou "off".
+6. Para voltar ao automático durante teste:
+   KAMYLI_UI_PREFS.resetBlurToAuto()
+7. Confirme que tema claro/escuro, navbar, Home, Doações e 404 continuam normais.
+
+HEURÍSTICA AUTOMÁTICA
+- sem suporte backdrop-filter -> off
+- prefers-reduced-transparency -> off
+- saveData -> off
+- deviceMemory <= 2 -> off
+- hardwareConcurrency <= 2 -> off
+- demais casos -> on
+
+Não usa User-Agent.

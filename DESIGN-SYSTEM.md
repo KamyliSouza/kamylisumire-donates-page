@@ -50,13 +50,27 @@ data-theme="light"
 data-theme="dark"
 ```
 
-Blur desligado:
+O blur possui estado efetivo, modo e motivo:
 
 ```text
-data-blur="off"
+data-blur="on|off"
+data-blur-mode="auto|manual"
+data-blur-preference="auto|on|off"
+data-blur-reason="..."
 ```
 
-Sem blur, os painéis continuam translúcidos, com opacidade reforçada para legibilidade.
+Sem preferência manual salva, o site escolhe o estado automaticamente. O blur é desligado quando o navegador não suporta `backdrop-filter` ou, no modo automático, quando há sinais conservadores de menor capacidade/maior preferência por economia:
+
+```text
+prefers-reduced-transparency: reduce
+navigator.connection.saveData
+navigator.deviceMemory <= 2
+navigator.hardwareConcurrency <= 2
+```
+
+APIs ausentes não contam como reprovação. Não usar User-Agent ou breakpoint mobile como proxy de desempenho.
+
+O botão da navbar continua permitindo override manual. Sem blur, os painéis permanecem translúcidos, com opacidade reforçada para legibilidade.
 
 ## Superfícies
 
@@ -96,14 +110,14 @@ SVGs de interface devem preferir `currentColor`.
 Estado atual:
 
 ```text
-[ favicon ] | Início Agenda Jogos Regras Créditos Doações | [tema] [blur]
+[ logo ] | Início Agenda Jogos Regras Créditos Doações | [tema] [blur]
 ```
 
 - fixa;
 - grupo centralizado;
 - scroll horizontal no mobile;
 - sem dropdown;
-- favicon = máscara de `assets/favicon.png`;
+- `logo.webp` = máscara monocromática da navbar;
 - cor = `var(--primary-color)`;
 - links externos usam confirmação global antes do redirecionamento.
 
@@ -177,7 +191,7 @@ Desktop pode distribuir conteúdo horizontalmente; mobile centraliza.
 
 ## Loader
 
-Home e Doações usam favicon pulsando na cor primária, sem texto visual.
+Home e Doações usam `favicon.webp` pulsando na cor primária, sem texto visual.
 
 Respeitar `prefers-reduced-motion`.
 

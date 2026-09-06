@@ -164,12 +164,62 @@
         }
 
         if (blurToggle) {
+            const {
+                blurMode,
+                blurPreference,
+                blurReason,
+                blurSupported
+            } = uiPrefs.getState();
+
             const enabled = blur === "on";
+            const automatic = blurMode === "auto";
+
+            blurToggle.disabled = !blurSupported;
+            blurToggle.dataset.mode = blurMode;
+            blurToggle.dataset.preference = blurPreference;
+            blurToggle.dataset.reason = blurReason;
 
             blurToggle.setAttribute(
                 "aria-pressed",
                 String(enabled)
             );
+
+            if (!blurSupported) {
+                blurToggle.setAttribute(
+                    "aria-label",
+                    "Blur indisponível neste navegador"
+                );
+                blurToggle.title = "Blur não suportado neste navegador";
+                return;
+            }
+
+            if (automatic) {
+                const automaticReasonLabels = {
+                    "reduced-transparency":
+                        "preferência de reduzir transparência",
+                    "save-data": "economia de dados",
+                    "low-memory": "memória limitada",
+                    "low-cpu": "capacidade de processamento limitada",
+                    "supported": "condições adequadas"
+                };
+
+                const reasonLabel =
+                    automaticReasonLabels[blurReason] ||
+                    "condições do dispositivo";
+
+                blurToggle.setAttribute(
+                    "aria-label",
+                    enabled
+                        ? `Blur automático ativado (${reasonLabel}). Clique para desativar manualmente`
+                        : `Blur automático desativado (${reasonLabel}). Clique para ativar manualmente`
+                );
+
+                blurToggle.title = enabled
+                    ? `Blur automático: ativado — ${reasonLabel}`
+                    : `Blur automático: desativado — ${reasonLabel}`;
+
+                return;
+            }
 
             blurToggle.setAttribute(
                 "aria-label",
@@ -179,8 +229,8 @@
             );
 
             blurToggle.title = enabled
-                ? "Desativar blur"
-                : "Ativar blur";
+                ? "Blur ativado manualmente"
+                : "Blur desativado manualmente";
         }
     }
 

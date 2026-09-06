@@ -424,6 +424,19 @@
     outline: none;
 }
 
+.site-nav-setting:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.site-nav-setting:disabled:hover,
+.site-nav-setting:disabled:focus-visible {
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+    border-color: var(--card-border);
+    transform: none;
+}
+
 .site-nav-setting .setting-icon {
     width: 19px;
     height: 19px;

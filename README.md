@@ -115,3 +115,15 @@ Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente
 
 A interface prefere `avatar.webp`, `favicon.webp`, `fundo.webp` e `logo.webp`,
 com os PNGs históricos preservados como fallback quando aplicável.
+
+## Blur adaptativo
+
+Sem preferência manual salva, o site decide automaticamente se deve usar `backdrop-filter`. A heurística considera suporte do navegador, redução de transparência, economia de dados e sinais opcionais de capacidade de hardware.
+
+```text
+kamyli:ui-blur ausente → auto
+kamyli:ui-blur=on      → ligado manualmente
+kamyli:ui-blur=off     → desligado manualmente
+```
+
+A implementação não usa User-Agent para classificar celulares ou navegadores.

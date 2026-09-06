@@ -43,9 +43,13 @@ Não tratar a migração do domínio principal como tarefa pendente.
 /
 ├── .github/workflows/validate-json.yml
 ├── assets/
+│   ├── avatar.webp
 │   ├── avatar.png
+│   ├── favicon.webp
 │   ├── favicon.png
+│   ├── fundo.webp
 │   ├── fundo.png
+│   ├── logo.webp
 │   └── preview.png
 ├── css/
 │   ├── core/
@@ -104,7 +108,7 @@ Não tratar a migração do domínio principal como tarefa pendente.
 - `config.js` → caminhos/configuração;
 - `api.js` → backend;
 - `content.js` → JSON editorial;
-- `preferences.js` → tema e blur;
+- `preferences.js` → tema e blur adaptativo com override manual;
 - `navbar.js` → navbar;
 - `external-links.js` → confirmação global de links externos;
 - `footer.js` → footer;
@@ -207,6 +211,26 @@ kamyli:ui-theme
 kamyli:ui-blur
 ```
 
+Blur:
+
+- ausência de `kamyli:ui-blur` → modo automático;
+- `kamyli:ui-blur=on` → override manual ligado;
+- `kamyli:ui-blur=off` → override manual desligado;
+- o automático não usa sniffing de User-Agent;
+- verifica suporte a `backdrop-filter`, `prefers-reduced-transparency`, `saveData`, memória e quantidade de threads quando essas APIs existem;
+- thresholds atuais: `deviceMemory <= 2` e `hardwareConcurrency <= 2`;
+- preferência manual prevalece sobre heurísticas, exceto quando o navegador não suporta o filtro.
+
+O estado aplicado é exposto em:
+
+```text
+data-blur="on|off"
+data-blur-mode="auto|manual"
+data-blur-preference="auto|on|off"
+data-blur-reason="supported|manual|unsupported|reduced-transparency|save-data|low-memory|low-cpu"
+```
+
+Não trocar esse mecanismo por detecção de Android/iPhone ou largura de tela.
 Não criar paletas independentes por página.
 
 ## Navbar
@@ -221,7 +245,7 @@ Estado atual:
 - links diretos: Início, Agenda, Jogos, Regras, Créditos, Doações;
 - scrollspy;
 - rolagem animada para seções;
-- favicon como máscara em `--primary-color`;
+- `logo.webp` como máscara em `--primary-color`;
 - toggle de tema;
 - toggle de blur com gota SVG.
 
@@ -274,7 +298,7 @@ Home e Doações usam `js/core/loader.js`.
 
 O loader:
 
-- usa favicon pulsando;
+- usa `favicon.webp` pulsando;
 - não mostra texto visual;
 - respeita `prefers-reduced-motion`;
 - possui timeout;
