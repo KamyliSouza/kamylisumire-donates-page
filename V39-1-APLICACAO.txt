@@ -1,0 +1,32 @@
+V39.1 — HOTFIX DOCUMENTAÇÃO + CI
+
+Aplicar sobre a main que já contém a V39 funcional.
+
+Este hotfix NÃO altera:
+- index.html
+- doacoes/index.html
+- CSS
+- loader.js
+- home.js
+- Worker/API
+- assets binários
+- SEO/DNS
+
+Arquivos:
+- .github/scripts/validate-content.py
+- .github/workflows/validate-json.yml
+- assets/README.md
+- CHANGELOG.md
+- AGENTS.md
+- DESIGN-SYSTEM.md
+- README.md
+- docs/V39-PERFORMANCE-LCP-AGENDA.md
+- docs/V39-1-HOTFIX-DOC-CI.md
+- V39-APLICACAO.txt
+- V39-1-APLICACAO.txt
+
+Após o push:
+1. confirmar que o workflow é disparado;
+2. confirmar Python validator verde;
+3. confirmar node --check verde;
+4. nenhum deploy visual deve mudar.

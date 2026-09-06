@@ -229,9 +229,11 @@ outros serviços compatíveis. Twitter/X recebe os equivalentes
 Os assets visuais otimizados atuais são:
 
 ```text
-avatar.webp
+avatar-192.webp
+avatar-384.webp
 favicon.webp
 fundo.avif
+fundo-mobile.avif
 fundo.webp
 logo.webp
 ```
@@ -341,3 +343,12 @@ por `srcset`/`sizes`, mantendo `avatar.png` como fallback. Não voltar a servir
 O loader visual não deve aparecer imediatamente. Há um atraso curto para que
 visitas rápidas cheguem direto ao conteúdo. Quando o loader realmente aparece,
 a entrada suave da V37 continua sendo usada.
+
+
+### AVIF desktop de produção
+
+`assets/fundo.avif` é o asset atual de desktop/tablet na `main`. Otimizações de
+compressão devem substituir o mesmo arquivo, preservando nome e proporção
+visual. O design system não define um peso fixo em KiB.
+
+Até 760 px, a arte preferencial continua sendo `assets/fundo-mobile.avif`.

@@ -2,10 +2,14 @@ V39 — AVATAR RESPONSIVO + LOADER ATRASADO + AGENDA OTIMIZADA
 
 Aplicar sobre a V38 atual.
 
-Pré-requisitos já adicionados por você na main:
+Assets já presentes na main (não são pendências deste hotfix):
 - assets/avatar-192.webp
 - assets/avatar-384.webp
-- assets/fundo.avif reotimizado
+- assets/fundo.avif
+- assets/fundo-mobile.avif
+
+O arquivo assets/fundo.avif é o AVIF desktop de produção. Uma reotimização
+futura pode substituir o mesmo arquivo sem mudar o código.
 
 Arquivos do overlay:
 - index.html

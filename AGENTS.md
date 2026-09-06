@@ -43,11 +43,14 @@ Não tratar a migração do domínio principal como tarefa pendente.
 /
 ├── .github/workflows/validate-json.yml
 ├── assets/
+│   ├── avatar-192.webp
+│   ├── avatar-384.webp
 │   ├── avatar.webp
 │   ├── avatar.png
 │   ├── favicon.webp
 │   ├── favicon.png
 │   ├── fundo.avif
+│   ├── fundo-mobile.avif
 │   ├── fundo.webp
 │   ├── fundo.png
 │   ├── logo.webp
@@ -497,8 +500,11 @@ As abas do ranking usam o padrão ARIA de tabs:
 Assets preferenciais:
 
 ```text
-assets/avatar.webp
+assets/avatar-192.webp
+assets/avatar-384.webp
 assets/favicon.webp
+assets/fundo.avif
+assets/fundo-mobile.avif
 assets/fundo.webp
 assets/logo.webp
 ```
@@ -507,7 +513,7 @@ Fallbacks PNG permanecem no repositório para compatibilidade.
 
 Regras:
 
-- Home e Doações usam `<picture>` para `avatar.webp` com `avatar.png` de fallback;
+- Home e Doações usam `srcset` com `avatar-192.webp` e `avatar-384.webp`, mantendo `avatar.png` como fallback;
 - background usa `image-set()` com `fundo.webp` e `fundo.png`;
 - navbar usa `logo.webp` como máscara em `--primary-color`;
 - loader usa `favicon.webp` como máscara;
@@ -654,3 +660,31 @@ A agenda deve agrupar leituras de layout em `measureCarousel()` e reutilizar
 
 Avatares visíveis usam `avatar-192.webp` / `avatar-384.webp` via `srcset`;
 `avatar.png` permanece como fallback.
+
+
+## CI V39.1
+
+A validação de assets deve considerar obrigatórios:
+
+```text
+avatar-192.webp
+avatar-384.webp
+favicon.webp
+fundo.webp
+logo.webp
+fundo.avif
+fundo-mobile.avif
+```
+
+`avatar.webp` pode permanecer como asset legado, mas não é a fonte principal
+dos componentes visíveis da Home/Doações e não deve ser requisito da V39.
+
+O workflow também deve executar:
+
+```bash
+node --check js/core/loader.js
+node --check js/pages/home/home.js
+```
+
+`assets/fundo.avif` já existe na `main` e é o AVIF desktop de produção. Não
+tratá-lo como arquivo pendente a ser adicionado.

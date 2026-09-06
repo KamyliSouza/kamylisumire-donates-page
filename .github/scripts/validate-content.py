@@ -395,7 +395,8 @@ def validate_visual_assets() -> None:
             and "../assets/avatar-384.webp 384w" in donations_html,
         "Home usa favicon.webp": "assets/favicon.webp" in home_html,
         "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
-        "Background desktop prioriza fundo.avif": "assets/fundo.avif" in global_css,
+        "Background desktop prioriza fundo.avif de produção":
+            "assets/fundo.avif" in global_css,
         "Background mobile prioriza fundo-mobile.avif":
             "assets/fundo-mobile.avif" in global_css,
         "Background mantém fundo.webp": "assets/fundo.webp" in global_css,

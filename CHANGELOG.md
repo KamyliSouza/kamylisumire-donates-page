@@ -1,4 +1,14 @@
 # CHANGELOG
+## V39.1 — hotfix de documentação e CI
+
+- corrige a documentação para registrar `assets/fundo.avif` como asset já presente na `main`;
+- documenta que o AVIF desktop pode ser reotimizado mantendo o mesmo caminho;
+- CI V39 passa a exigir `avatar-192.webp` e `avatar-384.webp` em vez de depender do avatar legado;
+- CI valida presença/assinatura de `fundo.avif` e `fundo-mobile.avif`;
+- workflow reage a mudanças em `js/core/loader.js` e `js/pages/home/home.js`;
+- workflow executa `node --check` nos dois JavaScripts alterados pela V39;
+- nenhuma alteração no frontend, Worker, API, SEO ou assets.
+
 ## V39 — avatar responsivo, loader atrasado e agenda otimizada
 - Home e Doações passam a usar `avatar-192.webp` e `avatar-384.webp` via `srcset`;
 - o navegador escolhe automaticamente a resolução conforme tamanho e DPR;

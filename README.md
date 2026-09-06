@@ -113,8 +113,12 @@ Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente
 
 ## Assets otimizados
 
-A interface prefere `avatar.webp`, `favicon.webp` e `logo.webp`. O background usa
-`fundo.avif → fundo.webp → fundo.png`, sem preload da arte decorativa.
+A interface usa `avatar-192.webp` / `avatar-384.webp` responsivos, além de
+`favicon.webp` e `logo.webp`. O background desktop usa
+`fundo.avif → fundo.webp → fundo.png`; até 760 px usa
+`fundo-mobile.avif → fundo.webp → fundo.png`, sem preload da arte decorativa.
+
+`assets/fundo.avif` já está presente na `main` como asset desktop de produção.
 
 ## Blur adaptativo
 
@@ -170,3 +174,9 @@ A Home/Doações usam avatares WebP responsivos de 192/384 px. O loader só é
 mostrado após um pequeno atraso quando o conteúdo ainda não ficou pronto, e o
 carrossel da agenda mantém métricas de layout em cache para evitar reflows
 repetidos durante a animação.
+
+
+### CI V39
+
+Além das validações editoriais, o workflow confere os avatares responsivos,
+os AVIF desktop/mobile e executa `node --check` em `loader.js` e `home.js`.

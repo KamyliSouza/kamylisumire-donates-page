@@ -9,7 +9,7 @@ avatar-192.webp → avatar responsivo 1x / telas pequenas
 avatar-384.webp → avatar responsivo para alta densidade
 avatar.webp     → asset legado preservado
 favicon.webp  → favicon moderno + ícone do loader
-fundo.avif         → background principal para desktop/tablet
+fundo.avif         → background AVIF de produção para desktop/tablet (já presente na main)
 fundo-mobile.avif  → background 720p dedicado a telas até 760 px
 fundo.webp         → fallback otimizado do background
 logo.webp     → marca monocromática da navbar
@@ -54,7 +54,7 @@ No modo `Save-Data`, a imagem decorativa é omitida e o site mantém
 
 O workflow verifica:
 
-- assinatura dos quatro WebP;
+- assinatura dos cinco WebP obrigatórios (`avatar-192`, `avatar-384`, favicon, fundo e logo);
 - assinatura ISO-BMFF compatível com AVIF em `fundo.avif` e `fundo-mobile.avif`;
 - referências de fallback;
 - ausência do fundo pesado no loader;
@@ -66,3 +66,15 @@ O workflow verifica:
 Home e Doações usam `srcset` com `avatar-192.webp` e `avatar-384.webp`.
 O navegador escolhe o arquivo adequado conforme tamanho renderizado e densidade
 de pixels. `avatar.png` permanece como fallback para navegadores sem WebP.
+
+
+### Estado do AVIF de produção
+
+`assets/fundo.avif` já faz parte da `main` e é o arquivo servido para
+desktop/tablet. Ele não é um pré-requisito pendente da V39.
+
+Uma nova compressão pode substituir esse arquivo mantendo o mesmo nome e
+caminho. O CI valida presença e assinatura AVIF, mas não fixa um tamanho em
+bytes, para permitir novas otimizações sem alterar código ou documentação.
+
+O mobile continua usando `assets/fundo-mobile.avif`.

@@ -52,3 +52,12 @@ A V39 reduz leituras geométricas repetidas:
 - `ResizeObserver` agenda nova medição quando o track realmente muda de tamanho.
 
 A animação, scroll-snap, touch, wheel, setas e reduced-motion são preservados.
+
+
+## AVIF desktop
+
+`assets/fundo.avif` já está presente na `main` e continua sendo a fonte AVIF
+principal de desktop/tablet. A V39 não exige adicionar esse arquivo.
+
+Quando houver uma versão mais comprimida, basta substituir o conteúdo de
+`assets/fundo.avif` mantendo o caminho. O CI valida o formato, não um peso fixo.
