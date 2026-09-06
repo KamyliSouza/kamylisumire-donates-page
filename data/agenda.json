@@ -84,7 +84,7 @@
       "id": "sabado",
       "nome": "Sábado",
       "data": "2026-09-12",
-      "temLive": false,
+      "temLive": true,
       "horario": "",
       "titulo": "Bora de Joguinhos",
       "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
