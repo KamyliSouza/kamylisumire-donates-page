@@ -58,7 +58,7 @@
       "id": "quinta",
       "nome": "Quinta-feira",
       "data": "2026-09-10",
-      "temLive": false,
+      "temLive": true,
       "horario": "",
       "titulo": "",
       "descricao": "",
