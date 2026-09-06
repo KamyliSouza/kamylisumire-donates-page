@@ -1,0 +1,9 @@
+{
+  "agradecimento": "Muito obrigada",
+  "titulo": "Ranking de apoiadores",
+  "descricao": "Top 5 de doações registradas.",
+  "abas": {
+    "mensal": "Este mês",
+    "todosTempos": "Todos os tempos"
+  }
+}

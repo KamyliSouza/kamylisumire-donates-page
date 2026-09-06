@@ -51,9 +51,9 @@
                 >
             </div>
 
-            <span class="eyebrow">Apoie as lives</span>
-            <h1>Apoie a Kamyli! ✨</h1>
-            <p class="donation-subtitle">Escolha a opção ideal para você!</p>
+            <span class="eyebrow" id="donationEyebrow">Apoie as lives</span>
+            <h1 id="donationTitle">Apoie a Kamyli! ✨</h1>
+            <p class="donation-subtitle" id="donationSubtitle">Escolha a opção ideal para você!</p>
 
             <div class="donation-buttons">
                 <a
@@ -73,8 +73,8 @@
                         </svg>
                     </span>
                     <span class="donation-btn-text">
-                        <span class="donation-btn-title">Apoiar com PIX (LivePix)</span>
-                        <span class="donation-btn-sub">Doações a partir de R$ 1,00</span>
+                        <span class="donation-btn-title" id="livepixTitle">Apoiar com PIX (LivePix)</span>
+                        <span class="donation-btn-sub" id="livepixDescription">Doações a partir de R$ 1,00</span>
                     </span>
                 </a>
 
@@ -97,17 +97,19 @@
                         </svg>
                     </span>
                     <span class="donation-btn-text">
-                        <span class="donation-btn-title">Moeda Estrangeira (Pixie)</span>
-                        <span class="donation-btn-sub">Doações a partir de R$ 6,00</span>
+                        <span class="donation-btn-title" id="pixieTitle">Moeda Estrangeira (Pixie)</span>
+                        <span class="donation-btn-sub" id="pixieDescription">Doações a partir de R$ 6,00</span>
                     </span>
                 </a>
             </div>
 
             <div class="donation-notice">
                 <p>
-                    💡 <strong>Aviso:</strong> A doação mínima pelo Pixie é de
-                    <strong>R$6</strong> por conta das taxas da plataforma.
-                    Para doações a partir de <strong>R$1</strong>, recomendo usar o LivePix!
+                    💡 <strong id="donationNoticeLabel">Aviso:</strong>
+                    <span id="donationNoticeText">
+                        A doação mínima pelo Pixie é de R$6 por conta das taxas da plataforma.
+                        Para doações a partir de R$1, recomendo usar o LivePix!
+                    </span>
                 </p>
             </div>
         </section>
@@ -115,7 +117,7 @@
         <section class="ranking-card glass-panel" aria-labelledby="rankingTitle">
             <div class="ranking-heading">
                 <span class="eyebrow ranking-thanks">
-                    Muito obrigada
+                    <span id="rankingThanksText">Muito obrigada</span>
                     <svg
                         class="ranking-heart"
                         viewBox="0 0 24 24"
@@ -127,7 +129,7 @@
                 </span>
 
                 <h2 id="rankingTitle">Ranking de apoiadores</h2>
-                <p>Top 5 de doações registradas.</p>
+                <p id="rankingDescription">Top 5 de doações registradas.</p>
             </div>
 
             <div class="ranking-tabs" role="tablist" aria-label="Período do ranking">
@@ -138,7 +140,7 @@
                     role="tab"
                     aria-selected="true"
                 >
-                    Este mês
+                    <span id="rankingMonthlyTab">Este mês</span>
                 </button>
 
                 <button
@@ -148,7 +150,7 @@
                     role="tab"
                     aria-selected="false"
                 >
-                    Todos os tempos
+                    <span id="rankingAllTimeTab">Todos os tempos</span>
                 </button>
             </div>
 
@@ -165,10 +167,12 @@
     ></footer>
 
     <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js"></script>
     <script src="../js/core/api.js"></script>
     <script src="../js/core/navbar.js"></script>
     <script src="../js/core/footer.js"></script>
     <script src="../js/pages/doacoes/doacoes.js"></script>
+    <script src="../js/pages/doacoes/content.js"></script>
     <script src="../js/pages/doacoes/ranking.js"></script>
 </body>
 </html>

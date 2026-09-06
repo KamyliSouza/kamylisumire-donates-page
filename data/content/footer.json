@@ -1,0 +1,22 @@
+{
+  "creditos": {
+    "fundo": {
+      "prefixo": "Arte do fundo por",
+      "nome": "@h0wl_oficial",
+      "url": "https://www.instagram.com/h0wl_oficial/"
+    },
+    "avatar": {
+      "prefixo": "Avatar por",
+      "nome": "@maililac",
+      "url": "https://bsky.app/profile/maililac.bsky.social"
+    }
+  },
+  "copyright": {
+    "nome": "Kamyli Sumire",
+    "texto": "Todos os direitos reservados."
+  },
+  "codigoFonte": {
+    "texto": "Ver código fonte",
+    "url": "https://github.com/KamyliSouza/kamylisumire-donates-page"
+  }
+}

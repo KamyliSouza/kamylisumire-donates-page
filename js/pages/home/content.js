@@ -1,6 +1,13 @@
 (() => {
     const MAX_VISIBLE_ITEMS = 5;
 
+    const content = window.KamyliContent;
+
+    if (!content) {
+        console.error("KamyliContent não foi carregado.");
+        return;
+    }
+
     const regrasElements = {
         eyebrow: document.getElementById("regrasEyebrow"),
         titulo: document.getElementById("regrasTitulo"),
@@ -24,28 +31,11 @@
             .replaceAll("'", "&#039;");
     }
 
-    function sitePath(path) {
-        return window.KAMYLI_SITE_PATH
-            ? window.KAMYLI_SITE_PATH(path)
-            : path.replace(/^\//, "");
-    }
-
-    async function loadJson(path) {
-        const response = await fetch(sitePath(path), {
-            cache: "no-cache"
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        return response.json();
-    }
-
     function applyScrollableState(list, itemCount) {
         if (!list) return;
 
-        const shouldScroll = itemCount > MAX_VISIBLE_ITEMS;
+        const shouldScroll =
+            itemCount > MAX_VISIBLE_ITEMS;
 
         list.classList.toggle(
             "is-scrollable",
@@ -63,20 +53,82 @@
         }
     }
 
-    function renderSectionHeader(elements, data) {
-        if (elements.eyebrow && data.eyebrow) {
-            elements.eyebrow.textContent = data.eyebrow;
-        }
+    function renderHero(data) {
+        content.setText("heroEyebrow", data.eyebrow);
 
-        if (elements.titulo && data.titulo) {
-            elements.titulo.textContent = data.titulo;
-        }
+        content.setText(
+            "heroTitlePrefix",
+            data.titulo?.prefixo
+        );
+
+        content.setText(
+            "heroTitleHighlight",
+            data.titulo?.destaque
+        );
+
+        content.setText(
+            "heroTitleSuffix",
+            data.titulo?.sufixo
+        );
+
+        content.setText(
+            "heroDescription",
+            data.descricao
+        );
+
+        content.setText(
+            "heroSupportButton",
+            data.botoes?.apoio
+        );
+
+        content.setText(
+            "heroLiveButton",
+            data.botoes?.live
+        );
+    }
+
+    function renderHomeDonation(data) {
+        content.setText(
+            "homeDonationEyebrow",
+            data.eyebrow
+        );
+
+        content.setText(
+            "homeDonationTitle",
+            data.titulo
+        );
+
+        content.setText(
+            "homeDonationDescription",
+            data.descricao
+        );
+
+        content.setText(
+            "homeDonationButton",
+            data.botao
+        );
+    }
+
+    function renderSectionHeader(elements, data) {
+        content.setText(
+            elements.eyebrow,
+            data.eyebrow
+        );
+
+        content.setText(
+            elements.titulo,
+            data.titulo
+        );
 
         if (elements.descricao) {
-            const descricao = String(data.descricao || "").trim();
+            const descricao =
+                String(data.descricao || "").trim();
 
-            elements.descricao.textContent = descricao;
-            elements.descricao.hidden = !descricao;
+            elements.descricao.textContent =
+                descricao;
+
+            elements.descricao.hidden =
+                !descricao;
         }
     }
 
@@ -85,7 +137,10 @@
             ? data.itens
             : [];
 
-        renderSectionHeader(regrasElements, data);
+        renderSectionHeader(
+            regrasElements,
+            data
+        );
 
         if (!regrasElements.lista) return;
 
@@ -98,15 +153,23 @@
                 </p>
             `;
 
-            applyScrollableState(regrasElements.lista, 0);
+            applyScrollableState(
+                regrasElements.lista,
+                0
+            );
+
             return;
         }
 
-        const fragment = document.createDocumentFragment();
+        const fragment =
+            document.createDocumentFragment();
 
         itens.forEach((item, index) => {
-            const card = document.createElement("div");
-            card.className = "editable-list-item rule-item";
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "editable-list-item rule-item";
 
             const titulo =
                 item.titulo ||
@@ -136,7 +199,10 @@
             fragment.appendChild(card);
         });
 
-        regrasElements.lista.appendChild(fragment);
+        regrasElements.lista.appendChild(
+            fragment
+        );
+
         applyScrollableState(
             regrasElements.lista,
             itens.length
@@ -148,7 +214,10 @@
             ? data.itens
             : [];
 
-        renderSectionHeader(creditosElements, data);
+        renderSectionHeader(
+            creditosElements,
+            data
+        );
 
         if (!creditosElements.lista) return;
 
@@ -161,11 +230,16 @@
                 </p>
             `;
 
-            applyScrollableState(creditosElements.lista, 0);
+            applyScrollableState(
+                creditosElements.lista,
+                0
+            );
+
             return;
         }
 
-        const fragment = document.createDocumentFragment();
+        const fragment =
+            document.createDocumentFragment();
 
         itens.forEach(item => {
             const nome =
@@ -191,7 +265,8 @@
             if (url) {
                 element.href = url;
                 element.target = "_blank";
-                element.rel = "noopener noreferrer";
+                element.rel =
+                    "noopener noreferrer";
             }
 
             element.innerHTML = `
@@ -222,14 +297,20 @@
             fragment.appendChild(element);
         });
 
-        creditosElements.lista.appendChild(fragment);
+        creditosElements.lista.appendChild(
+            fragment
+        );
+
         applyScrollableState(
             creditosElements.lista,
             itens.length
         );
     }
 
-    function renderLoadError(elements, label) {
+    function renderLoadError(
+        elements,
+        label
+    ) {
         if (!elements.lista) return;
 
         elements.lista.innerHTML = `
@@ -238,17 +319,63 @@
             </p>
         `;
 
-        applyScrollableState(elements.lista, 0);
+        applyScrollableState(
+            elements.lista,
+            0
+        );
     }
 
-    async function loadEditableSections() {
-        const [regrasResult, creditosResult] =
+    async function loadHomeContent() {
+        const results =
             await Promise.allSettled([
-                loadJson("/data/regras.json"),
-                loadJson("/data/creditos.json")
+                content.getJSON(
+                    "/data/content/hero.json"
+                ),
+                content.getJSON(
+                    "/data/content/home-doacoes.json"
+                ),
+                content.getJSON(
+                    "/data/content/regras.json"
+                ),
+                content.getJSON(
+                    "/data/content/creditos.json"
+                )
             ]);
 
-        if (regrasResult.status === "fulfilled") {
+        const [
+            heroResult,
+            homeDonationResult,
+            regrasResult,
+            creditosResult
+        ] = results;
+
+        if (heroResult.status === "fulfilled") {
+            renderHero(heroResult.value);
+        } else {
+            console.error(
+                "Erro ao carregar Hero:",
+                heroResult.reason
+            );
+        }
+
+        if (
+            homeDonationResult.status ===
+            "fulfilled"
+        ) {
+            renderHomeDonation(
+                homeDonationResult.value
+            );
+        } else {
+            console.error(
+                "Erro ao carregar CTA de doações:",
+                homeDonationResult.reason
+            );
+        }
+
+        if (
+            regrasResult.status ===
+            "fulfilled"
+        ) {
             renderRegras(regrasResult.value);
         } else {
             console.error(
@@ -262,8 +389,13 @@
             );
         }
 
-        if (creditosResult.status === "fulfilled") {
-            renderCreditos(creditosResult.value);
+        if (
+            creditosResult.status ===
+            "fulfilled"
+        ) {
+            renderCreditos(
+                creditosResult.value
+            );
         } else {
             console.error(
                 "Erro ao carregar créditos:",
@@ -277,5 +409,5 @@
         }
     }
 
-    loadEditableSections();
+    loadHomeContent();
 })();

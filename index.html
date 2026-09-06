@@ -37,18 +37,20 @@
     <main class="site-shell">
         <section class="hero glass-panel" id="inicio">
             <div class="hero-copy">
-                <span class="eyebrow">PNGtuber • Lives • Comunidade</span>
+                <span class="eyebrow" id="heroEyebrow">PNGtuber • Lives • Comunidade</span>
 
-                <h1>Oiê! Eu sou a <span>Kamyli</span> ✨</h1>
+                <h1>
+                    <span id="heroTitlePrefix">Oiê! Eu sou a </span><span id="heroTitleHighlight">Kamyli</span><span id="heroTitleSuffix"> ✨</span>
+                </h1>
 
-                <p class="hero-text">
+                <p class="hero-text" id="heroDescription">
                     Faço lives de joguinhos enquanto troco uma ideia com você.
                     Por aqui você encontra minha agenda, minhas redes e todas as
                     formas de acompanhar o conteúdo.
                 </p>
 
                 <div class="hero-actions">
-                    <a class="button button-primary" href="doacoes/">Apoiar</a>
+                    <a class="button button-primary" id="heroSupportButton" href="doacoes/">Apoiar</a>
 
                     <a
                         class="button button-outline"
@@ -56,7 +58,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Abrir live
+                        <span id="heroLiveButton">Abrir live</span>
                     </a>
                 </div>
             </div>
@@ -237,12 +239,12 @@
 
         <section class="glass-panel donation-cta">
             <div>
-                <span class="eyebrow">Apoie o conteúdo</span>
-                <h2>Gostou das lives?</h2>
-                <p>As doações ficam em uma página independente, sem misturar a lógica da Home.</p>
+                <span class="eyebrow" id="homeDonationEyebrow">Apoie o conteúdo</span>
+                <h2 id="homeDonationTitle">Gostou das lives?</h2>
+                <p id="homeDonationDescription">As doações ficam em uma página independente, sem misturar a lógica da Home.</p>
             </div>
 
-            <a class="button button-primary" href="doacoes/">
+            <a class="button button-primary" id="homeDonationButton" href="doacoes/">
                 Ir para doações
             </a>
         </section>
@@ -255,6 +257,7 @@
     ></footer>
 
     <script src="js/core/config.js"></script>
+    <script src="js/core/content.js"></script>
     <script src="js/core/api.js"></script>
     <script src="js/core/navbar.js"></script>
     <script src="js/core/footer.js"></script>
