@@ -1,4 +1,18 @@
 # CHANGELOG
+## V38 — fundo mobile AVIF e caminho crítico
+
+- adiciona suporte a `assets/fundo-mobile.avif` para telas de até 760 px;
+- mobile deixa de solicitar o AVIF desktop como primeira opção;
+- mantém fallback WebP e PNG para o background;
+- Save-Data continua removendo a imagem decorativa;
+- remove `preferences.js` externo e síncrono do `<head>`;
+- adiciona bootstrap inline mínimo para tema, blur e performance antes do CSS;
+- `preferences.js` completo passa a carregar no fim do `body`, antes da navbar;
+- preserva ausência de flash de tema/blur sem bloquear a descoberta do CSS;
+- CI passa a validar o AVIF mobile e a posição não bloqueante de `preferences.js`;
+- Home, Doações e 404 recebem o mesmo bootstrap crítico;
+- Worker/API/OAuth/KV/CORS/DNS/SEO não alterados.
+
 ## V37 — entrada suave pós-loader
 
 - adiciona uma animação mínima de entrada após o loader;

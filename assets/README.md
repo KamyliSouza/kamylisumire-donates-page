@@ -7,8 +7,9 @@ A interface usa formatos progressivos, preservando fallbacks históricos.
 ```text
 avatar.webp   → avatar exibido na Home e em Doações
 favicon.webp  → favicon moderno + ícone do loader
-fundo.avif    → primeira opção do background
-fundo.webp    → fallback otimizado do background
+fundo.avif         → background principal para desktop/tablet
+fundo-mobile.avif  → background 720p dedicado a telas até 760 px
+fundo.webp         → fallback otimizado do background
 logo.webp     → marca monocromática da navbar
 ```
 
@@ -34,7 +35,11 @@ preenchida com `var(--primary-color)`.
 A ordem do background é:
 
 ```text
-AVIF → WebP → PNG
+Desktop/tablet:
+fundo.avif → fundo.webp → fundo.png
+
+Mobile (até 760 px):
+fundo-mobile.avif → fundo.webp → fundo.png
 ```
 
 Não adicionar preload para `fundo.avif`, `fundo.webp` ou `fundo.png`: a arte é
@@ -48,7 +53,7 @@ No modo `Save-Data`, a imagem decorativa é omitida e o site mantém
 O workflow verifica:
 
 - assinatura dos quatro WebP;
-- assinatura ISO-BMFF compatível com AVIF em `fundo.avif`;
+- assinatura ISO-BMFF compatível com AVIF em `fundo.avif` e `fundo-mobile.avif`;
 - referências de fallback;
 - ausência do fundo pesado no loader;
 - integração do perfil de performance adaptativa.

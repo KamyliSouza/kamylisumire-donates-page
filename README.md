@@ -154,3 +154,11 @@ O override manual de blur não desativa essas otimizações de performance.
 Home e Doações fazem uma transição curta de opacidade e poucos pixels quando
 o loader termina. O efeito é propositalmente discreto e é desativado quando o
 sistema informa `prefers-reduced-motion: reduce`.
+
+
+### V38 — mobile e caminho crítico
+
+Em telas de até 760 px o site usa `assets/fundo-mobile.avif`, reduzindo bytes e
+decodificação em celulares. Tema, blur e perfil de performance recebem um
+bootstrap mínimo inline antes dos estilos; o módulo completo de preferências
+carrega no fim do documento.

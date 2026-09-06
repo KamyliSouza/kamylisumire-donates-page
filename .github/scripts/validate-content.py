@@ -319,11 +319,14 @@ def validate_visual_assets() -> None:
         "logo": ROOT / "assets/logo.webp",
     }
 
-    fundo_avif = ROOT / "assets/fundo.avif"
+    required_avif = {
+        "fundo": ROOT / "assets/fundo.avif",
+        "fundo-mobile": ROOT / "assets/fundo-mobile.avif",
+    }
 
     missing = [
         str(path.relative_to(ROOT))
-        for path in [*required_webp.values(), fundo_avif]
+        for path in [*required_webp.values(), *required_avif.values()]
         if not path.exists()
     ]
 
@@ -347,25 +350,27 @@ def validate_visual_assets() -> None:
             f"({path.relative_to(ROOT)}, {size_kib:.1f} KiB)"
         )
 
-    avif_data = fundo_avif.read_bytes()
-    avif_probe = avif_data[8:40]
+    for label, path in required_avif.items():
+        avif_data = path.read_bytes()
+        avif_probe = avif_data[8:40]
 
-    if (
-        len(avif_data) < 16
-        or avif_data[4:8] != b"ftyp"
-        or (b"avif" not in avif_probe and b"avis" not in avif_probe)
-    ):
-        raise ValidationError(
-            "assets/fundo.avif não parece ser um arquivo AVIF válido"
+        if (
+            len(avif_data) < 16
+            or avif_data[4:8] != b"ftyp"
+            or (b"avif" not in avif_probe and b"avis" not in avif_probe)
+        ):
+            raise ValidationError(
+                f"{path.relative_to(ROOT)} não parece ser um arquivo AVIF válido"
+            )
+
+        print(
+            f"✓ AVIF válido: {label} "
+            f"({path.relative_to(ROOT)}, {len(avif_data) / 1024:.1f} KiB)"
         )
-
-    print(
-        "✓ AVIF válido: fundo "
-        f"(assets/fundo.avif, {len(avif_data) / 1024:.1f} KiB)"
-    )
 
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
     donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
+    not_found_html = (ROOT / "404.html").read_text(encoding="utf-8")
     global_css = (ROOT / "css/core/global.css").read_text(encoding="utf-8")
     navbar_css = (ROOT / "css/core/navbar.css").read_text(encoding="utf-8")
     preferences_js = (ROOT / "js/core/preferences.js").read_text(encoding="utf-8")
@@ -383,7 +388,9 @@ def validate_visual_assets() -> None:
         "Doações usa avatar.webp": "../assets/avatar.webp" in donations_html,
         "Home usa favicon.webp": "assets/favicon.webp" in home_html,
         "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
-        "Background prioriza fundo.avif": "assets/fundo.avif" in global_css,
+        "Background desktop prioriza fundo.avif": "assets/fundo.avif" in global_css,
+        "Background mobile prioriza fundo-mobile.avif":
+            "assets/fundo-mobile.avif" in global_css,
         "Background mantém fundo.webp": "assets/fundo.webp" in global_css,
         "Background mantém fundo.png": "assets/fundo.png" in global_css,
         "Navbar usa logo.webp": "assets/logo.webp" in navbar_css,
@@ -394,6 +401,18 @@ def validate_visual_assets() -> None:
             "dataset.performanceReason" in preferences_js,
         "Save-Data pode remover fundo decorativo":
             'data-performance-reason="save-data"' in global_css,
+        "Home possui bootstrap crítico de preferências":
+            "KAMYLI_UI_BOOTSTRAP_STATE" in home_html,
+        "Doações possui bootstrap crítico de preferências":
+            "KAMYLI_UI_BOOTSTRAP_STATE" in donations_html,
+        "404 possui bootstrap crítico de preferências":
+            "KAMYLI_UI_BOOTSTRAP_STATE" in not_found_html,
+        "Home não bloqueia head com preferences.js":
+            home_html.find('src="js/core/preferences.js"') > home_html.find("</head>"),
+        "Doações não bloqueia head com preferences.js":
+            donations_html.find('src="../js/core/preferences.js"') > donations_html.find("</head>"),
+        "404 não bloqueia head com preferences.js":
+            not_found_html.find('src="js/core/preferences.js"') > not_found_html.find("</head>"),
     }
 
     failures = [label for label, ok in expectations.items() if not ok]
@@ -404,7 +423,7 @@ def validate_visual_assets() -> None:
             + ", ".join(failures)
         )
 
-    print("✓ Assets AVIF/WebP e performance adaptativa integrados com fallbacks")
+    print("✓ Assets AVIF/WebP, fundo mobile e bootstrap crítico integrados")
 
 
 def validate_production_files() -> None:

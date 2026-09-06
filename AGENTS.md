@@ -607,3 +607,28 @@ Não criar cascatas longas ou animação card-a-card sem solicitação explícit
 
 O reveal deve sempre respeitar `prefers-reduced-motion: reduce`.
 A página 404 não usa loader e não depende desses estados.
+
+
+## V38 — caminho crítico e fundo mobile
+
+O estado visual inicial de tema/blur/performance é aplicado por um bootstrap
+inline no `<head>`. O arquivo completo:
+
+```text
+js/core/preferences.js
+```
+
+deve permanecer no final do `body`, antes de `navbar.js`, para não bloquear a
+descoberta do CSS e para garantir que `KAMYLI_UI_PREFS` exista quando a navbar
+for inicializada.
+
+Background:
+
+```text
+desktop/tablet → fundo.avif
+mobile <=760px → fundo-mobile.avif
+fallback       → fundo.webp → fundo.png
+Save-Data      → sem imagem decorativa
+```
+
+Não adicionar preload para nenhum fundo.

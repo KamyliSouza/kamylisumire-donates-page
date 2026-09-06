@@ -256,10 +256,23 @@ a {
 
 @media (max-width: 760px) {
     /*
-     * "fixed" exige mais repaints em vários navegadores móveis.
-     * Em telas pequenas usamos scroll sem alterar a identidade visual.
+     * Mobile usa uma arte 720p dedicada.
+     *
+     * O fallback simples fica em WebP para navegadores sem image-set().
+     * Navegadores modernos escolhem fundo-mobile.avif sem precisar baixar
+     * o AVIF desktop de maior resolução.
      */
     body {
+        background-image: url('../../assets/fundo.webp');
+        background-image: image-set(
+            url('../../assets/fundo-mobile.avif') type('image/avif'),
+            url('../../assets/fundo.webp') type('image/webp'),
+            url('../../assets/fundo.png') type('image/png')
+        );
+
+        /*
+         * "fixed" exige mais repaints em vários navegadores móveis.
+         */
         background-attachment: scroll;
     }
 
@@ -307,7 +320,7 @@ a {
 /**
  * PERFORMANCE ADAPTATIVA
  *
- * O perfil é calculado cedo por preferences.js e independe da escolha
+ * O perfil inicial é calculado pelo bootstrap crítico no <head> e independe da escolha
  * manual de blur. Hardware mais limitado mantém a arte, mas evita o
  * background fixed. Save-Data remove apenas a imagem decorativa.
  */

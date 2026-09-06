@@ -48,7 +48,127 @@
     <meta name="twitter:image" content="https://kamylisumire.com/assets/preview.png">
     <meta name="twitter:image:alt" content="Kamyli Sumire">
 
-    <script src="js/core/preferences.js"></script>
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const THEME_KEY = "kamyli:ui-theme";
+            const BLUR_KEY = "kamyli:ui-blur";
+            const LOW_MEMORY_GB = 2;
+            const LOW_CPU_THREADS = 2;
+
+            const read = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            };
+
+            const media = (query) => {
+                try {
+                    return window.matchMedia(query).matches;
+                } catch {
+                    return false;
+                }
+            };
+
+            const connection =
+                navigator.connection ||
+                navigator.mozConnection ||
+                navigator.webkitConnection ||
+                null;
+
+            const supportsBlur = Boolean(
+                window.CSS &&
+                typeof window.CSS.supports === "function" &&
+                (
+                    window.CSS.supports("backdrop-filter", "blur(8px)") ||
+                    window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+                )
+            );
+
+            const savedTheme = read(THEME_KEY);
+            const theme =
+                savedTheme === "dark" || savedTheme === "light"
+                    ? savedTheme
+                    : (media("(prefers-color-scheme: dark)") ? "dark" : "light");
+
+            const savedBlur = read(BLUR_KEY);
+            const blurPreference =
+                savedBlur === "on" || savedBlur === "off"
+                    ? savedBlur
+                    : "auto";
+
+            let performanceProfile = "normal";
+            let performanceReason = "standard";
+
+            if (connection?.saveData) {
+                performanceProfile = "reduced";
+                performanceReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-cpu";
+            }
+
+            let blur = "on";
+            let blurReason = "supported";
+
+            if (!supportsBlur) {
+                blur = "off";
+                blurReason = "unsupported";
+            } else if (blurPreference !== "auto") {
+                blur = blurPreference;
+                blurReason = "manual";
+            } else if (media("(prefers-reduced-transparency: reduce)")) {
+                blur = "off";
+                blurReason = "reduced-transparency";
+            } else if (connection?.saveData) {
+                blur = "off";
+                blurReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                blur = "off";
+                blurReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                blur = "off";
+                blurReason = "low-cpu";
+            }
+
+            root.dataset.theme = theme;
+            root.dataset.blur = blur;
+            root.dataset.blurMode =
+                blurPreference === "auto" ? "auto" : "manual";
+            root.dataset.blurPreference = blurPreference;
+            root.dataset.blurReason = blurReason;
+            root.dataset.performance = performanceProfile;
+            root.dataset.performanceReason = performanceReason;
+            root.style.colorScheme = theme;
+
+            window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
+                theme,
+                blur,
+                blurPreference,
+                blurReason,
+                blurSupported: supportsBlur,
+                performance: performanceProfile,
+                performanceReason
+            });
+        })();
+    </script>
 
     <script>
         window.KAMYLI_LOADER_STARTED_AT = performance.now();
@@ -356,6 +476,7 @@
         aria-label="Créditos e informações do site"
     ></footer>
 
+    <script src="js/core/preferences.js"></script>
     <script src="js/core/config.js"></script>
     <script src="js/core/content.js"></script>
     <script src="js/core/navbar.js"></script>

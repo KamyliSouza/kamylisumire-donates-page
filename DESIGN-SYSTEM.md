@@ -306,3 +306,18 @@ prefers-reduced-motion: reduce
 ```
 
 Nesse modo o conteúdo aparece imediatamente, sem deslocamento ou fade.
+
+
+## Background responsivo
+
+A arte de fundo possui variante específica para mobile:
+
+```text
+> 760 px  → assets/fundo.avif
+<= 760 px → assets/fundo-mobile.avif
+```
+
+Fallbacks globais permanecem em WebP e PNG. Em `Save-Data`, nenhuma arte de
+fundo é carregada.
+
+O background é decorativo e não deve receber preload.
