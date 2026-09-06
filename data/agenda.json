@@ -14,15 +14,15 @@
         "YouTube",
         "Twitch"
       ]
-    }
+    },
     {
       "id": "segunda",
       "nome": "Segunda-feira",
       "data": "2026-09-07",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "ReStory",
-      "descricao": "Abri Uma ASSISTENCIA TECNICA! Bora Jogar ReStory - pt.2",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -34,8 +34,8 @@
       "data": "2026-09-08",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "Warhammer:Vertmintide 2",
-      "descricao": "Fogo... FOGO RESOLVE!🔥Jogando Warhammer: Vermintide 2 Com Uma GALERA!",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -47,8 +47,8 @@
       "data": "2026-09-09",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "OKAMI HD",
-      "descricao": "Como Esse Jogo Coube em um DISCO DE PS2?! - OKAMI HD",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -73,8 +73,8 @@
       "data": "2026-09-11",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "Joguinhos",
-      "descricao": "Edite este texto com o jogo ou tema da live.",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -86,9 +86,11 @@
       "data": "2026-09-12",
       "temLive": false,
       "horario": "",
-      "titulo": "",
-      "descricao": "Lives de sábado são esporádicas.",
-      "plataformas": []
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
     }
   ]
 }
