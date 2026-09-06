@@ -160,32 +160,19 @@
                     <h2>Agenda da semana</h2>
                 </div>
 
-                <div class="agenda-heading-actions">
-                    <p id="agendaAtualizacao" class="section-note"></p>
-
-                    <div class="agenda-carousel-controls" aria-label="Navegação da agenda">
-                        <button
-                            class="agenda-carousel-button"
-                            id="agendaPrev"
-                            type="button"
-                            aria-label="Mostrar dia anterior"
-                        >
-                            ‹
-                        </button>
-
-                        <button
-                            class="agenda-carousel-button"
-                            id="agendaNext"
-                            type="button"
-                            aria-label="Mostrar próximo dia"
-                        >
-                            ›
-                        </button>
-                    </div>
-                </div>
+                <p id="agendaAtualizacao" class="section-note"></p>
             </div>
 
             <div class="agenda-carousel">
+                <button
+                    class="agenda-carousel-button agenda-carousel-prev"
+                    id="agendaPrev"
+                    type="button"
+                    aria-label="Mostrar dia anterior"
+                >
+                    <span aria-hidden="true">‹</span>
+                </button>
+
                 <div
                     id="agendaGrid"
                     class="agenda-carousel-track"
@@ -195,6 +182,15 @@
                 >
                     <p class="loading-message">Carregando agenda...</p>
                 </div>
+
+                <button
+                    class="agenda-carousel-button agenda-carousel-next"
+                    id="agendaNext"
+                    type="button"
+                    aria-label="Mostrar próximo dia"
+                >
+                    <span aria-hidden="true">›</span>
+                </button>
             </div>
 
             <p id="agendaObservacao" class="agenda-note"></p>

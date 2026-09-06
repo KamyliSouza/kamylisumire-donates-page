@@ -68,6 +68,10 @@ function setupAgendaCarousel() {
         window.requestAnimationFrame(updateCarouselButtons);
     }, { passive: true });
 
+    if ("onscrollend" in window) {
+        agendaGrid.addEventListener("scrollend", updateCarouselButtons);
+    }
+
     agendaGrid.addEventListener("keydown", event => {
         if (event.key === "ArrowLeft") {
             event.preventDefault();

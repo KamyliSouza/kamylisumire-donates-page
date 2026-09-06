@@ -187,75 +187,13 @@
 }
 
 /* =========================================================
-   AGENDA — CARROSSEL DE 7 CARDS
+   AGENDA — CARROSSEL COM SETAS LATERAIS
    ========================================================= */
-
-.agenda-heading-actions {
-    display: flex;
-    align-items: center;
-
-    gap: 14px;
-}
-
-.agenda-heading-actions .section-note {
-    margin: 0;
-
-    text-align: right;
-}
-
-.agenda-carousel-controls {
-    display: flex;
-    align-items: center;
-
-    gap: 7px;
-}
-
-.agenda-carousel-button {
-    display: grid;
-    place-items: center;
-
-    width: 38px;
-    height: 38px;
-
-    color: var(--primary-color);
-    background-color: var(--card-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: 50%;
-
-    font: inherit;
-    font-size: 1.6rem;
-    font-weight: 800;
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition:
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        opacity .18s ease;
-}
-
-.agenda-carousel-button:hover:not(:disabled),
-.agenda-carousel-button:focus-visible:not(:disabled) {
-    background-color: var(--notice-bg);
-    border-color: var(--primary-color);
-
-    transform: translateY(-1px);
-
-    outline: none;
-}
-
-.agenda-carousel-button:disabled {
-    opacity: .34;
-    cursor: default;
-}
 
 .agenda-carousel {
     position: relative;
 
-    margin-inline: -4px;
+    margin-inline: -8px;
 }
 
 .agenda-carousel-track {
@@ -263,14 +201,14 @@
 
     gap: 12px;
 
-    padding: 4px;
-    padding-bottom: 10px;
+    padding: 4px 54px 12px;
 
     overflow-x: auto;
     overflow-y: hidden;
 
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
+    scroll-padding-inline: 54px;
     overscroll-behavior-inline: contain;
 
     scrollbar-width: thin;
@@ -279,7 +217,7 @@
 
 .agenda-carousel-track:focus-visible {
     outline: 2px solid var(--primary-color);
-    outline-offset: 4px;
+    outline-offset: 3px;
     border-radius: var(--radius-small);
 }
 
@@ -290,6 +228,80 @@
 .agenda-carousel-track::-webkit-scrollbar-thumb {
     background-color: var(--card-border);
     border-radius: 999px;
+}
+
+.agenda-carousel-button {
+    position: absolute;
+    top: 50%;
+    z-index: 5;
+
+    width: 44px;
+    height: 44px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 2px solid var(--card-border);
+    border-radius: 50%;
+
+    box-shadow: 0 7px 20px rgba(0, 0, 0, .14);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+
+    font: inherit;
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+.agenda-carousel-prev {
+    left: 8px;
+}
+
+.agenda-carousel-next {
+    right: 8px;
+}
+
+.agenda-carousel-button:hover:not(:disabled),
+.agenda-carousel-button:focus-visible:not(:disabled) {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    box-shadow: 0 8px 24px rgba(179, 94, 175, .28);
+
+    transform: translateY(-50%) scale(1.06);
+
+    outline: none;
+}
+
+.agenda-carousel-button:disabled {
+    opacity: .3;
+    cursor: default;
+}
+
+.agenda-carousel-button span {
+    display: block;
+
+    margin-top: -2px;
 }
 
 .agenda-card {
@@ -303,6 +315,7 @@
     overflow: hidden;
 
     background-color: var(--notice-bg);
+
     border: 1px solid var(--card-border);
     border-radius: var(--radius-small);
 
@@ -402,6 +415,54 @@
     color: var(--subtitle-color);
 
     font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .agenda-card {
+        flex-basis: clamp(220px, 40vw, 280px);
+    }
+}
+
+@media (max-width: 720px) {
+    .agenda-card {
+        flex-basis: min(78vw, 280px);
+    }
+
+    .agenda-carousel-track {
+        padding-inline: 48px;
+        scroll-padding-inline: 48px;
+    }
+
+    .agenda-carousel-button {
+        width: 40px;
+        height: 40px;
+
+        font-size: 1.65rem;
+    }
+
+    .agenda-carousel-prev {
+        left: 5px;
+    }
+
+    .agenda-carousel-next {
+        right: 5px;
+    }
+}
+
+@media (max-width: 500px) {
+    .agenda-card {
+        flex-basis: min(82vw, 270px);
+    }
+
+    .agenda-carousel-track {
+        padding-inline: 44px;
+        scroll-padding-inline: 44px;
+    }
+
+    .agenda-carousel-button {
+        width: 38px;
+        height: 38px;
+    }
 }
 
 /* =========================================================
