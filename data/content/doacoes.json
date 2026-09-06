@@ -1,0 +1,17 @@
+{
+  "eyebrow": "Apoie as lives",
+  "titulo": "Apoie a Kamyli! ✨",
+  "subtitulo": "Escolha a opção ideal para você!",
+  "livepix": {
+    "titulo": "Apoiar com PIX (LivePix)",
+    "descricao": "Doações a partir de R$ 1,00"
+  },
+  "pixie": {
+    "titulo": "Moeda Estrangeira (Pixie)",
+    "descricao": "Doações a partir de R$ 6,00"
+  },
+  "aviso": {
+    "rotulo": "Aviso:",
+    "texto": "A doação mínima pelo Pixie é de R$6 por conta das taxas da plataforma. Para doações a partir de R$1, recomendo usar o LivePix!"
+  }
+}

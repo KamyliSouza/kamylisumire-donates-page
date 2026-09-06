@@ -1,0 +1,38 @@
+name: Validate content JSON
+
+on:
+  push:
+    branches:
+      - main
+      - site-v2
+    paths:
+      - "data/**/*.json"
+      - ".github/workflows/validate-json.yml"
+
+  pull_request:
+    paths:
+      - "data/**/*.json"
+      - ".github/workflows/validate-json.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r -d '' file; do
+            echo "Validating $file"
+            python -m json.tool "$file" > /dev/null
+          done < <(find data -type f -name '*.json' -print0)
+
+          echo "All JSON files are valid."

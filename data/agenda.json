@@ -1,0 +1,97 @@
+{
+  "ultimaAtualizacao": "05/09/2026",
+  "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
+  "dias": [
+      {
+      "id": "domingo",
+      "nome": "Domingo",
+      "data": "2026-09-6",
+      "temLive": false,
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "descricao": "",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "segunda",
+      "nome": "Segunda-feira",
+      "data": "2026-09-07",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "terca",
+      "nome": "Terça-feira",
+      "data": "2026-09-08",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "quarta",
+      "nome": "Quarta-feira",
+      "data": "2026-09-09",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "quinta",
+      "nome": "Quinta-feira",
+      "data": "2026-09-10",
+      "temLive": false,
+      "horario": "",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "sexta",
+      "nome": "Sexta-feira",
+      "data": "2026-09-11",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    },
+    {
+      "id": "sabado",
+      "nome": "Sábado",
+      "data": "2026-09-12",
+      "temLive": true,
+      "horario": "",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ]
+    }
+  ]
+}

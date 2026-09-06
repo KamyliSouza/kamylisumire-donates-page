@@ -1,0 +1,513 @@
+/* =========================================================
+   NAVBAR COMPARTILHADA
+   - Barra fixa no topo
+   - Grupo completo centralizado
+   - Logo + divisória + links
+   - Scroll horizontal no mobile
+   ========================================================= */
+
+/*
+ * A navbar fixa sai do fluxo normal.
+ * Este espaço evita que o conteúdo da página fique escondido
+ * atrás dela.
+ */
+#site-navbar {
+    height: 68px;
+}
+
+.site-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+    width: 100%;
+
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--card-border);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+}
+
+.site-nav-inner {
+    width: min(1120px, calc(100% - 28px));
+    min-height: 68px;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+}
+
+.site-brand {
+    display: grid;
+    place-items: center;
+
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    text-decoration: none;
+
+    transition:
+        transform .18s ease,
+        background-color .18s ease;
+}
+
+.site-brand:hover,
+.site-brand:focus-visible {
+    background-color: var(--notice-bg);
+    transform: scale(1.04);
+    outline: none;
+}
+
+.site-brand-logo {
+    display: block;
+
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+
+    /*
+     * O favicon funciona como máscara.
+     * A silhueta original é preservada e a cor acompanha
+     * automaticamente --primary-color.
+     */
+    background-color: var(--primary-color);
+
+    -webkit-mask-image: url('../../assets/favicon.png');
+    mask-image: url('../../assets/favicon.png');
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    -webkit-mask-size: contain;
+    mask-size: contain;
+
+    transition:
+        background-color .22s ease,
+        transform .18s ease;
+}
+
+.site-brand:hover .site-brand-logo,
+.site-brand:focus-visible .site-brand-logo {
+    transform: scale(1.04);
+}
+
+/*
+ * Fallback para navegadores sem suporte a CSS masks:
+ * exibe o favicon original em vez de ocultar a marca.
+ */
+@supports not ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
+    .site-brand-logo {
+        background-color: transparent;
+        background-image: url('../../assets/favicon.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+    }
+}
+
+.site-nav-divider {
+    width: 1px;
+    height: 32px;
+    flex: 0 0 auto;
+
+    margin-right: 2px;
+
+    background-color: var(--card-border);
+}
+
+.site-nav-links {
+    /*
+     * flex: 0 1 auto evita que a lista ocupe todo o espaço
+     * disponível. Assim o grupo logo + links fica realmente
+     * centralizado como um único bloco.
+     */
+    flex: 0 1 auto;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.site-nav-links::-webkit-scrollbar {
+    display: none;
+}
+
+.site-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+    padding: 9px 12px;
+
+    flex: 0 0 auto;
+
+    color: var(--text-color);
+    background: transparent;
+
+    border: 0;
+    border-radius: 12px;
+
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 800;
+
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition:
+        background-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+}
+
+.site-nav-link:hover,
+.site-nav-link:focus-visible,
+.site-nav-link.is-active {
+    color: var(--primary-color);
+    background-color: var(--primary-soft);
+    outline: none;
+}
+
+.site-nav-link:hover {
+    transform: translateY(-1px);
+}
+
+.site-nav-donate {
+    color: #fff;
+    background-color: var(--primary-color);
+}
+
+.site-nav-donate:hover,
+.site-nav-donate:focus-visible,
+.site-nav-donate.is-active {
+    color: #fff;
+    background-color: var(--primary-hover);
+}
+
+/* =========================================================
+   MOBILE
+   O bloco continua centralizado enquanto couber.
+   Quando ultrapassar a largura, a lista passa a rolar.
+   ========================================================= */
+
+@media (max-width: 760px) {
+    #site-navbar {
+        height: 62px;
+    }
+
+    .site-nav-inner {
+        width: calc(100% - 16px);
+        min-height: 62px;
+
+        justify-content: flex-start;
+
+        gap: 8px;
+    }
+
+    .site-brand {
+        width: 40px;
+        height: 40px;
+    }
+
+    .site-brand-logo {
+        width: 34px;
+        height: 34px;
+    }
+
+    .site-nav-divider {
+        height: 28px;
+        margin-right: 0;
+    }
+
+    .site-nav-links {
+        flex: 1 1 auto;
+
+        justify-content: flex-start;
+    }
+
+    .site-nav-link {
+        min-height: 38px;
+        padding: 8px 10px;
+
+        font-size: .84rem;
+    }
+}
+
+
+/* =========================================================
+   AVISO PARA LINKS EXTERNOS DA NAVBAR
+   ========================================================= */
+
+.site-external-dialog {
+    width: min(440px, calc(100% - 32px));
+    padding: 0;
+
+    color: var(--text-color);
+    background: transparent;
+
+    border: 0;
+    border-radius: var(--radius-card);
+
+    overflow: visible;
+}
+
+.site-external-dialog::backdrop {
+    background: rgba(18, 12, 20, .48);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.site-external-dialog-content {
+    padding: 28px;
+
+    color: var(--text-color);
+    background-color: var(--card-bg);
+
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+
+    text-align: center;
+}
+
+.site-external-dialog-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 14px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+}
+
+.site-external-dialog-icon svg {
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.site-external-dialog-copy h2 {
+    margin: 0;
+
+    color: var(--primary-color);
+
+    font-size: 1.3rem;
+    font-weight: 900;
+}
+
+.site-external-dialog-copy p {
+    margin: 10px 0 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .92rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.site-external-dialog-copy strong {
+    color: var(--text-color);
+    font-weight: 800;
+}
+
+.site-external-dialog-actions {
+    display: flex;
+    justify-content: center;
+
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.site-external-dialog-actions .button {
+    min-width: 120px;
+}
+
+@media (max-width: 480px) {
+    .site-external-dialog-content {
+        padding: 24px 18px;
+    }
+
+    .site-external-dialog-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+
+        width: 100%;
+    }
+
+    .site-external-dialog-actions .button {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   PREFERÊNCIAS VISUAIS
+   ========================================================= */
+
+.site-nav-settings {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+
+    gap: 5px;
+}
+
+.site-nav-setting {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+
+    padding: 0;
+
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.site-nav-setting:hover,
+.site-nav-setting:focus-visible {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.site-nav-setting .setting-icon {
+    width: 19px;
+    height: 19px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.site-nav-setting .setting-icon-blur {
+    width: 18px;
+    height: 18px;
+}
+
+.site-nav-setting .blur-drop {
+    fill: color-mix(
+        in srgb,
+        currentColor 16%,
+        transparent
+    );
+}
+
+@supports not (fill: color-mix(in srgb, white, transparent)) {
+    .site-nav-setting .blur-drop {
+        fill: none;
+    }
+}
+
+/* O ícone mostra o estado atual do tema. */
+.setting-icon-moon {
+    display: none;
+}
+
+:root[data-theme="dark"] .setting-icon-sun {
+    display: none;
+}
+
+:root[data-theme="dark"] .setting-icon-moon {
+    display: block;
+}
+
+/* Slash visível somente quando o blur está desligado. */
+.blur-off-slash {
+    opacity: 0;
+
+    transition: opacity .18s ease;
+}
+
+:root[data-blur="off"] .blur-off-slash {
+    opacity: 1;
+}
+
+:root[data-blur="off"] .site-nav-setting#blurToggle {
+    background-color: transparent;
+}
+
+/* Remove o blur de superfícies específicas da navbar/modal. */
+:root[data-blur="off"] .site-nav,
+:root[data-blur="off"] .site-external-dialog-content,
+:root[data-blur="off"] .site-external-dialog::backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+@media (max-width: 760px) {
+    .site-nav-settings {
+        gap: 4px;
+    }
+
+    .site-nav-setting {
+        width: 36px;
+        height: 36px;
+
+        border-radius: 11px;
+    }
+
+    .site-nav-setting .setting-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .site-nav-settings-divider {
+        margin-left: 0;
+    }
+}

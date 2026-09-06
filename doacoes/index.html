@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Doações | Kamyli Sumire — LivePix e Pixie</title>
+    <meta name="description" content="Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.">
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    >
+    <meta name="theme-color" content="#B35EAF">
+
+    <link rel="canonical" href="https://kamylisumire.com/doacoes/">
+
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="preload" as="image" href="../assets/favicon.png">
+    <link rel="preload" as="image" href="../assets/fundo.png">
+
+    <!-- Preview social — mantém os textos históricos da branch main -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Kamyli Sumire">
+    <meta property="og:title" content="Apoie a Kamyli Sumire ✨">
+    <meta property="og:description" content="Escolha entre LivePix ou Pixie para apoiar as lives!">
+    <meta property="og:url" content="https://kamylisumire.com/doacoes/">
+    <meta property="og:image" content="https://kamylisumire.com/assets/preview.png">
+    <meta property="og:image:secure_url" content="https://kamylisumire.com/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Apoie a Kamyli Sumire">
+
+    <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Apoie a Kamyli Sumire ✨">
+    <meta name="twitter:description" content="Escolha entre LivePix ou Pixie para apoiar as lives!">
+    <meta name="twitter:image" content="https://kamylisumire.com/assets/preview.png">
+    <meta name="twitter:image:alt" content="Apoie a Kamyli Sumire">
+
+    <script src="../js/core/preferences.js"></script>
+
+    <script>
+        window.KAMYLI_LOADER_STARTED_AT = performance.now();
+        document.documentElement.classList.add("site-loading");
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/core/variables.css">
+    <link rel="stylesheet" href="../css/core/global.css">
+    <link rel="stylesheet" href="../css/core/navbar.css">
+    <link rel="stylesheet" href="../css/pages/doacoes.css">
+    <link rel="stylesheet" href="../css/components/ranking.css">
+
+    <!-- Dados estruturados para mecanismos de busca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://kamylisumire.com/doacoes/#webpage",
+      "url": "https://kamylisumire.com/doacoes/",
+      "name": "Doações | Kamyli Sumire",
+      "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.",
+      "inLanguage": "pt-BR",
+      "isPartOf": {
+        "@id": "https://kamylisumire.com/#website"
+      },
+      "about": {
+        "@id": "https://kamylisumire.com/#person"
+      }
+    }
+    </script>
+</head>
+
+<body class="donation-body">
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span
+                class="site-loader-logo"
+                aria-hidden="true"
+            ></span>
+
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+
+    <header id="site-navbar"></header>
+
+    <main class="donation-shell">
+        <section class="donation-card glass-panel">
+            <div class="donation-profile" aria-hidden="true">
+                <img
+                    src="../assets/avatar.png"
+                    alt=""
+                    class="donation-profile-img"
+                    width="110"
+                    height="110"
+                    draggable="false"
+                >
+            </div>
+
+            <span class="eyebrow" id="donationEyebrow">Apoie as lives</span>
+            <h1 id="donationTitle">Apoie a Kamyli! ✨</h1>
+            <p class="donation-subtitle" id="donationSubtitle">Escolha a opção ideal para você!</p>
+
+            <div class="donation-buttons">
+                <a
+                    href="https://livepix.gg/kamyli"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="donation-btn donation-btn-primary"
+                >
+                    <span class="donation-btn-icon" aria-hidden="true">
+                        <svg
+                            class="donation-service-icon donation-service-icon-livepix"
+                            viewBox="0 0 24 24"
+                            focusable="false"
+                        >
+                            <path d="M12 3v18"></path>
+                            <path d="M17 7.2c-1.1-.9-2.6-1.4-4.3-1.4-2.3 0-4.2 1.1-4.2 3 0 4.6 8.1 2.3 8.1 7 0 1.9-1.7 3.2-4.5 3.2-1.9 0-3.6-.6-4.8-1.6"></path>
+                        </svg>
+                    </span>
+                    <span class="donation-btn-text">
+                        <span class="donation-btn-title" id="livepixTitle">Apoiar com PIX (LivePix)</span>
+                        <span class="donation-btn-sub" id="livepixDescription">Doações a partir de R$ 1,00</span>
+                    </span>
+                </a>
+
+                <a
+                    href="https://pixie.gg/kamyli"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="donation-btn donation-btn-secondary"
+                >
+                    <span class="donation-btn-icon" aria-hidden="true">
+                        <svg
+                            class="donation-service-icon donation-service-icon-pixie"
+                            viewBox="0 0 24 24"
+                            focusable="false"
+                        >
+                            <circle cx="12" cy="12" r="8.5"></circle>
+                            <path d="M3.8 12h16.4"></path>
+                            <path d="M12 3.5c2.2 2.3 3.3 5.1 3.3 8.5S14.2 18.2 12 20.5"></path>
+                            <path d="M12 3.5C9.8 5.8 8.7 8.6 8.7 12s1.1 6.2 3.3 8.5"></path>
+                        </svg>
+                    </span>
+                    <span class="donation-btn-text">
+                        <span class="donation-btn-title" id="pixieTitle">Moeda Estrangeira (Pixie)</span>
+                        <span class="donation-btn-sub" id="pixieDescription">Doações a partir de R$ 6,00</span>
+                    </span>
+                </a>
+            </div>
+
+            <div class="donation-notice">
+                <p>
+                    💡 <strong id="donationNoticeLabel">Aviso:</strong>
+                    <span id="donationNoticeText">
+                        A doação mínima pelo Pixie é de R$6 por conta das taxas da plataforma.
+                        Para doações a partir de R$1, recomendo usar o LivePix!
+                    </span>
+                </p>
+            </div>
+        </section>
+
+        <section class="ranking-card glass-panel" aria-labelledby="rankingTitle">
+            <div class="ranking-heading">
+                <span class="eyebrow ranking-thanks">
+                    <span id="rankingThanksText">Muito obrigada</span>
+                    <svg
+                        class="ranking-heart"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path d="M12 21s-7.2-4.35-9.6-8.35C.65 9.95 1.5 6.4 4.6 5.1c2-.85 4.25-.3 5.65 1.35L12 8.5l1.75-2.05c1.4-1.65 3.65-2.2 5.65-1.35 3.1 1.3 3.95 4.85 2.2 7.55C19.2 16.65 12 21 12 21Z"/>
+                    </svg>
+                </span>
+
+                <h2 id="rankingTitle">Ranking de apoiadores</h2>
+                <p id="rankingDescription">Top 5 de doações registradas.</p>
+            </div>
+
+            <div class="ranking-tabs" role="tablist" aria-label="Período do ranking">
+                <button
+                    class="tab-btn active"
+                    type="button"
+                    data-tab="monthly"
+                    role="tab"
+                    aria-selected="true"
+                >
+                    <span id="rankingMonthlyTab">Este mês</span>
+                </button>
+
+                <button
+                    class="tab-btn"
+                    type="button"
+                    data-tab="allTime"
+                    role="tab"
+                    aria-selected="false"
+                >
+                    <span id="rankingAllTimeTab">Todos os tempos</span>
+                </button>
+            </div>
+
+            <ol id="rankingList" class="ranking-list" aria-live="polite">
+                <li class="ranking-status">Carregando ranking...</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
+
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="../js/core/navbar.js"></script>
+    <script src="../js/core/external-links.js"></script>
+    <script src="../js/core/footer.js"></script>
+    <script src="../js/pages/doacoes/doacoes.js"></script>
+    <script src="../js/pages/doacoes/content.js"></script>
+    <script src="../js/pages/doacoes/ranking.js"></script>
+    <script src="../js/core/loader.js"></script>
+</body>
+</html>

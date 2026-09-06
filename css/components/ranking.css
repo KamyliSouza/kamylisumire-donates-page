@@ -1,0 +1,186 @@
+/* =========================================================
+   RANKING
+   Base visual preservada da branch main.
+   ========================================================= */
+
+.ranking-card {
+    text-align: center;
+}
+
+.ranking-heading {
+    margin-bottom: 16px;
+}
+
+.ranking-heading h2 {
+    margin: 8px 0 4px;
+
+    color: var(--primary-color);
+
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.ranking-heading p {
+    margin: 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+   ABAS
+   ========================================================= */
+
+.ranking-tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+
+    gap: 8px;
+    width: 100%;
+
+    margin-bottom: 16px;
+}
+
+.ranking-tabs .tab-btn {
+    flex: 1 1 0;
+
+    width: 50%;
+    min-width: 0;
+    height: 42px;
+    min-height: 42px;
+
+    padding: 0 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--primary-color);
+    background-color: transparent;
+
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.ranking-tabs .tab-btn:hover {
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    transform: translateY(-2px);
+}
+
+.ranking-tabs .tab-btn.active {
+    color: #fff;
+    background-color: var(--primary-color);
+
+    box-shadow: 0 5px 15px rgba(179, 94, 175, .25);
+}
+
+/* =========================================================
+   LISTA
+   ========================================================= */
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+    min-height: 150px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+    text-align: left;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+    padding: 10px 14px;
+
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+
+    animation: rankingFade .3s ease;
+}
+
+@keyframes rankingFade {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ranking-rank {
+    width: 32px;
+    min-width: 32px;
+    flex-shrink: 0;
+
+    color: var(--primary-color);
+
+    font-size: 1rem;
+    font-weight: 800;
+
+    text-align: center;
+}
+
+.ranking-name {
+    flex: 1;
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: var(--text-color);
+
+    font-size: .9rem;
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ranking-amount {
+    color: var(--primary-color);
+
+    font-size: .9rem;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.ranking-status {
+    margin-top: 20px;
+
+    color: var(--subtitle-color);
+
+    font-size: .85rem;
+    font-weight: 600;
+
+    text-align: center;
+}
