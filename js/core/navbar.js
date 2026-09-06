@@ -14,14 +14,10 @@
                     href="${sitePath("/")}"
                     aria-label="Ir para a página inicial"
                 >
-                    <img
+                    <span
                         class="site-brand-logo"
-                        src="${sitePath("/assets/favicon.png")}"
-                        alt=""
-                        width="40"
-                        height="40"
-                        draggable="false"
-                    >
+                        aria-hidden="true"
+                    ></span>
                 </a>
 
                 <span class="site-nav-divider" aria-hidden="true"></span>
