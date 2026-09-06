@@ -1,0 +1,32 @@
+{
+  "eyebrow": "Comunidade",
+  "titulo": "Regras",
+  "descricao": "",
+  "itens": [
+    {
+      "id": "respeito",
+      "titulo": "Respeito em primeiro lugar",
+      "descricao": "Seja respeitoso com a streamer e com o chat. Discriminação não será tolerada."
+    },
+    {
+      "id": "sem-spam",
+      "titulo": "Sem spam ou spoilers",
+      "descricao": "Evite spam, spoilers ou qualquer coisa que atrapalhe a experiência do chat."
+    },
+    {
+      "id": "privacidade",
+      "titulo": "Proteja informações pessoais",
+      "descricao": "Não compartilhe informações pessoais, suas ou de terceiros."
+    },
+    {
+      "id": "outras-lives",
+      "titulo": "Evite divulgar outras lives",
+      "descricao": "Não fale de outras lives a não ser que eu as mencione primeiro."
+    },
+    {
+      "id": "gentileza",
+      "titulo": "Seja gentil ✨",
+      "descricao": "Ajude a manter a comunidade confortável e divertida para todo mundo."
+    }
+  ]
+}

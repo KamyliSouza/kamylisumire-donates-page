@@ -565,44 +565,82 @@
 }
 
 /* =========================================================
-   REGRAS / CRÉDITOS
+   REGRAS / CRÉDITOS — CONTEÚDO EDITÁVEL VIA JSON
    ========================================================= */
 
 .two-column-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
     gap: 20px;
 }
 
 .two-column-section .section-panel {
+    min-width: 0;
     height: calc(100% - 20px);
 }
 
-.rules-list {
-    margin: 18px 0 0;
-    padding-left: 22px;
-
-    color: var(--subtitle-color);
-
-    font-weight: 600;
-    line-height: 1.55;
+.editable-section-card {
+    display: flex;
+    flex-direction: column;
 }
 
-.rules-list li + li {
-    margin-top: 8px;
+.editable-section-description {
+    margin: 10px 0 0;
 }
 
-.credits-list {
+.editable-items-list {
     display: grid;
 
     gap: 9px;
     margin-top: 16px;
+
+    min-width: 0;
 }
 
-.credits-list a {
+/*
+ * Somente listas com mais de cinco elementos recebem scroll interno.
+ * A altura é calibrada para exibir aproximadamente cinco cards inteiros.
+ */
+.editable-items-list.is-scrollable {
+    max-height: 370px;
+
+    padding-right: 7px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+
+    scroll-behavior: smooth;
+}
+
+.editable-items-list.is-scrollable::-webkit-scrollbar {
+    width: 7px;
+}
+
+.editable-items-list.is-scrollable::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+
+    border-radius: 999px;
+}
+
+.editable-items-list.is-scrollable:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+
+    border-radius: var(--radius-small);
+}
+
+.editable-list-item {
+    min-width: 0;
+    min-height: 64px;
+
     display: flex;
-    flex-direction: column;
+    align-items: center;
+
+    gap: 12px;
 
     padding: 12px 13px;
 
@@ -613,25 +651,108 @@
     border-radius: var(--radius-small);
 
     text-decoration: none;
+
+    transition:
+        border-color .18s ease,
+        background-color .18s ease,
+        transform .18s ease;
 }
 
-.credits-list a:hover {
-    border-color: var(--primary-color);
+/*
+ * Regras usam o mesmo formato visual dos créditos.
+ * O número substitui a função visual do "ícone/link".
+ */
+.rule-item {
+    align-items: flex-start;
 }
 
-.credits-list a:hover strong {
+.editable-item-index {
+    width: 29px;
+    height: 29px;
+
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+
+    margin-top: 1px;
+
     color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+
+    font-size: .76rem;
+    font-weight: 900;
 }
 
-.credits-list strong {
+.editable-item-copy {
+    min-width: 0;
+
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.editable-item-copy strong {
+    color: var(--text-color);
+
+    font-size: .92rem;
     font-weight: 800;
+    line-height: 1.3;
+
+    overflow-wrap: anywhere;
 }
 
-.credits-list span {
+.editable-item-copy > span {
     color: var(--subtitle-color);
 
     font-size: .76rem;
     font-weight: 600;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.credit-item:hover,
+.credit-item:focus-visible {
+    background-color: var(--primary-soft);
+    border-color: var(--primary-color);
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.credit-item:hover strong,
+.credit-item:focus-visible strong {
+    color: var(--primary-color);
+}
+
+.editable-item-arrow {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.editable-loading,
+.editable-empty {
+    margin: 0;
+    padding: 12px 2px;
+
+    color: var(--subtitle-color);
+
+    font-size: .84rem;
+    font-weight: 600;
+    line-height: 1.45;
 }
 
 /* =========================================================
@@ -721,6 +842,10 @@
         grid-template-columns: 1fr;
 
         gap: 0;
+    }
+
+    .editable-items-list.is-scrollable {
+        max-height: 350px;
     }
 
     .donation-cta {

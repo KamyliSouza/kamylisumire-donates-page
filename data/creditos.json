@@ -1,0 +1,37 @@
+{
+  "eyebrow": "Arte",
+  "titulo": "Créditos",
+  "descricao": "Artistas que contribuem com esse meu pequeno sonho:",
+  "itens": [
+    {
+      "id": "maililac",
+      "nome": "Maililac",
+      "descricao": "PNGtuber, Pfps e ilustrações",
+      "url": "https://bsky.app/profile/maililac.bsky.social"
+    },
+    {
+      "id": "h0wl",
+      "nome": "H0wl",
+      "descricao": "Emotes, RefSheet e ilustrações",
+      "url": "https://www.instagram.com/h0wl_oficial/"
+    },
+    {
+      "id": "creditos-completos",
+      "nome": "Créditos completos",
+      "descricao": "Veja cada arte no Trello",
+      "url": "https://trello.com/b/pRNDzT3U/creditos-artes-artistas"
+    },
+    {
+      "id": "heart-origami",
+      "nome": "Heart Origami Paper",
+      "descricao": "Asset gratuito via SVG Repo",
+      "url": "https://www.svgrepo.com/svg/423849/heart-origami-paper"
+    },
+    {
+      "id": "lima-studio",
+      "nome": "Lima Studio",
+      "descricao": "Crédito do asset gratuito",
+      "url": "https://dribbble.com/limastd?ref=svgrepo.com"
+    }
+  ]
+}

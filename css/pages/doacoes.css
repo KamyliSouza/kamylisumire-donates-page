@@ -240,10 +240,6 @@
    FOOTER / MOBILE
    ========================================================= */
 
-.donation-footer {
-    width: min(1120px, calc(100% - 32px));
-    margin-bottom: 28px;
-}
 
 /* =========================================================
    MOBILE
@@ -251,8 +247,7 @@
    ========================================================= */
 
 @media (max-width: 760px) {
-    .donation-shell,
-    .donation-footer {
+    .donation-shell {
         width: min(100% - 24px, 1120px);
     }
 
@@ -288,10 +283,6 @@
     .donation-shell {
         grid-template-columns: 1fr;
 
-        max-width: 720px;
-    }
-
-    .donation-footer {
         max-width: 720px;
     }
 }

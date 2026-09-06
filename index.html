@@ -197,53 +197,41 @@
         </section>
 
         <section class="two-column-section">
-            <article class="glass-panel section-panel" id="regras">
-                <span class="eyebrow">Comunidade</span>
-                <h2>Regras</h2>
+            <article
+                class="glass-panel section-panel editable-section-card"
+                id="regras"
+                aria-live="polite"
+            >
+                <span class="eyebrow" id="regrasEyebrow">Comunidade</span>
+                <h2 id="regrasTitulo">Regras</h2>
+                <p class="body-copy editable-section-description" id="regrasDescricao" hidden></p>
 
-                <ul class="rules-list">
-                    <li>Seja respeitoso com a streamer e com o chat. Discriminação não será tolerada.</li>
-                    <li>Sem spam, spoilers ou qualquer coisa que atrapalhe o chat.</li>
-                    <li>Não compartilhe informações pessoais, suas ou de terceiros.</li>
-                    <li>Não fale de outras lives a não ser que eu as mencione primeiro.</li>
-                    <li>Seja gentil! ✨</li>
-                </ul>
+                <div
+                    class="editable-items-list"
+                    id="regrasLista"
+                    aria-label="Regras da comunidade"
+                >
+                    <p class="editable-loading">Carregando regras...</p>
+                </div>
             </article>
 
-            <article class="glass-panel section-panel" id="creditos">
-                <span class="eyebrow">Arte</span>
-                <h2>Créditos</h2>
+            <article
+                class="glass-panel section-panel editable-section-card"
+                id="creditos"
+                aria-live="polite"
+            >
+                <span class="eyebrow" id="creditosEyebrow">Arte</span>
+                <h2 id="creditosTitulo">Créditos</h2>
 
-                <p class="body-copy">
-                    Artistas que contribuem com esse meu pequeno sonho:
+                <p class="body-copy editable-section-description" id="creditosDescricao">
+                    Carregando créditos...
                 </p>
 
-                <div class="credits-list">
-                    <a href="https://bsky.app/profile/maililac.bsky.social" target="_blank" rel="noopener noreferrer">
-                        <strong>Maililac</strong>
-                        <span>PNGtuber, Pfps e ilustrações</span>
-                    </a>
-
-                    <a href="https://www.instagram.com/h0wl_oficial/" target="_blank" rel="noopener noreferrer">
-                        <strong>H0wl</strong>
-                        <span>Emotes, RefSheet e ilustrações</span>
-                    </a>
-
-                    <a href="https://trello.com/b/pRNDzT3U/creditos-artes-artistas" target="_blank" rel="noopener noreferrer">
-                        <strong>Créditos completos</strong>
-                        <span>Veja cada arte no Trello</span>
-                    </a>
-
-                    <a href="https://www.svgrepo.com/svg/423849/heart-origami-paper" target="_blank" rel="noopener noreferrer">
-                        <strong>Heart Origami Paper</strong>
-                        <span>Asset gratuito via SVG Repo</span>
-                    </a>
-
-                    <a href="https://dribbble.com/limastd?ref=svgrepo.com" target="_blank" rel="noopener noreferrer">
-                        <strong>Lima Studio</strong>
-                        <span>Crédito do asset gratuito</span>
-                    </a>
-                </div>
+                <div
+                    class="editable-items-list"
+                    id="creditosLista"
+                    aria-label="Créditos de artistas e assets"
+                ></div>
             </article>
         </section>
 
@@ -260,22 +248,17 @@
         </section>
     </main>
 
-    <footer class="site-footer">
-        <p>© 2026 Kamyli Sumire. Todos os direitos reservados.</p>
-        <p>
-            <a
-                href="https://github.com/KamyliSouza/kamylisumire-donates-page"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                Ver código fonte
-            </a>
-        </p>
-    </footer>
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
 
     <script src="js/core/config.js"></script>
     <script src="js/core/api.js"></script>
     <script src="js/core/navbar.js"></script>
+    <script src="js/core/footer.js"></script>
     <script src="js/pages/home/home.js"></script>
+    <script src="js/pages/home/content.js"></script>
 </body>
 </html>
