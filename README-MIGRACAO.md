@@ -138,6 +138,43 @@ Depois do cutover:
 O hostname legado `donate.kamylisumire.com` deve responder com 301 para
 `https://kamylisumire.com/doacoes/`.
 
+
+## Proteção dos ambientes de preview
+
+O domínio oficial indexável é:
+
+```text
+https://kamylisumire.com
+```
+
+Os endereços Cloudflare Pages são ambientes técnicos e não devem competir
+com a produção nos mecanismos de busca.
+
+O arquivo:
+
+```text
+_headers
+```
+
+aplica `X-Robots-Tag: noindex` a:
+
+```text
+*.pages.dev
+*.*.pages.dev
+```
+
+Cloudflare Pages já adiciona `noindex` automaticamente a preview deployments,
+mas a regra explícita também protege o domínio padrão do projeto
+`kamylisumire-site.pages.dev`.
+
+Checklist:
+
+- [ ] `kamylisumire.com` permanece indexável;
+- [ ] `site-v2.kamylisumire-site.pages.dev` retorna `X-Robots-Tag: noindex`;
+- [ ] `kamylisumire-site.pages.dev` retorna `X-Robots-Tag: noindex`;
+- [ ] nenhuma URL `pages.dev` entra no sitemap;
+- [ ] canonical continua apontando para `kamylisumire.com`.
+
 ## API / Worker
 
 A V28 não altera:

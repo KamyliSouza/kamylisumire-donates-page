@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## V32 — proteção SEO dos previews
+
+- `_headers` adicionado na raiz;
+- `X-Robots-Tag: noindex` aplicado ao domínio padrão `*.pages.dev`;
+- `X-Robots-Tag: noindex` aplicado aos deployments/aliases `*.*.pages.dev`;
+- evita conteúdo duplicado entre Cloudflare Pages e `kamylisumire.com`;
+- sitemap/canonical permanecem somente no domínio principal;
+- nenhuma alteração em Worker, API, OAuth, KV, CORS ou DNS.
+
 ## V31 — SEO e migração
 
 - `robots.txt` adicionado;
