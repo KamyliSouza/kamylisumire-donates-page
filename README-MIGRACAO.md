@@ -117,6 +117,27 @@ https://donate.kamylisumire.com
 https://kamylisumire.com/doacoes/
 ```
 
+
+## SEO e indexação
+
+A versão de produção deve publicar:
+
+```text
+/robots.txt
+/sitemap.xml
+```
+
+Depois do cutover:
+
+1. criar/verificar a propriedade de domínio `kamylisumire.com` no Google Search Console;
+2. enviar `https://kamylisumire.com/sitemap.xml`;
+3. inspecionar `/` e `/doacoes/`;
+4. solicitar indexação das duas páginas;
+5. monitorar indexação e canônicos escolhidos pelo Google.
+
+O hostname legado `donate.kamylisumire.com` deve responder com 301 para
+`https://kamylisumire.com/doacoes/`.
+
 ## API / Worker
 
 A V28 não altera:

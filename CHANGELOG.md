@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## V31 — SEO e migração
+
+- `robots.txt` adicionado;
+- `sitemap.xml` adicionado;
+- `CNAME` consolidado como `kamylisumire.com`;
+- títulos e descriptions SEO revisados;
+- `meta robots` para Home e Doações;
+- JSON-LD `WebSite` + `Person` na Home;
+- JSON-LD `WebPage` em Doações;
+- canonical da V30 preservado;
+- social preview da V30 preservada;
+- documentação de cutover, Search Console e sitemap adicionada;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V30 — social preview
 
 - Home recebe preview Open Graph/Twitter completa;

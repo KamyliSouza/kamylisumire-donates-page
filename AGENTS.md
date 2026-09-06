@@ -316,6 +316,44 @@ Por isso os textos da preview da Home são duplicados estaticamente no
 Ao alterar o título ou descrição do Hero, atualizar também os metadados
 Open Graph/Twitter da Home.
 
+
+## SEO e indexação
+
+Arquivos de raiz:
+
+```text
+robots.txt
+sitemap.xml
+CNAME
+```
+
+URLs indexáveis atuais:
+
+```text
+https://kamylisumire.com/
+https://kamylisumire.com/doacoes/
+```
+
+A 404 deve permanecer `noindex` e não deve entrar no sitemap.
+
+Home e Doações devem manter:
+
+- `title` específico;
+- `meta description`;
+- `meta robots`;
+- canonical absoluto;
+- Open Graph/Twitter;
+- JSON-LD coerente com o conteúdo visível.
+
+A Home usa `WebSite` + `Person`.
+
+Doações usa `WebPage`.
+
+Não adicionar `meta keywords`; ela não faz parte da estratégia.
+
+Quando uma nova página pública for criada, avaliar se deve entrar no
+`sitemap.xml`.
+
 ## API / Worker — invariantes críticos
 
 `workers.js` é infraestrutura.
