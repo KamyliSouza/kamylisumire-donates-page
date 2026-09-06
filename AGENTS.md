@@ -47,6 +47,7 @@ Não tratar a migração do domínio principal como tarefa pendente.
 │   ├── avatar.png
 │   ├── favicon.webp
 │   ├── favicon.png
+│   ├── fundo.avif
 │   ├── fundo.webp
 │   ├── fundo.png
 │   ├── logo.webp
@@ -231,6 +232,23 @@ data-blur-reason="supported|manual|unsupported|reduced-transparency|save-data|lo
 ```
 
 Não trocar esse mecanismo por detecção de Android/iPhone ou largura de tela.
+
+Performance adaptativa:
+
+```text
+data-performance="normal|reduced"
+data-performance-reason="standard|save-data|low-memory|low-cpu"
+```
+
+Regras:
+
+- `Save-Data` pode omitir somente a imagem decorativa do fundo;
+- `deviceMemory <= 2` ou `hardwareConcurrency <= 2` → `background-attachment: scroll`;
+- o perfil de performance é independente de `kamyli:ui-blur`;
+- o background deve manter ordem `fundo.avif → fundo.webp → fundo.png`;
+- não adicionar preload ao fundo decorativo;
+- o loader não deve carregar `fundo.avif`, `fundo.webp` ou `fundo.png`.
+
 Não criar paletas independentes por página.
 
 ## Navbar
