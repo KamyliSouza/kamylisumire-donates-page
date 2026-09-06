@@ -1,4 +1,9 @@
 {
+  "copyright": {
+    "nome": "Kamyli Sumire",
+    "texto": "Todos os direitos reservados."
+    }
+  },
   "creditos": {
     "fundo": {
       "prefixo": "Arte do fundo por",
@@ -9,11 +14,6 @@
       "prefixo": "Avatar por",
       "nome": "@maililac",
       "url": "https://bsky.app/profile/maililac.bsky.social"
-    }
-  },
-  "copyright": {
-    "nome": "Kamyli Sumire",
-    "texto": "Todos os direitos reservados."
   },
   "codigoFonte": {
     "texto": "Ver código fonte",
