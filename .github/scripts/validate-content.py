@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V40.
+"""Validação editorial/semântica do site Kamyli Sumire — V41.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -34,9 +34,14 @@ LEGACY_ROOT_FILES = [
     "V33-APLICACAO.txt",
     "V34-APLICACAO.txt",
     "V35-APLICACAO.txt",
+    "V36-APLICACAO.txt",
+    "V37-APLICACAO.txt",
+    "V38-APLICACAO.txt",
     "V39-APLICACAO.txt",
     "V39-1-APLICACAO.txt",
     "V39-2-APLICACAO.txt",
+    "V40-APLICACAO.txt",
+    "V40-REMOVER.txt",
 ]
 
 
@@ -702,6 +707,28 @@ def validate_visual_assets() -> None:
             + ", ".join(failures)
         )
 
+    forbidden_v41 = [
+        ".github/scripts/build-css.py",
+        "docs/V40-CSS-BUNDLES.md",
+    ]
+
+    forbidden_present = [
+        rel
+        for rel in forbidden_v41
+        if (ROOT / rel).exists()
+    ]
+
+    if (ROOT / "css/build").exists():
+        forbidden_present.append(
+            "css/build/"
+        )
+
+    if forbidden_present:
+        raise ValidationError(
+            "resíduos do bundle CSS rejeitado: "
+            + ", ".join(forbidden_present)
+        )
+
     if (
         ROOT / "assets/avatar.webp"
     ).exists():
@@ -1060,6 +1087,7 @@ def validate_repository_hygiene() -> None:
         "assets/README.md",
         "docs/PRODUCAO.md",
         "docs/V40-AUDITORIA.md",
+        "docs/V41-FONTES-TRANSICOES.md",
     ]
 
     missing = [
@@ -1120,9 +1148,252 @@ def validate_repository_hygiene() -> None:
         )
 
     print(
-        "✓ Higiene do repositório V40 válida"
+        "✓ Higiene do repositório V41 válida"
     )
 
+
+def validate_v41_fonts_and_transitions() -> None:
+    font_path = (
+        ROOT /
+        "assets/fonts/nunito-variable.woff2"
+    )
+
+    license_path = (
+        ROOT /
+        "assets/fonts/OFL.txt"
+    )
+
+    if not font_path.exists():
+        raise ValidationError(
+            "Nunito local ausente: "
+            "assets/fonts/nunito-variable.woff2"
+        )
+
+    data = font_path.read_bytes()
+
+    if (
+        len(data) < 4
+        or data[:4] != b"wOF2"
+    ):
+        raise ValidationError(
+            "Nunito local não possui "
+            "assinatura WOFF2"
+        )
+
+    if not license_path.exists():
+        raise ValidationError(
+            "assets/fonts/OFL.txt ausente"
+        )
+
+    license_text = license_path.read_text(
+        encoding="utf-8"
+    ).upper()
+
+    if (
+        "SIL OPEN FONT LICENSE"
+        not in license_text
+        or "VERSION 1.1"
+        not in license_text
+    ):
+        raise ValidationError(
+            "OFL.txt não parece ser OFL 1.1"
+        )
+
+    variables_css = (
+        ROOT / "css/core/variables.css"
+    ).read_text(encoding="utf-8")
+
+    global_css = (
+        ROOT / "css/core/global.css"
+    ).read_text(encoding="utf-8")
+
+    loader_js = (
+        ROOT / "js/core/loader.js"
+    ).read_text(encoding="utf-8")
+
+    transition_path = (
+        ROOT / "js/core/page-transitions.js"
+    )
+
+    if not transition_path.exists():
+        raise ValidationError(
+            "page-transitions.js ausente"
+        )
+
+    transition_js = transition_path.read_text(
+        encoding="utf-8"
+    )
+
+    if (
+        "@font-face" not in variables_css
+        or 'font-family: "Nunito"'
+            not in variables_css
+        or "nunito-variable.woff2"
+            not in variables_css
+        or "font-display: swap"
+            not in variables_css
+    ):
+        raise ValidationError(
+            "Nunito local não está "
+            "declarada corretamente"
+        )
+
+    pages = {
+        "index.html": (
+            "assets/fonts/nunito-variable.woff2",
+            [
+                "css/core/variables.css",
+                "css/core/global.css",
+                "css/core/navbar.css",
+                "css/pages/home.css",
+            ],
+            "js/core/page-transitions.js",
+        ),
+        "doacoes/index.html": (
+            "../assets/fonts/nunito-variable.woff2",
+            [
+                "../css/core/variables.css",
+                "../css/core/global.css",
+                "../css/core/navbar.css",
+                "../css/pages/doacoes.css",
+                "../css/components/ranking.css",
+            ],
+            "../js/core/page-transitions.js",
+        ),
+        "404.html": (
+            "assets/fonts/nunito-variable.woff2",
+            [
+                "css/core/variables.css",
+                "css/core/global.css",
+                "css/core/navbar.css",
+                "css/pages/404.css",
+            ],
+            None,
+        ),
+    }
+
+    for rel, (
+        preload,
+        stylesheets,
+        transition_script,
+    ) in pages.items():
+        html = (
+            ROOT / rel
+        ).read_text(encoding="utf-8")
+
+        if (
+            "fonts.googleapis.com" in html
+            or "fonts.gstatic.com" in html
+        ):
+            raise ValidationError(
+                f"{rel} ainda usa Google Fonts"
+            )
+
+        if (
+            f'href="{preload}"'
+            not in html
+            or 'as="font"' not in html
+            or 'type="font/woff2"'
+            not in html
+        ):
+            raise ValidationError(
+                f"{rel} não faz preload "
+                "da Nunito local"
+            )
+
+        if "css/build/" in html:
+            raise ValidationError(
+                f"{rel} ainda usa css/build/"
+            )
+
+        for stylesheet in stylesheets:
+            marker = (
+                f'<link rel="stylesheet" '
+                f'href="{stylesheet}">'
+            )
+
+            if marker not in html:
+                raise ValidationError(
+                    f"{rel} não carrega "
+                    f"{stylesheet}"
+                )
+
+        if (
+            transition_script
+            and (
+                f'src="{transition_script}"'
+                not in html
+            )
+        ):
+            raise ValidationError(
+                f"{rel} não carrega "
+                "page-transitions.js"
+            )
+
+    expectations = {
+        "saída Home -> Doações":
+            "site-page-leaving"
+            in transition_js
+            and 'currentRoute !== "home"'
+            in transition_js
+            and 'targetRoute !== "doacoes"'
+            in transition_js,
+
+        "chegada":
+            "site-page-arriving"
+            in transition_js,
+
+        "sessionStorage":
+            "kamyli:page-transition"
+            in transition_js,
+
+        "reduced motion":
+            "prefers-reduced-motion: reduce"
+            in transition_js,
+
+        "performance reduzida":
+            'dataset.performance !== "reduced"'
+            in transition_js,
+
+        "loader integra chegada rápida":
+            "site-page-arriving"
+            in loader_js
+            and "beginReveal(false)"
+            in loader_js,
+
+        "CSS entrada direcional":
+            "site-page-enter-forward"
+            in global_css,
+
+        "CSS saída direcional":
+            "site-page-exit-forward"
+            in global_css,
+
+        "CSS reduced motion":
+            "prefers-reduced-motion: reduce"
+            in global_css,
+
+        "CSS performance reduzida":
+            'data-performance="reduced"'
+            in global_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "integração V41 incompleta: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Nunito local e transições V41 integradas"
+    )
 
 def main() -> int:
     checks = [
@@ -1133,6 +1404,7 @@ def main() -> int:
         validate_production_files,
         validate_local_references,
         validate_seo_files,
+        validate_v41_fonts_and_transitions,
         validate_repository_hygiene,
     ]
 

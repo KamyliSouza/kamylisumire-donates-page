@@ -1,4 +1,16 @@
 /* =========================================================
+   TIPOGRAFIA LOCAL — V41
+   ========================================================= */
+
+@font-face {
+    font-family: "Nunito";
+    src: url("../../assets/fonts/nunito-variable.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+}
+
+/* =========================================================
    DESIGN TOKENS — IDENTIDADE VISUAL OFICIAL
    Fonte histórica: branch main / style.css
    ========================================================= */

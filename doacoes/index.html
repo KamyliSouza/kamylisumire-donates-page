@@ -166,12 +166,19 @@
         document.documentElement.classList.add("site-loading-pending");
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        rel="preload"
+        href="../assets/fonts/nunito-variable.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    >
 
-    <!-- V40: bundle local único; fontes modulares permanecem separadas no repositório -->
-    <link rel="stylesheet" href="../css/build/doacoes.css">
+    <link rel="stylesheet" href="../css/core/variables.css">
+    <link rel="stylesheet" href="../css/core/global.css">
+    <link rel="stylesheet" href="../css/core/navbar.css">
+    <link rel="stylesheet" href="../css/pages/doacoes.css">
+    <link rel="stylesheet" href="../css/components/ranking.css">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -377,6 +384,7 @@
     <script src="../js/core/api.js"></script>
     <script src="../js/core/navbar.js"></script>
     <script src="../js/core/external-links.js"></script>
+    <script src="../js/core/page-transitions.js"></script>
     <script src="../js/core/footer.js"></script>
     <script src="../js/pages/doacoes/doacoes.js"></script>
     <script src="../js/pages/doacoes/content.js"></script>

@@ -178,3 +178,40 @@ CORS e domínio da API continuam sendo infraestrutura separada.
 - `CHANGELOG.md` — histórico consolidado;
 - `docs/PRODUCAO.md` — ambientes, publicação e SEO;
 - `docs/V40-AUDITORIA.md` — saneamento/auditoria da V40.
+
+## V41 — fontes locais e transição Home → Doações
+
+A Nunito deixa de depender de `fonts.googleapis.com` e `fonts.gstatic.com`.
+
+Produção usa:
+
+```text
+assets/fonts/nunito-variable.woff2
+assets/fonts/OFL.txt
+```
+
+O `@font-face` fica em `css/core/variables.css`, evitando outro stylesheet
+bloqueante.
+
+Home, Doações e 404 fazem preload do mesmo WOFF2 local.
+
+A V41 também adiciona `js/core/page-transitions.js`.
+
+Fluxo:
+
+```text
+Home
+→ saída curta para a esquerda (~180 ms)
+→ /doacoes/
+→ entrada curta pela direita
+```
+
+O fast-path normal do loader continua imediato. Uma chegada marcada da Home
+para Doações executa somente o reveal de entrada quando o loader não precisa
+aparecer.
+
+`prefers-reduced-motion: reduce` e `data-performance="reduced"` desativam a
+transição.
+
+A arquitetura final volta aos CSS modulares; `css/build/` não faz parte do
+estado consolidado.

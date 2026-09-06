@@ -8,18 +8,19 @@
     if (!loader) {
         root.classList.remove(
             "site-loading-pending",
-            "site-loading-visible"
+            "site-loading-visible",
+            "site-page-arriving"
         );
+
+        delete root.dataset.pageTransition;
+
         root.classList.add(
             "site-ready"
         );
+
         return;
     }
 
-    /*
-     * O loader fica inicialmente oculto. Em visitas rápidas o conteúdo
-     * termina antes deste atraso e o loader nunca entra no paint/LCP.
-     */
     const SHOW_DELAY_MS = 180;
     const MIN_VISIBLE_AFTER_SHOW_MS = 160;
     const MAX_WAIT_MS = 2400;
@@ -28,7 +29,9 @@
 
     const needsAgenda =
         Boolean(
-            document.getElementById("agendaGrid")
+            document.getElementById(
+                "agendaGrid"
+            )
         );
 
     let domReady =
@@ -41,6 +44,7 @@
     function localContentReady() {
         const pageContentReady =
             window.KAMYLI_PAGE_CONTENT_READY === true;
+
         const footerReady =
             window.KAMYLI_FOOTER_READY === true;
 
@@ -55,40 +59,39 @@
         );
     }
 
-    function dispatchRevealed(loaderWasShown) {
+    function dispatchRevealed(
+        loaderWasShown
+    ) {
         window.dispatchEvent(
             new CustomEvent(
                 "kamyli:site-revealed",
                 {
                     detail: {
-                        loaderShown: loaderWasShown
+                        loaderShown:
+                            loaderWasShown,
+                        pageTransition:
+                            root.dataset
+                                .pageTransition ||
+                            null
                     }
                 }
             )
         );
     }
 
-    function finishWithoutShowingLoader() {
+    function clearPageArrival() {
         root.classList.remove(
-            "site-loading-pending",
-            "site-loading-visible",
-            "site-revealing"
-        );
-        root.classList.add(
-            "site-ready"
+            "site-page-arriving"
         );
 
-        loader.remove();
-        dispatchRevealed(false);
+        delete root.dataset.pageTransition;
     }
 
-    function beginReveal() {
+    function beginReveal(
+        loaderWasShown
+    ) {
         root.classList.add(
             "site-revealing"
-        );
-
-        loader.classList.add(
-            "is-leaving"
         );
 
         root.classList.remove(
@@ -96,24 +99,73 @@
             "site-loading-visible"
         );
 
-        window.setTimeout(() => {
+        if (loaderWasShown) {
+            loader.classList.add(
+                "is-leaving"
+            );
+
+            window.setTimeout(
+                () => loader.remove(),
+                EXIT_MS
+            );
+        } else {
             loader.remove();
-        }, EXIT_MS);
+        }
 
-        window.setTimeout(() => {
-            root.classList.remove(
-                "site-revealing"
-            );
+        window.setTimeout(
+            () => {
+                root.classList.remove(
+                    "site-revealing"
+                );
 
-            root.classList.add(
-                "site-ready"
-            );
+                root.classList.add(
+                    "site-ready"
+                );
 
-            dispatchRevealed(true);
-        }, REVEAL_STATE_MS);
+                dispatchRevealed(
+                    loaderWasShown
+                );
+
+                clearPageArrival();
+            },
+            REVEAL_STATE_MS
+        );
     }
 
-    function completeLoader(force = false) {
+    function finishWithoutShowingLoader() {
+        /*
+         * Fast-path normal da V39 permanece imediato.
+         * Só uma chegada marcada Home -> Doações recebe
+         * o reveal mesmo sem o loader aparecer.
+         */
+        if (
+            root.classList.contains(
+                "site-page-arriving"
+            )
+        ) {
+            beginReveal(false);
+            return;
+        }
+
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible",
+            "site-revealing"
+        );
+
+        root.classList.add(
+            "site-ready"
+        );
+
+        loader.remove();
+
+        dispatchRevealed(false);
+        clearPageArrival();
+    }
+
+    function completeLoader(
+        force = false
+    ) {
         if (finished) return;
 
         if (
@@ -129,7 +181,10 @@
         finished = true;
 
         if (showTimer !== null) {
-            window.clearTimeout(showTimer);
+            window.clearTimeout(
+                showTimer
+            );
+
             showTimer = null;
         }
 
@@ -139,18 +194,20 @@
         }
 
         const visibleFor =
-            performance.now() - loaderShownAt;
+            performance.now() -
+            loaderShownAt;
 
         const remaining =
             force
                 ? 0
                 : Math.max(
                     0,
-                    MIN_VISIBLE_AFTER_SHOW_MS - visibleFor
+                    MIN_VISIBLE_AFTER_SHOW_MS -
+                        visibleFor
                 );
 
         window.setTimeout(
-            beginReveal,
+            () => beginReveal(true),
             remaining
         );
     }
@@ -168,7 +225,9 @@
             return;
         }
 
-        loaderShownAt = performance.now();
+        loaderShownAt =
+            performance.now();
+
         root.classList.add(
             "site-loading-visible"
         );
@@ -194,15 +253,12 @@
         checkReady
     );
 
-    showTimer = window.setTimeout(
-        showLoaderIfStillNeeded,
-        SHOW_DELAY_MS
-    );
+    showTimer =
+        window.setTimeout(
+            showLoaderIfStillNeeded,
+            SHOW_DELAY_MS
+        );
 
-    /*
-     * Proteção contra JSON quebrado, script bloqueado ou conexão lenta.
-     * O estado pendente nunca pode prender a interface indefinidamente.
-     */
     window.setTimeout(
         () => completeLoader(true),
         MAX_WAIT_MS

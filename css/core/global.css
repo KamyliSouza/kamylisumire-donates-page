@@ -344,9 +344,7 @@ a {
 
 
 /* =========================================================
-   ENTRADA SUAVE PÓS-LOADER
-   A transição trabalha apenas em blocos de topo para evitar
-   excesso de movimento e custo de composição.
+   ENTRADA PÓS-LOADER + TRANSIÇÃO ENTRE PÁGINAS — V41
    ========================================================= */
 
 html.site-loading-pending .site-nav,
@@ -355,17 +353,12 @@ html.site-loading-pending .site-footer {
     opacity: 0;
 }
 
-/*
- * O reveal começa enquanto o loader termina seu fade-out.
- * O pequeno overlap evita uma troca abrupta e também evita
- * um instante vazio entre loader e conteúdo.
- */
 html.site-revealing .site-nav {
     animation:
         site-nav-enter
-        .24s
+        .28s
         cubic-bezier(.22, 1, .36, 1)
-        .04s
+        .03s
         both;
 
     will-change: opacity, transform;
@@ -374,9 +367,9 @@ html.site-revealing .site-nav {
 html.site-revealing body > main {
     animation:
         site-content-enter
-        .28s
+        .34s
         cubic-bezier(.22, 1, .36, 1)
-        .07s
+        .05s
         both;
 
     will-change: opacity, transform;
@@ -385,18 +378,22 @@ html.site-revealing body > main {
 html.site-revealing .site-footer {
     animation:
         site-content-enter
-        .28s
+        .32s
         cubic-bezier(.22, 1, .36, 1)
-        .10s
+        .09s
         both;
 
     will-change: opacity, transform;
 }
 
+html.site-revealing.site-page-arriving[data-page-transition="forward"] body > main {
+    animation-name: site-page-enter-forward;
+}
+
 @keyframes site-nav-enter {
     from {
         opacity: 0;
-        transform: translateY(-3px);
+        transform: translateY(-5px);
     }
 
     to {
@@ -408,7 +405,7 @@ html.site-revealing .site-footer {
 @keyframes site-content-enter {
     from {
         opacity: 0;
-        transform: translateY(5px);
+        transform: translateY(10px) scale(.995);
     }
 
     to {
@@ -417,16 +414,95 @@ html.site-revealing .site-footer {
     }
 }
 
+@keyframes site-page-enter-forward {
+    from {
+        opacity: 0;
+        transform: translateX(16px) scale(.994);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Saída curta da Home antes da navegação real para /doacoes/. */
+
+html.site-page-leaving body {
+    pointer-events: none;
+}
+
+html.site-page-leaving .site-nav {
+    animation:
+        site-nav-exit
+        .16s
+        ease
+        both;
+}
+
+html.site-page-leaving body > main {
+    animation:
+        site-page-exit-forward
+        .18s
+        cubic-bezier(.4, 0, 1, 1)
+        both;
+}
+
+html.site-page-leaving .site-footer {
+    animation:
+        site-footer-exit
+        .16s
+        ease
+        both;
+}
+
+@keyframes site-nav-exit {
+    to {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes site-page-exit-forward {
+    to {
+        opacity: 0;
+        transform: translateX(-14px) scale(.996);
+    }
+}
+
+@keyframes site-footer-exit {
+    to {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html.site-revealing .site-nav,
     html.site-revealing body > main,
-    html.site-revealing .site-footer {
+    html.site-revealing .site-footer,
+    html.site-page-leaving .site-nav,
+    html.site-page-leaving body > main,
+    html.site-page-leaving .site-footer {
         animation: none;
 
         opacity: 1;
         transform: none;
         will-change: auto;
     }
+}
+
+html[data-performance="reduced"].site-revealing .site-nav,
+html[data-performance="reduced"].site-revealing body > main,
+html[data-performance="reduced"].site-revealing .site-footer,
+html[data-performance="reduced"].site-page-leaving .site-nav,
+html[data-performance="reduced"].site-page-leaving body > main,
+html[data-performance="reduced"].site-page-leaving .site-footer {
+    animation: none;
+
+    opacity: 1;
+    transform: none;
+    will-change: auto;
 }
 
 /* =========================================================

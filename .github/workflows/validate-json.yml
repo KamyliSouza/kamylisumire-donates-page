@@ -1,4 +1,4 @@
-name: Validate site content and assets
+name: Validate V41 site content, fonts and transitions
 
 on:
   push:

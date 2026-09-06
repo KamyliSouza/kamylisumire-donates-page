@@ -103,3 +103,20 @@ separadamente.
 9. ranking mantém fallback se a API falhar;
 10. 404 continua `noindex`;
 11. canonical/robots/sitemap permanecem coerentes.
+
+## V41 — caminho crítico
+
+Nunito é servida pelo próprio domínio.
+
+Não há mais dependência de:
+
+```text
+fonts.googleapis.com
+fonts.gstatic.com
+```
+
+Home, Doações e 404 fazem preload do WOFF2.
+
+A CI valida fonte/licença, ausência de Google Fonts, CSS modular e transições.
+
+A transição Home → Doações não altera Worker, OAuth, KV, CORS, DNS ou ranking.

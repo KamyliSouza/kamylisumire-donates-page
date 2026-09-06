@@ -148,3 +148,26 @@ css/pages/
 
 Não existe bundle ou build obrigatório. Essa modularidade simples é
 intencional para GitHub Pages.
+
+## Tipografia local — V41
+
+Nunito é servida pelo próprio domínio como fonte variável WOFF2.
+
+```text
+assets/fonts/nunito-variable.woff2
+```
+
+Pesos disponíveis: 200–1000.
+
+## Transição entre páginas — V41
+
+Home sai discretamente para a esquerda e Doações entra discretamente pela
+direita.
+
+- saída: ~180 ms;
+- entrada: ~340 ms;
+- sem animação card por card;
+- sem filtro/blur animado;
+- reduced motion elimina o efeito;
+- performance reduzida elimina o efeito;
+- loader continua dominante quando realmente aparece.

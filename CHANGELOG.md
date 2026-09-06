@@ -1,4 +1,20 @@
 # CHANGELOG
+## V41 — Nunito local e transição Home → Doações
+- remove `fonts.googleapis.com` e `fonts.gstatic.com` de Home, Doações e 404;
+- Nunito passa a ser servida localmente em `assets/fonts/nunito-variable.woff2`;
+- mantém `assets/fonts/OFL.txt` junto da fonte;
+- `@font-face` fica em `css/core/variables.css`, sem stylesheet extra;
+- Home, Doações e 404 fazem preload da fonte local;
+- restaura o carregamento direto dos CSS modulares;
+- remove do estado final os resíduos do bundle CSS rejeitado;
+- adiciona `js/core/page-transitions.js`;
+- Home → Doações recebe saída curta à esquerda e entrada curta pela direita;
+- chegada da Home completa o reveal mesmo quando o loader é pulado;
+- visitas rápidas normais continuam sem atraso artificial;
+- reduced motion e performance reduzida desativam a transição;
+- CI valida WOFF2/licença, ausência de Google Fonts, CSS modular, transições e higiene;
+- Worker/API/OAuth/KV/CORS/DNS/SEO não alterados.
+
 ## V40 — saneamento, documentação e auditoria com CI preservada
 - consolida a V39.2 sem framework, bundler ou build;
 - mantém a CI customizada do GitHub Actions;

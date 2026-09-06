@@ -383,3 +383,53 @@ A CI deve continuar verificando:
 - sintaxe de todos os `js/**/*.js`.
 
 A CI valida o repositório, mas não cria bundle nem build do site.
+
+## V41 — fontes e transições
+
+### Nunito local
+
+```text
+assets/fonts/nunito-variable.woff2
+assets/fonts/OFL.txt
+```
+
+`@font-face` fica em `css/core/variables.css`.
+
+Não reintroduzir:
+
+```text
+fonts.googleapis.com
+fonts.gstatic.com
+```
+
+Home, Doações e 404 fazem preload da fonte.
+
+### Home → Doações
+
+Módulo:
+
+```text
+js/core/page-transitions.js
+```
+
+Só intercepta navegação interna normal da Home para `/doacoes/`.
+
+Não interceptar links externos, hashes, nova aba, downloads nem cliques com
+modificadores.
+
+Fluxo:
+
+```text
+site-page-leaving
+→ navegação real
+→ site-page-arriving
+→ loader/reveal
+→ site-ready
+```
+
+A animação é desativada por `prefers-reduced-motion` ou
+`data-performance="reduced"`.
+
+### CSS modular
+
+Não usar `css/build/` nem `.github/scripts/build-css.py`.
