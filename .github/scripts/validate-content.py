@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V42.
+"""Validação editorial/semântica do site Kamyli Sumire — V42.1.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -631,8 +631,9 @@ def validate_visual_assets() -> None:
         "Loader usa logo.webp":
             "assets/logo.webp" in global_css,
 
-        "Loader mantém fundo transparente":
-            "background: transparent" in loader_css
+        "Loader segue superfície e blur dos cards":
+            "background-color: var(--card-bg)" in loader_css
+            and "backdrop-filter: blur(var(--blur-card))" in loader_css
             and "assets/fundo." not in loader_css,
 
         "Perfil de performance é exposto":
@@ -1462,8 +1463,17 @@ def validate_v42_interface() -> None:
         "loader dura no mínimo 1 segundo":
             "MIN_DISPLAY_MS = 1000" in loader_js,
 
-        "loader usa fundo transparente":
-            "background: transparent" in global_css,
+        "loader usa superfície dos cards":
+            "background-color: var(--card-bg)"
+            in global_css
+            and "backdrop-filter: blur(var(--blur-card))"
+            in global_css,
+
+        "loader respeita blur desligado":
+            ':root[data-blur="off"] .site-loader'
+            in global_css
+            and "backdrop-filter: none"
+            in global_css,
 
         "loader pulsa logo.webp":
             "site-loader-logo-pulse" in global_css
@@ -1510,7 +1520,7 @@ def validate_v42_interface() -> None:
             )
 
     print(
-        "✓ Configurações, navbar e loader V42 integrados"
+        "✓ Configurações, navbar e loader V42.1 integrados"
     )
 
 def main() -> int:

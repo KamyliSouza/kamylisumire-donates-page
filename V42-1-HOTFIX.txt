@@ -1,0 +1,14 @@
+V42.1 — HOTFIX DO LOADER
+
+Aplicação:
+1. extraia este ZIP sobre a raiz da V42;
+2. permita substituir os arquivos existentes;
+3. commit/push.
+
+Não há arquivos para remover.
+
+Mudança funcional:
+- loader usa var(--card-bg);
+- blur ligado/automático ativo: backdrop blur igual aos cards;
+- blur desligado/automático resolvido como off: sem backdrop-filter;
+- duração mínima de 1 segundo e logo pulsante permanecem iguais.

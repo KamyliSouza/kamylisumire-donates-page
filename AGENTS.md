@@ -486,3 +486,21 @@ estiver pronto, com timeout de segurança.
 
 `prefers-reduced-motion` e `data-performance="reduced"` removem somente a
 pulsação; não removem o tempo mínimo solicitado.
+
+## V42.1 — loader e blur
+
+O loader deve seguir a configuração resolvida de blur do site:
+
+```text
+data-blur="on"
+→ background var(--card-bg)
+→ backdrop-filter blur(var(--blur-card))
+
+data-blur="off"
+→ background var(--card-bg)
+→ sem backdrop-filter
+```
+
+Não voltar a usar fundo totalmente transparente nem uma cor fixa independente
+dos tokens de tema.
+

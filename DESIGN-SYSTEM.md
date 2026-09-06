@@ -195,3 +195,17 @@ permanece no lado direito da navbar.
 - duração mínima de 1 segundo;
 - fade-out de 320 ms;
 - sem pulsação em reduced motion/performance reduzida.
+
+## Loader adaptativo — V42.1
+
+A superfície de carregamento usa a mesma linguagem de vidro dos cards.
+
+```text
+superfície: var(--card-bg)
+blur: var(--blur-card)
+```
+
+Com blur desligado, o filtro é removido e a opacidade passa a depender somente
+dos tokens de superfície do tema. A logo continua sendo o único elemento
+animado do loader.
+

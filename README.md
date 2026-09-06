@@ -236,3 +236,9 @@ Save-Data, memória e CPU.
 Home, Doações e 404 passam pelo loader por no mínimo 1 segundo. O overlay é
 transparente e `assets/logo.webp` pulsa no centro. Reduced motion e perfil de
 performance reduzida mantêm o segundo de espera, mas removem a pulsação.
+
+### V42.1 — loader adaptativo
+
+O overlay do loader acompanha os cards: usa `--card-bg` e aplica
+`--blur-card` somente quando o estado resolvido de blur está ligado.
+

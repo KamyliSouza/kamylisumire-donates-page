@@ -1,4 +1,13 @@
 # CHANGELOG
+## V42.1 — loader com superfície adaptativa
+- loader deixa de usar fundo totalmente transparente;
+- overlay passa a usar `var(--card-bg)`, acompanhando tema claro/escuro;
+- quando o blur está ativo, loader aplica `blur(var(--blur-card))`, igual às superfícies de vidro do site;
+- quando `data-blur="off"`, o filtro é removido e permanece somente a transparência reforçada dos tokens;
+- comportamento funciona igualmente com blur manual ou automático;
+- duração de 1 segundo, logo pulsante, transições V41/V42 e Worker/API permanecem inalterados;
+- CI passa a validar a integração do loader com os tokens de superfície e blur.
+
 ## V42 — configurações no rodapé, Apoiar fixo e loader estético
 - move tema e blur da navbar para um popover de Configurações no rodapé;
 - tema passa a oferecer Automático, Claro e Escuro;

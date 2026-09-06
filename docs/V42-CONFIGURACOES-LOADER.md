@@ -55,3 +55,26 @@ exibe o loader V42 por no mínimo 1 segundo e então executa a entrada direciona
 ## Infraestrutura
 
 Sem mudanças em Worker, API, OAuth, KV, CORS, DNS, robots, sitemap ou canonical.
+
+## Hotfix V42.1 — superfície do loader
+
+O loader passa a seguir os mesmos tokens visuais dos cards:
+
+```text
+background-color: var(--card-bg)
+backdrop-filter: blur(var(--blur-card))
+```
+
+Quando o estado resolvido do site é:
+
+```text
+data-blur="off"
+```
+
+o `backdrop-filter` do loader é removido. A transparência continua sendo
+determinada por `--card-bg`, inclusive pelas variantes de tema claro/escuro e
+pelos tokens reforçados usados quando o blur está desligado.
+
+Isso mantém o loader visualmente integrado aos cards sem alterar sua duração,
+logo ou transições.
+
