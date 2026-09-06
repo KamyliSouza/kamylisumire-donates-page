@@ -39,10 +39,45 @@
 
     /* Tipografia */
     --font-main: "Nunito", sans-serif;
+
+    color-scheme: light;
 }
 
+/* Tema claro explícito */
+:root[data-theme="light"] {
+    color-scheme: light;
+}
+
+/* Tema escuro explícito */
+:root[data-theme="dark"] {
+    --primary-color: #d178cd;
+    --primary-hover: #b35eaf;
+    --primary-soft: rgba(209, 120, 205, 0.12);
+
+    --bg-color: #121212;
+    --card-bg: rgba(30, 24, 32, 0.85);
+    --card-border: rgba(209, 120, 205, 0.35);
+    --notice-bg: rgba(209, 120, 205, 0.12);
+    --footer-bg: rgba(25, 20, 27, 0.85);
+    --nav-bg: rgba(25, 20, 27, 0.88);
+
+    --text-color: #f0e6f0;
+    --subtitle-color: #bfa9be;
+    --notice-text: #e0d0df;
+    --footer-text: #d0c0ce;
+
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
+    --shadow: var(--shadow-card);
+
+    color-scheme: dark;
+}
+
+/*
+ * Fallback sem JavaScript: segue o tema do sistema.
+ * Quando data-theme existe, a preferência do usuário vence.
+ */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme]) {
         --primary-color: #d178cd;
         --primary-hover: #b35eaf;
         --primary-soft: rgba(209, 120, 205, 0.12);
@@ -61,5 +96,26 @@
 
         --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
         --shadow: var(--shadow-card);
+
+        color-scheme: dark;
     }
+}
+
+/* =========================================================
+   BLUR DESLIGADO
+   Mantém transparência, mas reforça a superfície para leitura.
+   ========================================================= */
+
+:root[data-blur="off"] {
+    --blur-card: 0px;
+
+    --card-bg: rgba(255, 255, 255, 0.88);
+    --footer-bg: rgba(255, 255, 255, 0.90);
+    --nav-bg: rgba(255, 255, 255, 0.92);
+}
+
+:root[data-theme="dark"][data-blur="off"] {
+    --card-bg: rgba(27, 22, 29, 0.82);
+    --footer-bg: rgba(23, 19, 25, 0.88);
+    --nav-bg: rgba(23, 19, 25, 0.91);
 }
