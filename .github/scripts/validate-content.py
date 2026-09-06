@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V42.4.
+"""Validação editorial/semântica do site Kamyli Sumire — V42.5.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -1171,7 +1171,7 @@ def validate_repository_hygiene() -> None:
         )
 
     print(
-        "✓ Higiene do repositório V42.4 válida"
+        "✓ Higiene do repositório V42.5 válida"
     )
 
 
@@ -1489,6 +1489,24 @@ def validate_v42_interface() -> None:
                 '<p class="site-footer-credits">'
             ),
 
+        "V42.5 remove título redundante do card":
+            'site-settings-eyebrow' not in footer_js
+            and '>Preferências<' not in footer_js
+            and 'id="footerSettingsTitle">Configurações</h2>'
+            in footer_js
+            and ".site-settings-header h2" in global_css
+            and "color: var(--primary-color)" in global_css,
+
+        "V42.5 corrige backdrop aninhado do card":
+            'classList.toggle(' in footer_js
+            and '"site-settings-open"' in footer_js
+            and '.site-footer.site-settings-open'
+            in global_css
+            and "backdrop-filter: blur(var(--blur-card))"
+            in global_css
+            and ':root[data-blur="off"] .site-settings-popover'
+            in global_css,
+
         "loader dura no mínimo 1 segundo":
             "MIN_DISPLAY_MS = 1000" in loader_js,
 
@@ -1549,7 +1567,7 @@ def validate_v42_interface() -> None:
             )
 
     print(
-        "✓ Configurações, footer e loader V42.3 integrados"
+        "✓ Configurações, footer e loader V42.5 integrados"
     )
 
 def main() -> int:

@@ -118,6 +118,18 @@
 
         function setOpen(open, returnFocus = false) {
             popover.hidden = !open;
+
+            /*
+             * V42.5: o footer já possui backdrop-filter.
+             * Enquanto o popover estiver aberto, removemos temporariamente
+             * esse backdrop root do ancestral para o card de configurações
+             * poder borrar diretamente o conteúdo atrás dele.
+             */
+            mount.classList.toggle(
+                "site-settings-open",
+                open
+            );
+
             toggle.setAttribute(
                 "aria-expanded",
                 String(open)
@@ -335,6 +347,10 @@
                 "kamyli:ui-preference-change",
                 updateControls
             );
+
+            mount.classList.remove(
+                "site-settings-open"
+            );
         };
     }
 
@@ -461,10 +477,7 @@
                         hidden
                     >
                         <div class="site-settings-header">
-                            <div>
-                                <span class="site-settings-eyebrow">Preferências</span>
-                                <h2 id="footerSettingsTitle">Configurações</h2>
-                            </div>
+                            <h2 id="footerSettingsTitle">Configurações</h2>
 
                             <button
                                 class="site-settings-close"

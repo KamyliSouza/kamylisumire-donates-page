@@ -349,6 +349,21 @@ a {
     display: none;
 }
 
+/*
+ * V42.5 — backdrop-filter aninhado.
+ *
+ * O popover é descendente do footer, que também usa backdrop-filter.
+ * Um ancestral filtrado cria um backdrop root e pode impedir que o blur do
+ * popover enxergue corretamente a página atrás dele. Enquanto o menu estiver
+ * aberto, o footer deixa de filtrar; o popover continua usando --blur-card.
+ *
+ * Ao fechar, o filtro normal do footer é restaurado.
+ */
+.site-footer.site-settings-open {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
 .site-settings-header {
     display: flex;
     align-items: flex-start;
@@ -358,19 +373,10 @@ a {
     margin-bottom: 16px;
 }
 
-.site-settings-eyebrow {
-    color: var(--primary-color);
-
-    font-size: .72rem;
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
 .site-settings-header h2 {
-    margin: 2px 0 0;
+    margin: 0;
 
-    color: var(--text-color);
+    color: var(--primary-color);
 
     font-size: 1.08rem;
     font-weight: 900;

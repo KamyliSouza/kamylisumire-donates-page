@@ -530,3 +530,23 @@ data-performance-reason="save-data"
 
 Desktop não deve ser alterado por esta regra.
 
+## V42.5 — popover de configurações
+
+Preservar o workaround de backdrop aninhado:
+
+```text
+popover aberto
+→ site-footer recebe site-settings-open
+→ backdrop-filter do footer = none
+→ popover continua usando --blur-card
+
+popover fechado
+→ site-settings-open removido
+→ blur normal do footer retorna
+```
+
+Em `data-blur="off"`, o popover também deve permanecer sem filtro.
+
+O título visível do card deve ser somente `Configurações`; não reintroduzir
+`Preferências` como eyebrow/título adicional.
+

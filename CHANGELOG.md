@@ -1,4 +1,16 @@
 # CHANGELOG
+## V42.5 — blur e título do card de configurações
+- corrige o blur do popover de Configurações no rodapé;
+- enquanto o popover está aberto, o footer suspende temporariamente seu próprio `backdrop-filter`;
+- isso evita o backdrop root aninhado e permite que o card borre diretamente o conteúdo atrás dele;
+- ao fechar o menu, o blur normal do footer é restaurado;
+- com blur desligado, o popover continua sem filtro;
+- remove o rótulo redundante `Preferências` do cabeçalho;
+- o card passa a exibir somente o título `Configurações`;
+- o título `Configurações` usa `var(--primary-color)`;
+- tema, seletor de blur, loader, fundo mobile fixo, transições e Worker/API permanecem inalterados;
+- CI passa a validar o comportamento do backdrop e a ausência do título redundante.
+
 ## V42.4 — fundo mobile fixo
 - `fundo-mobile.avif` passa a permanecer fixo na viewport em telas de até 760 px;
 - usa `body::before` com `position: fixed` em vez de `background-attachment: fixed`;

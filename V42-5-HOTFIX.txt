@@ -1,0 +1,20 @@
+V42.5 — HOTFIX DO CARD DE CONFIGURAÇÕES
+
+Aplicação:
+1. extraia este ZIP sobre a raiz da V42.4;
+2. permita substituir os arquivos existentes;
+3. commit/push.
+
+Não há arquivos para remover.
+
+Correções:
+- blur do card de Configurações passa a atuar diretamente sobre o conteúdo
+  atrás do popover;
+- o footer suspende seu próprio backdrop-filter somente enquanto o menu está
+  aberto e o restaura ao fechar;
+- Blur = Desligado continua removendo o filtro do card;
+- remove o texto redundante "Preferências";
+- o cabeçalho exibe somente "Configurações";
+- o título "Configurações" segue a cor primária do site.
+
+Não altera Worker/API, loader, fundo mobile ou transições.

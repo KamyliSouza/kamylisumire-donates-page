@@ -229,3 +229,24 @@ Save-Data
 Não usar `background-attachment: fixed` como implementação principal no
 mobile.
 
+## Card de configurações — V42.5
+
+O popover de Configurações é descendente do footer. Como ambos utilizam
+`backdrop-filter`, o footer suspende temporariamente o próprio filtro enquanto
+o popover estiver aberto para evitar um backdrop root aninhado.
+
+```text
+menu fechado + blur on
+→ footer com blur
+
+menu aberto + blur on
+→ footer sem filtro
+→ popover com blur(var(--blur-card))
+
+blur off
+→ footer e popover sem backdrop-filter
+```
+
+O cabeçalho do popover deve conter apenas `Configurações`, sem um segundo
+rótulo `Preferências`.
+

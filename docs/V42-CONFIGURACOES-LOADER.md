@@ -122,3 +122,19 @@ comportamento inconsistente em navegadores móveis.
 Em performance reduzida, a camada fixa é removida e o fundo volta a rolar com
 o `body`. Em Save-Data, a imagem continua desativada.
 
+## Hotfix V42.5 — blur do card de configurações
+
+O card de Configurações fica dentro do footer e ambos utilizavam
+`backdrop-filter`. Esse filtro aninhado pode fazer o popover borrar apenas o
+backdrop criado pelo ancestral, em vez da página realmente visível atrás dele.
+
+Ao abrir o menu, `footer.js` adiciona `site-settings-open` ao footer. Essa
+classe suspende o filtro do footer enquanto o popover permanece aberto. Assim,
+o `backdrop-filter: blur(var(--blur-card))` do card atua diretamente sobre o
+conteúdo ao fundo.
+
+Ao fechar o menu, a classe é removida e o footer volta ao comportamento normal.
+
+O rótulo `Preferências` também foi removido do cabeçalho; o título visível passa
+a ser apenas `Configurações`, usando `var(--primary-color)`.
+
