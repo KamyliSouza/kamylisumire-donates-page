@@ -1,4 +1,15 @@
 # CHANGELOG
+## V39.2 — corretivo mínimo de CI e documentação
+
+- reaplica os arquivos auxiliares da V39/V39.1 que não chegaram à `main`;
+- atualiza o CI para validar `avatar-192.webp` e `avatar-384.webp`;
+- mantém `avatar.webp` apenas como legado, sem torná-lo requisito;
+- valida `fundo.avif` e `fundo-mobile.avif`;
+- workflow monitora `loader.js` e `home.js`;
+- workflow executa `node --check` nos dois módulos alterados pela V39;
+- atualiza README, AGENTS, DESIGN-SYSTEM e documentação de assets;
+- nenhuma alteração em HTML funcional, CSS, JS de produção, Worker, API, SEO, DNS ou assets binários.
+
 ## V39.1 — hotfix de documentação e CI
 
 - corrige a documentação para registrar `assets/fundo.avif` como asset já presente na `main`;
