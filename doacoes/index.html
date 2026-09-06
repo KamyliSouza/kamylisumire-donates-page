@@ -14,9 +14,9 @@
 
     <link rel="canonical" href="https://kamylisumire.com/doacoes/">
 
+    <link rel="icon" type="image/webp" href="../assets/favicon.webp">
     <link rel="icon" type="image/png" href="../assets/favicon.png">
-    <link rel="preload" as="image" href="../assets/favicon.png">
-    <link rel="preload" as="image" href="../assets/fundo.png">
+    <link rel="preload" as="image" href="../assets/favicon.webp" type="image/webp">
 
     <!-- Preview social — mantém os textos históricos da branch main -->
     <meta property="og:type" content="website">
@@ -106,14 +106,22 @@
     <main class="donation-shell">
         <section class="donation-card glass-panel">
             <div class="donation-profile" aria-hidden="true">
-                <img
-                    src="../assets/avatar.png"
-                    alt=""
-                    class="donation-profile-img"
-                    width="110"
-                    height="110"
-                    draggable="false"
-                >
+                <picture>
+                    <source
+                        srcset="../assets/avatar.webp"
+                        type="image/webp"
+                    >
+                    <img
+                        src="../assets/avatar.png"
+                        alt=""
+                        class="donation-profile-img"
+                        width="110"
+                        height="110"
+                        loading="eager"
+                        decoding="async"
+                        draggable="false"
+                    >
+                </picture>
             </div>
 
             <span class="eyebrow" id="donationEyebrow">Apoie as lives</span>

@@ -14,17 +14,17 @@
             window.KAMYLI_LOADER_STARTED_AT
         ) || performance.now();
 
-    const MIN_VISIBLE_MS = 460;
-    const MAX_WAIT_MS = 2600;
-    const EXIT_MS = 340;
+    const MIN_VISIBLE_MS = 280;
+    const MAX_WAIT_MS = 2400;
+    const EXIT_MS = 300;
 
     const needsAgenda =
         Boolean(
             document.getElementById("agendaGrid")
         );
 
-    let windowLoaded =
-        document.readyState === "complete";
+    let domReady =
+        document.readyState !== "loading";
 
     let finished = false;
 
@@ -52,7 +52,7 @@
         if (
             !force &&
             (
-                !windowLoaded ||
+                !domReady ||
                 !localContentReady()
             )
         ) {
@@ -91,11 +91,11 @@
         hideLoader(false);
     }
 
-    if (!windowLoaded) {
-        window.addEventListener(
-            "load",
+    if (!domReady) {
+        document.addEventListener(
+            "DOMContentLoaded",
             () => {
-                windowLoaded = true;
+                domReady = true;
                 checkReady();
             },
             { once: true }

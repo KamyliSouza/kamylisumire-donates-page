@@ -109,3 +109,9 @@ http://localhost:8000/doacoes/
 - `docs/` → notas técnicas por versão.
 
 Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente das alterações de frontend.
+
+
+## Assets otimizados
+
+A interface prefere `avatar.webp`, `favicon.webp`, `fundo.webp` e `logo.webp`,
+com os PNGs históricos preservados como fallback quando aplicável.

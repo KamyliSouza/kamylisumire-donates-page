@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## V34 — performance com assets WebP
+
+- `avatar.webp` passa a ser preferido com fallback para `avatar.png`;
+- `fundo.webp` passa a ser preferido via `image-set`, mantendo PNG como fallback;
+- `favicon.webp` usado no favicon moderno e no loader;
+- `logo.webp` passa a ser a máscara exclusiva da navbar;
+- preload pesado de `fundo.png` removido;
+- avatar da Home recebe `fetchpriority=high`;
+- loader deixa de esperar `window.load` e usa `DOMContentLoaded` + conteúdo local;
+- tempo mínimo do loader reduzido de 460 ms para 280 ms;
+- CI passa a validar presença e assinatura dos quatro WebP;
+- `preview.png` permanece inalterado para social preview;
+- Worker/API/OAuth/KV/CORS não alterados.
+
 ## V33 — estabilização pós-migração
 
 - `CNAME` consolidado como `kamylisumire.com`;

@@ -17,7 +17,12 @@ body {
     margin: 0;
     min-height: 100vh;
 
+    /* PNG permanece como fallback para navegadores antigos. */
     background-image: url('../../assets/fundo.png');
+    background-image: image-set(
+        url('../../assets/fundo.webp') type('image/webp'),
+        url('../../assets/fundo.png') type('image/png')
+    );
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -323,7 +328,12 @@ html.site-loading body {
     padding: 24px;
 
     background-color: var(--bg-color);
+    /* PNG permanece como fallback para navegadores antigos. */
     background-image: url('../../assets/fundo.png');
+    background-image: image-set(
+        url('../../assets/fundo.webp') type('image/webp'),
+        url('../../assets/fundo.png') type('image/png')
+    );
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -366,8 +376,8 @@ html.site-loading body {
 
     background-color: var(--primary-color);
 
-    -webkit-mask-image: url('../../assets/favicon.png');
-    mask-image: url('../../assets/favicon.png');
+    -webkit-mask-image: url('../../assets/favicon.webp');
+    mask-image: url('../../assets/favicon.webp');
 
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;

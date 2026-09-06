@@ -449,6 +449,32 @@ As abas do ranking usam o padrão ARIA de tabs:
 - roving `tabindex`;
 - ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End.
 
+
+## Assets e performance (V34)
+
+Assets preferenciais:
+
+```text
+assets/avatar.webp
+assets/favicon.webp
+assets/fundo.webp
+assets/logo.webp
+```
+
+Fallbacks PNG permanecem no repositório para compatibilidade.
+
+Regras:
+
+- Home e Doações usam `<picture>` para `avatar.webp` com `avatar.png` de fallback;
+- background usa `image-set()` com `fundo.webp` e `fundo.png`;
+- navbar usa `logo.webp` como máscara em `--primary-color`;
+- loader usa `favicon.webp` como máscara;
+- `preview.png` continua dedicado à social preview;
+- não reintroduzir preload do background decorativo sem medição que justifique.
+
+O loader não deve esperar `window.load`; deve liberar após DOM + conteúdo
+local necessário estarem prontos, mantendo timeout de segurança.
+
 ## API / Worker — invariantes críticos
 
 `workers.js` é infraestrutura.

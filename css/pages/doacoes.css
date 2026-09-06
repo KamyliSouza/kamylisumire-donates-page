@@ -44,6 +44,12 @@
     margin: 0 auto 15px;
 }
 
+.donation-profile picture {
+    display: block;
+
+    line-height: 0;
+}
+
 .donation-profile-img {
     display: block;
 

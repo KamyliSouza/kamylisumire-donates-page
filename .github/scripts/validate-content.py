@@ -309,6 +309,66 @@ def validate_hero_sync() -> None:
     print("✓ Hero, fallback HTML, SEO e preview estão sincronizados")
 
 
+
+
+def validate_webp_assets() -> None:
+    required_assets = {
+        "avatar": ROOT / "assets/avatar.webp",
+        "favicon": ROOT / "assets/favicon.webp",
+        "fundo": ROOT / "assets/fundo.webp",
+        "logo": ROOT / "assets/logo.webp",
+    }
+
+    missing = [
+        str(path.relative_to(ROOT))
+        for path in required_assets.values()
+        if not path.exists()
+    ]
+
+    if missing:
+        raise ValidationError(
+            "assets WebP obrigatórios ausentes: "
+            + ", ".join(missing)
+        )
+
+    for label, path in required_assets.items():
+        data = path.read_bytes()
+
+        if len(data) < 12 or data[:4] != b"RIFF" or data[8:12] != b"WEBP":
+            raise ValidationError(
+                f"{path.relative_to(ROOT)} não parece ser um arquivo WebP válido"
+            )
+
+        size_kib = len(data) / 1024
+        print(
+            f"✓ WebP válido: {label} "
+            f"({path.relative_to(ROOT)}, {size_kib:.1f} KiB)"
+        )
+
+    home_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
+    global_css = (ROOT / "css/core/global.css").read_text(encoding="utf-8")
+    navbar_css = (ROOT / "css/core/navbar.css").read_text(encoding="utf-8")
+
+    expectations = {
+        "Home usa avatar.webp": "assets/avatar.webp" in home_html,
+        "Doações usa avatar.webp": "../assets/avatar.webp" in donations_html,
+        "Home usa favicon.webp": "assets/favicon.webp" in home_html,
+        "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
+        "Background usa fundo.webp": "assets/fundo.webp" in global_css,
+        "Navbar usa logo.webp": "assets/logo.webp" in navbar_css,
+        "Loader usa favicon.webp": "assets/favicon.webp" in global_css,
+    }
+
+    failures = [label for label, ok in expectations.items() if not ok]
+
+    if failures:
+        raise ValidationError(
+            "integração WebP incompleta: " + ", ".join(failures)
+        )
+
+    print("✓ Assets WebP integrados com fallbacks PNG")
+
 def validate_production_files() -> None:
     cname = (ROOT / "CNAME").read_text(encoding="utf-8").strip()
     if cname != "kamylisumire.com":
@@ -336,6 +396,7 @@ def main() -> int:
         validate_all_json_files,
         validate_agenda,
         validate_hero_sync,
+        validate_webp_assets,
         validate_production_files,
     ]
 

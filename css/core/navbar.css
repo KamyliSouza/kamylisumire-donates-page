@@ -76,14 +76,14 @@
     flex: 0 0 auto;
 
     /*
-     * O favicon funciona como máscara.
+     * O logo WebP funciona como máscara.
      * A silhueta original é preservada e a cor acompanha
      * automaticamente --primary-color.
      */
     background-color: var(--primary-color);
 
-    -webkit-mask-image: url('../../assets/favicon.png');
-    mask-image: url('../../assets/favicon.png');
+    -webkit-mask-image: url('../../assets/logo.webp');
+    mask-image: url('../../assets/logo.webp');
 
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
@@ -106,12 +106,12 @@
 
 /*
  * Fallback para navegadores sem suporte a CSS masks:
- * exibe o favicon original em vez de ocultar a marca.
+ * exibe a marca estática em vez de ocultar a navbar.
  */
 @supports not ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
     .site-brand-logo {
         background-color: transparent;
-        background-image: url('../../assets/favicon.png');
+        background-image: url('../../assets/logo.webp');
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;

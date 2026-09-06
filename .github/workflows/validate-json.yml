@@ -1,4 +1,4 @@
-name: Validate site content
+name: Validate site content and assets
 
 on:
   push:
@@ -8,6 +8,10 @@ on:
     paths:
       - "data/**/*.json"
       - "index.html"
+      - "doacoes/index.html"
+      - "assets/*.webp"
+      - "css/core/global.css"
+      - "css/core/navbar.css"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -17,6 +21,10 @@ on:
     paths:
       - "data/**/*.json"
       - "index.html"
+      - "doacoes/index.html"
+      - "assets/*.webp"
+      - "css/core/global.css"
+      - "css/core/navbar.css"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -33,5 +41,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate JSON, agenda and editorial consistency
+      - name: Validate content, SEO and WebP assets
         run: python .github/scripts/validate-content.py

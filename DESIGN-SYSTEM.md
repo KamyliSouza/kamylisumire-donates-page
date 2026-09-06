@@ -209,6 +209,26 @@ Open Graph é a referência para Discord, WhatsApp, Telegram, Facebook e
 outros serviços compatíveis. Twitter/X recebe os equivalentes
 `twitter:*`.
 
+
+## Assets otimizados
+
+A V34 prefere WebP no carregamento visual:
+
+```text
+avatar.webp
+favicon.webp
+fundo.webp
+logo.webp
+```
+
+PNG permanece como fallback quando aplicável.
+
+A navbar continua monocromática: `logo.webp` é usado como máscara e recebe
+`var(--primary-color)`. A arte deve preservar transparência.
+
+`preview.png` não deve ser convertido automaticamente, pois é a imagem social
+1200 × 630 atualmente declarada nos metadados Open Graph/Twitter.
+
 ## Mobile e performance
 
 Até 760px:

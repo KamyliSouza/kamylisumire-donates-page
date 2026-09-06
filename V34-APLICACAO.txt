@@ -1,0 +1,17 @@
+V34 — ordem de aplicação
+
+1. Copie os arquivos deste overlay para a raiz do repositório.
+2. Coloque os quatro arquivos que você criou em assets/:
+   - avatar.webp
+   - favicon.webp
+   - fundo.webp
+   - logo.webp
+3. NÃO apague avatar.png, favicon.png, fundo.png ou preview.png.
+4. Confirme que logo.webp possui fundo transparente.
+5. Revise o diff no GitHub Desktop.
+6. Commit/push.
+7. Aguarde o workflow “Validate site content and assets” ficar verde.
+8. Teste Home, /doacoes/, 404, tema claro/escuro e blur on/off.
+9. Compare a primeira carga no mobile e desktop.
+
+IMPORTANTE: este pacote não contém seus quatro WebP porque eles não foram enviados nesta conversa.
