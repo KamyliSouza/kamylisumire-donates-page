@@ -90,25 +90,26 @@
 
 .donation-buttons {
     width: 100%;
+    max-width: 420px;
 
     display: flex;
     flex-direction: column;
 
     gap: 14px;
+    margin: 0 auto;
 }
 
 .donation-btn {
     width: 100%;
 
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
     align-items: center;
-    justify-content: center;
 
-    gap: 12px;
+    gap: 13px;
 
-    min-height: 58px;
-    padding: 13px 20px;
+    min-height: 64px;
+    padding: 11px 18px;
 
     border: 2px solid transparent;
     border-radius: var(--radius-button);
@@ -151,24 +152,54 @@
 }
 
 .donation-btn-icon {
+    width: 40px;
+    height: 40px;
+
     display: grid;
     place-items: center;
 
-    width: 26px;
-    height: 26px;
-    flex: 0 0 auto;
+    border-radius: 12px;
 
-    font-size: 1rem;
-    font-weight: 800;
+    background-color: rgba(255, 255, 255, .16);
+}
+
+.donation-btn-secondary .donation-btn-icon {
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+}
+
+.donation-service-icon {
+    display: block;
+
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.donation-service-icon-livepix {
+    width: 25px;
+    height: 25px;
+}
+
+.donation-service-icon-pixie {
+    width: 23px;
+    height: 23px;
 }
 
 .donation-btn-text {
+    min-width: 0;
+
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 
     gap: 3px;
-    min-width: 0;
 
     text-align: left;
 }
@@ -273,9 +304,33 @@
         height: 96px;
     }
 
+    .donation-buttons {
+        max-width: 100%;
+    }
+
     .donation-btn {
-        min-height: 60px;
-        padding: 13px 16px;
+        grid-template-columns: 38px minmax(0, 1fr);
+
+        min-height: 62px;
+        padding: 10px 14px;
+    }
+
+    .donation-btn-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .donation-service-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .donation-btn-title {
+        font-size: .94rem;
+    }
+
+    .donation-btn-sub {
+        font-size: .7rem;
     }
 }
 
