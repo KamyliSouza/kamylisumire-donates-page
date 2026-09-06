@@ -1,4 +1,14 @@
 # CHANGELOG
+## V42.3 — ordem do conteúdo do footer
+- move o bloco de copyright para o início visual do footer;
+- créditos de arte passam a ser exibidos depois do copyright;
+- link de código fonte continua junto do bloco de copyright;
+- Configurações permanece como ação final à direita;
+- alinhamento do copyright passa a ser à esquerda no desktop;
+- layout mobile continua centralizado;
+- CI passa a validar a ordem copyright → créditos;
+- tema, blur, loader, transições, Nunito local e Worker/API não alterados.
+
 ## V42.2 — ajuste visual do seletor de configurações
 - remove a linha divisória entre os grupos Aparência e Blur;
 - a separação passa a usar somente espaçamento vertical;

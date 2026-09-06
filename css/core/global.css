@@ -229,9 +229,14 @@ a {
 }
 
 .site-footer-meta {
-    justify-content: flex-end;
+    /*
+     * V42.3: copyright é o primeiro bloco do footer.
+     * No desktop ele acompanha a leitura natural da esquerda para a direita.
+     * O media query mobile continua centralizando ambos os blocos.
+     */
+    justify-content: flex-start;
 
-    text-align: right;
+    text-align: left;
 }
 
 .site-footer-separator {

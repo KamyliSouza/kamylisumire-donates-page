@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V42.1.
+"""Validação editorial/semântica do site Kamyli Sumire — V42.3.3.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -1460,6 +1460,19 @@ def validate_v42_interface() -> None:
             and 'value="on"' in footer_js
             and 'value="off"' in footer_js,
 
+        "footer exibe copyright antes dos créditos":
+            footer_js.find(
+                '<p class="site-footer-meta">'
+            ) >= 0
+            and footer_js.find(
+                '<p class="site-footer-credits">'
+            ) >= 0
+            and footer_js.find(
+                '<p class="site-footer-meta">'
+            ) < footer_js.find(
+                '<p class="site-footer-credits">'
+            ),
+
         "loader dura no mínimo 1 segundo":
             "MIN_DISPLAY_MS = 1000" in loader_js,
 
@@ -1520,7 +1533,7 @@ def validate_v42_interface() -> None:
             )
 
     print(
-        "✓ Configurações, navbar e loader V42.1 integrados"
+        "✓ Configurações, footer e loader V42.3 integrados"
     )
 
 def main() -> int:

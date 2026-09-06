@@ -1,0 +1,15 @@
+V42.3 — HOTFIX DA ORDEM DO FOOTER
+
+Aplicação:
+1. extraia este ZIP sobre a raiz da V42.2;
+2. permita substituir os arquivos existentes;
+3. commit/push.
+
+Não há arquivos para remover.
+
+Nova ordem visual:
+1. © Copyright + Ver código fonte
+2. créditos de arte
+3. Configurações
+
+Nenhuma lógica de tema, blur, loader, transições ou API foi alterada.

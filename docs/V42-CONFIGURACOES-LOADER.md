@@ -88,3 +88,16 @@ ser visualmente interrompida pelo `legend`, produzindo uma linha inconsistente.
 A separação entre os grupos agora é feita somente por espaçamento vertical,
 mantendo o popover mais limpo e uniforme em tema claro, escuro e automático.
 
+## Hotfix V42.3 — ordem do footer
+
+A ordem textual do rodapé passa a ser:
+
+```text
+Copyright + código fonte
+→ créditos artísticos
+→ Configurações
+```
+
+No desktop, o bloco inicial usa alinhamento à esquerda. Em telas menores, os
+blocos continuam centralizados pelo media query existente.
+

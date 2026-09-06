@@ -379,6 +379,29 @@
 
         mount.innerHTML = `
             <div class="site-footer-content">
+                <p class="site-footer-meta">
+                    <span>
+                        © ${year}
+                        ${escapeHtml(copyright.nome)}.
+                        ${escapeHtml(copyright.texto)}
+                    </span>
+
+                    <span
+                        class="site-footer-separator"
+                        aria-hidden="true"
+                    >
+                        ·
+                    </span>
+
+                    <a
+                        href="${escapeAttribute(sourceUrl)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        ${escapeHtml(codigoFonte.texto)}
+                    </a>
+                </p>
+
                 <p class="site-footer-credits">
                     <span>
                         ${escapeHtml(fundo.prefixo)}
@@ -408,29 +431,6 @@
                             ${escapeHtml(avatar.nome)}
                         </a>
                     </span>
-                </p>
-
-                <p class="site-footer-meta">
-                    <span>
-                        © ${year}
-                        ${escapeHtml(copyright.nome)}.
-                        ${escapeHtml(copyright.texto)}
-                    </span>
-
-                    <span
-                        class="site-footer-separator"
-                        aria-hidden="true"
-                    >
-                        ·
-                    </span>
-
-                    <a
-                        href="${escapeAttribute(sourceUrl)}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        ${escapeHtml(codigoFonte.texto)}
-                    </a>
                 </p>
 
                 <div class="site-footer-settings">
