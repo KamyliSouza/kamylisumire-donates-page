@@ -1,4 +1,18 @@
 # CHANGELOG
+## V40 — bundles CSS por página
+
+- mantém `css/core`, `css/components` e `css/pages` como fontes modulares;
+- adiciona `css/build/home.css`, `doacoes.css` e `404.css`;
+- Home passa de quatro stylesheets locais bloqueantes para um;
+- Doações passa de cinco stylesheets locais bloqueantes para um;
+- 404 passa de quatro stylesheets locais bloqueantes para um;
+- bundles são gerados e minificados de forma determinística;
+- URLs relativas dos assets permanecem válidas porque `css/build` mantém a mesma profundidade dos módulos fonte;
+- novo `.github/scripts/build-css.py` gera ou valida os bundles;
+- CI falha se um CSS fonte mudar e o bundle correspondente não for regenerado;
+- Google Fonts permanece externo nesta versão para permitir medição separada;
+- nenhuma alteração em Worker, API, OAuth, KV, CORS, DNS ou SEO.
+
 ## V39.2 — corretivo mínimo de CI e documentação
 
 - reaplica os arquivos auxiliares da V39/V39.1 que não chegaram à `main`;

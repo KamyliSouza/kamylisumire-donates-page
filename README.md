@@ -180,3 +180,23 @@ repetidos durante a animação.
 
 Além das validações editoriais, o workflow confere os avatares responsivos,
 os AVIF desktop/mobile e executa `node --check` em `loader.js` e `home.js`.
+
+
+### V40 — bundles CSS
+
+O projeto continua com CSS modular para desenvolvimento. Em produção, cada
+página carrega somente um bundle local:
+
+```text
+css/build/home.css
+css/build/doacoes.css
+css/build/404.css
+```
+
+Após alterar qualquer CSS fonte:
+
+```bash
+python .github/scripts/build-css.py
+```
+
+A CI usa `--check` e bloqueia bundles desatualizados.

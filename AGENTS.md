@@ -688,3 +688,53 @@ node --check js/pages/home/home.js
 
 `assets/fundo.avif` já existe na `main` e é o AVIF desktop de produção. Não
 tratá-lo como arquivo pendente a ser adicionado.
+
+
+## V40 — CSS modular + bundles de produção
+
+Os módulos continuam sendo a fonte de verdade:
+
+```text
+css/core/
+css/components/
+css/pages/
+```
+
+Os arquivos abaixo são gerados e não devem ser editados manualmente:
+
+```text
+css/build/home.css
+css/build/doacoes.css
+css/build/404.css
+```
+
+Para reconstruir:
+
+```bash
+python .github/scripts/build-css.py
+```
+
+Para apenas validar:
+
+```bash
+python .github/scripts/build-css.py --check
+```
+
+Ordem dos bundles:
+
+```text
+Home
+variables → global → navbar → home
+
+Doações
+variables → global → navbar → doacoes → ranking
+
+404
+variables → global → navbar → 404
+```
+
+As páginas de produção devem carregar somente um stylesheet local. Google
+Fonts continua separado até uma versão específica de tipografia.
+
+Nunca corrigir um bug editando `css/build/*.css`; corrigir o módulo fonte,
+reconstruir e fazer commit do bundle atualizado.

@@ -445,6 +445,73 @@ def validate_visual_assets() -> None:
     print("✓ Assets responsivos, loader atrasado e performance V39 integrados")
 
 
+
+def validate_css_bundles() -> None:
+    required_bundles = {
+        "Home": ROOT / "css/build/home.css",
+        "Doações": ROOT / "css/build/doacoes.css",
+        "404": ROOT / "css/build/404.css",
+    }
+
+    missing = [
+        str(path.relative_to(ROOT))
+        for path in required_bundles.values()
+        if not path.exists()
+    ]
+
+    if missing:
+        raise ValidationError(
+            "bundles CSS obrigatórios ausentes: " + ", ".join(missing)
+        )
+
+    home_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
+    not_found_html = (ROOT / "404.html").read_text(encoding="utf-8")
+
+    expectations = {
+        "Home carrega somente o bundle local":
+            'href="css/build/home.css"' in home_html
+            and 'href="css/core/' not in home_html
+            and 'href="css/pages/' not in home_html,
+        "Doações carrega somente o bundle local":
+            'href="../css/build/doacoes.css"' in donations_html
+            and 'href="../css/core/' not in donations_html
+            and 'href="../css/pages/' not in donations_html
+            and 'href="../css/components/' not in donations_html,
+        "404 carrega somente o bundle local":
+            'href="css/build/404.css"' in not_found_html
+            and 'href="css/core/' not in not_found_html
+            and 'href="css/pages/' not in not_found_html,
+    }
+
+    failures = [label for label, ok in expectations.items() if not ok]
+
+    if failures:
+        raise ValidationError(
+            "integração dos bundles CSS incompleta: "
+            + ", ".join(failures)
+        )
+
+    for label, path in required_bundles.items():
+        content = path.read_text(encoding="utf-8")
+
+        if "ARQUIVO GERADO — NÃO EDITAR MANUALMENTE" not in content:
+            raise ValidationError(
+                f"{path.relative_to(ROOT)} não possui o cabeçalho de bundle gerado"
+            )
+
+        if len(content) < 1000:
+            raise ValidationError(
+                f"{path.relative_to(ROOT)} parece incompleto"
+            )
+
+        print(
+            f"✓ Bundle CSS presente: {label} "
+            f"({len(content.encode('utf-8')) / 1024:.1f} KiB)"
+        )
+
+    print("✓ HTML usa um único bundle CSS local por página")
+
 def validate_production_files() -> None:
     cname = (ROOT / "CNAME").read_text(encoding="utf-8").strip()
     if cname != "kamylisumire.com":
@@ -473,6 +540,7 @@ def main() -> int:
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,
+        validate_css_bundles,
         validate_production_files,
     ]
 

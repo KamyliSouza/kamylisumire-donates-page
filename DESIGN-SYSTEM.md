@@ -352,3 +352,21 @@ compressão devem substituir o mesmo arquivo, preservando nome e proporção
 visual. O design system não define um peso fixo em KiB.
 
 Até 760 px, a arte preferencial continua sendo `assets/fundo-mobile.avif`.
+
+
+## Entrega CSS em produção
+
+A organização modular continua sendo usada para manutenção, mas o navegador
+recebe um bundle por página:
+
+```text
+/          → css/build/home.css
+/doacoes/  → css/build/doacoes.css
+404        → css/build/404.css
+```
+
+Isso reduz o número de requisições CSS locais bloqueantes sem duplicar regras
+manualmente nos arquivos fonte.
+
+`css/build/*.css` é saída gerada. Alterações visuais devem acontecer em
+`css/core`, `css/components` ou `css/pages`.
