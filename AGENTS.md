@@ -354,6 +354,43 @@ Não adicionar `meta keywords`; ela não faz parte da estratégia.
 Quando uma nova página pública for criada, avaliar se deve entrar no
 `sitemap.xml`.
 
+
+## Proteção SEO dos previews Cloudflare Pages
+
+A raiz do projeto contém:
+
+```text
+_headers
+```
+
+Esse arquivo adiciona:
+
+```text
+X-Robots-Tag: noindex
+```
+
+aos hosts:
+
+```text
+https://:project.pages.dev/*
+https://:version.:project.pages.dev/*
+```
+
+Objetivo:
+
+- impedir indexação do domínio padrão `*.pages.dev`;
+- impedir indexação de deployments/aliases de preview;
+- evitar conteúdo duplicado com `https://kamylisumire.com`.
+
+O GitHub Pages não interpreta `_headers` como configuração especial, então
+essa proteção não adiciona `noindex` ao domínio principal.
+
+Não colocar os domínios `pages.dev` em:
+
+- `sitemap.xml`;
+- canonical;
+- Search Console como URLs de produção.
+
 ## API / Worker — invariantes críticos
 
 `workers.js` é infraestrutura.
