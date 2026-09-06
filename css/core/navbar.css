@@ -1,6 +1,7 @@
 /* =========================================================
    NAVBAR COMPARTILHADA
-   Visual derivado das superfícies da branch main.
+   Logo à esquerda, navegação realmente centralizada e
+   menu de links úteis em dropdown.
    ========================================================= */
 
 .site-nav {
@@ -20,57 +21,93 @@
 
 .site-nav-inner {
     width: min(1120px, calc(100% - 28px));
-    min-height: 66px;
+    min-height: 68px;
     margin: auto;
 
-    display: flex;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
 }
 
 .site-brand {
-    color: var(--primary-color);
+    display: grid;
+    place-items: center;
 
-    font-size: .95rem;
-    font-weight: 800;
-    letter-spacing: .01em;
+    width: 46px;
+    height: 46px;
 
+    border-radius: 50%;
     text-decoration: none;
-    white-space: nowrap;
+
+    transition:
+        transform .2s ease,
+        background-color .2s ease;
+}
+
+.site-brand:hover {
+    transform: translateY(-1px) scale(1.04);
+    background-color: var(--notice-bg);
+}
+
+.site-brand-logo {
+    display: block;
+
+    width: 40px;
+    height: 40px;
+
+    object-fit: contain;
+
+    border-radius: 50%;
 }
 
 .site-nav-links {
+    justify-self: center;
+
     display: flex;
     align-items: center;
+    justify-content: center;
+
     gap: 4px;
 }
 
 .site-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 40px;
     padding: 9px 12px;
 
     color: var(--text-color);
+    background: transparent;
+
+    border: 0;
     border-radius: 12px;
 
+    font: inherit;
     font-size: .9rem;
     font-weight: 800;
+
     text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
 
     transition:
-        background-color .2s ease,
-        color .2s ease,
-        transform .2s ease;
+        background-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+}
+
+.site-nav-link:hover,
+.site-nav-link.is-active {
+    color: var(--primary-color);
+    background-color: var(--primary-soft);
 }
 
 .site-nav-link:hover {
-    color: var(--primary-color);
-    background-color: var(--notice-bg);
     transform: translateY(-1px);
-}
-
-.site-nav-link.is-active {
-    color: var(--primary-color);
-    background-color: var(--notice-bg);
 }
 
 .site-nav-donate {
@@ -84,17 +121,137 @@
     background-color: var(--primary-hover);
 }
 
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
+
+.site-nav-dropdown {
+    position: relative;
+}
+
+.site-nav-caret {
+    display: inline-block;
+
+    font-size: .8rem;
+
+    transition: transform .18s ease;
+}
+
+.site-nav-dropdown.is-open .site-nav-caret {
+    transform: rotate(180deg);
+}
+
+.site-nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    left: 50%;
+    z-index: 30;
+
+    width: max-content;
+    min-width: 228px;
+    padding: 8px;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translate(-50%, -5px);
+
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-button);
+    box-shadow: var(--shadow-card);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+
+    transition:
+        opacity .16s ease,
+        transform .16s ease,
+        visibility .16s ease;
+}
+
+.site-nav-dropdown.is-open .site-nav-dropdown-menu,
+.site-nav-dropdown:focus-within .site-nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translate(-50%, 0);
+}
+
+.site-nav-dropdown-link {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 11px;
+
+    color: var(--text-color);
+
+    border-radius: 11px;
+
+    text-decoration: none;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease;
+}
+
+.site-nav-dropdown-link:hover {
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+}
+
+.site-nav-dropdown-link > span:first-child {
+    display: grid;
+    place-items: center;
+
+    width: 30px;
+    height: 30px;
+
+    background-color: var(--notice-bg);
+    border-radius: 9px;
+}
+
+.site-nav-dropdown-link > span:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.site-nav-dropdown-link strong {
+    font-size: .82rem;
+    font-weight: 800;
+}
+
+.site-nav-dropdown-link small {
+    margin-top: 1px;
+
+    color: var(--subtitle-color);
+
+    font-size: .68rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+   MOBILE TOGGLE
+   ========================================================= */
+
 .nav-toggle {
+    justify-self: end;
+
     display: none;
+    place-items: center;
 
     min-width: 42px;
     min-height: 42px;
 
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-
     color: var(--primary-color);
     background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
 
     font: inherit;
     font-size: 1.2rem;
@@ -105,11 +262,8 @@
 @media (max-width: 760px) {
     .site-nav-inner {
         position: relative;
-    }
 
-    .nav-toggle {
-        display: inline-grid;
-        place-items: center;
+        grid-template-columns: 52px 1fr 52px;
     }
 
     .site-nav-links {
@@ -138,6 +292,46 @@
     }
 
     .site-nav-link {
+        width: 100%;
         padding: 12px 14px;
+    }
+
+    .nav-toggle {
+        display: grid;
+    }
+
+    .site-nav-dropdown {
+        width: 100%;
+    }
+
+    .site-nav-dropdown-menu {
+        position: static;
+
+        display: none;
+
+        width: 100%;
+        min-width: 0;
+        margin-top: 4px;
+        padding: 5px;
+
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        transform: none;
+
+        background-color: var(--notice-bg);
+        border: 0;
+        border-radius: 12px;
+        box-shadow: none;
+
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    .site-nav-dropdown.is-open .site-nav-dropdown-menu,
+    .site-nav-dropdown:focus-within .site-nav-dropdown-menu {
+        display: block;
+        transform: none;
     }
 }

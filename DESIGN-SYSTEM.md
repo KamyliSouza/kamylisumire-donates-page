@@ -69,6 +69,48 @@ css/components/ranking.css
 7. Novas aplicações podem ter layout próprio, mas devem preservar tipografia, superfícies, bordas, botões e cores.
 8. A branch `main` é a referência histórica; `variables.css` é a fonte de verdade operacional da arquitetura modular.
 
+## Navbar
+
+A navbar compartilhada deve:
+
+- usar `assets/favicon.png` como marca visual, sem repetir o nome "Kamyli Sumire";
+- manter os links de páginas centralizados no desktop;
+- manter `Doações` como página de destaque;
+- reunir atalhos secundários no dropdown `Links úteis`;
+- continuar acessível por teclado e responsiva no mobile;
+- ser gerada por `js/core/navbar.js` para permanecer consistente em todas as páginas.
+
+Atalhos atuais do dropdown:
+
+- Jogos das lives;
+- Regras;
+- Créditos.
+
+## Home
+
+A Home pode usar painéis maiores, porém esses painéis reutilizam os mesmos:
+
+- `card-bg`;
+- `card-border`;
+- `blur`;
+- `shadow`;
+- `primary-color`;
+- `notice-bg`;
+- raios.
+
+O card principal reúne:
+
+- apresentação;
+- avatar responsivo;
+- botões principais;
+- redes sociais em botões circulares com ícones.
+
+As redes sociais não precisam de uma seção grande separada quando já estiverem reunidas no hero.
+
+O avatar deve ser dimensionado com `clamp()` e colocado dentro de um frame circular, evitando dimensões rígidas que prejudiquem telas pequenas.
+
+A antiga seção visual `Links úteis` foi substituída pelo dropdown da navbar para reduzir blocos repetitivos na Home.
+
 ## Doações
 
 `/doacoes/` deve continuar visualmente reconhecível para usuários do antigo:
@@ -88,17 +130,3 @@ Por isso a página mantém:
 - ranking com abas e itens no estilo histórico.
 
 A navbar é a principal adição visual nova nessa página.
-
-## Home
-
-A Home pode usar painéis maiores, porém esses painéis reutilizam os mesmos:
-
-- `card-bg`;
-- `card-border`;
-- `blur`;
-- `shadow`;
-- `primary-color`;
-- `notice-bg`;
-- raios.
-
-Assim a Home parece uma expansão natural da página original de doações.

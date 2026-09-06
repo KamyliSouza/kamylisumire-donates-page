@@ -1,16 +1,18 @@
 /* =========================================================
-   HOME
-   A estrutura continua ampla, mas usa os mesmos parâmetros
-   visuais que a página original de doações da branch main.
+   HOME — HERO
    ========================================================= */
 
 .hero {
     display: grid;
-    grid-template-columns: 1.25fr .75fr;
+    grid-template-columns: minmax(0, 1.35fr) minmax(170px, .65fr);
     align-items: center;
-    gap: 30px;
 
-    padding: clamp(30px, 5vw, 48px);
+    gap: clamp(24px, 5vw, 54px);
+    padding: clamp(28px, 5vw, 48px);
+}
+
+.hero-copy {
+    min-width: 0;
 }
 
 .hero-copy h1 {
@@ -18,7 +20,8 @@
 
     color: var(--primary-color);
 
-    font-size: clamp(2.4rem, 5.5vw, 4.6rem);
+    font-size: clamp(2.35rem, 5.4vw, 4.55rem);
+    font-weight: 900;
     line-height: 1;
     letter-spacing: -.045em;
 }
@@ -35,48 +38,152 @@
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
 
+    gap: 12px;
     margin-top: 24px;
 }
 
+/* =========================================================
+   AVATAR + REDES NO MESMO CARD
+   ========================================================= */
+
 .hero-profile {
+    min-width: 0;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    gap: 5px;
+    justify-content: center;
 
     text-align: center;
 }
 
-.hero-profile strong {
-    margin-top: 12px;
-
-    color: var(--primary-color);
-
-    font-size: 1.12rem;
-    font-weight: 800;
-}
-
-.hero-profile span {
-    color: var(--subtitle-color);
-
-    font-size: .9rem;
-    font-weight: 600;
-}
-
-.hero-avatar {
-    width: min(180px, 60vw);
+.hero-avatar-frame {
+    width: clamp(116px, 17vw, 184px);
     aspect-ratio: 1;
 
-    object-fit: cover;
+    display: grid;
+    place-items: center;
 
+    overflow: hidden;
+
+    background-color: var(--notice-bg);
     border: 3px solid var(--primary-color);
     border-radius: 50%;
 
-    box-shadow: 0 4px 12px rgba(179, 94, 175, .25);
+    box-shadow: 0 8px 24px rgba(179, 94, 175, .22);
 }
+
+.hero-avatar {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+    object-position: center;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.hero-socials {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    max-width: 270px;
+    margin-top: 18px;
+}
+
+.social-bubble {
+    --social-brand: var(--primary-color);
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+
+    text-decoration: none;
+
+    transition:
+        transform .18s ease,
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.social-bubble:hover,
+.social-bubble:focus-visible {
+    color: #fff;
+    background-color: var(--social-brand);
+
+    border-color: transparent;
+
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, .16);
+
+    outline: none;
+}
+
+.social-bubble svg {
+    width: 21px;
+    height: 21px;
+
+    fill: currentColor;
+}
+
+.social-icon-cutout {
+    fill: var(--card-bg);
+}
+
+.social-bubble:hover .social-icon-cutout,
+.social-bubble:focus-visible .social-icon-cutout {
+    fill: #fff;
+}
+
+.social-icon-stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.social-icon-cutout-stroke {
+    fill: none;
+    stroke: var(--card-bg);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.social-bubble:hover .social-icon-cutout-stroke,
+.social-bubble:focus-visible .social-icon-cutout-stroke {
+    stroke: #fff;
+}
+
+.social-youtube { --social-brand: #ff0033; }
+.social-twitch { --social-brand: #9146ff; }
+.social-tiktok { --social-brand: #111; }
+.social-x { --social-brand: #111; }
+.social-instagram { --social-brand: #e4405f; }
+.social-discord { --social-brand: #5865f2; }
 
 /* =========================================================
    SEÇÕES
@@ -127,6 +234,7 @@
 .agenda-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+
     gap: 12px;
 }
 
@@ -178,6 +286,7 @@
 
     color: var(--subtitle-color);
     background-color: var(--card-bg);
+
     border: 1px solid var(--card-border);
     border-radius: 999px;
 
@@ -237,106 +346,13 @@
 }
 
 /* =========================================================
-   REDES E LINKS
-   ========================================================= */
-
-.link-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.social-card,
-.useful-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    padding: 15px;
-
-    color: var(--text-color);
-    background-color: var(--notice-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-small);
-
-    text-decoration: none;
-
-    transition:
-        transform .2s ease,
-        border-color .2s ease,
-        background-color .2s ease;
-}
-
-.social-card:hover,
-.useful-card:hover {
-    transform: translateY(-2px);
-
-    border-color: var(--primary-color);
-    background-color: var(--card-bg);
-}
-
-.social-icon {
-    display: grid;
-    place-items: center;
-
-    width: 38px;
-    height: 38px;
-    flex: 0 0 auto;
-
-    color: #fff;
-    background-color: var(--primary-color);
-
-    border-radius: 12px;
-
-    font-weight: 800;
-}
-
-.social-card span:last-child,
-.useful-card div {
-    display: flex;
-    flex-direction: column;
-
-    min-width: 0;
-}
-
-.social-card strong,
-.useful-card strong {
-    font-size: .92rem;
-    font-weight: 800;
-}
-
-.social-card small,
-.useful-card small {
-    margin-top: 2px;
-
-    color: var(--subtitle-color);
-
-    font-size: .72rem;
-    font-weight: 600;
-}
-
-.useful-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.useful-card > span {
-    font-size: 1.4rem;
-}
-
-.useful-card.highlight {
-    border: 2px solid var(--primary-color);
-}
-
-/* =========================================================
    REGRAS / CRÉDITOS
    ========================================================= */
 
 .two-column-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
+
     gap: 20px;
 }
 
@@ -360,8 +376,8 @@
 
 .credits-list {
     display: grid;
-    gap: 9px;
 
+    gap: 9px;
     margin-top: 16px;
 }
 
@@ -427,11 +443,11 @@
    ========================================================= */
 
 @media (max-width: 900px) {
-    .agenda-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero {
+        grid-template-columns: minmax(0, 1fr) minmax(150px, .55fr);
     }
 
-    .link-grid {
+    .agenda-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
@@ -439,18 +455,33 @@
 @media (max-width: 720px) {
     .hero {
         grid-template-columns: 1fr;
+
+        gap: 22px;
     }
 
     .hero-profile {
         order: -1;
     }
 
-    .hero-avatar {
-        width: 120px;
+    .hero-avatar-frame {
+        width: clamp(112px, 31vw, 150px);
+    }
+
+    .hero-socials {
+        margin-top: 14px;
+    }
+
+    .hero-copy {
+        text-align: center;
+    }
+
+    .hero-actions {
+        justify-content: center;
     }
 
     .two-column-section {
         grid-template-columns: 1fr;
+
         gap: 0;
     }
 
@@ -461,18 +492,40 @@
 }
 
 @media (max-width: 500px) {
-    .agenda-grid,
-    .link-grid,
-    .useful-grid {
+    .hero {
+        padding: 24px 18px 28px;
+    }
+
+    .hero-copy h1 {
+        font-size: clamp(2.15rem, 12vw, 3.15rem);
+    }
+
+    .hero-text {
+        font-size: .95rem;
+    }
+
+    .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+
+        width: 100%;
+    }
+
+    .hero-actions .button {
+        width: 100%;
+    }
+
+    .social-bubble {
+        width: 42px;
+        height: 42px;
+    }
+
+    .agenda-grid {
         grid-template-columns: 1fr;
     }
 
     .section-heading {
         align-items: flex-start;
         flex-direction: column;
-    }
-
-    .hero-copy h1 {
-        font-size: clamp(2.2rem, 13vw, 3.2rem);
     }
 }
