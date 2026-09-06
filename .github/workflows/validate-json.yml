@@ -10,8 +10,10 @@ on:
       - "index.html"
       - "doacoes/index.html"
       - "assets/*.webp"
+      - "assets/*.avif"
       - "css/core/global.css"
       - "css/core/navbar.css"
+      - "js/core/preferences.js"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -23,8 +25,10 @@ on:
       - "index.html"
       - "doacoes/index.html"
       - "assets/*.webp"
+      - "assets/*.avif"
       - "css/core/global.css"
       - "css/core/navbar.css"
+      - "js/core/preferences.js"
       - "CNAME"
       - "_headers"
       - ".github/scripts/validate-content.py"
@@ -41,5 +45,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate content, SEO and WebP assets
+      - name: Validate content, SEO and optimized assets
         run: python .github/scripts/validate-content.py

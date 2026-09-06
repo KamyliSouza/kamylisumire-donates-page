@@ -17,9 +17,14 @@ body {
     margin: 0;
     min-height: 100vh;
 
-    /* PNG permanece como fallback para navegadores antigos. */
+    /*
+     * Fundo decorativo em formatos progressivos.
+     * AVIF é preferido; WebP e PNG permanecem como fallbacks.
+     * Não há preload: o fundo não deve competir com conteúdo crítico.
+     */
     background-image: url('../../assets/fundo.png');
     background-image: image-set(
+        url('../../assets/fundo.avif') type('image/avif'),
         url('../../assets/fundo.webp') type('image/webp'),
         url('../../assets/fundo.png') type('image/png')
     );
@@ -299,6 +304,22 @@ a {
 }
 
 
+/**
+ * PERFORMANCE ADAPTATIVA
+ *
+ * O perfil é calculado cedo por preferences.js e independe da escolha
+ * manual de blur. Hardware mais limitado mantém a arte, mas evita o
+ * background fixed. Save-Data remove apenas a imagem decorativa.
+ */
+:root[data-performance="reduced"] body {
+    background-attachment: scroll;
+}
+
+:root[data-performance-reason="save-data"] body {
+    background-image: none;
+}
+
+
 @media (prefers-reduced-motion: reduce) {
     body,
     .glass-panel,
@@ -327,16 +348,18 @@ html.site-loading body {
 
     padding: 24px;
 
-    background-color: var(--bg-color);
-    /* PNG permanece como fallback para navegadores antigos. */
-    background-image: url('../../assets/fundo.png');
-    background-image: image-set(
-        url('../../assets/fundo.webp') type('image/webp'),
-        url('../../assets/fundo.png') type('image/png')
-    );
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    /*
+     * O loader não carrega a arte pesada do fundo.
+     * Um gradiente CSS mantém a identidade visual sem disputar banda
+     * com avatar, fontes, JSONs e scripts da primeira renderização.
+     */
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            var(--primary-soft) 0,
+            transparent 46%
+        ),
+        var(--bg-color);
 
     opacity: 1;
     visibility: visible;
@@ -344,18 +367,6 @@ html.site-loading body {
     transition:
         opacity .32s ease,
         visibility .32s ease;
-}
-
-.site-loader::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    background-color: var(--bg-color);
-    opacity: .72;
-
-    pointer-events: none;
 }
 
 .site-loader-inner {

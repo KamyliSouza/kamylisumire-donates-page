@@ -311,27 +311,29 @@ def validate_hero_sync() -> None:
 
 
 
-def validate_webp_assets() -> None:
-    required_assets = {
+def validate_visual_assets() -> None:
+    required_webp = {
         "avatar": ROOT / "assets/avatar.webp",
         "favicon": ROOT / "assets/favicon.webp",
         "fundo": ROOT / "assets/fundo.webp",
         "logo": ROOT / "assets/logo.webp",
     }
 
+    fundo_avif = ROOT / "assets/fundo.avif"
+
     missing = [
         str(path.relative_to(ROOT))
-        for path in required_assets.values()
+        for path in [*required_webp.values(), fundo_avif]
         if not path.exists()
     ]
 
     if missing:
         raise ValidationError(
-            "assets WebP obrigatórios ausentes: "
+            "assets otimizados obrigatórios ausentes: "
             + ", ".join(missing)
         )
 
-    for label, path in required_assets.items():
+    for label, path in required_webp.items():
         data = path.read_bytes()
 
         if len(data) < 12 or data[:4] != b"RIFF" or data[8:12] != b"WEBP":
@@ -345,29 +347,65 @@ def validate_webp_assets() -> None:
             f"({path.relative_to(ROOT)}, {size_kib:.1f} KiB)"
         )
 
+    avif_data = fundo_avif.read_bytes()
+    avif_probe = avif_data[8:40]
+
+    if (
+        len(avif_data) < 16
+        or avif_data[4:8] != b"ftyp"
+        or (b"avif" not in avif_probe and b"avis" not in avif_probe)
+    ):
+        raise ValidationError(
+            "assets/fundo.avif não parece ser um arquivo AVIF válido"
+        )
+
+    print(
+        "✓ AVIF válido: fundo "
+        f"(assets/fundo.avif, {len(avif_data) / 1024:.1f} KiB)"
+    )
+
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
     donations_html = (ROOT / "doacoes/index.html").read_text(encoding="utf-8")
     global_css = (ROOT / "css/core/global.css").read_text(encoding="utf-8")
     navbar_css = (ROOT / "css/core/navbar.css").read_text(encoding="utf-8")
+    preferences_js = (ROOT / "js/core/preferences.js").read_text(encoding="utf-8")
+
+    loader_start = global_css.find(".site-loader {")
+    loader_end = global_css.find(".site-loader-inner", loader_start)
+    loader_css = (
+        global_css[loader_start:loader_end]
+        if loader_start >= 0 and loader_end > loader_start
+        else ""
+    )
 
     expectations = {
         "Home usa avatar.webp": "assets/avatar.webp" in home_html,
         "Doações usa avatar.webp": "../assets/avatar.webp" in donations_html,
         "Home usa favicon.webp": "assets/favicon.webp" in home_html,
         "Doações usa favicon.webp": "../assets/favicon.webp" in donations_html,
-        "Background usa fundo.webp": "assets/fundo.webp" in global_css,
+        "Background prioriza fundo.avif": "assets/fundo.avif" in global_css,
+        "Background mantém fundo.webp": "assets/fundo.webp" in global_css,
+        "Background mantém fundo.png": "assets/fundo.png" in global_css,
         "Navbar usa logo.webp": "assets/logo.webp" in navbar_css,
         "Loader usa favicon.webp": "assets/favicon.webp" in global_css,
+        "Loader não usa fundo pesado": "assets/fundo." not in loader_css,
+        "Perfil de performance é exposto": "dataset.performance" in preferences_js,
+        "Motivo de performance é exposto":
+            "dataset.performanceReason" in preferences_js,
+        "Save-Data pode remover fundo decorativo":
+            'data-performance-reason="save-data"' in global_css,
     }
 
     failures = [label for label, ok in expectations.items() if not ok]
 
     if failures:
         raise ValidationError(
-            "integração WebP incompleta: " + ", ".join(failures)
+            "integração de assets/performance incompleta: "
+            + ", ".join(failures)
         )
 
-    print("✓ Assets WebP integrados com fallbacks PNG")
+    print("✓ Assets AVIF/WebP e performance adaptativa integrados com fallbacks")
+
 
 def validate_production_files() -> None:
     cname = (ROOT / "CNAME").read_text(encoding="utf-8").strip()
@@ -396,7 +434,7 @@ def main() -> int:
         validate_all_json_files,
         validate_agenda,
         validate_hero_sync,
-        validate_webp_assets,
+        validate_visual_assets,
         validate_production_files,
     ]
 

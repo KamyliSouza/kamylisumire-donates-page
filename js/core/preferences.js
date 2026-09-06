@@ -6,6 +6,9 @@
     const BLUR_ON = "on";
     const BLUR_OFF = "off";
 
+    const PERFORMANCE_NORMAL = "normal";
+    const PERFORMANCE_REDUCED = "reduced";
+
     const LOW_MEMORY_GB = 2;
     const LOW_CPU_THREADS = 2;
 
@@ -79,6 +82,42 @@
         );
     }
 
+    function evaluatePerformance() {
+        const connection = getConnection();
+
+        if (connection?.saveData) {
+            return {
+                profile: PERFORMANCE_REDUCED,
+                reason: "save-data"
+            };
+        }
+
+        if (
+            typeof navigator.deviceMemory === "number" &&
+            navigator.deviceMemory <= LOW_MEMORY_GB
+        ) {
+            return {
+                profile: PERFORMANCE_REDUCED,
+                reason: "low-memory"
+            };
+        }
+
+        if (
+            typeof navigator.hardwareConcurrency === "number" &&
+            navigator.hardwareConcurrency <= LOW_CPU_THREADS
+        ) {
+            return {
+                profile: PERFORMANCE_REDUCED,
+                reason: "low-cpu"
+            };
+        }
+
+        return {
+            profile: PERFORMANCE_NORMAL,
+            reason: "standard"
+        };
+    }
+
     function evaluateAutomaticBlur() {
         if (!supportsBackdropBlur()) {
             return {
@@ -133,6 +172,14 @@
     let blur = BLUR_ON;
     let blurReason = "supported";
     let blurSupported = supportsBackdropBlur();
+    let performanceProfile = PERFORMANCE_NORMAL;
+    let performanceReason = "standard";
+
+    function resolvePerformance() {
+        const evaluation = evaluatePerformance();
+        performanceProfile = evaluation.profile;
+        performanceReason = evaluation.reason;
+    }
 
     function resolveBlur() {
         blurSupported = supportsBackdropBlur();
@@ -166,6 +213,8 @@
         document.documentElement.dataset.blurMode = getBlurMode();
         document.documentElement.dataset.blurPreference = blurPreference;
         document.documentElement.dataset.blurReason = blurReason;
+        document.documentElement.dataset.performance = performanceProfile;
+        document.documentElement.dataset.performanceReason = performanceReason;
         document.documentElement.style.colorScheme = theme;
     }
 
@@ -176,7 +225,9 @@
             blurMode: getBlurMode(),
             blurPreference,
             blurReason,
-            blurSupported
+            blurSupported,
+            performance: performanceProfile,
+            performanceReason
         };
     }
 
@@ -188,13 +239,19 @@
         );
     }
 
-    function refreshAutomaticBlur(notify = true) {
-        if (blurPreference !== BLUR_AUTO) return;
-
+    function refreshAdaptiveConditions(notify = true) {
         const previousBlur = blur;
         const previousReason = blurReason;
         const previousSupport = blurSupported;
+        const previousPerformance = performanceProfile;
+        const previousPerformanceReason = performanceReason;
 
+        /*
+         * Performance e blur são reavaliados juntos, mas continuam conceitos
+         * independentes. resolveBlur() preserva override manual quando o
+         * navegador suporta o filtro.
+         */
+        resolvePerformance();
         resolveBlur();
         apply();
 
@@ -203,11 +260,17 @@
             (
                 blur !== previousBlur ||
                 blurReason !== previousReason ||
-                blurSupported !== previousSupport
+                blurSupported !== previousSupport ||
+                performanceProfile !== previousPerformance ||
+                performanceReason !== previousPerformanceReason
             )
         ) {
             dispatchPreferenceChange();
         }
+    }
+
+    function refreshAutomaticBlur(notify = true) {
+        refreshAdaptiveConditions(notify);
     }
 
     function setTheme(value, persist = true) {
@@ -257,11 +320,11 @@
         if (typeof transparencyQuery.addEventListener === "function") {
             transparencyQuery.addEventListener(
                 "change",
-                () => refreshAutomaticBlur()
+                () => refreshAdaptiveConditions()
             );
         } else if (typeof transparencyQuery.addListener === "function") {
             transparencyQuery.addListener(
-                () => refreshAutomaticBlur()
+                () => refreshAdaptiveConditions()
             );
         }
 
@@ -269,16 +332,17 @@
         if (typeof connection?.addEventListener === "function") {
             connection.addEventListener(
                 "change",
-                () => refreshAutomaticBlur()
+                () => refreshAdaptiveConditions()
             );
         }
 
         window.addEventListener(
             "pageshow",
-            () => refreshAutomaticBlur()
+            () => refreshAdaptiveConditions()
         );
     }
 
+    resolvePerformance();
     resolveBlur();
     apply();
     listenForAutomaticConditionChanges();
@@ -290,6 +354,7 @@
         toggleTheme,
         toggleBlur,
         resetBlurToAuto,
-        refreshAutomaticBlur
+        refreshAutomaticBlur,
+        refreshAdaptiveConditions
     });
 })();

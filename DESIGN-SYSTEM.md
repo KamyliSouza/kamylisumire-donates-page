@@ -226,16 +226,17 @@ outros serviços compatíveis. Twitter/X recebe os equivalentes
 
 ## Assets otimizados
 
-A V34 prefere WebP no carregamento visual:
+Os assets visuais otimizados atuais são:
 
 ```text
 avatar.webp
 favicon.webp
+fundo.avif
 fundo.webp
 logo.webp
 ```
 
-PNG permanece como fallback quando aplicável.
+O fundo usa a cadeia `AVIF → WebP → PNG`; PNG permanece como fallback quando aplicável.
 
 A navbar continua monocromática: `logo.webp` é usado como máscara e recebe
 `var(--primary-color)`. A arte deve preservar transparência.
@@ -251,7 +252,18 @@ Até 760px:
 background-attachment: scroll;
 ```
 
-Evitar blur excessivo e efeitos que aumentem repaints.
+O perfil adaptativo também força `scroll` em hardware limitado:
+
+```text
+data-performance="reduced"
+```
+
+Quando o motivo é `save-data`, o background decorativo é omitido por completo.
+O loader não reutiliza `fundo.avif`, `fundo.webp` ou `fundo.png`; ele usa apenas
+gradiente CSS e `favicon.webp`.
+
+Evitar blur excessivo, `background-attachment: fixed` em aparelhos limitados e
+preload de imagens puramente decorativas.
 
 ## Regras gerais
 

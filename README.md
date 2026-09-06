@@ -113,8 +113,8 @@ Mudanças em Worker, OAuth, KV, DNS e domínios devem ser tratadas separadamente
 
 ## Assets otimizados
 
-A interface prefere `avatar.webp`, `favicon.webp`, `fundo.webp` e `logo.webp`,
-com os PNGs históricos preservados como fallback quando aplicável.
+A interface prefere `avatar.webp`, `favicon.webp` e `logo.webp`. O background usa
+`fundo.avif → fundo.webp → fundo.png`, sem preload da arte decorativa.
 
 ## Blur adaptativo
 
@@ -127,3 +127,23 @@ kamyli:ui-blur=off     → desligado manualmente
 ```
 
 A implementação não usa User-Agent para classificar celulares ou navegadores.
+
+## Performance adaptativa
+
+Além do blur adaptativo, `preferences.js` expõe um perfil independente:
+
+```text
+data-performance="normal|reduced"
+data-performance-reason="standard|save-data|low-memory|low-cpu"
+```
+
+Regras atuais:
+
+```text
+Save-Data                 → remove a imagem decorativa do fundo
+deviceMemory <= 2 GB      → background-attachment: scroll
+hardwareConcurrency <= 2  → background-attachment: scroll
+demais casos              → comportamento visual normal
+```
+
+O override manual de blur não desativa essas otimizações de performance.

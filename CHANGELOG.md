@@ -1,4 +1,17 @@
 # CHANGELOG
+## V36 — performance adaptativa + fundo AVIF
+- `fundo.avif` passa a ser a primeira opção do background, com WebP e PNG como fallbacks;
+- loader deixa de carregar a arte pesada do fundo e usa apenas gradiente CSS + favicon;
+- `preferences.js` passa a expor perfil de performance independente do override manual de blur;
+- novo `data-performance="normal|reduced"` e `data-performance-reason`;
+- `Save-Data` remove a imagem decorativa do fundo;
+- hardware com `deviceMemory <= 2` GB ou `hardwareConcurrency <= 2` usa `background-attachment: scroll`;
+- mobile continua usando `background-attachment: scroll`;
+- CI passa a validar `fundo.avif`, assinatura AVIF, integração dos fallbacks e ausência do fundo no loader;
+- workflow passa a reagir a alterações em `assets/*.avif` e `js/core/preferences.js`;
+- nenhum preload é adicionado ao background decorativo;
+- Worker/API/OAuth/KV/CORS/DNS não alterados.
+
 
 ## V35 — blur adaptativo
 
