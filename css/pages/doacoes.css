@@ -1,54 +1,68 @@
-/* =========================================================
-   DOAÇÕES
-   Mantém a experiência visual da branch main, acrescentando
-   apenas a navbar compartilhada da arquitetura modular.
-   ========================================================= */
-
 .donation-body {
     min-height: calc(var(--vh, 1vh) * 100);
 }
 
 .donation-shell {
-    width: min(380px, calc(100% - 32px));
-    margin: 28px auto 20px;
+    width: min(860px, calc(100% - 28px));
+    margin: 34px auto 36px;
 
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
+    align-items: start;
+
+    gap: 22px;
 }
 
-.donation-card,
-.ranking-card {
-    width: 100%;
-    padding: 35px 25px;
+.donation-card {
+    padding: 34px 25px;
 
     text-align: center;
 }
 
+/* =========================================================
+   PERFIL
+   O wrapper garante centralização real independentemente
+   do comportamento inline da imagem.
+   ========================================================= */
+
+.donation-profile {
+    width: 100%;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 15px;
+}
+
 .donation-profile-img {
-    width: 100px;
-    height: 100px;
+    display: block;
 
-    margin-bottom: 15px;
+    width: clamp(96px, 28vw, 110px);
+    height: auto;
+    aspect-ratio: 1;
 
-    object-fit: cover;
+    margin: 0 auto;
+
+    object-fit: contain;
+    object-position: center;
+
+    background-color: var(--notice-bg);
 
     border: 3px solid var(--primary-color);
     border-radius: 50%;
 
-    box-shadow: 0 4px 12px rgba(179, 94, 175, .25);
+    box-shadow: 0 6px 18px rgba(179, 94, 175, .26);
 
     user-select: none;
     -webkit-user-drag: none;
 }
 
 .donation-card h1 {
-    margin: 8px 0 6px;
+    margin: 11px 0 5px;
 
     color: var(--primary-color);
 
-    font-size: 1.7rem;
-    font-weight: 800;
+    font-size: 1.75rem;
 }
 
 .donation-subtitle {
@@ -57,43 +71,41 @@
     color: var(--subtitle-color);
 
     font-size: .95rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* =========================================================
-   BOTÕES DE DOAÇÃO
+   BOTÕES
    ========================================================= */
 
 .donation-buttons {
     display: flex;
     flex-direction: column;
 
-    gap: 14px;
+    gap: 13px;
 }
 
 .donation-btn {
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: center;
 
     gap: 12px;
 
     min-height: 58px;
-    padding: 13px 20px;
+    padding: 11px 17px;
 
     border: 2px solid transparent;
-    border-radius: var(--radius-button);
-
-    font-size: 1rem;
-    font-weight: 800;
+    border-radius: 16px;
 
     text-decoration: none;
 
+    font-weight: 900;
+
     transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        background-color .2s ease;
+        transform .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
 }
 
 .donation-btn:hover {
@@ -102,35 +114,37 @@
 
 .donation-btn-primary {
     color: #fff;
-    background-color: var(--primary-color);
+    background: var(--primary-color);
 }
 
 .donation-btn-primary:hover {
-    background-color: var(--primary-hover);
-    box-shadow: 0 6px 18px rgba(179, 94, 175, .30);
+    background: var(--primary-hover);
+    box-shadow: 0 7px 20px rgba(179, 94, 175, .28);
 }
 
 .donation-btn-secondary {
     color: var(--primary-color);
-    background-color: transparent;
+    background: transparent;
 
     border-color: var(--primary-color);
 }
 
 .donation-btn-secondary:hover {
-    background-color: var(--notice-bg);
+    background: var(--primary-soft);
 }
 
 .donation-btn-icon {
     display: grid;
     place-items: center;
 
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     flex: 0 0 auto;
 
+    border-radius: 50%;
+
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .donation-btn-text {
@@ -150,9 +164,8 @@
 .donation-btn-sub {
     font-size: .72rem;
     font-weight: 700;
-    line-height: 1.15;
 
-    opacity: .8;
+    opacity: .82;
 }
 
 /* =========================================================
@@ -163,10 +176,10 @@
     margin-top: 22px;
     padding: 14px 16px;
 
-    background-color: var(--notice-bg);
+    background: var(--primary-soft);
 
     border: 1px solid var(--card-border);
-    border-radius: var(--radius-small);
+    border-radius: 14px;
 
     text-align: left;
 }
@@ -174,10 +187,10 @@
 .donation-notice p {
     margin: 0;
 
-    color: var(--notice-text);
+    color: var(--subtitle-color);
 
-    font-size: .85rem;
-    font-weight: 600;
+    font-size: .84rem;
+    font-weight: 700;
     line-height: 1.45;
 }
 
@@ -186,22 +199,45 @@
 }
 
 /* =========================================================
-   FOOTER DA PÁGINA
+   CORAÇÃO DO RANKING
+   SVG usa currentColor, herdando exatamente a cor do
+   .eyebrow / --primary-color em qualquer tema.
+   ========================================================= */
+
+.ranking-thanks {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.ranking-heart {
+    display: block;
+
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+
+    fill: currentColor;
+}
+
+/* =========================================================
+   FOOTER / RESPONSIVIDADE
    ========================================================= */
 
 .donation-footer {
-    width: min(380px, calc(100% - 32px));
-    margin-bottom: 28px;
+    max-width: 860px;
 }
 
-@media (max-width: 430px) {
-    .donation-shell,
-    .donation-footer {
-        width: calc(100% - 24px);
+@media (max-width: 760px) {
+    .donation-shell {
+        grid-template-columns: 1fr;
+
+        max-width: 440px;
+        margin-top: 22px;
     }
 
-    .donation-card,
-    .ranking-card {
-        padding: 30px 20px;
+    .donation-profile-img {
+        width: clamp(94px, 28vw, 106px);
     }
 }

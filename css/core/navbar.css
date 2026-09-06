@@ -214,3 +214,122 @@
         font-size: .84rem;
     }
 }
+
+
+/* =========================================================
+   AVISO PARA LINKS EXTERNOS DA NAVBAR
+   ========================================================= */
+
+.site-external-dialog {
+    width: min(440px, calc(100% - 32px));
+    padding: 0;
+
+    color: var(--text-color);
+    background: transparent;
+
+    border: 0;
+    border-radius: var(--radius-card);
+
+    overflow: visible;
+}
+
+.site-external-dialog::backdrop {
+    background: rgba(18, 12, 20, .48);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.site-external-dialog-content {
+    padding: 28px;
+
+    color: var(--text-color);
+    background-color: var(--card-bg);
+
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+
+    text-align: center;
+}
+
+.site-external-dialog-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 14px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+}
+
+.site-external-dialog-icon svg {
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.site-external-dialog-copy h2 {
+    margin: 0;
+
+    color: var(--primary-color);
+
+    font-size: 1.3rem;
+    font-weight: 900;
+}
+
+.site-external-dialog-copy p {
+    margin: 10px 0 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .92rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.site-external-dialog-copy strong {
+    color: var(--text-color);
+    font-weight: 800;
+}
+
+.site-external-dialog-actions {
+    display: flex;
+    justify-content: center;
+
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.site-external-dialog-actions .button {
+    min-width: 120px;
+}
+
+@media (max-width: 480px) {
+    .site-external-dialog-content {
+        padding: 24px 18px;
+    }
+
+    .site-external-dialog-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+
+        width: 100%;
+    }
+
+    .site-external-dialog-actions .button {
+        width: 100%;
+    }
+}
