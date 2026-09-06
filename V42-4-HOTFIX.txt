@@ -1,0 +1,18 @@
+V42.4 — HOTFIX DO FUNDO MOBILE FIXO
+
+Aplicação:
+1. extraia este ZIP sobre a raiz da V42.3;
+2. permita substituir os arquivos existentes;
+3. commit/push.
+
+Não há arquivos para remover.
+
+Comportamento:
+- mobile <= 760 px + performance normal:
+  fundo-mobile.avif fica fixo na viewport;
+- performance reduzida:
+  fundo volta a rolar normalmente;
+- Save-Data:
+  sem imagem decorativa;
+- desktop:
+  sem alteração.

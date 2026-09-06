@@ -209,3 +209,23 @@ Com blur desligado, o filtro é removido e a opacidade passa a depender somente
 dos tokens de superfície do tema. A logo continua sendo o único elemento
 animado do loader.
 
+## Fundo mobile fixo — V42.4
+
+Em telas de até 760 px, a arte `fundo-mobile.avif` (9:16) permanece fixa atrás
+do conteúdo por meio de uma camada `body::before` com `position: fixed`.
+
+```text
+performance normal
+→ camada fixa
+→ center / cover
+
+performance reduzida
+→ background rolável no body
+
+Save-Data
+→ sem imagem decorativa
+```
+
+Não usar `background-attachment: fixed` como implementação principal no
+mobile.
+

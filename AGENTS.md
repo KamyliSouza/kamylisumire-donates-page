@@ -504,3 +504,29 @@ data-blur="off"
 Não voltar a usar fundo totalmente transparente nem uma cor fixa independente
 dos tokens de tema.
 
+## V42.4 — fundo mobile
+
+Para `max-width: 760px`, preservar:
+
+```text
+body::before
+→ position: fixed
+→ fundo-mobile.avif
+→ center / cover
+```
+
+O `body` não deve carregar simultaneamente a mesma imagem no perfil normal.
+
+Fallbacks:
+
+```text
+data-performance="reduced"
+→ remover a camada fixa
+→ usar background mobile rolável no body
+
+data-performance-reason="save-data"
+→ nenhuma imagem decorativa
+```
+
+Desktop não deve ser alterado por esta regra.
+

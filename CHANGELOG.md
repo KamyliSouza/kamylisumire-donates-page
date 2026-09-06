@@ -1,4 +1,15 @@
 # CHANGELOG
+## V42.4 — fundo mobile fixo
+- `fundo-mobile.avif` passa a permanecer fixo na viewport em telas de até 760 px;
+- usa `body::before` com `position: fixed` em vez de `background-attachment: fixed`;
+- mantém `background-size: cover` e `background-position: center` para a arte 9:16;
+- evita carregar uma segunda cópia do background no `body` durante o perfil normal;
+- `data-performance="reduced"` volta ao background mobile rolável tradicional;
+- `Save-Data` continua removendo a imagem decorativa;
+- desktop permanece inalterado;
+- tema, blur, loader, footer, transições, Nunito local e Worker/API não alterados;
+- CI passa a validar a camada fixa mobile e o fallback de performance.
+
 ## V42.3 — ordem do conteúdo do footer
 - move o bloco de copyright para o início visual do footer;
 - créditos de arte passam a ser exibidos depois do copyright;

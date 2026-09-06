@@ -523,24 +523,46 @@ a {
 
 @media (max-width: 760px) {
     /*
-     * Mobile usa uma arte 720p dedicada.
+     * V42.4 — fundo mobile 9:16 fixo.
      *
-     * O fallback simples fica em WebP para navegadores sem image-set().
-     * Navegadores modernos escolhem fundo-mobile.avif sem precisar baixar
-     * o AVIF desktop de maior resolução.
+     * Em vez de background-attachment: fixed, que é inconsistente em
+     * navegadores móveis (especialmente Safari/iOS), a arte fica em uma
+     * camada position: fixed atrás de todo o conteúdo.
+     *
+     * O body deixa de carregar uma segunda cópia da imagem no perfil normal.
      */
+    html {
+        background-color: var(--bg-color);
+    }
+
     body {
+        position: relative;
+        isolation: isolate;
+
+        background-image: none;
+        background-color: transparent;
+        background-attachment: scroll;
+    }
+
+    body::before {
+        content: "";
+
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+
+        pointer-events: none;
+
+        background-color: var(--bg-color);
         background-image: url('../../assets/fundo.webp');
         background-image: image-set(
             url('../../assets/fundo-mobile.avif') type('image/avif'),
             url('../../assets/fundo.webp') type('image/webp'),
             url('../../assets/fundo.png') type('image/png')
         );
-
-        /*
-         * "fixed" exige mais repaints em vários navegadores móveis.
-         */
-        background-attachment: scroll;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
     .site-shell {
@@ -615,6 +637,36 @@ a {
 
 :root[data-performance-reason="save-data"] body {
     background-image: none;
+}
+
+/*
+ * Em hardware/perfil reduzido, o mobile volta ao background tradicional
+ * rolável para evitar manter uma camada fixa durante toda a navegação.
+ *
+ * Save-Data é reaplicado por último para garantir que nenhuma imagem
+ * decorativa seja solicitada nesse modo.
+ */
+@media (max-width: 760px) {
+    :root[data-performance="reduced"] body {
+        background-color: var(--bg-color);
+        background-image: url('../../assets/fundo.webp');
+        background-image: image-set(
+            url('../../assets/fundo-mobile.avif') type('image/avif'),
+            url('../../assets/fundo.webp') type('image/webp'),
+            url('../../assets/fundo.png') type('image/png')
+        );
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    :root[data-performance="reduced"] body::before {
+        content: none;
+    }
+
+    :root[data-performance-reason="save-data"] body {
+        background-image: none;
+    }
 }
 
 

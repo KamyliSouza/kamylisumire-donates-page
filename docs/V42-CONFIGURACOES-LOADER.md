@@ -101,3 +101,24 @@ Copyright + código fonte
 No desktop, o bloco inicial usa alinhamento à esquerda. Em telas menores, os
 blocos continuam centralizados pelo media query existente.
 
+## Hotfix V42.4 — fundo mobile fixo
+
+O asset mobile 9:16 deixa de rolar junto com o documento no perfil normal.
+
+A implementação usa uma camada fixa:
+
+```css
+body::before {
+    position: fixed;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+}
+```
+
+Isso evita depender de `background-attachment: fixed`, que pode ter
+comportamento inconsistente em navegadores móveis.
+
+Em performance reduzida, a camada fixa é removida e o fundo volta a rolar com
+o `body`. Em Save-Data, a imagem continua desativada.
+

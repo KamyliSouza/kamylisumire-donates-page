@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V42.3.3.
+"""Validação editorial/semântica do site Kamyli Sumire — V42.4.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -619,6 +619,20 @@ def validate_visual_assets() -> None:
         "Background mobile prioriza fundo-mobile.avif":
             "assets/fundo-mobile.avif" in global_css,
 
+        "V42.4 usa camada fixa no mobile":
+            "body::before" in global_css
+            and "position: fixed" in global_css
+            and "isolation: isolate" in global_css,
+
+        "V42.4 evita imagem duplicada no body mobile":
+            "background-image: none" in global_css
+            and "background-color: transparent" in global_css,
+
+        "V42.4 desativa camada fixa em performance reduzida":
+            ':root[data-performance="reduced"] body::before'
+            in global_css
+            and "content: none" in global_css,
+
         "Background mantém fundo.webp":
             "assets/fundo.webp" in global_css,
 
@@ -646,6 +660,8 @@ def validate_visual_assets() -> None:
 
         "Save-Data pode remover fundo decorativo":
             'data-performance-reason="save-data"'
+            in global_css
+            and ':root[data-performance-reason="save-data"] body'
             in global_css,
 
         "Home possui bootstrap crítico":
@@ -1155,7 +1171,7 @@ def validate_repository_hygiene() -> None:
         )
 
     print(
-        "✓ Higiene do repositório V42 válida"
+        "✓ Higiene do repositório V42.4 válida"
     )
 
 
