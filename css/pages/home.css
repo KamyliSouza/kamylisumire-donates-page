@@ -44,7 +44,7 @@
 }
 
 /* =========================================================
-   AVATAR + REDES NO MESMO CARD
+   AVATAR + REDES SOCIAIS
    ========================================================= */
 
 .hero-profile {
@@ -100,10 +100,6 @@
 }
 
 .social-bubble {
-    --social-brand: var(--primary-color);
-
-    position: relative;
-
     display: grid;
     place-items: center;
 
@@ -123,7 +119,6 @@
 
     transition:
         transform .18s ease,
-        color .18s ease,
         background-color .18s ease,
         border-color .18s ease,
         box-shadow .18s ease;
@@ -131,13 +126,13 @@
 
 .social-bubble:hover,
 .social-bubble:focus-visible {
-    color: #fff;
-    background-color: var(--social-brand);
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
 
-    border-color: transparent;
+    border-color: var(--primary-color);
 
     transform: translateY(-3px) scale(1.04);
-    box-shadow: 0 7px 18px rgba(0, 0, 0, .16);
+    box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
 
     outline: none;
 }
@@ -148,42 +143,6 @@
 
     fill: currentColor;
 }
-
-.social-icon-cutout {
-    fill: var(--card-bg);
-}
-
-.social-bubble:hover .social-icon-cutout,
-.social-bubble:focus-visible .social-icon-cutout {
-    fill: #fff;
-}
-
-.social-icon-stroke {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.social-icon-cutout-stroke {
-    fill: none;
-    stroke: var(--card-bg);
-    stroke-width: 1.8;
-    stroke-linecap: round;
-}
-
-.social-bubble:hover .social-icon-cutout-stroke,
-.social-bubble:focus-visible .social-icon-cutout-stroke {
-    stroke: #fff;
-}
-
-.social-youtube { --social-brand: #ff0033; }
-.social-twitch { --social-brand: #9146ff; }
-.social-tiktok { --social-brand: #111; }
-.social-x { --social-brand: #111; }
-.social-instagram { --social-brand: #e4405f; }
-.social-discord { --social-brand: #5865f2; }
 
 /* =========================================================
    SEÇÕES
@@ -228,20 +187,117 @@
 }
 
 /* =========================================================
-   AGENDA
+   AGENDA — CARROSSEL DE 7 CARDS
    ========================================================= */
 
-.agenda-grid {
+.agenda-heading-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+.agenda-heading-actions .section-note {
+    margin: 0;
+
+    text-align: right;
+}
+
+.agenda-carousel-controls {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+.agenda-carousel-button {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+
+    font: inherit;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease,
+        opacity .18s ease;
+}
+
+.agenda-carousel-button:hover:not(:disabled),
+.agenda-carousel-button:focus-visible:not(:disabled) {
+    background-color: var(--notice-bg);
+    border-color: var(--primary-color);
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.agenda-carousel-button:disabled {
+    opacity: .34;
+    cursor: default;
+}
+
+.agenda-carousel {
+    position: relative;
+
+    margin-inline: -4px;
+}
+
+.agenda-carousel-track {
+    display: flex;
 
     gap: 12px;
+
+    padding: 4px;
+    padding-bottom: 10px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-inline: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.agenda-carousel-track:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+    border-radius: var(--radius-small);
+}
+
+.agenda-carousel-track::-webkit-scrollbar {
+    height: 7px;
+}
+
+.agenda-carousel-track::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+    border-radius: 999px;
 }
 
 .agenda-card {
     position: relative;
 
-    min-height: 188px;
+    flex: 0 0 clamp(220px, 26vw, 276px);
+
+    min-height: 198px;
     padding: 16px;
 
     overflow: hidden;
@@ -249,6 +305,9 @@
     background-color: var(--notice-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-small);
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
 }
 
 .agenda-card.has-live {
@@ -338,7 +397,7 @@
 }
 
 .loading-message {
-    grid-column: 1 / -1;
+    flex: 1 0 100%;
 
     color: var(--subtitle-color);
 
@@ -447,8 +506,8 @@
         grid-template-columns: minmax(0, 1fr) minmax(150px, .55fr);
     }
 
-    .agenda-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .agenda-card {
+        flex-basis: clamp(220px, 40vw, 280px);
     }
 }
 
@@ -477,6 +536,25 @@
 
     .hero-actions {
         justify-content: center;
+    }
+
+    .agenda-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .agenda-heading-actions {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+    .agenda-heading-actions .section-note {
+        text-align: left;
+    }
+
+    .agenda-card {
+        flex-basis: min(78vw, 280px);
     }
 
     .two-column-section {
@@ -520,12 +598,12 @@
         height: 42px;
     }
 
-    .agenda-grid {
-        grid-template-columns: 1fr;
+    .agenda-card {
+        flex-basis: min(82vw, 270px);
     }
 
-    .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
+    .agenda-carousel-button {
+        width: 36px;
+        height: 36px;
     }
 }

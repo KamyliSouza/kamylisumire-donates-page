@@ -1,6 +1,8 @@
 const agendaGrid = document.getElementById("agendaGrid");
 const agendaAtualizacao = document.getElementById("agendaAtualizacao");
 const agendaObservacao = document.getElementById("agendaObservacao");
+const agendaPrev = document.getElementById("agendaPrev");
+const agendaNext = document.getElementById("agendaNext");
 
 function escapeHtml(value) {
     return String(value ?? "")
@@ -23,13 +25,74 @@ function formatDate(dateString) {
     }).format(new Date(year, month - 1, day));
 }
 
+function getCarouselStep() {
+    const card = agendaGrid?.querySelector(".agenda-card");
+    if (!card) return 280;
+
+    const styles = getComputedStyle(agendaGrid);
+    const gap = Number.parseFloat(styles.columnGap || styles.gap || "0") || 0;
+
+    return card.getBoundingClientRect().width + gap;
+}
+
+function updateCarouselButtons() {
+    if (!agendaGrid || !agendaPrev || !agendaNext) return;
+
+    const maxScrollLeft = Math.max(
+        0,
+        agendaGrid.scrollWidth - agendaGrid.clientWidth
+    );
+
+    agendaPrev.disabled = agendaGrid.scrollLeft <= 2;
+    agendaNext.disabled = agendaGrid.scrollLeft >= maxScrollLeft - 2;
+}
+
+function scrollAgenda(direction) {
+    if (!agendaGrid) return;
+
+    agendaGrid.scrollBy({
+        left: getCarouselStep() * direction,
+        behavior: "smooth"
+    });
+}
+
+function setupAgendaCarousel() {
+    if (!agendaGrid) return;
+
+    updateCarouselButtons();
+
+    agendaPrev?.addEventListener("click", () => scrollAgenda(-1));
+    agendaNext?.addEventListener("click", () => scrollAgenda(1));
+
+    agendaGrid.addEventListener("scroll", () => {
+        window.requestAnimationFrame(updateCarouselButtons);
+    }, { passive: true });
+
+    agendaGrid.addEventListener("keydown", event => {
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            scrollAgenda(-1);
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            scrollAgenda(1);
+        }
+    });
+
+    window.addEventListener("resize", updateCarouselButtons);
+}
+
 function renderAgenda(data) {
     const dias = Array.isArray(data.dias) ? data.dias : [];
 
     agendaGrid.innerHTML = "";
 
     if (!dias.length) {
-        agendaGrid.innerHTML = '<p class="loading-message">Nenhum dia configurado na agenda.</p>';
+        agendaGrid.innerHTML =
+            '<p class="loading-message">Nenhum dia configurado na agenda.</p>';
+
+        updateCarouselButtons();
         return;
     }
 
@@ -65,10 +128,14 @@ function renderAgenda(data) {
     });
 
     if (data.ultimaAtualizacao) {
-        agendaAtualizacao.textContent = `Atualizada em ${data.ultimaAtualizacao}`;
+        agendaAtualizacao.textContent =
+            `Atualizada em ${data.ultimaAtualizacao}`;
     }
 
     agendaObservacao.textContent = data.observacao || "";
+
+    agendaGrid.scrollLeft = 0;
+    window.requestAnimationFrame(updateCarouselButtons);
 }
 
 async function carregarAgenda() {
@@ -87,12 +154,17 @@ async function carregarAgenda() {
         renderAgenda(data);
     } catch (error) {
         console.error("Erro ao carregar a agenda:", error);
+
         agendaGrid.innerHTML = `
             <p class="loading-message">
-                Não foi possível carregar a agenda agora. Confira novamente em instantes.
+                Não foi possível carregar a agenda agora.
+                Confira novamente em instantes.
             </p>
         `;
+
+        updateCarouselButtons();
     }
 }
 
+setupAgendaCarousel();
 carregarAgenda();
