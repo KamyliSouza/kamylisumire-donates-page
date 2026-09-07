@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.5.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.6.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -278,16 +278,20 @@ def validate_youtube_popup_lives() -> None:
             and '"playlist"'
             in lives_js,
 
-        "Discovery é adiada até seção se aproximar":
-            "IntersectionObserver"
+        "YouTube só carrega após ação explícita":
+            "renderLoadPrompt"
             in lives_js
-            and "rootMargin:"
-            in lives_js,
+            and "openPlaylistDialog"
+            in lives_js
+            and "IntersectionObserver"
+            not in lives_js,
 
-        "Player popup usa youtube-nocookie":
-            "youtube-nocookie.com"
+        "Player popup usa embed oficial com IFrame API":
+            "youtube.com/"
             in lives_js
-            and "buildPopupEmbedUrl"
+            and "buildPlayerEmbedUrl"
+            in lives_js
+            and 'enablejsapi: "1"'
             in lives_js,
 
         "Cards principais seguem thumbnail 16:9":
@@ -372,7 +376,7 @@ def validate_youtube_popup_lives() -> None:
 
     if failures:
         raise ValidationError(
-            "integração YouTube popup V43.2 incompleta: "
+            "integração YouTube popup V43.6 incompleta: "
             + ", ".join(failures)
         )
 
@@ -423,7 +427,7 @@ def validate_youtube_popup_lives() -> None:
         )
 
     print(
-        "✓ Carrossel de lives + popup V43.2 sem Google Cloud integrado"
+        "✓ Carrossel de lives + popup V43.6 sem Google Cloud integrado"
     )
 
 
@@ -777,6 +781,131 @@ def validate_carousel_edge_alignment_v435() -> None:
 
     print(
         "✓ Carrosséis V43.5 alinhados às bordas internas dos painéis"
+    )
+
+
+
+
+def validate_youtube_platform_compliance_v436() -> None:
+    lives_js = (
+        ROOT / "js/pages/home/lives.js"
+    ).read_text(encoding="utf-8")
+
+    lives_css = (
+        ROOT / "css/components/lives.css"
+    ).read_text(encoding="utf-8")
+
+    expectations = {
+        "Player auxiliar 1x1 foi removido":
+            'width: "1"'
+            not in lives_js
+            and 'height: "1"'
+            not in lives_js
+            and "lives-playlist-probe"
+            not in lives_js
+            and "lives-playlist-probe"
+            not in lives_css,
+
+        "Não existe player oculto/offscreen":
+            "left: -9999px"
+            not in lives_css
+            and "opacity: .001"
+            not in lives_css,
+
+        "Player visível declara 480x270":
+            'iframe.width = "480"'
+            in lives_js
+            and 'iframe.height = "270"'
+            in lives_js,
+
+        "CSS garante viewport mínima de 200x200":
+            ".lives-dialog-player"
+            in lives_css
+            and "min-width: 200px;"
+            in lives_css
+            and "min-height: 200px;"
+            in lives_css,
+
+        "Referer não é suprimido":
+            "strict-origin-when-cross-origin"
+            in lives_js,
+
+        "Origin identifica dinamicamente produção/preview":
+            "window.location.origin"
+            in lives_js
+            and 'enablejsapi: "1"'
+            in lives_js,
+
+        "Nenhum YouTube é carregado automaticamente pela proximidade":
+            "IntersectionObserver"
+            not in lives_js
+            and "scheduleDiscovery"
+            not in lives_js,
+
+        "Primeiro carregamento exige clique":
+            "renderLoadPrompt"
+            in lives_js
+            and '"Carregar lives"'
+            in lives_js
+            and "openPlaylistDialog"
+            in lives_js,
+
+        "Primeiro player apenas cue sem autoplay":
+            "pendingDialogAutoplay"
+            in lives_js
+            and "cuePlaylist"
+            in lives_js,
+
+        "Reprodução programática fica ligada a ação do usuário":
+            "loadPlaylist"
+            in lives_js
+            and "playVideoAt"
+            in lives_js
+            and "loadDialogVideo"
+            in lives_js,
+
+        "Miniaturas clicáveis internas respeitam mínimo":
+            "clamp(128px, 14vw, 148px)"
+            in lives_css
+            and "40vw"
+            in lives_css
+            and "144px"
+            in lives_css,
+
+        "Overlays de texto sobre thumbnails foram removidos":
+            "live-thumb-label"
+            not in lives_js
+            and "lives-dialog-thumb-index"
+            not in lives_js
+            and "live-thumb-label"
+            not in lives_css
+            and "lives-dialog-thumb-index"
+            not in lives_css,
+
+        "Fechar popup destrói o único player":
+            "dialogPlayerInstance"
+            in lives_js
+            and ".destroy()"
+            in lives_js
+            and "dialogPlayer.replaceChildren()"
+            in lives_js,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "conformidade YouTube V43.6 incompleta: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Integração YouTube V43.6 usa apenas player visível e acionado pelo visitante"
     )
 
 
@@ -1794,6 +1923,7 @@ def validate_repository_hygiene() -> None:
         "docs/V43-3-RITMO-CARDS.md",
         "docs/V43-4-BORDA-LIVES.md",
         "docs/V43-5-ALINHAMENTO-CARROSSEIS.md",
+        "docs/V43-6-CONFORMIDADE-YOUTUBE.md",
     ]
 
     missing = [
@@ -2261,6 +2391,7 @@ def main() -> int:
         validate_lives_card_border,
         validate_loader_pulse_v434,
         validate_carousel_edge_alignment_v435,
+        validate_youtube_platform_compliance_v436,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

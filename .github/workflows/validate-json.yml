@@ -1,4 +1,4 @@
-name: Validate V43.5 site content and carousel alignment
+name: Validate V43.6 site content and YouTube compliance
 
 on:
   push:

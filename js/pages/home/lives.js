@@ -34,6 +34,9 @@
     const dialogYoutubeLink =
         document.getElementById("livesDialogYoutubeLink");
 
+    const dialogSwitcher =
+        document.getElementById("livesDialogSwitcher");
+
     const dialogTrack =
         document.getElementById("livesDialogTrack");
 
@@ -49,6 +52,7 @@
         !track ||
         !dialog ||
         !dialogPlayer ||
+        !dialogSwitcher ||
         !dialogTrack
     ) {
         return;
@@ -72,17 +76,25 @@
     let maxItems = 10;
 
     let playlistIds = [];
-    let discoveryStarted = false;
     let animationFrame = null;
     let measureFrame = null;
     let buttonFrame = null;
     let resizeObserver = null;
-    let intersectionObserver = null;
     let activeTrigger = null;
     let selectedDialogIndex = -1;
 
+    let dialogPlayerInstance = null;
+    let dialogPlayerReady = false;
+    let dialogPlayerGeneration = 0;
+    let dialogPlaylistPoll = null;
+    let dialogPlaylistTimeout = null;
+    let pendingDialogIndex = 0;
+    let pendingDialogAutoplay = false;
+    let loadErrorMessage =
+        "Não foi possível carregar a playlist agora.";
+
     const dialogMetrics = {
-        step: 120
+        step: 140
     };
 
     function normalizePlaylistId(value) {
@@ -164,24 +176,21 @@
         );
     }
 
-    function buildPopupEmbedUrl(
-        videoId,
-        index
-    ) {
+    function buildPlayerEmbedUrl() {
         const params =
             new URLSearchParams({
-                autoplay: "1",
-                rel: "0",
-                playsinline: "1",
+                listType: "playlist",
                 list: playlistId,
-                index: String(index + 1)
+                enablejsapi: "1",
+                playsinline: "1",
+                rel: "0",
+                origin:
+                    window.location.origin
             });
 
         return (
-            "https://www.youtube-nocookie.com/" +
-            "embed/" +
-            encodeURIComponent(videoId) +
-            "?" +
+            "https://www.youtube.com/" +
+            "embed?" +
             params.toString()
         );
     }
@@ -209,6 +218,85 @@
         );
 
         playlistIds = [];
+
+        scheduleMeasure();
+    }
+
+    function renderLoadPrompt(
+        message =
+            "Carregue as lives do YouTube para montar o carrossel."
+    ) {
+        playlistIds = [];
+
+        if (prev) {
+            prev.disabled = true;
+        }
+
+        if (next) {
+            next.disabled = true;
+        }
+
+        const prompt =
+            document.createElement(
+                "div"
+            );
+
+        prompt.className =
+            "lives-load-prompt";
+
+        const copy =
+            document.createElement(
+                "p"
+            );
+
+        copy.className =
+            "lives-load-copy";
+
+        copy.textContent =
+            String(message);
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.type = "button";
+
+        button.className =
+            "lives-load-button";
+
+        button.textContent =
+            "Carregar lives";
+
+        button.addEventListener(
+            "click",
+            () => {
+                openPlaylistDialog(
+                    button
+                );
+            }
+        );
+
+        const privacy =
+            document.createElement(
+                "small"
+            );
+
+        privacy.className =
+            "lives-load-privacy";
+
+        privacy.textContent =
+            "O player oficial do YouTube só é carregado depois deste clique.";
+
+        prompt.append(
+            copy,
+            button,
+            privacy
+        );
+
+        track.replaceChildren(
+            prompt
+        );
 
         scheduleMeasure();
     }
@@ -560,9 +648,48 @@
         }
     }
 
+    function clearDialogPlaylistWatch() {
+        if (dialogPlaylistPoll !== null) {
+            clearInterval(
+                dialogPlaylistPoll
+            );
+
+            dialogPlaylistPoll = null;
+        }
+
+        if (
+            dialogPlaylistTimeout !== null
+        ) {
+            clearTimeout(
+                dialogPlaylistTimeout
+            );
+
+            dialogPlaylistTimeout = null;
+        }
+    }
+
     function teardownDialogPlayer() {
+        dialogPlayerGeneration += 1;
+
+        clearDialogPlaylistWatch();
+
+        try {
+            dialogPlayerInstance
+                ?.destroy();
+        } catch (error) {
+            console.warn(
+                "Não foi possível destruir o player do YouTube:",
+                error
+            );
+        }
+
+        dialogPlayerInstance = null;
+        dialogPlayerReady = false;
+
         dialogPlayer.replaceChildren();
         dialogTrack.replaceChildren();
+
+        dialogSwitcher.hidden = true;
 
         selectedDialogIndex = -1;
 
@@ -627,7 +754,7 @@
         dialogMetrics.step =
             width > 0
                 ? width + gap
-                : 120;
+                : 140;
 
         updateDialogCarouselButtons();
     }
@@ -719,7 +846,7 @@
         );
     }
 
-    function loadDialogVideo(
+    function updateSelectedVideoUi(
         videoId,
         index
     ) {
@@ -730,34 +857,6 @@
         ) {
             return;
         }
-
-        const iframe =
-            document.createElement(
-                "iframe"
-            );
-
-        iframe.src =
-            buildPopupEmbedUrl(
-                videoId,
-                index
-            );
-
-        iframe.title =
-            `Player da live ${index + 1}`;
-
-        iframe.referrerPolicy =
-            "strict-origin-when-cross-origin";
-
-        iframe.allow =
-            "accelerometer; autoplay; clipboard-write; " +
-            "encrypted-media; gyroscope; picture-in-picture; " +
-            "web-share";
-
-        iframe.allowFullscreen = true;
-
-        dialogPlayer.replaceChildren(
-            iframe
-        );
 
         if (dialogYoutubeLink) {
             dialogYoutubeLink.href =
@@ -787,7 +886,54 @@
         );
     }
 
+    function loadDialogVideo(
+        videoId,
+        index
+    ) {
+        if (
+            !VIDEO_ID_PATTERN.test(
+                videoId
+            )
+        ) {
+            return;
+        }
+
+        pendingDialogIndex =
+            index;
+
+        pendingDialogAutoplay =
+            true;
+
+        updateSelectedVideoUi(
+            videoId,
+            index
+        );
+
+        if (
+            dialogPlayerReady &&
+            dialogPlayerInstance
+        ) {
+            try {
+                dialogPlayerInstance
+                    .playVideoAt(
+                        index
+                    );
+            } catch (error) {
+                console.error(
+                    "Não foi possível trocar a live no player:",
+                    error
+                );
+            }
+        }
+    }
+
     function renderDialogCarousel() {
+        if (!playlistIds.length) {
+            dialogTrack.replaceChildren();
+            dialogSwitcher.hidden = true;
+            return;
+        }
+
         const fragment =
             document.createDocumentFragment();
 
@@ -832,20 +978,8 @@
                 image.loading = "lazy";
                 image.decoding = "async";
 
-                const badge =
-                    document.createElement(
-                        "span"
-                    );
-
-                badge.className =
-                    "lives-dialog-thumb-index";
-
-                badge.textContent =
-                    String(index + 1);
-
-                card.append(
-                    image,
-                    badge
+                card.appendChild(
+                    image
                 );
 
                 card.addEventListener(
@@ -868,8 +1002,370 @@
             fragment
         );
 
+        dialogSwitcher.hidden = false;
+
         requestAnimationFrame(
-            measureDialogCarousel
+            () => {
+                measureDialogCarousel();
+
+                if (
+                    selectedDialogIndex >= 0
+                ) {
+                    updateDialogSelection(
+                        selectedDialogIndex
+                    );
+                }
+            }
+        );
+    }
+
+    function syncPlaylistIdsFromPlayer() {
+        if (!dialogPlayerInstance) {
+            return false;
+        }
+
+        try {
+            const ids =
+                dialogPlayerInstance
+                    .getPlaylist?.();
+
+            if (
+                !Array.isArray(ids) ||
+                !ids.length
+            ) {
+                return false;
+            }
+
+            clearDialogPlaylistWatch();
+
+            renderCards(ids);
+            renderDialogCarousel();
+
+            const safeIndex =
+                Math.max(
+                    0,
+                    Math.min(
+                        pendingDialogIndex,
+                        playlistIds.length - 1
+                    )
+                );
+
+            if (
+                playlistIds[safeIndex]
+            ) {
+                updateSelectedVideoUi(
+                    playlistIds[safeIndex],
+                    safeIndex
+                );
+            }
+
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function watchPlaylistIds() {
+        clearDialogPlaylistWatch();
+
+        if (
+            syncPlaylistIdsFromPlayer()
+        ) {
+            return;
+        }
+
+        dialogPlaylistPoll =
+            window.setInterval(
+                syncPlaylistIdsFromPlayer,
+                250
+            );
+
+        dialogPlaylistTimeout =
+            window.setTimeout(
+                () => {
+                    clearDialogPlaylistWatch();
+
+                    if (
+                        !playlistIds.length
+                    ) {
+                        renderLoadPrompt(
+                            "O player foi carregado, mas não foi possível montar o carrossel agora. Tente novamente."
+                        );
+                    }
+                },
+                DISCOVERY_TIMEOUT_MS
+            );
+    }
+
+    function showDialogShell(
+        trigger
+    ) {
+        activeTrigger =
+            trigger || null;
+
+        document.body.classList.add(
+            "site-lives-dialog-open"
+        );
+
+        if (
+            dialogYoutubeLink
+        ) {
+            dialogYoutubeLink.href =
+                buildPlaylistUrl(
+                    playlistId
+                );
+        }
+
+        if (
+            playlistIds.length
+        ) {
+            renderDialogCarousel();
+        } else {
+            dialogTrack.replaceChildren();
+            dialogSwitcher.hidden = true;
+        }
+
+        if (
+            typeof dialog.showModal ===
+            "function"
+        ) {
+            dialog.showModal();
+        } else {
+            dialog.setAttribute(
+                "open",
+                ""
+            );
+        }
+    }
+
+    function renderPlayerLoading() {
+        const message =
+            document.createElement(
+                "p"
+            );
+
+        message.className =
+            "lives-player-loading";
+
+        message.textContent =
+            "Carregando player do YouTube...";
+
+        dialogPlayer.replaceChildren(
+            message
+        );
+    }
+
+    async function mountVisibleYoutubePlayer(
+        index,
+        autoplay
+    ) {
+        pendingDialogIndex =
+            index;
+
+        pendingDialogAutoplay =
+            Boolean(autoplay);
+
+        const generation =
+            ++dialogPlayerGeneration;
+
+        renderPlayerLoading();
+
+        try {
+            const YT =
+                await loadIframeApi();
+
+            if (
+                generation !==
+                    dialogPlayerGeneration ||
+                !dialog.open
+            ) {
+                return;
+            }
+
+            if (
+                !YT ||
+                typeof YT.Player !==
+                    "function"
+            ) {
+                throw new Error(
+                    "YouTube IFrame API indisponível."
+                );
+            }
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+            iframe.src =
+                buildPlayerEmbedUrl();
+
+            iframe.title =
+                "Player da playlist de lives no YouTube";
+
+            /*
+             * Requisito atual do YouTube:
+             * manter identificação do cliente via Referer.
+             */
+            iframe.referrerPolicy =
+                "strict-origin-when-cross-origin";
+
+            iframe.width = "480";
+            iframe.height = "270";
+
+            iframe.allow =
+                "accelerometer; autoplay; clipboard-write; " +
+                "encrypted-media; gyroscope; picture-in-picture; " +
+                "web-share";
+
+            iframe.allowFullscreen = true;
+
+            dialogPlayer.replaceChildren(
+                iframe
+            );
+
+            dialogPlayerReady = false;
+
+            dialogPlayerInstance =
+                new YT.Player(
+                    iframe,
+                    {
+                        events: {
+                            onReady: event => {
+                                if (
+                                    generation !==
+                                        dialogPlayerGeneration ||
+                                    !dialog.open
+                                ) {
+                                    return;
+                                }
+
+                                dialogPlayerReady =
+                                    true;
+
+                                try {
+                                    if (
+                                        pendingDialogAutoplay
+                                    ) {
+                                        /*
+                                         * Só ocorre após clique/tecla do
+                                         * visitante e com o dialog visível.
+                                         */
+                                        event.target
+                                            .loadPlaylist({
+                                                listType:
+                                                    "playlist",
+
+                                                list:
+                                                    playlistId,
+
+                                                index:
+                                                    pendingDialogIndex,
+
+                                                startSeconds:
+                                                    0
+                                            });
+                                    } else {
+                                        /*
+                                         * Primeiro carregamento:
+                                         * prepara a playlist sem reproduzir.
+                                         */
+                                        event.target
+                                            .cuePlaylist({
+                                                listType:
+                                                    "playlist",
+
+                                                list:
+                                                    playlistId,
+
+                                                index:
+                                                    pendingDialogIndex,
+
+                                                startSeconds:
+                                                    0
+                                            });
+                                    }
+
+                                    watchPlaylistIds();
+                                } catch (error) {
+                                    console.error(
+                                        "Não foi possível preparar a playlist:",
+                                        error
+                                    );
+                                }
+                            },
+
+                            onStateChange: event => {
+                                if (
+                                    generation !==
+                                        dialogPlayerGeneration
+                                ) {
+                                    return;
+                                }
+
+                                if (
+                                    event.data ===
+                                        YT.PlayerState.CUED ||
+                                    event.data ===
+                                        YT.PlayerState.PLAYING
+                                ) {
+                                    syncPlaylistIdsFromPlayer();
+                                }
+                            },
+
+                            onError: event => {
+                                console.error(
+                                    `YouTube player error ${event.data}`
+                                );
+
+                                if (
+                                    event.data === 153
+                                ) {
+                                    console.error(
+                                        "O YouTube não recebeu Referer/identificação do cliente."
+                                    );
+                                }
+                            }
+                        }
+                    }
+                );
+        } catch (error) {
+            console.error(
+                "Erro ao carregar player oficial do YouTube:",
+                error
+            );
+
+            const message =
+                document.createElement(
+                    "p"
+                );
+
+            message.className =
+                "lives-player-loading";
+
+            message.textContent =
+                loadErrorMessage;
+
+            dialogPlayer.replaceChildren(
+                message
+            );
+
+            renderLoadPrompt(
+                "Não foi possível carregar o YouTube agora. Tente novamente."
+            );
+        }
+    }
+
+    function openPlaylistDialog(
+        trigger
+    ) {
+        showDialogShell(
+            trigger
+        );
+
+        mountVisibleYoutubePlayer(
+            0,
+            false
         );
     }
 
@@ -886,30 +1382,18 @@
             return;
         }
 
-        activeTrigger =
-            trigger || null;
-
-        renderDialogCarousel();
-
-        document.body.classList.add(
-            "site-lives-dialog-open"
+        showDialogShell(
+            trigger
         );
 
-        if (
-            typeof dialog.showModal ===
-            "function"
-        ) {
-            dialog.showModal();
-        } else {
-            dialog.setAttribute(
-                "open",
-                ""
-            );
-        }
-
-        loadDialogVideo(
+        updateSelectedVideoUi(
             videoId,
             index
+        );
+
+        mountVisibleYoutubePlayer(
+            index,
+            true
         );
     }
 
@@ -1109,21 +1593,9 @@
                     "true"
                 );
 
-                const label =
-                    document.createElement(
-                        "span"
-                    );
-
-                label.className =
-                    "live-thumb-label";
-
-                label.textContent =
-                    `Live ${index + 1}`;
-
                 imageWrap.append(
                     image,
-                    play,
-                    label
+                    play
                 );
 
                 card.appendChild(
@@ -1289,286 +1761,6 @@
             .KAMYLI_YOUTUBE_IFRAME_API_PROMISE;
     }
 
-    async function discoverPlaylistIds() {
-        const YT =
-            await loadIframeApi();
-
-        if (
-            !YT ||
-            typeof YT.Player !==
-                "function"
-        ) {
-            throw new Error(
-                "YouTube IFrame API indisponível."
-            );
-        }
-
-        return new Promise(
-            (resolve, reject) => {
-                const wrapper =
-                    document.createElement(
-                        "div"
-                    );
-
-                wrapper.className =
-                    "lives-playlist-probe";
-
-                wrapper.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-                const mount =
-                    document.createElement(
-                        "div"
-                    );
-
-                wrapper.appendChild(
-                    mount
-                );
-
-                document.body.appendChild(
-                    wrapper
-                );
-
-                let player = null;
-                let poll = null;
-                let done = false;
-
-                function cleanup() {
-                    if (poll !== null) {
-                        clearInterval(poll);
-                        poll = null;
-                    }
-
-                    try {
-                        player?.destroy();
-                    } catch (error) {
-                        console.warn(
-                            "Não foi possível destruir probe do YouTube:",
-                            error
-                        );
-                    }
-
-                    wrapper.remove();
-                }
-
-                function finish(ids) {
-                    if (done) return;
-
-                    done = true;
-
-                    cleanup();
-
-                    resolve(
-                        Array.isArray(ids)
-                            ? ids
-                            : []
-                    );
-                }
-
-                function fail(error) {
-                    if (done) return;
-
-                    done = true;
-
-                    cleanup();
-
-                    reject(error);
-                }
-
-                const timeout =
-                    window.setTimeout(
-                        () => {
-                            fail(
-                                new Error(
-                                    "Timeout ao descobrir vídeos da playlist."
-                                )
-                            );
-                        },
-                        DISCOVERY_TIMEOUT_MS
-                    );
-
-                function maybeReadPlaylist() {
-                    try {
-                        const ids =
-                            player?.getPlaylist?.();
-
-                        if (
-                            Array.isArray(ids) &&
-                            ids.length
-                        ) {
-                            clearTimeout(
-                                timeout
-                            );
-
-                            finish(ids);
-                        }
-                    } catch (error) {
-                        /*
-                         * Durante o cue o player pode ainda não estar
-                         * pronto para responder. O polling continua.
-                         */
-                    }
-                }
-
-                try {
-                    player =
-                        new YT.Player(
-                            mount,
-                            {
-                                width: "1",
-                                height: "1",
-
-                                playerVars: {
-                                    controls: 0,
-                                    disablekb: 1,
-                                    playsinline: 1,
-                                    rel: 0
-                                },
-
-                                events: {
-                                    onReady: () => {
-                                        try {
-                                            player.cuePlaylist({
-                                                listType:
-                                                    "playlist",
-
-                                                list:
-                                                    playlistId,
-
-                                                index: 0,
-
-                                                startSeconds:
-                                                    0
-                                            });
-
-                                            poll =
-                                                window.setInterval(
-                                                    maybeReadPlaylist,
-                                                    250
-                                                );
-                                        } catch (error) {
-                                            clearTimeout(
-                                                timeout
-                                            );
-
-                                            fail(error);
-                                        }
-                                    },
-
-                                    onStateChange:
-                                        event => {
-                                            if (
-                                                event.data ===
-                                                YT.PlayerState.CUED
-                                            ) {
-                                                maybeReadPlaylist();
-                                            }
-                                        },
-
-                                    onError:
-                                        event => {
-                                            clearTimeout(
-                                                timeout
-                                            );
-
-                                            fail(
-                                                new Error(
-                                                    `YouTube player error ${event.data}`
-                                                )
-                                            );
-                                        }
-                                }
-                            }
-                        );
-                } catch (error) {
-                    clearTimeout(
-                        timeout
-                    );
-
-                    fail(error);
-                }
-            }
-        );
-    }
-
-    async function startDiscovery(
-        errorMessage
-    ) {
-        if (discoveryStarted) {
-            return;
-        }
-
-        discoveryStarted = true;
-
-        try {
-            const ids =
-                await discoverPlaylistIds();
-
-            renderCards(ids);
-        } catch (error) {
-            console.error(
-                "Erro ao carregar playlist de lives:",
-                error
-            );
-
-            setMessage(
-                errorMessage ||
-                "Não foi possível carregar a playlist agora."
-            );
-        }
-    }
-
-    function scheduleDiscovery(
-        errorMessage
-    ) {
-        if (!playlistId) {
-            return;
-        }
-
-        if (
-            "IntersectionObserver"
-            in window
-        ) {
-            intersectionObserver =
-                new IntersectionObserver(
-                    entries => {
-                        if (
-                            entries.some(
-                                entry =>
-                                    entry.isIntersecting
-                            )
-                        ) {
-                            intersectionObserver
-                                ?.disconnect();
-
-                            intersectionObserver =
-                                null;
-
-                            startDiscovery(
-                                errorMessage
-                            );
-                        }
-                    },
-                    {
-                        rootMargin:
-                            "500px 0px"
-                    }
-                );
-
-            intersectionObserver.observe(
-                section
-            );
-
-            return;
-        }
-
-        startDiscovery(
-            errorMessage
-        );
-    }
-
     async function init() {
         try {
             const data =
@@ -1598,6 +1790,10 @@
                 data.botaoCanal
             );
 
+            loadErrorMessage =
+                data.mensagemErro ||
+                loadErrorMessage;
+
             if (!playlistId) {
                 setMessage(
                     data.mensagemSemPlaylist
@@ -1606,12 +1802,8 @@
                 return;
             }
 
-            setMessage(
-                data.mensagemCarregando
-            );
-
-            scheduleDiscovery(
-                data.mensagemErro
+            renderLoadPrompt(
+                "Carregue as lives do YouTube para montar o carrossel."
             );
         } catch (error) {
             console.error(

@@ -335,37 +335,6 @@
     border-left: 11px solid #fff;
 }
 
-.live-thumb-label {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-
-    display: inline-flex;
-    align-items: center;
-
-    min-height: 25px;
-    padding: 5px 8px;
-
-    color: #fff;
-    background-color: rgba(20, 20, 24, .78);
-
-    border: 1px solid rgba(255, 255, 255, .22);
-    border-radius: 999px;
-
-    font-size: .68rem;
-    font-weight: 900;
-    line-height: 1;
-
-    letter-spacing: .03em;
-
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-
-:root[data-blur="off"] .live-thumb-label {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
 
 .lives-message {
     flex: 1 0 100%;
@@ -381,6 +350,78 @@
 }
 
 
+.lives-load-prompt {
+    flex: 1 0 100%;
+
+    min-height: 132px;
+
+    display: grid;
+    place-items: center;
+
+    gap: 9px;
+    padding:
+        18px
+        var(--carousel-edge-gutter)
+        20px;
+
+    text-align: center;
+}
+
+.lives-load-copy {
+    max-width: 520px;
+
+    margin: 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .88rem;
+    font-weight: 650;
+    line-height: 1.5;
+}
+
+.lives-load-button {
+    min-height: 42px;
+
+    padding: 10px 16px;
+
+    color: #fff;
+    background-color: var(--primary-color);
+
+    border: 1px solid var(--primary-color);
+    border-radius: 999px;
+
+    font: inherit;
+    font-size: .84rem;
+    font-weight: 900;
+
+    cursor: pointer;
+
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+.lives-load-button:hover,
+.lives-load-button:focus-visible {
+    opacity: .88;
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.lives-load-privacy {
+    max-width: 560px;
+
+    color: var(--subtitle-color);
+
+    font-size: .7rem;
+    font-weight: 650;
+    line-height: 1.45;
+}
+
+
+
 /* =========================================================
    POPUP / DIALOG
    ========================================================= */
@@ -391,6 +432,7 @@ body.site-lives-dialog-open {
 
 .lives-dialog {
     width: min(940px, calc(100vw - 32px));
+    min-width: 200px;
     max-height: calc(100dvh - 32px);
 
     padding: 0;
@@ -506,7 +548,12 @@ body.site-lives-dialog-open {
 
 .lives-dialog-player {
     width: 100%;
+    min-width: 200px;
+    min-height: 200px;
     aspect-ratio: 16 / 9;
+
+    display: grid;
+    place-items: center;
 
     background: #000;
 }
@@ -514,10 +561,29 @@ body.site-lives-dialog-open {
 .lives-dialog-player iframe {
     width: 100%;
     height: 100%;
+    min-width: 200px;
+    min-height: 200px;
 
     display: block;
 
     border: 0;
+}
+
+.lives-player-loading {
+    margin: 0;
+    padding: 24px;
+
+    color: rgba(255, 255, 255, .84);
+
+    font-size: .86rem;
+    font-weight: 750;
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+.lives-dialog-switcher[hidden] {
+    display: none;
 }
 
 
@@ -577,7 +643,11 @@ body.site-lives-dialog-open {
 .lives-dialog-thumb {
     position: relative;
 
-    flex: 0 0 clamp(104px, 13vw, 138px);
+    /*
+     * 128×72 é maior que o mínimo de 120×70 exigido
+     * para thumbnails do YouTube que iniciam reprodução.
+     */
+    flex: 0 0 clamp(128px, 14vw, 148px);
 
     aspect-ratio: 16 / 9;
 
@@ -633,28 +703,6 @@ body.site-lives-dialog-open {
     object-fit: cover;
 }
 
-.lives-dialog-thumb-index {
-    position: absolute;
-    right: 5px;
-    bottom: 5px;
-
-    min-width: 22px;
-    height: 22px;
-
-    display: grid;
-    place-items: center;
-
-    padding: 0 5px;
-
-    color: #fff;
-    background-color: rgba(0, 0, 0, .72);
-
-    border-radius: 999px;
-
-    font-size: .66rem;
-    font-weight: 900;
-    line-height: 1;
-}
 
 .lives-dialog-carousel-button {
     position: absolute;
@@ -747,20 +795,6 @@ body.site-lives-dialog-open {
     text-decoration: underline;
 }
 
-.lives-playlist-probe {
-    position: fixed;
-    left: -9999px;
-    bottom: 0;
-
-    width: 1px;
-    height: 1px;
-
-    overflow: hidden;
-
-    opacity: .001;
-
-    pointer-events: none;
-}
 
 
 /* =========================================================
@@ -816,9 +850,9 @@ body.site-lives-dialog-open {
 
     .lives-dialog-thumb {
         flex-basis: clamp(
-            92px,
-            30vw,
-            116px
+            128px,
+            40vw,
+            144px
         );
 
         border-radius: 8px;
@@ -867,7 +901,8 @@ body.site-lives-dialog-open {
     .lives-dialog-close,
     .lives-dialog-thumb,
     .lives-dialog-carousel-button,
-    .live-thumb-card::after {
+    .live-thumb-card::after,
+    .lives-load-button {
         transition: none;
     }
 }
@@ -879,6 +914,7 @@ body.site-lives-dialog-open {
 :root[data-performance="reduced"] .lives-dialog-close,
 :root[data-performance="reduced"] .lives-dialog-thumb,
 :root[data-performance="reduced"] .lives-dialog-carousel-button,
-:root[data-performance="reduced"] .live-thumb-card::after {
+:root[data-performance="reduced"] .live-thumb-card::after,
+:root[data-performance="reduced"] .lives-load-button {
     transition: none;
 }

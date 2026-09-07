@@ -185,3 +185,13 @@ popup usam espaços laterais menores e consistentes.
 
 Nenhuma integração ou lógica JavaScript foi alterada.
 
+## V43.6 — conformidade do YouTube
+
+A página deixa de criar qualquer player YouTube automaticamente.
+
+A API IFrame e o player são carregados apenas depois do clique em `Carregar
+lives`. O player fica visível no dialog, com viewport mínima de 200×200, e é
+destruído quando o popup fecha.
+
+Nenhuma chave, Google Cloud ou backend foi adicionado.
+

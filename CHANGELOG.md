@@ -1,4 +1,18 @@
 # CHANGELOG
+## V43.6 — conformidade do player YouTube
+- remove completamente o player auxiliar oculto/offscreen de 1×1;
+- remove descoberta automática por `IntersectionObserver`;
+- YouTube IFrame API passa a carregar somente após clique explícito em `Carregar lives`;
+- o player visível do popup passa a executar `cuePlaylist()` + `getPlaylist()`;
+- iframe declara 480×270 e CSS garante mínimo de 200×200;
+- preserva `strict-origin-when-cross-origin` e adiciona `origin=window.location.origin`;
+- primeiro carregamento apenas prepara a playlist, sem autoplay;
+- cliques em thumbnails usam o mesmo player visível para reprodução/troca;
+- miniaturas clicáveis do popup passam a ter no mínimo 128×72;
+- remove badges de texto sobre thumbnails do YouTube;
+- não usa Google Cloud, Data API, API key ou backend;
+- não altera configuração da playlist, Worker/API, navbar, loader ou footer.
+
 ## V43.5 — alinhamento lateral dos carrosséis
 - cria `--carousel-edge-gutter: 8px`;
 - reduz o padding horizontal dos tracks de Agenda e Lives de 20px para 8px;

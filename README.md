@@ -289,3 +289,9 @@ Agenda e Lives passam a usar um gutter lateral comum de 8px, alinhando o
 primeiro e o último card às bordas internas do painel. O mini-carrossel do
 popup também ficou mais compacto lateralmente.
 
+### V43.6
+
+A integração de Lives não usa mais um player auxiliar oculto. O YouTube só é
+carregado após clique explícito; o player visível do popup obtém a playlist e
+monta os carrosséis. O player mantém viewport mínima de 200×200.
+

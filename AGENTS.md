@@ -651,3 +651,27 @@ padding do track e `scroll-padding-inline`.
 
 Evitar reintroduzir grandes reservas laterais apenas para setas de navegação.
 
+## V43.6 — conformidade YouTube
+
+Não reintroduzir:
+
+```text
+player 1×1
+player offscreen
+lives-playlist-probe
+discovery automática por IntersectionObserver
+```
+
+A lista deve ser obtida pelo mesmo player visível do popup, somente depois de
+uma ação explícita.
+
+Preservar:
+
+```text
+iframe 480×270
+CSS >= 200×200
+strict-origin-when-cross-origin
+origin=window.location.origin
+thumbnail clicável >= 128×72
+```
+

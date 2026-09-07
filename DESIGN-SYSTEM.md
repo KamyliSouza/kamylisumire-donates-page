@@ -335,3 +335,15 @@ e `scroll-padding-inline`, mantendo borda visual e scroll snap alinhados.
 
 Setas desabilitadas ficam visualmente ocultas nas extremidades.
 
+## V43.6 — player YouTube compatível
+
+Não usar players ocultos para consultar playlists.
+
+A seção Lives começa com uma fachada local. O player do YouTube só é criado
+após interação explícita e vive dentro do `dialog`.
+
+O player declara 480×270 e nunca deve ser estilizado abaixo de 200×200.
+
+Thumbnails que iniciam reprodução devem manter pelo menos 128×72 nesta
+implementação.
+
