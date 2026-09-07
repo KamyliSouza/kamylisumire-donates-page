@@ -7,14 +7,14 @@
   "maxItems": 10,
   "videos": [
     {
+      "videoId": "CuzFPOw0US0",
+      "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 3【Kamyli Sumire】",
+      "date": "2026-09-04"
+    },
+    {
       "videoId": "kFO2WApsK0s",
       "title": "Como Esse Jogo Coube em um DISCO DE PS2?! - OKAMI HD - pt.12【Kamyli Sumire】",
       "date": "2026-09-05"
-    },
-    {
-      "videoId": "CuzFPOw0US0",
-      "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 3【Kamyli Sumire】\n",
-      "date": "2026-09-04"
     },
     {
       "videoId": "lqQ43_ft-uk",
@@ -23,7 +23,7 @@
     },
     {
       "videoId": "9pP5o4miOJk",
-      "title": "Fogo... FOGO RESOLVE!🔥Jogando Warhammer: Vermintide 2 Com Uma GALERA! - pt.4【Kamyli Sumire】\n",
+      "title": "Fogo... FOGO RESOLVE!🔥Jogando Warhammer: Vermintide 2 Com Uma GALERA! - pt.4【Kamyli Sumire】",
       "date": "2026-09-01"
     },
     {
@@ -31,5 +31,10 @@
       "title": "Rumo ao ATO 2! O Que Será Que Nos Espera? - Baldur's Gate III - pt.8 【Kamyli Sumire】",
       "date": "2026-09-29"
     }
-  ]
+  ],
+  "playlistId": "",
+  "mensagemCarregando": "",
+  "mensagemSemPlaylist": "",
+  "mensagemErro": "",
+  "modalTitulo": ""
 }
