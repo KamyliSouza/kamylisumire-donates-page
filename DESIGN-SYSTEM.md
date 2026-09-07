@@ -250,24 +250,22 @@ blur off
 O cabeçalho do popover deve conter apenas `Configurações`, sem um segundo
 rótulo `Preferências`.
 
-## Player de lives — V43
+## Carrossel de lives e popup — V43.1
 
-A seção Lives usa o mesmo `glass-panel` das demais seções e um card interno
-16:9.
+A Home mostra apenas cards 16:9 de thumbnail:
 
 ```text
-glass-panel
-→ título + link externo
-→ descrição
-→ card 16:9
-   → facade
-   → botão Carregar playlist
-   → iframe após interação
+thumbnail
+→ indicador de play
+→ Live N
 ```
 
-O card interno usa `--notice-bg`, `--card-border`, `--primary-color` e os
-tokens tipográficos existentes.
+O player fica exclusivamente no top layer de um `<dialog>`.
 
-Não adicionar `backdrop-filter` próprio ao card; o painel ancestral já responde
-às preferências globais de blur e um filtro aninhado seria desnecessário.
+O popup usa `--card-bg`, `--card-border`, `--blur-card`,
+`--primary-color` e os tokens tipográficos existentes.
 
+Com blur desligado, backdrop e card removem `backdrop-filter`.
+
+No mobile, um card principal ocupa a maior parte da largura e deixa uma parte
+do próximo visível para indicar rolagem horizontal.

@@ -1,0 +1,16 @@
+V43.1 — HOTFIX CARROSSEL + POPUP
+
+BASE:
+V43 playlist embed já aplicada.
+
+APLIQUE ESTE ZIP DIRETAMENTE SOBRE A V43 ATUAL.
+
+Mudanças:
+- player inline removido da Home;
+- carrossel de thumbnails adicionado;
+- clique abre player em popup;
+- playlist continua sem Google Cloud/API key;
+- arquivos da V43 já adicionados são preservados;
+- arquivos históricos/antigos não relacionados não são removidos.
+
+Não há arquivos para remover.

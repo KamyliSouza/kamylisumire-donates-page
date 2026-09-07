@@ -1,8 +1,8 @@
 /* =========================================================
-   V43 — LIVES / PLAYLIST YOUTUBE EMBED
+   V43 — LIVES / CARROSSEL + PLAYER EM POPUP
 
    Componente exclusivo da Home.
-   O player externo só é criado depois de interação explícita.
+   Agenda permanece independente em css/pages/home.css.
    ========================================================= */
 
 .lives-heading {
@@ -45,23 +45,174 @@
     margin-bottom: 0;
 }
 
-.lives-embed-card {
-    margin-top: 18px;
-    padding: 10px;
+.lives-carousel {
+    position: relative;
 
+    margin: 18px -8px 0;
+
+    isolation: isolate;
+}
+
+.lives-carousel-track {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: stretch;
+
+    gap: 14px;
+    padding: 4px 20px 12px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-behavior: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    overscroll-behavior-inline: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.lives-carousel-track:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+
+    border-radius: var(--radius-small);
+}
+
+.lives-carousel-track::-webkit-scrollbar {
+    height: 7px;
+}
+
+.lives-carousel-track::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+
+    border-radius: 999px;
+}
+
+.lives-carousel-button {
+    position: absolute;
+    top: 50%;
+    z-index: 6;
+
+    width: 46px;
+    height: 46px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+
+    font: inherit;
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+        color .2s ease,
+        background-color .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+.lives-carousel-prev {
+    left: 12px;
+}
+
+.lives-carousel-next {
+    right: 12px;
+}
+
+.lives-carousel-button:hover:not(:disabled),
+.lives-carousel-button:focus-visible:not(:disabled) {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    box-shadow: 0 9px 26px rgba(179, 94, 175, .28);
+
+    transform: translateY(-50%) scale(1.07);
+
+    outline: none;
+}
+
+.lives-carousel-button:active:not(:disabled) {
+    transform: translateY(-50%) scale(.98);
+}
+
+.lives-carousel-button:disabled {
+    opacity: .24;
+
+    cursor: default;
+}
+
+.lives-carousel-button span {
+    display: block;
+
+    margin-top: -2px;
+}
+
+.live-thumb-card {
+    position: relative;
+
+    min-width: 0;
+
+    flex: 0 0 clamp(250px, 30vw, 330px);
+
+    padding: 0;
+
+    overflow: hidden;
+
+    color: var(--text-color);
     background-color: var(--notice-bg);
 
     border: 1px solid var(--card-border);
     border-radius: var(--radius-small);
 
-    /*
-     * Sem backdrop-filter próprio:
-     * o glass-panel ancestral já segue a configuração global de blur.
-     * Isso evita criar filtros aninhados desnecessários.
-     */
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        border-color .18s ease,
+        background-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
 }
 
-.lives-player-shell {
+.live-thumb-card:hover,
+.live-thumb-card:focus-visible,
+.live-thumb-card.is-last-viewed {
+    background-color: var(--primary-soft);
+    border-color: var(--primary-color);
+
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .12);
+
+    transform: translateY(-2px);
+
+    outline: none;
+}
+
+.live-thumb-image {
     position: relative;
 
     width: 100%;
@@ -70,24 +221,246 @@
     overflow: hidden;
 
     background:
-        radial-gradient(
-            circle at 50% 35%,
-            var(--primary-soft),
-            transparent 48%
-        ),
         linear-gradient(
-            145deg,
-            var(--card-bg),
-            var(--notice-bg)
+            135deg,
+            var(--notice-bg),
+            var(--card-bg)
         );
-
-    border: 1px solid var(--card-border);
-    border-radius: calc(var(--radius-small) - 4px);
-
-    isolation: isolate;
 }
 
-.lives-player-shell iframe {
+.live-thumb-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transform: scale(1.001);
+
+    transition:
+        transform .24s ease,
+        opacity .18s ease;
+}
+
+.live-thumb-card:hover .live-thumb-image img,
+.live-thumb-card:focus-visible .live-thumb-image img {
+    transform: scale(1.025);
+}
+
+.live-thumb-image.is-missing img {
+    display: none;
+}
+
+.live-thumb-play {
+    position: absolute;
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    pointer-events: none;
+}
+
+.live-thumb-play::before {
+    content: "";
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+
+    background-color: rgba(0, 0, 0, .62);
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .22);
+}
+
+.live-thumb-play::after {
+    content: "";
+
+    position: absolute;
+
+    margin-left: 4px;
+
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #fff;
+}
+
+.live-thumb-label {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+    padding: 5px 8px;
+
+    color: #fff;
+    background-color: rgba(20, 20, 24, .78);
+
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 999px;
+
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: .03em;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+:root[data-blur="off"] .live-thumb-label {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.lives-message {
+    flex: 1 0 100%;
+
+    margin: 0;
+    padding: 12px 2px 16px;
+
+    color: var(--subtitle-color);
+
+    font-size: .88rem;
+    font-weight: 650;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   POPUP / DIALOG
+   ========================================================= */
+
+body.site-lives-dialog-open {
+    overflow: hidden;
+}
+
+.lives-dialog {
+    width: min(940px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+
+    padding: 0;
+
+    overflow: visible;
+
+    color: var(--text-color);
+    background-color: transparent;
+
+    border: 0;
+
+    outline: none;
+}
+
+.lives-dialog::backdrop {
+    background-color: rgba(10, 10, 15, .58);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+}
+
+:root[data-blur="off"] .lives-dialog::backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    background-color: rgba(10, 10, 15, .72);
+}
+
+.lives-dialog-card {
+    overflow: hidden;
+
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow-strong);
+
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+}
+
+:root[data-blur="off"] .lives-dialog-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.lives-dialog-header {
+    min-height: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+    padding: 12px 14px 12px 18px;
+
+    border-bottom: 1px solid var(--card-border);
+}
+
+.lives-dialog-header h2 {
+    margin: 0;
+
+    color: var(--primary-color);
+
+    font-size: 1.05rem;
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.lives-dialog-close {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--text-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+
+    font: inherit;
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.lives-dialog-close:hover,
+.lives-dialog-close:focus-visible {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    transform: scale(1.05);
+
+    outline: none;
+}
+
+.lives-dialog-player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    background: #000;
+}
+
+.lives-dialog-player iframe {
     width: 100%;
     height: 100%;
 
@@ -96,111 +469,60 @@
     border: 0;
 }
 
-.lives-player-facade {
-    position: absolute;
-    inset: 0;
+.lives-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
 
-    display: grid;
-    place-items: center;
-    align-content: center;
+    padding: 12px 18px 14px;
 
-    gap: 18px;
-    padding: clamp(22px, 4vw, 44px);
-
-    text-align: center;
+    border-top: 1px solid var(--card-border);
 }
 
-.lives-play-mark {
-    position: relative;
-
-    width: 66px;
-    height: 66px;
-
-    display: grid;
-    place-items: center;
-
-    background-color: var(--primary-color);
-
-    border: 1px solid color-mix(
-        in srgb,
-        var(--primary-color) 82%,
-        white
-    );
-    border-radius: 50%;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
-
-    transition:
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.lives-play-mark::after {
-    content: "";
-
-    margin-left: 5px;
-
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 16px solid #fff;
-}
-
-.lives-player-facade:has(
-    .lives-load-button:not(:disabled):hover
-) .lives-play-mark {
-    transform: scale(1.06);
-
-    box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
-}
-
-.lives-facade-copy {
-    max-width: 560px;
-
-    display: grid;
+.lives-dialog-youtube-link {
+    display: inline-flex;
+    align-items: center;
 
     gap: 5px;
+
+    color: var(--primary-color);
+
+    font-size: .8rem;
+    font-weight: 800;
+    line-height: 1.4;
+
+    text-decoration: none;
 }
 
-.lives-facade-copy strong {
-    color: var(--text-color);
-
-    font-size: clamp(1.05rem, 2vw, 1.3rem);
-    font-weight: 900;
-    line-height: 1.25;
+.lives-dialog-youtube-link:hover,
+.lives-dialog-youtube-link:focus-visible {
+    outline: none;
+    text-decoration: underline;
 }
 
-.lives-facade-copy span {
-    color: var(--subtitle-color);
+.lives-playlist-probe {
+    position: fixed;
+    left: -9999px;
+    bottom: 0;
 
-    font-size: .86rem;
-    font-weight: 650;
-    line-height: 1.5;
+    width: 1px;
+    height: 1px;
+
+    overflow: hidden;
+
+    opacity: .001;
+
+    pointer-events: none;
 }
 
-.lives-load-button {
-    min-width: 170px;
-}
 
-.lives-load-button:disabled {
-    opacity: .58;
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
 
-    cursor: default;
-}
-
-.lives-privacy-note {
-    margin: 9px 4px 0;
-
-    color: var(--subtitle-color);
-
-    font-size: .73rem;
-    font-weight: 600;
-    line-height: 1.45;
-
-    text-align: center;
-}
-
-.lives-player-shell.is-loaded {
-    background: #000;
+@media (max-width: 900px) {
+    .live-thumb-card {
+        flex-basis: clamp(245px, 43vw, 320px);
+    }
 }
 
 @media (max-width: 720px) {
@@ -213,51 +535,62 @@
         align-self: flex-start;
     }
 
-    .lives-embed-card {
-        margin-top: 15px;
-        padding: 7px;
+    .live-thumb-card {
+        flex-basis: min(80vw, 310px);
     }
 
-    .lives-player-facade {
-        gap: 13px;
-
-        padding: 18px;
+    .lives-dialog {
+        width: min(
+            100% - 18px,
+            940px
+        );
+        max-height: calc(100dvh - 18px);
     }
 
-    .lives-play-mark {
-        width: 52px;
-        height: 52px;
+    .lives-dialog-card {
+        border-radius: var(--radius-small);
     }
 
-    .lives-play-mark::after {
-        margin-left: 4px;
+    .lives-dialog-header {
+        min-height: 54px;
 
-        border-top-width: 8px;
-        border-bottom-width: 8px;
-        border-left-width: 13px;
+        padding: 9px 10px 9px 14px;
     }
 
-    .lives-facade-copy strong {
-        font-size: 1rem;
+    .lives-dialog-footer {
+        justify-content: center;
+
+        padding: 10px 14px 12px;
+
+        text-align: center;
+    }
+}
+
+@media (max-width: 500px) {
+    .live-thumb-card {
+        flex-basis: min(84vw, 300px);
     }
 
-    .lives-facade-copy span {
-        font-size: .78rem;
-    }
-
-    .lives-load-button {
-        min-width: 150px;
+    .lives-carousel-button {
+        width: 36px;
+        height: 36px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .lives-youtube-link,
-    .lives-play-mark {
+    .lives-carousel-button,
+    .live-thumb-card,
+    .live-thumb-image img,
+    .lives-dialog-close {
         transition: none;
     }
 }
 
 :root[data-performance="reduced"] .lives-youtube-link,
-:root[data-performance="reduced"] .lives-play-mark {
+:root[data-performance="reduced"] .lives-carousel-button,
+:root[data-performance="reduced"] .live-thumb-card,
+:root[data-performance="reduced"] .live-thumb-image img,
+:root[data-performance="reduced"] .lives-dialog-close {
     transition: none;
 }

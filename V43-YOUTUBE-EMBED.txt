@@ -1,37 +1,51 @@
-V43 — PLAYLIST DE LIVES VIA EMBED
+V43.1 — CARROSSEL DE LIVES + PLAYER EM POPUP
 
 BASE:
-V42.5
+V43 playlist embed já aplicada.
 
 IMPORTANTE:
-As versões V43/V43.1 anteriores com Google Cloud foram abandonadas.
-Não aplique aqueles pacotes antes deste.
+Este é um HOTFIX sobre a V43 existente.
+Não reaplica a V42.5 inteira.
+Não remove arquivos antigos/históricos do repositório.
 
 APLICAÇÃO:
-1. extraia este ZIP sobre a raiz da V42.5;
+1. extraia este ZIP sobre a raiz da V43;
 2. permita substituir os arquivos existentes;
-3. edite data/content/lives.json;
-4. preencha playlistId;
+3. confira data/content/lives.json;
+4. mantenha/preencha playlistId;
 5. commit/push.
 
-EXEMPLO:
-URL:
-https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx
-
-JSON:
+CONFIGURAÇÃO:
 "playlistId": "PLxxxxxxxxxxxxxxxx"
+"maxItems": 10
 
-SEM GOOGLE CLOUD:
-- sem YouTube Data API;
+RESULTADO:
+- seção Lives continua acima da Agenda;
+- entrada Lives da navbar é preservada;
+- sai o player inline;
+- entra carrossel de thumbnails;
+- clique abre o player em popup;
+- popup fecha por ×, Esc ou clique no backdrop;
+- iframe é removido ao fechar;
+- sem Google Cloud;
+- sem Data API;
 - sem API key;
-- sem Secrets;
-- sem Action de sincronização;
-- sem cobrança relacionada a essa integração.
+- sem GitHub Action de sincronização.
 
-MODULARIDADE:
-- data/content/lives.json
-- js/pages/home/lives.js
-- css/components/lives.css
+ARQUIVOS FUNCIONAIS ALTERADOS:
+index.html
+css/components/lives.css
+data/content/lives.json
+js/pages/home/lives.js
 
-Não há arquivos para remover quando aplicada diretamente sobre a V42.5.
-Worker/API de doações não foram alterados.
+NÃO ALTERADO:
+js/core/navbar.js já vindo da V43
+workers.js
+js/core/api.js
+js/core/config.js
+loader
+footer
+preferências
+doações
+
+Não há arquivos para remover.

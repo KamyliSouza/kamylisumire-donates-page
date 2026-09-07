@@ -242,19 +242,22 @@ performance reduzida mantêm o segundo de espera, mas removem a pulsação.
 O overlay do loader acompanha os cards: usa `--card-bg` e aplica
 `--blur-card` somente quando o estado resolvido de blur está ligado.
 
-## V43 — playlist de lives sem Google Cloud
+## V43.1 — carrossel de lives com popup
 
-A Home possui a seção `#lives` acima da Agenda.
+A V43 já aplicada continua sendo a base da integração sem Google Cloud.
 
-A playlist é configurada em:
+Na V43.1, `#lives` deixa de exibir o player inline. A IFrame Player API é usada
+somente para descobrir os IDs da playlist e montar um carrossel de thumbnails.
+
+O player real é criado exclusivamente dentro de um `<dialog>` depois do clique
+do visitante e é removido ao fechar.
+
+Configuração:
 
 ```text
 data/content/lives.json
 ```
 
-O player é criado somente depois do clique em `Carregar playlist` e usa um
-embed de playlist do YouTube. Não existe YouTube Data API, API key, Google
-Cloud ou Action de sincronização.
+Não existe YouTube Data API, API key, Google Cloud ou Action de sincronização.
 
 Consulte `docs/V43-YOUTUBE-EMBED.md`.
-

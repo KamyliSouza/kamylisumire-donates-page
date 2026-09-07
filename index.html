@@ -406,8 +406,16 @@
         >
             <div class="section-heading lives-heading">
                 <div>
-                    <span class="eyebrow" id="livesEyebrow">YouTube</span>
-                    <h2 id="livesTitle">Últimas lives</h2>
+                    <span
+                        class="eyebrow"
+                        id="livesEyebrow"
+                    >
+                        YouTube
+                    </span>
+
+                    <h2 id="livesTitle">
+                        Últimas lives
+                    </h2>
                 </div>
 
                 <a
@@ -417,7 +425,10 @@
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <span id="livesYoutubeLinkText">Abrir no YouTube</span>
+                    <span id="livesYoutubeLinkText">
+                        Abrir no YouTube
+                    </span>
+
                     <span aria-hidden="true">↗</span>
                 </a>
             </div>
@@ -426,57 +437,87 @@
                 class="body-copy lives-description"
                 id="livesDescription"
             >
-                Assista às lives diretamente pela playlist oficial do canal,
-                sem sair do site.
+                Escolha uma live da playlist para assistir sem sair do site.
             </p>
 
-            <div class="lives-embed-card">
-                <div
-                    class="lives-player-shell"
-                    id="livesPlayerShell"
+            <div class="lives-carousel">
+                <button
+                    class="lives-carousel-button lives-carousel-prev"
+                    id="livesPrev"
+                    type="button"
+                    aria-label="Mostrar live anterior"
+                    disabled
                 >
-                    <div
-                        class="lives-player-facade"
-                        id="livesPlayerFacade"
+                    <span aria-hidden="true">‹</span>
+                </button>
+
+                <div
+                    class="lives-carousel-track"
+                    id="livesTrack"
+                    aria-live="polite"
+                    aria-label="Lives disponíveis na playlist"
+                    tabindex="0"
+                >
+                    <p
+                        class="lives-message"
+                        id="livesMessage"
                     >
-                        <span
-                            class="lives-play-mark"
-                            aria-hidden="true"
-                        ></span>
-
-                        <div class="lives-facade-copy">
-                            <strong id="livesFacadeTitle">
-                                Playlist de lives
-                            </strong>
-
-                            <span
-                                id="livesFacadeStatus"
-                                aria-live="polite"
-                            >
-                                Preparando a playlist...
-                            </span>
-                        </div>
-
-                        <button
-                            class="button button-primary lives-load-button"
-                            id="livesLoadButton"
-                            type="button"
-                            disabled
-                        >
-                            Carregar playlist
-                        </button>
-                    </div>
+                        Carregando lives da playlist...
+                    </p>
                 </div>
 
-                <p
-                    class="lives-privacy-note"
-                    id="livesPrivacyNote"
+                <button
+                    class="lives-carousel-button lives-carousel-next"
+                    id="livesNext"
+                    type="button"
+                    aria-label="Mostrar próxima live"
+                    disabled
                 >
-                    O player do YouTube só é carregado depois que você clicar
-                    no botão.
-                </p>
+                    <span aria-hidden="true">›</span>
+                </button>
             </div>
         </section>
+
+        <dialog
+            class="lives-dialog"
+            id="livesDialog"
+            aria-labelledby="livesDialogTitle"
+        >
+            <div class="lives-dialog-card">
+                <div class="lives-dialog-header">
+                    <h2 id="livesDialogTitle">
+                        Assistir live
+                    </h2>
+
+                    <button
+                        class="lives-dialog-close"
+                        id="livesDialogClose"
+                        type="button"
+                        aria-label="Fechar player"
+                    >
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+
+                <div
+                    class="lives-dialog-player"
+                    id="livesDialogPlayer"
+                ></div>
+
+                <div class="lives-dialog-footer">
+                    <a
+                        class="lives-dialog-youtube-link"
+                        id="livesDialogYoutubeLink"
+                        href="https://youtube.com/kamyli"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Abrir esta live no YouTube
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </div>
+        </dialog>
 
         <section class="glass-panel section-panel" id="agenda">
             <div class="section-heading agenda-heading">

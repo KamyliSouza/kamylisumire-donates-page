@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.1.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -103,7 +103,7 @@ def require_string(obj, key: str, context: str) -> str:
 
 
 
-def validate_youtube_embed() -> None:
+def validate_youtube_popup_lives() -> None:
     data = load_json_strict(
         ROOT / "data/content/lives.json"
     )
@@ -119,10 +119,12 @@ def validate_youtube_embed() -> None:
         "descricao",
         "playlistId",
         "canalUrl",
-        "botaoCarregar",
         "botaoCanal",
+        "mensagemCarregando",
         "mensagemSemPlaylist",
-        "notaPrivacidade",
+        "mensagemErro",
+        "modalTitulo",
+        "maxItems",
     }
 
     if set(data) != expected_keys:
@@ -131,7 +133,12 @@ def validate_youtube_embed() -> None:
             + ", ".join(sorted(expected_keys))
         )
 
-    for key in expected_keys:
+    string_keys = (
+        expected_keys -
+        {"maxItems"}
+    )
+
+    for key in string_keys:
         if not isinstance(data[key], str):
             raise ValidationError(
                 f"lives.{key} deve ser string"
@@ -147,7 +154,18 @@ def validate_youtube_embed() -> None:
         )
     ):
         raise ValidationError(
-            "lives.playlistId não parece um ID válido de playlist"
+            "lives.playlistId não parece um ID válido"
+        )
+
+    max_items = data["maxItems"]
+
+    if (
+        not isinstance(max_items, int)
+        or isinstance(max_items, bool)
+        or not 3 <= max_items <= 20
+    ):
+        raise ValidationError(
+            "lives.maxItems deve ser inteiro entre 3 e 20"
         )
 
     channel_url = urlsplit(
@@ -210,54 +228,95 @@ def validate_youtube_embed() -> None:
             and '${sitePath("/#lives")}'
             in navbar,
 
-        "Config é JSON estático local":
-            '/data/content/lives.json'
-            in lives_js,
-
-        "Player usa playlist embed":
-            "embed/videoseries"
-            in lives_js
-            and "list:" in lives_js,
-
-        "Embed usa domínio sem cookies":
-            "youtube-nocookie.com"
-            in lives_js,
-
-        "Iframe só é criado por JavaScript":
-            'document.createElement('
-            in lives_js
-            and '"iframe"'
-            in lives_js
+        "Home contém carrossel, não player inline":
+            'id="livesTrack"'
+            in home
+            and 'id="livesDialog"'
+            in home
+            and 'id="livesDialogPlayer"'
+            in home
             and "<iframe"
             not in home,
 
-        "Player só é criado após clique":
-            'loadButton.addEventListener('
-            in lives_js
-            and '"click"'
-            in lives_js
-            and "createPlayer"
+        "Player usa dialog nativo":
+            '<dialog'
+            in home
+            and 'class="lives-dialog"'
+            in home
+            and "showModal"
             in lives_js,
 
-        "Iframe possui política e permissões":
-            "strict-origin-when-cross-origin"
+        "Cards são criados com DocumentFragment":
+            "createDocumentFragment"
             in lives_js
-            and "allowFullscreen = true"
+            and ".live-thumb-card"
+            in lives_css,
+
+        "Carrossel usa ResizeObserver":
+            "ResizeObserver"
+            in lives_js
+            and ".lives-carousel-track"
+            in lives_css,
+
+        "Thumbnails usam CDN do YouTube e lazy":
+            "i.ytimg.com/vi/"
+            in lives_js
+            and 'image.loading = "lazy"'
+            in lives_js
+            and 'image.decoding = "async"'
             in lives_js,
 
-        "CSS de lives é isolado":
-            ".lives-player-shell"
+        "Playlist é descoberta pela IFrame Player API":
+            "youtube.com/iframe_api"
+            in lives_js
+            and "cuePlaylist"
+            in lives_js
+            and "getPlaylist"
+            in lives_js
+            and 'listType:'
+            in lives_js
+            and '"playlist"'
+            in lives_js,
+
+        "Discovery é adiada até seção se aproximar":
+            "IntersectionObserver"
+            in lives_js
+            and "rootMargin:"
+            in lives_js,
+
+        "Player popup usa youtube-nocookie":
+            "youtube-nocookie.com"
+            in lives_js
+            and "buildPopupEmbedUrl"
+            in lives_js,
+
+        "Fechar popup remove iframe":
+            "dialogPlayer.replaceChildren()"
+            in lives_js
+            and 'dialog.addEventListener('
+            in lives_js
+            and '"close"'
+            in lives_js,
+
+        "Popup pode fechar por clique no backdrop":
+            "event.target === dialog"
+            in lives_js,
+
+        "Popup acompanha blur":
+            ".lives-dialog::backdrop"
             in lives_css
-            and ".lives-player-facade"
+            and "backdrop-filter: blur(var(--blur-card))"
+            in lives_css
+            and ':root[data-blur="off"] .lives-dialog::backdrop'
             in lives_css,
 
-        "Componente evita blur aninhado":
-            "Sem backdrop-filter próprio"
+        "Título do popup usa cor primária":
+            ".lives-dialog-header h2"
             in lives_css
-            and ".lives-embed-card"
+            and "color: var(--primary-color)"
             in lives_css,
 
-        "Componente respeita reduced motion":
+        "CSS respeita reduced motion/performance":
             "@media (prefers-reduced-motion: reduce)"
             in lives_css
             and 'data-performance="reduced"'
@@ -273,11 +332,11 @@ def validate_youtube_embed() -> None:
 
     if failures:
         raise ValidationError(
-            "integração YouTube embed V43 incompleta: "
+            "integração YouTube popup V43.1 incompleta: "
             + ", ".join(failures)
         )
 
-    forbidden_cloud_files = [
+    forbidden_files = [
         ".github/scripts/sync-youtube-lives.py",
         ".github/workflows/sync-youtube-lives.yml",
         "data/youtube-lives.json",
@@ -285,17 +344,17 @@ def validate_youtube_embed() -> None:
 
     leftovers = [
         rel
-        for rel in forbidden_cloud_files
+        for rel in forbidden_files
         if (ROOT / rel).exists()
     ]
 
     if leftovers:
         raise ValidationError(
-            "V43 embed não deve conter integração Google Cloud/API: "
+            "V43 popup não deve conter integração Data API/Cloud: "
             + ", ".join(leftovers)
         )
 
-    runtime_sources = [
+    public_sources = [
         home,
         navbar,
         lives_js,
@@ -313,18 +372,18 @@ def validate_youtube_embed() -> None:
         for token in forbidden_tokens
         if any(
             token in source
-            for source in runtime_sources
+            for source in public_sources
         )
     ]
 
     if leaked:
         raise ValidationError(
-            "V43 embed contém referência indevida à Data API: "
+            "V43 popup contém referência indevida à Data API: "
             + ", ".join(leaked)
         )
 
     print(
-        "✓ Playlist embed V43 sem Google Cloud/API integrada"
+        "✓ Carrossel de lives + popup V43.1 sem Google Cloud integrado"
     )
 
 
@@ -1801,7 +1860,7 @@ def validate_v42_interface() -> None:
 def main() -> int:
     checks = [
         validate_all_json_files,
-        validate_youtube_embed,
+        validate_youtube_popup_lives,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

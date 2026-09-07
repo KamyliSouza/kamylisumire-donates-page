@@ -550,15 +550,23 @@ Em `data-blur="off"`, o popover também deve permanecer sem filtro.
 O título visível do card deve ser somente `Configurações`; não reintroduzir
 `Preferências` como eyebrow/título adicional.
 
-## V43 — playlist YouTube sem API
+## V43.1 — carrossel YouTube + popup
 
-Preservar a arquitetura estática:
+Preservar:
 
 ```text
 data/content/lives.json
-→ js/pages/home/lives.js
-→ iframe youtube-nocookie.com/embed/videoseries
+→ YouTube IFrame Player API
+→ cuePlaylist() / getPlaylist()
+→ carrossel de thumbnails
+→ dialog com youtube-nocookie.com
 ```
+
+O player visível deve existir somente no `dialog`. Não voltar a integrar o
+player diretamente ao layout da Home.
+
+O player auxiliar de descoberta deve permanecer fora da tela e ser destruído
+depois que `getPlaylist()` retornar os IDs.
 
 Não introduzir:
 
@@ -570,10 +578,5 @@ sync-youtube-lives.py
 sync-youtube-lives.yml
 ```
 
-Agenda e Lives devem continuar independentes.
-
-O iframe deve continuar lazy por interação: não colocar o player diretamente no
-HTML inicial nem carregar scripts externos do YouTube no caminho crítico.
-
-Não mover essa funcionalidade para `workers.js` ou para a API de doações.
-
+Agenda e Lives continuam independentes. Worker/API de doações permanecem fora
+deste escopo.

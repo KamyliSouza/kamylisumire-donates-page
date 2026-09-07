@@ -1,4 +1,18 @@
 # CHANGELOG
+## V43.1 — carrossel de lives com player em popup
+- hotfix sobre a V43 de playlist embed já aplicada;
+- preserva a seção `#lives` e a entrada `Lives` da navbar;
+- remove o player integrado diretamente à Home;
+- usa `cuePlaylist()` + `getPlaylist()` para descobrir a ordem atual da playlist;
+- cria carrossel horizontal de thumbnails;
+- player de reprodução é criado somente em `<dialog>` após clique;
+- popup fecha por ×, Esc ou clique no backdrop;
+- fechar o popup remove o iframe e interrompe a reprodução;
+- popup respeita tema, blur e cor primária;
+- não usa Google Cloud, YouTube Data API, API key ou Action de sincronização;
+- não remove nem altera arquivos antigos não relacionados;
+- Worker/API de doações permanecem inalterados.
+
 ## V43 — playlist de lives via embed, sem Google Cloud
 - baseada diretamente na V42.5;
 - adiciona seção `#lives` acima da Agenda;

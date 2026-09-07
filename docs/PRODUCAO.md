@@ -132,19 +132,17 @@ o loader transparente de no mínimo 1 segundo.
 A mudança é somente de frontend e não altera Worker, API, OAuth, KV, CORS ou
 DNS.
 
-## V43 — playlist YouTube embed
+## V43.1 — carrossel de lives em popup
 
-A integração de Lives continua 100% estática no GitHub Pages.
+A integração continua estática no GitHub Pages.
 
-```text
-data/content/lives.json
-→ JS da Home
-→ iframe da playlist após clique
-```
+O navegador carrega a IFrame Player API somente quando a seção Lives se
+aproxima da viewport, usa `getPlaylist()` para montar as thumbnails e destrói o
+player auxiliar.
 
-Não existem credenciais, Google Cloud ou workflow de sincronização. Alterações
-na playlist são feitas diretamente no YouTube e o embed continua apontando para
-o mesmo `playlistId`.
+O player de reprodução é criado somente dentro de um `dialog` depois do clique
+do visitante e é removido ao fechar.
+
+Não existem credenciais, Google Cloud ou workflow de sincronização.
 
 Nenhuma configuração de Worker/API foi alterada.
-

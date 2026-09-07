@@ -60,13 +60,17 @@ A validação agora verifica:
 
 ## `lives.json`
 
-Configura o player de playlist da seção Lives.
-
-O campo principal é:
+Configura o carrossel de lives da Home.
 
 ```json
-"playlistId": "PL..."
+{
+  "playlistId": "PL...",
+  "maxItems": 10
+}
 ```
 
-O ID é público. Não armazenar API keys neste arquivo.
+`playlistId` é público e não é uma credencial.
 
+`maxItems` pode variar entre 3 e 20 e limita quantas thumbnails são mostradas.
+
+Não armazenar API keys neste arquivo.

@@ -1,4 +1,4 @@
-name: Validate V43 site content and YouTube embed
+name: Validate V43.1 site content and YouTube carousel popup
 
 on:
   push:

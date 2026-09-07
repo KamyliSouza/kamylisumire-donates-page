@@ -1,11 +1,13 @@
 {
   "eyebrow": "YouTube",
   "titulo": "Últimas lives",
-  "descricao": "Assista às lives diretamente pela playlist oficial do canal, sem sair do site.",
+  "descricao": "Escolha uma live da playlist para assistir sem sair do site.",
   "playlistId": "PLGdKjS_coMItnwF_f9p9lyS7SOttjzO7S",
   "canalUrl": "https://youtube.com/kamyli",
-  "botaoCarregar": "Carregar playlist",
   "botaoCanal": "Abrir no YouTube",
+  "mensagemCarregando": "Carregando lives da playlist...",
   "mensagemSemPlaylist": "A playlist de lives será disponibilizada aqui em breve.",
-  "notaPrivacidade": "O player do YouTube só é carregado depois que você clicar no botão."
+  "mensagemErro": "Não foi possível carregar a playlist agora.",
+  "modalTitulo": "Assistir live",
+  "maxItems": 10
 }
