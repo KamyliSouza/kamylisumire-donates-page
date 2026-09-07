@@ -202,6 +202,31 @@
         transform .18s ease;
 }
 
+/*
+ * A Agenda e Lives usam o mesmo token de borda.
+ *
+ * Como a thumbnail de Lives ocupa todo o card, uma borda normal pode
+ * parecer menos perceptível do que nos cards textuais da Agenda.
+ * Este frame é desenhado sobre a imagem sem alterar o tamanho 16:9.
+ */
+.live-thumb-card::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+
+    border: 1px solid var(--card-border);
+    border-radius: inherit;
+
+    pointer-events: none;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+
 .live-thumb-card:hover,
 .live-thumb-card:focus-visible,
 .live-thumb-card.is-last-viewed {
@@ -214,6 +239,16 @@
 
     outline: none;
 }
+
+.live-thumb-card:hover::after,
+.live-thumb-card:focus-visible::after,
+.live-thumb-card.is-last-viewed::after {
+    border-color: var(--primary-color);
+
+    box-shadow:
+        inset 0 0 0 1px var(--primary-color);
+}
+
 
 .live-thumb-image {
     position: relative;
@@ -812,7 +847,8 @@ body.site-lives-dialog-open {
     .live-thumb-image img,
     .lives-dialog-close,
     .lives-dialog-thumb,
-    .lives-dialog-carousel-button {
+    .lives-dialog-carousel-button,
+    .live-thumb-card::after {
         transition: none;
     }
 }
@@ -823,6 +859,7 @@ body.site-lives-dialog-open {
 :root[data-performance="reduced"] .live-thumb-image img,
 :root[data-performance="reduced"] .lives-dialog-close,
 :root[data-performance="reduced"] .lives-dialog-thumb,
-:root[data-performance="reduced"] .lives-dialog-carousel-button {
+:root[data-performance="reduced"] .lives-dialog-carousel-button,
+:root[data-performance="reduced"] .live-thumb-card::after {
     transition: none;
 }

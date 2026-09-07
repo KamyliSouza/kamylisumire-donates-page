@@ -163,3 +163,10 @@ integrações ou publicação.
 O intervalo título → descrição dos cards de conteúdo passa a ser governado por
 `--card-title-description-gap: 8px`.
 
+## V43.4 — borda dos cards de Lives
+
+Correção exclusivamente visual em `css/components/lives.css`.
+
+O frame adicional é renderizado sobre a thumbnail e não modifica a integração
+com o YouTube, dados, deploy ou APIs.
+

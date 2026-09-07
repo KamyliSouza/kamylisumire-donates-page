@@ -308,3 +308,13 @@ Ranking
 Elementos compactos internos, como título/subtítulo de botões, não usam esse
 token porque pertencem a outro nível de densidade visual.
 
+## V43.4 — frame dos cards de Lives
+
+Agenda e Lives compartilham `var(--card-border)`.
+
+Como Lives usa imagem full-bleed, o card recebe um pseudo-elemento `::after`
+sobre a thumbnail para garantir que a borda permaneça perceptível sem alterar
+o aspect ratio.
+
+Estados hover/foco/selecionado usam `var(--primary-color)`.
+

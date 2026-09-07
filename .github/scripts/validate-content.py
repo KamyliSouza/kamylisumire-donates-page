@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.3.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.4.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -540,6 +540,79 @@ def validate_card_title_description_spacing() -> None:
 
     print(
         "✓ Espaço título/descrição dos cards padronizado em 8px"
+    )
+
+
+
+
+def validate_lives_card_border() -> None:
+    home_css = (
+        ROOT / "css/pages/home.css"
+    ).read_text(encoding="utf-8")
+
+    lives_css = (
+        ROOT / "css/components/lives.css"
+    ).read_text(encoding="utf-8")
+
+    expectations = {
+        "Agenda continua usando card-border":
+            ".agenda-card"
+            in home_css
+            and "border: 1px solid var(--card-border);"
+            in home_css,
+
+        "Lives usa o mesmo token de borda":
+            ".live-thumb-card"
+            in lives_css
+            and "border: 1px solid var(--card-border);"
+            in lives_css,
+
+        "Frame de Lives é desenhado sobre a thumbnail":
+            ".live-thumb-card::after"
+            in lives_css
+            and "position: absolute;"
+            in lives_css
+            and "z-index: 4;"
+            in lives_css
+            and "pointer-events: none;"
+            in lives_css,
+
+        "Frame preserva a geometria 16:9":
+            "aspect-ratio: 16 / 9;"
+            in lives_css
+            and "inset: 0;"
+            in lives_css,
+
+        "Hover/foco/última live usam cor primária":
+            ".live-thumb-card:hover::after"
+            in lives_css
+            and ".live-thumb-card:focus-visible::after"
+            in lives_css
+            and ".live-thumb-card.is-last-viewed::after"
+            in lives_css
+            and "border-color: var(--primary-color);"
+            in lives_css,
+
+        "Frame não interfere no clique":
+            "pointer-events: none;"
+            in lives_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "borda dos cards de Lives V43.4 incompleta: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Borda dos cards de Lives alinhada visualmente à Agenda"
     )
 
 
@@ -1555,6 +1628,7 @@ def validate_repository_hygiene() -> None:
         "docs/V42-CONFIGURACOES-LOADER.md",
         "docs/V43-YOUTUBE-EMBED.md",
         "docs/V43-3-RITMO-CARDS.md",
+        "docs/V43-4-BORDA-LIVES.md",
     ]
 
     missing = [
@@ -2019,6 +2093,7 @@ def main() -> int:
         validate_all_json_files,
         validate_youtube_popup_lives,
         validate_card_title_description_spacing,
+        validate_lives_card_border,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

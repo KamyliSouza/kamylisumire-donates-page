@@ -612,3 +612,16 @@ token em vez de introduzir valores locais diferentes.
 
 Não aplicar automaticamente o token a microconteúdo interno de botões ou badges.
 
+## V43.4 — borda de Lives
+
+Preservar a equivalência de token:
+
+```text
+Agenda → var(--card-border)
+Lives  → var(--card-border)
+```
+
+Como as thumbnails de Lives são full-bleed, manter o frame `::after` por cima
+da imagem. Não substituir por mudanças de API ou metadata: esta é uma regra
+puramente visual.
+

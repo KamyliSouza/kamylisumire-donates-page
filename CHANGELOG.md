@@ -1,4 +1,12 @@
 # CHANGELOG
+## V43.4 — borda visível nos cards de Lives
+- hotfix visual sobre a V43.3;
+- mantém `var(--card-border)`, o mesmo token usado pelos cards da Agenda;
+- adiciona frame `::after` sobre thumbnails full-bleed para tornar a borda perceptível;
+- hover, foco e última live aberta usam `var(--primary-color)`;
+- mantém cards 16:9 e não altera dimensões;
+- não altera playlist, popup, JavaScript funcional, Agenda, navbar, loader, footer ou Worker/API.
+
 ## V43.3 — ritmo vertical uniforme nos cards
 - cria `--card-title-description-gap: 8px` como token global;
 - normaliza o espaço entre título e descrição em Lives, Agenda, Regras, Créditos, CTA, Doações, Ranking e 404;

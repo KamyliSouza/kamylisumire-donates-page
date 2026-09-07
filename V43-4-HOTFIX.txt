@@ -1,0 +1,25 @@
+V43.4 — BORDA DOS CARDS DE LIVES
+
+BASE:
+V43.3 já aplicada.
+
+MUDANÇA:
+- deixa a borda dos cards de Lives mais visível;
+- usa o mesmo var(--card-border) da Agenda;
+- frame é desenhado por cima da thumbnail;
+- hover/foco/última live aberta usam var(--primary-color);
+- mantém 16:9.
+
+NÃO ALTERA:
+- playlist
+- popup
+- mini-carrossel
+- JavaScript funcional
+- Agenda
+- navbar
+- loader
+- footer
+- Worker/API
+- arquivos antigos/históricos
+
+Não há arquivos para remover.

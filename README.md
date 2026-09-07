@@ -272,3 +272,9 @@ mini-carrossel responsivo que permite trocar entre as lives sem fechar o player.
 O espaço entre títulos e descrições dos cards de conteúdo foi normalizado para
 8px por meio do token `--card-title-description-gap`.
 
+### V43.4
+
+Os cards do carrossel de Lives passam a desenhar a borda também sobre a
+thumbnail, usando o mesmo `var(--card-border)` da Agenda. O estado ativo usa a
+cor primária.
+

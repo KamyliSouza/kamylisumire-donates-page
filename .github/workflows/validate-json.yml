@@ -1,4 +1,4 @@
-name: Validate V43.3 site content and card rhythm
+name: Validate V43.4 site content and live card border
 
 on:
   push:
