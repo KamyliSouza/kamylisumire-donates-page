@@ -58,10 +58,10 @@
       "id": "quinta",
       "nome": "Quinta-feira",
       "data": "2026-09-10",
-      "temLive": false,
-      "horario": "",
-      "titulo": "",
-      "descricao": "",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Bora de Joguinhos",
+      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
       "plataformas": [
         "YouTube",
         "Twitch"
