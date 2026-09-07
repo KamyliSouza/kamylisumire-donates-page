@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.2.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.3.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -424,6 +424,122 @@ def validate_youtube_popup_lives() -> None:
 
     print(
         "✓ Carrossel de lives + popup V43.2 sem Google Cloud integrado"
+    )
+
+
+
+
+def validate_card_title_description_spacing() -> None:
+    variables = (
+        ROOT / "css/core/variables.css"
+    ).read_text(encoding="utf-8")
+
+    home_css = (
+        ROOT / "css/pages/home.css"
+    ).read_text(encoding="utf-8")
+
+    lives_css = (
+        ROOT / "css/components/lives.css"
+    ).read_text(encoding="utf-8")
+
+    donations_css = (
+        ROOT / "css/pages/doacoes.css"
+    ).read_text(encoding="utf-8")
+
+    ranking_css = (
+        ROOT / "css/components/ranking.css"
+    ).read_text(encoding="utf-8")
+
+    not_found_css = (
+        ROOT / "css/pages/404.css"
+    ).read_text(encoding="utf-8")
+
+    token = (
+        "--card-title-description-gap: 8px;"
+    )
+
+    if token not in variables:
+        raise ValidationError(
+            "token global de espaço título/descrição ausente"
+        )
+
+    expectations = {
+        "Agenda usa token global":
+            ".agenda-description"
+            in home_css
+            and (
+                "margin: var(--card-title-description-gap) 0 0;"
+                in home_css
+            ),
+
+        "Regras/Créditos usam token global":
+            ".editable-section-description"
+            in home_css
+            and (
+                ".editable-section-description {\n"
+                "    margin: var(--card-title-description-gap) 0 0;"
+                in home_css
+            ),
+
+        "CTA de doações usa token global":
+            ".donation-cta p"
+            in home_css
+            and (
+                ".donation-cta p {\n"
+                "    margin: var(--card-title-description-gap) 0 0;"
+                in home_css
+            ),
+
+        "Lives substitui o gap herdado pelo token global":
+            ".lives-heading"
+            in lives_css
+            and (
+                "margin-bottom: var(--card-title-description-gap);"
+                in lives_css
+            )
+            and (
+                ".lives-description {\n"
+                "    max-width: 760px;\n\n"
+                "    margin: 0;"
+                in lives_css
+            ),
+
+        "Doações usa token global":
+            ".donation-subtitle"
+            in donations_css
+            and "var(--card-title-description-gap)"
+            in donations_css,
+
+        "Ranking usa token global":
+            ".ranking-heading p"
+            in ranking_css
+            and (
+                "margin: var(--card-title-description-gap) 0 0;"
+                in ranking_css
+            ),
+
+        "404 usa token global":
+            ".not-found-card p"
+            in not_found_css
+            and "var(--card-title-description-gap)"
+            in not_found_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "ritmo vertical V43.3 incompleto: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Espaço título/descrição dos cards padronizado em 8px"
     )
 
 
@@ -1438,6 +1554,7 @@ def validate_repository_hygiene() -> None:
         "docs/V41-FONTES-TRANSICOES.md",
         "docs/V42-CONFIGURACOES-LOADER.md",
         "docs/V43-YOUTUBE-EMBED.md",
+        "docs/V43-3-RITMO-CARDS.md",
     ]
 
     missing = [
@@ -1901,6 +2018,7 @@ def main() -> int:
     checks = [
         validate_all_json_files,
         validate_youtube_popup_lives,
+        validate_card_title_description_spacing,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

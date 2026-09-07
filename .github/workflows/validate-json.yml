@@ -1,4 +1,4 @@
-name: Validate V43.2 site content and YouTube carousel popup
+name: Validate V43.3 site content and card rhythm
 
 on:
   push:

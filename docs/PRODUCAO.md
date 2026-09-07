@@ -155,3 +155,11 @@ Nenhuma chamada adicional de backend/API é necessária.
 Trocar de live substitui somente o iframe do player. O `dialog` permanece
 aberto e o iframe anterior é descartado.
 
+## V43.3 — ritmo visual dos cards
+
+A correção é exclusivamente CSS/design-system. Não há alteração de dados,
+integrações ou publicação.
+
+O intervalo título → descrição dos cards de conteúdo passa a ser governado por
+`--card-title-description-gap: 8px`.
+

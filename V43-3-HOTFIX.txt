@@ -1,0 +1,28 @@
+V43.3 — RITMO VERTICAL DOS CARDS
+
+BASE:
+V43.2 já aplicada.
+
+MUDANÇA:
+Padroniza em 8px o espaço entre título e descrição dos cards de conteúdo.
+
+COBRE:
+- Lives
+- Agenda
+- Regras
+- Créditos
+- CTA
+- Doações
+- Ranking
+- 404
+
+NÃO ALTERA:
+- playlist/configuração
+- JavaScript funcional
+- navbar
+- loader
+- footer
+- Worker/API
+- arquivos históricos/antigos
+
+Não há arquivos para remover.

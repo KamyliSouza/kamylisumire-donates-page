@@ -73,7 +73,7 @@
 }
 
 .donation-card h1 {
-    margin: 8px 0 6px;
+    margin: 8px 0 0;
 
     color: var(--primary-color);
 
@@ -82,7 +82,10 @@
 }
 
 .donation-subtitle {
-    margin: 0 0 24px;
+    margin:
+        var(--card-title-description-gap)
+        0
+        24px;
 
     color: var(--subtitle-color);
 

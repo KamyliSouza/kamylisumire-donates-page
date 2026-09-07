@@ -47,7 +47,10 @@
 .not-found-card p {
     max-width: 480px;
 
-    margin: 10px auto 24px;
+    margin:
+        var(--card-title-description-gap)
+        auto
+        24px;
 
     color: var(--subtitle-color);
 

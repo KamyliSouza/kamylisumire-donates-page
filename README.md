@@ -267,3 +267,8 @@ Consulte `docs/V43-YOUTUBE-EMBED.md`.
 Os cards de Lives usam proporção 16:9 alinhada às thumbnails. O popup possui um
 mini-carrossel responsivo que permite trocar entre as lives sem fechar o player.
 
+### V43.3
+
+O espaço entre títulos e descrições dos cards de conteúdo foi normalizado para
+8px por meio do token `--card-title-description-gap`.
+

@@ -7,6 +7,8 @@
 
 .lives-heading {
     align-items: flex-end;
+
+    margin-bottom: var(--card-title-description-gap);
 }
 
 .lives-youtube-link {
@@ -41,8 +43,7 @@
 .lives-description {
     max-width: 760px;
 
-    margin-top: 8px;
-    margin-bottom: 0;
+    margin: 0;
 }
 
 .lives-carousel {

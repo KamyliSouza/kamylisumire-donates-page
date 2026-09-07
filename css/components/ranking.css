@@ -12,7 +12,7 @@
 }
 
 .ranking-heading h2 {
-    margin: 8px 0 4px;
+    margin: 8px 0 0;
 
     color: var(--primary-color);
 
@@ -21,7 +21,7 @@
 }
 
 .ranking-heading p {
-    margin: 0;
+    margin: var(--card-title-description-gap) 0 0;
 
     color: var(--subtitle-color);
 

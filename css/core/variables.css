@@ -40,6 +40,9 @@
     --radius-button: 16px;
     --radius-small: 14px;
 
+    /* Ritmo vertical de conteúdo */
+    --card-title-description-gap: 8px;
+
     /* Compatibilidade com módulos existentes */
     --radius-xl: var(--radius-card);
     --radius-lg: var(--radius-button);

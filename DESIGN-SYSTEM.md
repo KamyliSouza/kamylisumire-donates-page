@@ -284,3 +284,27 @@ O mini-carrossel do popup usa cards compactos também em 16:9, item ativo com
 
 O switcher fica entre o player e o link `Abrir esta live no YouTube`.
 
+## V43.3 — ritmo vertical dos cards
+
+Cards de conteúdo usam um único token entre título e descrição:
+
+```css
+--card-title-description-gap: 8px;
+```
+
+Aplicações:
+
+```text
+Lives
+Agenda
+Regras
+Créditos
+CTA da Home
+Doações
+Ranking
+404
+```
+
+Elementos compactos internos, como título/subtítulo de botões, não usam esse
+token porque pertencem a outro nível de densidade visual.
+

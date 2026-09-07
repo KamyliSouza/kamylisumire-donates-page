@@ -475,7 +475,7 @@
 }
 
 .agenda-description {
-    margin: 7px 0 0;
+    margin: var(--card-title-description-gap) 0 0;
 
     max-width: 100%;
 
@@ -530,7 +530,7 @@
 }
 
 .editable-section-description {
-    margin: 10px 0 0;
+    margin: var(--card-title-description-gap) 0 0;
 }
 
 .editable-items-list {
@@ -715,7 +715,7 @@
 }
 
 .donation-cta p {
-    margin: 7px 0 0;
+    margin: var(--card-title-description-gap) 0 0;
 
     color: var(--subtitle-color);
 

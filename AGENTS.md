@@ -599,3 +599,16 @@ adicionar nova fonte de dados, Data API ou backend para montar o popup.
 
 Trocar uma live no popup deve substituir o iframe sem fechar o `dialog`.
 
+## V43.3 — ritmo de cards
+
+Preservar o token:
+
+```css
+--card-title-description-gap: 8px;
+```
+
+Novos cards de conteúdo com título seguido de descrição devem reutilizar esse
+token em vez de introduzir valores locais diferentes.
+
+Não aplicar automaticamente o token a microconteúdo interno de botões ou badges.
+

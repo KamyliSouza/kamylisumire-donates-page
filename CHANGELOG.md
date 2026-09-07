@@ -1,4 +1,12 @@
 # CHANGELOG
+## V43.3 — ritmo vertical uniforme nos cards
+- cria `--card-title-description-gap: 8px` como token global;
+- normaliza o espaço entre título e descrição em Lives, Agenda, Regras, Créditos, CTA, Doações, Ranking e 404;
+- remove o espaçamento excessivo entre o cabeçalho e a descrição de Lives;
+- mantém elementos compactos internos, como textos de botões, fora da regra global;
+- CI passa a validar o contrato de espaçamento;
+- não altera conteúdo, dados, navbar, loader, footer, Worker/API ou arquivos históricos.
+
 ## V43.2 — cards 16:9 e mini-carrossel no popup
 - hotfix sobre a V43.1;
 - cards principais passam a ter proporção exata 16:9;
