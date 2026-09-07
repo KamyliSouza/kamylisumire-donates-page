@@ -203,6 +203,7 @@
     <link rel="stylesheet" href="css/core/global.css">
     <link rel="stylesheet" href="css/core/navbar.css">
     <link rel="stylesheet" href="css/pages/home.css">
+    <link rel="stylesheet" href="css/components/lives.css">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -398,6 +399,85 @@
             </div>
         </section>
 
+        <section
+            class="glass-panel section-panel lives-section"
+            id="lives"
+            aria-labelledby="livesTitle"
+        >
+            <div class="section-heading lives-heading">
+                <div>
+                    <span class="eyebrow" id="livesEyebrow">YouTube</span>
+                    <h2 id="livesTitle">Últimas lives</h2>
+                </div>
+
+                <a
+                    class="lives-youtube-link"
+                    id="livesYoutubeLink"
+                    href="https://youtube.com/kamyli"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <span id="livesYoutubeLinkText">Abrir no YouTube</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+
+            <p
+                class="body-copy lives-description"
+                id="livesDescription"
+            >
+                Assista às lives diretamente pela playlist oficial do canal,
+                sem sair do site.
+            </p>
+
+            <div class="lives-embed-card">
+                <div
+                    class="lives-player-shell"
+                    id="livesPlayerShell"
+                >
+                    <div
+                        class="lives-player-facade"
+                        id="livesPlayerFacade"
+                    >
+                        <span
+                            class="lives-play-mark"
+                            aria-hidden="true"
+                        ></span>
+
+                        <div class="lives-facade-copy">
+                            <strong id="livesFacadeTitle">
+                                Playlist de lives
+                            </strong>
+
+                            <span
+                                id="livesFacadeStatus"
+                                aria-live="polite"
+                            >
+                                Preparando a playlist...
+                            </span>
+                        </div>
+
+                        <button
+                            class="button button-primary lives-load-button"
+                            id="livesLoadButton"
+                            type="button"
+                            disabled
+                        >
+                            Carregar playlist
+                        </button>
+                    </div>
+                </div>
+
+                <p
+                    class="lives-privacy-note"
+                    id="livesPrivacyNote"
+                >
+                    O player do YouTube só é carregado depois que você clicar
+                    no botão.
+                </p>
+            </div>
+        </section>
+
         <section class="glass-panel section-panel" id="agenda">
             <div class="section-heading agenda-heading">
                 <div>
@@ -508,6 +588,7 @@
     <script src="js/core/footer.js"></script>
     <script src="js/pages/home/home.js"></script>
     <script src="js/pages/home/content.js"></script>
+    <script src="js/pages/home/lives.js"></script>
     <script src="js/core/loader.js"></script>
 </body>
 </html>

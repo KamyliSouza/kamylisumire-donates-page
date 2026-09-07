@@ -131,3 +131,20 @@ o loader transparente de no mínimo 1 segundo.
 
 A mudança é somente de frontend e não altera Worker, API, OAuth, KV, CORS ou
 DNS.
+
+## V43 — playlist YouTube embed
+
+A integração de Lives continua 100% estática no GitHub Pages.
+
+```text
+data/content/lives.json
+→ JS da Home
+→ iframe da playlist após clique
+```
+
+Não existem credenciais, Google Cloud ou workflow de sincronização. Alterações
+na playlist são feitas diretamente no YouTube e o embed continua apontando para
+o mesmo `playlistId`.
+
+Nenhuma configuração de Worker/API foi alterada.
+

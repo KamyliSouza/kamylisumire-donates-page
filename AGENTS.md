@@ -550,3 +550,30 @@ Em `data-blur="off"`, o popover também deve permanecer sem filtro.
 O título visível do card deve ser somente `Configurações`; não reintroduzir
 `Preferências` como eyebrow/título adicional.
 
+## V43 — playlist YouTube sem API
+
+Preservar a arquitetura estática:
+
+```text
+data/content/lives.json
+→ js/pages/home/lives.js
+→ iframe youtube-nocookie.com/embed/videoseries
+```
+
+Não introduzir:
+
+```text
+YOUTUBE_API_KEY
+YouTube Data API
+Google Cloud
+sync-youtube-lives.py
+sync-youtube-lives.yml
+```
+
+Agenda e Lives devem continuar independentes.
+
+O iframe deve continuar lazy por interação: não colocar o player diretamente no
+HTML inicial nem carregar scripts externos do YouTube no caminho crítico.
+
+Não mover essa funcionalidade para `workers.js` ou para a API de doações.
+

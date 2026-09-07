@@ -1,0 +1,37 @@
+V43 — PLAYLIST DE LIVES VIA EMBED
+
+BASE:
+V42.5
+
+IMPORTANTE:
+As versões V43/V43.1 anteriores com Google Cloud foram abandonadas.
+Não aplique aqueles pacotes antes deste.
+
+APLICAÇÃO:
+1. extraia este ZIP sobre a raiz da V42.5;
+2. permita substituir os arquivos existentes;
+3. edite data/content/lives.json;
+4. preencha playlistId;
+5. commit/push.
+
+EXEMPLO:
+URL:
+https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx
+
+JSON:
+"playlistId": "PLxxxxxxxxxxxxxxxx"
+
+SEM GOOGLE CLOUD:
+- sem YouTube Data API;
+- sem API key;
+- sem Secrets;
+- sem Action de sincronização;
+- sem cobrança relacionada a essa integração.
+
+MODULARIDADE:
+- data/content/lives.json
+- js/pages/home/lives.js
+- css/components/lives.css
+
+Não há arquivos para remover quando aplicada diretamente sobre a V42.5.
+Worker/API de doações não foram alterados.

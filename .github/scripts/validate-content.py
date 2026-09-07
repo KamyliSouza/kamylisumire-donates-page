@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V42.5.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -100,6 +100,233 @@ def require_string(obj, key: str, context: str) -> str:
         )
 
     return value
+
+
+
+def validate_youtube_embed() -> None:
+    data = load_json_strict(
+        ROOT / "data/content/lives.json"
+    )
+
+    if not isinstance(data, dict):
+        raise ValidationError(
+            "data/content/lives.json deve conter um objeto"
+        )
+
+    expected_keys = {
+        "eyebrow",
+        "titulo",
+        "descricao",
+        "playlistId",
+        "canalUrl",
+        "botaoCarregar",
+        "botaoCanal",
+        "mensagemSemPlaylist",
+        "notaPrivacidade",
+    }
+
+    if set(data) != expected_keys:
+        raise ValidationError(
+            "data/content/lives.json deve conter exatamente: "
+            + ", ".join(sorted(expected_keys))
+        )
+
+    for key in expected_keys:
+        if not isinstance(data[key], str):
+            raise ValidationError(
+                f"lives.{key} deve ser string"
+            )
+
+    playlist_id = data["playlistId"].strip()
+
+    if (
+        playlist_id
+        and not re.fullmatch(
+            r"[A-Za-z0-9_-]{10,100}",
+            playlist_id,
+        )
+    ):
+        raise ValidationError(
+            "lives.playlistId não parece um ID válido de playlist"
+        )
+
+    channel_url = urlsplit(
+        data["canalUrl"].strip()
+    )
+
+    if (
+        channel_url.scheme != "https"
+        or not channel_url.hostname
+        or not (
+            channel_url.hostname == "youtube.com"
+            or channel_url.hostname.endswith(".youtube.com")
+        )
+    ):
+        raise ValidationError(
+            "lives.canalUrl deve usar HTTPS em youtube.com"
+        )
+
+    home = (
+        ROOT / "index.html"
+    ).read_text(encoding="utf-8")
+
+    navbar = (
+        ROOT / "js/core/navbar.js"
+    ).read_text(encoding="utf-8")
+
+    lives_js = (
+        ROOT / "js/pages/home/lives.js"
+    ).read_text(encoding="utf-8")
+
+    lives_css = (
+        ROOT / "css/components/lives.css"
+    ).read_text(encoding="utf-8")
+
+    lives_position = home.find(
+        'id="lives"'
+    )
+
+    agenda_position = home.find(
+        'id="agenda"'
+    )
+
+    expectations = {
+        "Home carrega CSS modular de lives":
+            'href="css/components/lives.css"'
+            in home,
+
+        "Home carrega JS modular de lives":
+            'src="js/pages/home/lives.js"'
+            in home,
+
+        "Lives fica acima da Agenda":
+            lives_position >= 0
+            and agenda_position >= 0
+            and lives_position < agenda_position,
+
+        "Navbar possui entrada Lives":
+            'data-nav-section="lives"'
+            in navbar
+            and '${sitePath("/#lives")}'
+            in navbar,
+
+        "Config é JSON estático local":
+            '/data/content/lives.json'
+            in lives_js,
+
+        "Player usa playlist embed":
+            "embed/videoseries"
+            in lives_js
+            and "list:" in lives_js,
+
+        "Embed usa domínio sem cookies":
+            "youtube-nocookie.com"
+            in lives_js,
+
+        "Iframe só é criado por JavaScript":
+            'document.createElement('
+            in lives_js
+            and '"iframe"'
+            in lives_js
+            and "<iframe"
+            not in home,
+
+        "Player só é criado após clique":
+            'loadButton.addEventListener('
+            in lives_js
+            and '"click"'
+            in lives_js
+            and "createPlayer"
+            in lives_js,
+
+        "Iframe possui política e permissões":
+            "strict-origin-when-cross-origin"
+            in lives_js
+            and "allowFullscreen = true"
+            in lives_js,
+
+        "CSS de lives é isolado":
+            ".lives-player-shell"
+            in lives_css
+            and ".lives-player-facade"
+            in lives_css,
+
+        "Componente evita blur aninhado":
+            "Sem backdrop-filter próprio"
+            in lives_css
+            and ".lives-embed-card"
+            in lives_css,
+
+        "Componente respeita reduced motion":
+            "@media (prefers-reduced-motion: reduce)"
+            in lives_css
+            and 'data-performance="reduced"'
+            in lives_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "integração YouTube embed V43 incompleta: "
+            + ", ".join(failures)
+        )
+
+    forbidden_cloud_files = [
+        ".github/scripts/sync-youtube-lives.py",
+        ".github/workflows/sync-youtube-lives.yml",
+        "data/youtube-lives.json",
+    ]
+
+    leftovers = [
+        rel
+        for rel in forbidden_cloud_files
+        if (ROOT / rel).exists()
+    ]
+
+    if leftovers:
+        raise ValidationError(
+            "V43 embed não deve conter integração Google Cloud/API: "
+            + ", ".join(leftovers)
+        )
+
+    runtime_sources = [
+        home,
+        navbar,
+        lives_js,
+        lives_css,
+    ]
+
+    forbidden_tokens = [
+        "YOUTUBE_API_KEY",
+        "googleapis.com/youtube/v3",
+        "x-goog-api-key",
+    ]
+
+    leaked = [
+        token
+        for token in forbidden_tokens
+        if any(
+            token in source
+            for source in runtime_sources
+        )
+    ]
+
+    if leaked:
+        raise ValidationError(
+            "V43 embed contém referência indevida à Data API: "
+            + ", ".join(leaked)
+        )
+
+    print(
+        "✓ Playlist embed V43 sem Google Cloud/API integrada"
+    )
+
 
 
 def validate_agenda() -> None:
@@ -1111,6 +1338,7 @@ def validate_repository_hygiene() -> None:
         "docs/V40-AUDITORIA.md",
         "docs/V41-FONTES-TRANSICOES.md",
         "docs/V42-CONFIGURACOES-LOADER.md",
+        "docs/V43-YOUTUBE-EMBED.md",
     ]
 
     missing = [
@@ -1573,6 +1801,7 @@ def validate_v42_interface() -> None:
 def main() -> int:
     checks = [
         validate_all_json_files,
+        validate_youtube_embed,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

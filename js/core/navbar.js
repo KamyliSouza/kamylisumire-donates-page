@@ -34,6 +34,14 @@
 
                     <a
                         class="site-nav-link"
+                        data-nav-section="lives"
+                        href="${sitePath("/#lives")}"
+                    >
+                        Lives
+                    </a>
+
+                    <a
+                        class="site-nav-link"
                         data-nav-section="agenda"
                         href="${sitePath("/#agenda")}"
                     >

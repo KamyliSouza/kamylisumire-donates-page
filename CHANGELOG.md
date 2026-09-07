@@ -1,4 +1,18 @@
 # CHANGELOG
+## V43 — playlist de lives via embed, sem Google Cloud
+- baseada diretamente na V42.5;
+- adiciona seção `#lives` acima da Agenda;
+- adiciona `Lives` à navbar e ao scrollspy existente;
+- cria `data/content/lives.json` como configuração pública da playlist;
+- cria `js/pages/home/lives.js` exclusivamente para o player;
+- cria `css/components/lives.css` exclusivamente para a seção;
+- usa embed `youtube-nocookie.com/embed/videoseries`;
+- iframe só é criado depois do clique do visitante;
+- alterações feitas na playlist do YouTube não exigem sincronização ou deploy;
+- não usa YouTube Data API, Google Cloud, API key ou GitHub Action;
+- CI V43 valida a modularidade e rejeita resíduos da antiga proposta com Data API;
+- Agenda, loader, footer, preferências, Worker/API e doações permanecem inalterados.
+
 ## V42.5 — blur e título do card de configurações
 - corrige o blur do popover de Configurações no rodapé;
 - enquanto o popover está aberto, o footer suspende temporariamente seu próprio `backdrop-filter`;

@@ -1,0 +1,263 @@
+/* =========================================================
+   V43 — LIVES / PLAYLIST YOUTUBE EMBED
+
+   Componente exclusivo da Home.
+   O player externo só é criado depois de interação explícita.
+   ========================================================= */
+
+.lives-heading {
+    align-items: flex-end;
+}
+
+.lives-youtube-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    color: var(--primary-color);
+
+    font-size: .82rem;
+    font-weight: 800;
+    line-height: 1.4;
+
+    text-decoration: none;
+
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+.lives-youtube-link:hover,
+.lives-youtube-link:focus-visible {
+    opacity: .82;
+
+    transform: translateY(-1px);
+
+    outline: none;
+    text-decoration: underline;
+}
+
+.lives-description {
+    max-width: 760px;
+
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+.lives-embed-card {
+    margin-top: 18px;
+    padding: 10px;
+
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-small);
+
+    /*
+     * Sem backdrop-filter próprio:
+     * o glass-panel ancestral já segue a configuração global de blur.
+     * Isso evita criar filtros aninhados desnecessários.
+     */
+}
+
+.lives-player-shell {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            var(--primary-soft),
+            transparent 48%
+        ),
+        linear-gradient(
+            145deg,
+            var(--card-bg),
+            var(--notice-bg)
+        );
+
+    border: 1px solid var(--card-border);
+    border-radius: calc(var(--radius-small) - 4px);
+
+    isolation: isolate;
+}
+
+.lives-player-shell iframe {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    border: 0;
+}
+
+.lives-player-facade {
+    position: absolute;
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+    align-content: center;
+
+    gap: 18px;
+    padding: clamp(22px, 4vw, 44px);
+
+    text-align: center;
+}
+
+.lives-play-mark {
+    position: relative;
+
+    width: 66px;
+    height: 66px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--primary-color);
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--primary-color) 82%,
+        white
+    );
+    border-radius: 50%;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.lives-play-mark::after {
+    content: "";
+
+    margin-left: 5px;
+
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 16px solid #fff;
+}
+
+.lives-player-facade:has(
+    .lives-load-button:not(:disabled):hover
+) .lives-play-mark {
+    transform: scale(1.06);
+
+    box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
+}
+
+.lives-facade-copy {
+    max-width: 560px;
+
+    display: grid;
+
+    gap: 5px;
+}
+
+.lives-facade-copy strong {
+    color: var(--text-color);
+
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.lives-facade-copy span {
+    color: var(--subtitle-color);
+
+    font-size: .86rem;
+    font-weight: 650;
+    line-height: 1.5;
+}
+
+.lives-load-button {
+    min-width: 170px;
+}
+
+.lives-load-button:disabled {
+    opacity: .58;
+
+    cursor: default;
+}
+
+.lives-privacy-note {
+    margin: 9px 4px 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .73rem;
+    font-weight: 600;
+    line-height: 1.45;
+
+    text-align: center;
+}
+
+.lives-player-shell.is-loaded {
+    background: #000;
+}
+
+@media (max-width: 720px) {
+    .lives-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lives-youtube-link {
+        align-self: flex-start;
+    }
+
+    .lives-embed-card {
+        margin-top: 15px;
+        padding: 7px;
+    }
+
+    .lives-player-facade {
+        gap: 13px;
+
+        padding: 18px;
+    }
+
+    .lives-play-mark {
+        width: 52px;
+        height: 52px;
+    }
+
+    .lives-play-mark::after {
+        margin-left: 4px;
+
+        border-top-width: 8px;
+        border-bottom-width: 8px;
+        border-left-width: 13px;
+    }
+
+    .lives-facade-copy strong {
+        font-size: 1rem;
+    }
+
+    .lives-facade-copy span {
+        font-size: .78rem;
+    }
+
+    .lives-load-button {
+        min-width: 150px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lives-youtube-link,
+    .lives-play-mark {
+        transition: none;
+    }
+}
+
+:root[data-performance="reduced"] .lives-youtube-link,
+:root[data-performance="reduced"] .lives-play-mark {
+    transition: none;
+}

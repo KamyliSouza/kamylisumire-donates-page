@@ -57,3 +57,16 @@ A validação agora verifica:
 - chaves de cache;
 - lógica JavaScript;
 - rotas técnicas.
+
+## `lives.json`
+
+Configura o player de playlist da seção Lives.
+
+O campo principal é:
+
+```json
+"playlistId": "PL..."
+```
+
+O ID é público. Não armazenar API keys neste arquivo.
+

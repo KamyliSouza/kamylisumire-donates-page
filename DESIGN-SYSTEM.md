@@ -250,3 +250,24 @@ blur off
 O cabeçalho do popover deve conter apenas `Configurações`, sem um segundo
 rótulo `Preferências`.
 
+## Player de lives — V43
+
+A seção Lives usa o mesmo `glass-panel` das demais seções e um card interno
+16:9.
+
+```text
+glass-panel
+→ título + link externo
+→ descrição
+→ card 16:9
+   → facade
+   → botão Carregar playlist
+   → iframe após interação
+```
+
+O card interno usa `--notice-bg`, `--card-border`, `--primary-color` e os
+tokens tipográficos existentes.
+
+Não adicionar `backdrop-filter` próprio ao card; o painel ancestral já responde
+às preferências globais de blur e um filtro aninhado seria desnecessário.
+

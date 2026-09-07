@@ -242,3 +242,19 @@ performance reduzida mantêm o segundo de espera, mas removem a pulsação.
 O overlay do loader acompanha os cards: usa `--card-bg` e aplica
 `--blur-card` somente quando o estado resolvido de blur está ligado.
 
+## V43 — playlist de lives sem Google Cloud
+
+A Home possui a seção `#lives` acima da Agenda.
+
+A playlist é configurada em:
+
+```text
+data/content/lives.json
+```
+
+O player é criado somente depois do clique em `Carregar playlist` e usa um
+embed de playlist do YouTube. Não existe YouTube Data API, API key, Google
+Cloud ou Action de sincronização.
+
+Consulte `docs/V43-YOUTUBE-EMBED.md`.
+
