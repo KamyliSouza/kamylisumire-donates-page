@@ -1,4 +1,4 @@
-name: Validate V43.6 site content and YouTube compliance
+name: Validate V43.6.1 manual YouTube lives and contrast
 
 on:
   push:

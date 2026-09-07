@@ -437,7 +437,7 @@
                 class="body-copy lives-description"
                 id="livesDescription"
             >
-                Escolha uma live da playlist para assistir sem sair do site.
+                Confira algumas lives recentes e abra a escolhida no YouTube.
             </p>
 
             <div class="lives-carousel">
@@ -455,7 +455,7 @@
                     class="lives-carousel-track"
                     id="livesTrack"
                     aria-live="polite"
-                    aria-label="Lives disponíveis na playlist"
+                    aria-label="Lives recentes no YouTube"
                     tabindex="0"
                 >
                     <p
@@ -477,80 +477,6 @@
                 </button>
             </div>
         </section>
-
-        <dialog
-            class="lives-dialog"
-            id="livesDialog"
-            aria-labelledby="livesDialogTitle"
-        >
-            <div class="lives-dialog-card">
-                <div class="lives-dialog-header">
-                    <h2 id="livesDialogTitle">
-                        Assistir live
-                    </h2>
-
-                    <button
-                        class="lives-dialog-close"
-                        id="livesDialogClose"
-                        type="button"
-                        aria-label="Fechar player"
-                    >
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-
-                <div
-                    class="lives-dialog-player"
-                    id="livesDialogPlayer"
-                ></div>
-
-                <div
-                    class="lives-dialog-switcher"
-                    id="livesDialogSwitcher"
-                    aria-label="Trocar de live"
-                >
-                    <button
-                        class="lives-dialog-carousel-button lives-dialog-carousel-prev"
-                        id="livesDialogPrev"
-                        type="button"
-                        aria-label="Mostrar live anterior no popup"
-                        disabled
-                    >
-                        <span aria-hidden="true">‹</span>
-                    </button>
-
-                    <div
-                        class="lives-dialog-carousel-track"
-                        id="livesDialogTrack"
-                        tabindex="0"
-                        aria-label="Outras lives da playlist"
-                    ></div>
-
-                    <button
-                        class="lives-dialog-carousel-button lives-dialog-carousel-next"
-                        id="livesDialogNext"
-                        type="button"
-                        aria-label="Mostrar próxima live no popup"
-                        disabled
-                    >
-                        <span aria-hidden="true">›</span>
-                    </button>
-                </div>
-
-                <div class="lives-dialog-footer">
-                    <a
-                        class="lives-dialog-youtube-link"
-                        id="livesDialogYoutubeLink"
-                        href="https://youtube.com/kamyli"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Abrir esta live no YouTube
-                        <span aria-hidden="true">↗</span>
-                    </a>
-                </div>
-            </div>
-        </dialog>
 
         <section class="glass-panel section-panel" id="agenda">
             <div class="section-heading agenda-heading">

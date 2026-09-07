@@ -195,3 +195,12 @@ destruído quando o popup fecha.
 
 Nenhuma chave, Google Cloud ou backend foi adicionado.
 
+## V43.6.1 — Lives manuais
+
+A Home não cria mais player do YouTube. O conteúdo é lido de `videos` em
+`data/content/lives.json`; thumbnails carregam diretamente do YouTube e os cards
+abrem a página oficial do vídeo.
+
+O hotfix não sobrescreve `lives.json`. Adicione manualmente o array seguindo
+`data/content/lives.example.json`.
+

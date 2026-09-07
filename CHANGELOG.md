@@ -1,4 +1,16 @@
 # CHANGELOG
+## V43.6.1 — Lives manuais e borda de contraste
+- substitui descoberta automática/playlist por `videos[]` manual;
+- cada vídeo usa `videoId`, título e data ISO;
+- thumbnails originais do YouTube carregam na entrada da página;
+- remove popup, IFrame Player API, `YT.Player`, `getPlaylist`, `cuePlaylist` e autoplay;
+- cada card abre a página oficial `youtube.com/watch?v=...`;
+- não introduz Google Cloud, YouTube Data API ou API key;
+- documenta que título/data devem corresponder aos metadados reais do vídeo;
+- adiciona `--card-border-strong` para maior contraste nos cards/controles de Lives;
+- não sobrescreve `data/content/lives.json`; adiciona `lives.example.json` como modelo;
+- não altera Worker/API, navbar, loader, footer, Agenda ou assets.
+
 ## V43.6 — conformidade do player YouTube
 - remove completamente o player auxiliar oculto/offscreen de 1×1;
 - remove descoberta automática por `IntersectionObserver`;

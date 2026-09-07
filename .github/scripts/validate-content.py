@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.6.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.6.1.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -103,7 +103,7 @@ def require_string(obj, key: str, context: str) -> str:
 
 
 
-def validate_youtube_popup_lives() -> None:
+def validate_youtube_manual_lives_v4361() -> None:
     data = load_json_strict(
         ROOT / "data/content/lives.json"
     )
@@ -113,59 +113,44 @@ def validate_youtube_popup_lives() -> None:
             "data/content/lives.json deve conter um objeto"
         )
 
-    expected_keys = {
+    required_keys = {
         "eyebrow",
         "titulo",
         "descricao",
-        "playlistId",
         "canalUrl",
         "botaoCanal",
-        "mensagemCarregando",
-        "mensagemSemPlaylist",
-        "mensagemErro",
-        "modalTitulo",
         "maxItems",
     }
 
-    if set(data) != expected_keys:
+    missing = required_keys - set(data)
+
+    if missing:
         raise ValidationError(
-            "data/content/lives.json deve conter exatamente: "
-            + ", ".join(sorted(expected_keys))
+            "lives.json não contém chaves obrigatórias: "
+            + ", ".join(sorted(missing))
         )
 
-    string_keys = (
-        expected_keys -
-        {"maxItems"}
-    )
-
-    for key in string_keys:
+    for key in (
+        "eyebrow",
+        "titulo",
+        "descricao",
+        "canalUrl",
+        "botaoCanal",
+    ):
         if not isinstance(data[key], str):
             raise ValidationError(
                 f"lives.{key} deve ser string"
             )
-
-    playlist_id = data["playlistId"].strip()
-
-    if (
-        playlist_id
-        and not re.fullmatch(
-            r"[A-Za-z0-9_-]{10,100}",
-            playlist_id,
-        )
-    ):
-        raise ValidationError(
-            "lives.playlistId não parece um ID válido"
-        )
 
     max_items = data["maxItems"]
 
     if (
         not isinstance(max_items, int)
         or isinstance(max_items, bool)
-        or not 3 <= max_items <= 20
+        or not 1 <= max_items <= 20
     ):
         raise ValidationError(
-            "lives.maxItems deve ser inteiro entre 3 e 20"
+            "lives.maxItems deve ser inteiro entre 1 e 20"
         )
 
     channel_url = urlsplit(
@@ -184,12 +169,74 @@ def validate_youtube_popup_lives() -> None:
             "lives.canalUrl deve usar HTTPS em youtube.com"
         )
 
+    videos = data.get("videos", [])
+
+    if not isinstance(videos, list):
+        raise ValidationError(
+            "lives.videos deve ser um array quando presente"
+        )
+
+    for index, item in enumerate(videos):
+        context = f"lives.videos[{index}]"
+
+        if not isinstance(item, dict):
+            raise ValidationError(
+                f"{context} deve ser um objeto"
+            )
+
+        if set(item) != {"videoId", "title", "date"}:
+            raise ValidationError(
+                f"{context} deve conter exatamente videoId, title e date"
+            )
+
+        video_id = require_string(
+            item,
+            "videoId",
+            context,
+        ).strip()
+
+        if not re.fullmatch(
+            r"[A-Za-z0-9_-]{11}",
+            video_id,
+        ):
+            raise ValidationError(
+                f"{context}.videoId inválido"
+            )
+
+        title = require_string(
+            item,
+            "title",
+            context,
+        ).strip()
+
+        if not title:
+            raise ValidationError(
+                f"{context}.title não pode ser vazio"
+            )
+
+        date_value = require_string(
+            item,
+            "date",
+            context,
+        ).strip()
+
+        try:
+            parsed = datetime.strptime(
+                date_value,
+                "%Y-%m-%d",
+            )
+        except ValueError as exc:
+            raise ValidationError(
+                f"{context}.date deve usar AAAA-MM-DD"
+            ) from exc
+
+        if parsed.strftime("%Y-%m-%d") != date_value:
+            raise ValidationError(
+                f"{context}.date inválida"
+            )
+
     home = (
         ROOT / "index.html"
-    ).read_text(encoding="utf-8")
-
-    navbar = (
-        ROOT / "js/core/navbar.js"
     ).read_text(encoding="utf-8")
 
     lives_js = (
@@ -200,171 +247,94 @@ def validate_youtube_popup_lives() -> None:
         ROOT / "css/components/lives.css"
     ).read_text(encoding="utf-8")
 
-    lives_position = home.find(
-        'id="lives"'
-    )
-
-    agenda_position = home.find(
-        'id="agenda"'
-    )
+    variables = (
+        ROOT / "css/core/variables.css"
+    ).read_text(encoding="utf-8")
 
     expectations = {
-        "Home carrega CSS modular de lives":
-            'href="css/components/lives.css"'
-            in home,
+        "Lives permanece acima da Agenda":
+            home.find('id="lives"') >= 0
+            and home.find('id="agenda"') >= 0
+            and home.find('id="lives"') < home.find('id="agenda"'),
 
-        "Home carrega JS modular de lives":
-            'src="js/pages/home/lives.js"'
-            in home,
-
-        "Lives fica acima da Agenda":
-            lives_position >= 0
-            and agenda_position >= 0
-            and lives_position < agenda_position,
-
-        "Navbar possui entrada Lives":
-            'data-nav-section="lives"'
-            in navbar
-            and '${sitePath("/#lives")}'
-            in navbar,
-
-        "Home contém carrossel, não player inline":
-            'id="livesTrack"'
-            in home
-            and 'id="livesDialog"'
-            in home
-            and 'id="livesDialogPlayer"'
-            in home
-            and "<iframe"
+        "Popup/player foi removido da Home":
+            'id="livesDialog"'
+            not in home
+            and "lives-dialog-player"
             not in home,
 
-        "Player usa dialog nativo":
-            '<dialog'
-            in home
-            and 'class="lives-dialog"'
-            in home
-            and "showModal"
-            in lives_js,
-
-        "Cards são criados com DocumentFragment":
-            "createDocumentFragment"
-            in lives_js
-            and ".live-thumb-card"
-            in lives_css,
-
-        "Carrossel usa ResizeObserver":
-            "ResizeObserver"
-            in lives_js
-            and ".lives-carousel-track"
-            in lives_css,
-
-        "Thumbnails usam CDN do YouTube e lazy":
-            "i.ytimg.com/vi/"
-            in lives_js
-            and 'image.loading = "lazy"'
-            in lives_js
-            and 'image.decoding = "async"'
-            in lives_js,
-
-        "Playlist é descoberta pela IFrame Player API":
-            "youtube.com/iframe_api"
-            in lives_js
-            and "cuePlaylist"
-            in lives_js
-            and "getPlaylist"
-            in lives_js
-            and 'listType:'
-            in lives_js
-            and '"playlist"'
-            in lives_js,
-
-        "YouTube só carrega após ação explícita":
-            "renderLoadPrompt"
-            in lives_js
-            and "openPlaylistDialog"
-            in lives_js
-            and "IntersectionObserver"
+        "Módulo não usa YouTube IFrame API":
+            "iframe_api"
+            not in lives_js
+            and "YT.Player"
+            not in lives_js
+            and "enablejsapi"
             not in lives_js,
 
-        "Player popup usa embed oficial com IFrame API":
-            "youtube.com/"
+        "Módulo não cria iframe/player":
+            "createElement(\n                \"iframe\""
+            not in lives_js
+            and "youtube.com/embed"
+            not in lives_js
+            and "youtube-nocookie.com/embed"
+            not in lives_js,
+
+        "Cards são links diretos para watch":
+            "https://www.youtube.com/watch"
             in lives_js
-            and "buildPlayerEmbedUrl"
-            in lives_js
-            and 'enablejsapi: "1"'
+            and 'card.target = "_blank";'
             in lives_js,
 
-        "Cards principais seguem thumbnail 16:9":
-            "aspect-ratio: 16 / 9"
-            in lives_css
+        "Thumbnails usam imagem original do YouTube":
+            "https://i.ytimg.com/vi/"
+            in lives_js
             and "/mqdefault.jpg"
-            in lives_js
-            and "image.width = 320"
-            in lives_js
-            and "image.height = 180"
             in lives_js,
 
-        "Popup possui mini-carrossel responsivo":
-            'id="livesDialogTrack"'
-            in home
-            and ".lives-dialog-carousel-track"
+        "Thumbnails são carregadas na entrada":
+            'image.loading = "eager";'
+            in lives_js,
+
+        "Título e data são exibidos":
+            "live-card-title"
+            in lives_js
+            and "live-card-meta"
+            in lives_js
+            and "formatDate"
+            in lives_js,
+
+        "Sem overlay de play ou texto na thumbnail":
+            "live-thumb-play"
+            not in lives_js
+            and "live-thumb-label"
+            not in lives_js
+            and "live-card-overlay"
+            not in lives_css,
+
+        "Thumbnail não recebe filtro visual":
+            ".live-card-thumbnail"
             in lives_css
-            and ".lives-dialog-thumb"
+            and "filter:"
+            not in lives_css,
+
+        "Card mantém thumbnail acima de 120x70":
+            "clamp(260px, 31vw, 320px)"
             in lives_css
-            and "renderDialogCarousel"
-            in lives_js,
-
-        "Mini-carrossel troca live sem fechar popup":
-            "loadDialogVideo"
-            in lives_js
-            and "selectedDialogIndex"
-            in lives_js
-            and "aria-current"
-            in lives_js,
-
-        "Mini-carrossel possui setas e teclado":
-            'id="livesDialogPrev"'
-            in home
-            and 'id="livesDialogNext"'
-            in home
-            and "scrollDialogCarousel"
-            in lives_js
-            and "ArrowLeft"
-            in lives_js
-            and "ArrowRight"
-            in lives_js,
-
-        "Fechar popup remove iframe":
-            "dialogPlayer.replaceChildren()"
-            in lives_js
-            and 'dialog.addEventListener('
-            in lives_js
-            and '"close"'
-            in lives_js,
-
-        "Popup pode fechar por clique no backdrop":
-            "event.target === dialog"
-            in lives_js,
-
-        "Popup acompanha blur":
-            ".lives-dialog::backdrop"
-            in lives_css
-            and "backdrop-filter: blur(var(--blur-card))"
-            in lives_css
-            and ':root[data-blur="off"] .lives-dialog::backdrop'
+            and "aspect-ratio: 16 / 9;"
             in lives_css,
 
-        "Título do popup usa cor primária":
-            ".lives-dialog-header h2"
-            in lives_css
-            and "color: var(--primary-color)"
+        "Borda de contraste V43.6.1 existe":
+            "--card-border-strong: rgba(179, 94, 175, 0.46);"
+            in variables
+            and "--card-border-strong: rgba(235, 170, 232, 0.58);"
+            in variables
+            and "border: 1px solid var(--card-border-strong);"
             in lives_css,
 
-        "CSS respeita reduced motion/performance":
-            "@media (prefers-reduced-motion: reduce)"
-            in lives_css
-            and 'data-performance="reduced"'
-            in lives_css,
+        "Exemplo manual está documentado":
+            (
+                ROOT / "data/content/lives.example.json"
+            ).exists(),
     }
 
     failures = [
@@ -376,60 +346,13 @@ def validate_youtube_popup_lives() -> None:
 
     if failures:
         raise ValidationError(
-            "integração YouTube popup V43.6 incompleta: "
+            "Lives manuais V43.6.1 incompletas: "
             + ", ".join(failures)
         )
 
-    forbidden_files = [
-        ".github/scripts/sync-youtube-lives.py",
-        ".github/workflows/sync-youtube-lives.yml",
-        "data/youtube-lives.json",
-    ]
-
-    leftovers = [
-        rel
-        for rel in forbidden_files
-        if (ROOT / rel).exists()
-    ]
-
-    if leftovers:
-        raise ValidationError(
-            "V43 popup não deve conter integração Data API/Cloud: "
-            + ", ".join(leftovers)
-        )
-
-    public_sources = [
-        home,
-        navbar,
-        lives_js,
-        lives_css,
-    ]
-
-    forbidden_tokens = [
-        "YOUTUBE_API_KEY",
-        "googleapis.com/youtube/v3",
-        "x-goog-api-key",
-    ]
-
-    leaked = [
-        token
-        for token in forbidden_tokens
-        if any(
-            token in source
-            for source in public_sources
-        )
-    ]
-
-    if leaked:
-        raise ValidationError(
-            "V43 popup contém referência indevida à Data API: "
-            + ", ".join(leaked)
-        )
-
     print(
-        "✓ Carrossel de lives + popup V43.6 sem Google Cloud integrado"
+        "✓ Lives V43.6.1 manuais, sem player/API e com metadata visível"
     )
-
 
 
 
@@ -558,48 +481,46 @@ def validate_lives_card_border() -> None:
         ROOT / "css/components/lives.css"
     ).read_text(encoding="utf-8")
 
+    variables = (
+        ROOT / "css/core/variables.css"
+    ).read_text(encoding="utf-8")
+
     expectations = {
-        "Agenda continua usando card-border":
+        "Agenda mantém borda padrão":
             ".agenda-card"
             in home_css
             and "border: 1px solid var(--card-border);"
             in home_css,
 
-        "Lives usa o mesmo token de borda":
-            ".live-thumb-card"
+        "Lives usa borda reforçada":
+            ".live-card"
             in lives_css
-            and "border: 1px solid var(--card-border);"
+            and "border: 1px solid var(--card-border-strong);"
             in lives_css,
 
-        "Frame de Lives é desenhado sobre a thumbnail":
-            ".live-thumb-card::after"
-            in lives_css
-            and "position: absolute;"
-            in lives_css
-            and "z-index: 4;"
-            in lives_css
-            and "pointer-events: none;"
-            in lives_css,
+        "Token claro tem contraste maior":
+            "--card-border-strong: rgba(179, 94, 175, 0.46);"
+            in variables,
 
-        "Frame preserva a geometria 16:9":
-            "aspect-ratio: 16 / 9;"
-            in lives_css
-            and "inset: 0;"
-            in lives_css,
+        "Token escuro é mais claro/visível":
+            "--card-border-strong: rgba(235, 170, 232, 0.58);"
+            in variables,
 
-        "Hover/foco/última live usam cor primária":
-            ".live-thumb-card:hover::after"
+        "Hover/foco usa cor primária":
+            ".live-card:hover"
             in lives_css
-            and ".live-thumb-card:focus-visible::after"
-            in lives_css
-            and ".live-thumb-card.is-last-viewed::after"
+            and ".live-card:focus-visible"
             in lives_css
             and "border-color: var(--primary-color);"
             in lives_css,
 
-        "Frame não interfere no clique":
-            "pointer-events: none;"
-            in lives_css,
+        "Thumbnail preserva 16:9 sem frame sobreposto":
+            ".live-card-media"
+            in lives_css
+            and "aspect-ratio: 16 / 9;"
+            in lives_css
+            and "::after"
+            not in lives_css,
     }
 
     failures = [
@@ -611,15 +532,13 @@ def validate_lives_card_border() -> None:
 
     if failures:
         raise ValidationError(
-            "borda dos cards de Lives V43.4 incompleta: "
+            "borda dos cards de Lives V43.6.1 incompleta: "
             + ", ".join(failures)
         )
 
     print(
-        "✓ Borda dos cards de Lives alinhada visualmente à Agenda"
+        "✓ Borda dos cards de Lives V43.6.1 com contraste reforçado"
     )
-
-
 
 
 def validate_loader_pulse_v434() -> None:
@@ -747,23 +666,11 @@ def validate_carousel_edge_alignment_v435() -> None:
             and "pointer-events: none;"
             in lives_css,
 
-        "Popup usa gutter lateral menor no desktop":
-            "--dialog-carousel-edge-gutter: 44px;"
-            in lives_css,
-
-        "Popup usa gutter lateral menor no mobile":
-            "--dialog-carousel-edge-gutter: 36px;"
-            in lives_css,
-
-        "Setas do popup ficam mais próximas das bordas":
-            "left: 8px;"
-            in lives_css
-            and "right: 8px;"
-            in lives_css
-            and "left: 4px;"
-            in lives_css
-            and "right: 4px;"
-            in lives_css,
+        "Popup removido não deixa gutter residual":
+            "dialog-carousel-edge-gutter"
+            not in lives_css
+            and "lives-dialog-carousel"
+            not in lives_css,
     }
 
     failures = [
@@ -775,139 +682,13 @@ def validate_carousel_edge_alignment_v435() -> None:
 
     if failures:
         raise ValidationError(
-            "alinhamento lateral V43.5 incompleto: "
+            "alinhamento lateral V43.6.1 incompleto: "
             + ", ".join(failures)
         )
 
     print(
-        "✓ Carrosséis V43.5 alinhados às bordas internas dos painéis"
+        "✓ Agenda/Lives mantêm gutters V43.5 sem resíduos do popup"
     )
-
-
-
-
-def validate_youtube_platform_compliance_v436() -> None:
-    lives_js = (
-        ROOT / "js/pages/home/lives.js"
-    ).read_text(encoding="utf-8")
-
-    lives_css = (
-        ROOT / "css/components/lives.css"
-    ).read_text(encoding="utf-8")
-
-    expectations = {
-        "Player auxiliar 1x1 foi removido":
-            'width: "1"'
-            not in lives_js
-            and 'height: "1"'
-            not in lives_js
-            and "lives-playlist-probe"
-            not in lives_js
-            and "lives-playlist-probe"
-            not in lives_css,
-
-        "Não existe player oculto/offscreen":
-            "left: -9999px"
-            not in lives_css
-            and "opacity: .001"
-            not in lives_css,
-
-        "Player visível declara 480x270":
-            'iframe.width = "480"'
-            in lives_js
-            and 'iframe.height = "270"'
-            in lives_js,
-
-        "CSS garante viewport mínima de 200x200":
-            ".lives-dialog-player"
-            in lives_css
-            and "min-width: 200px;"
-            in lives_css
-            and "min-height: 200px;"
-            in lives_css,
-
-        "Referer não é suprimido":
-            "strict-origin-when-cross-origin"
-            in lives_js,
-
-        "Origin identifica dinamicamente produção/preview":
-            "window.location.origin"
-            in lives_js
-            and 'enablejsapi: "1"'
-            in lives_js,
-
-        "Nenhum YouTube é carregado automaticamente pela proximidade":
-            "IntersectionObserver"
-            not in lives_js
-            and "scheduleDiscovery"
-            not in lives_js,
-
-        "Primeiro carregamento exige clique":
-            "renderLoadPrompt"
-            in lives_js
-            and '"Carregar lives"'
-            in lives_js
-            and "openPlaylistDialog"
-            in lives_js,
-
-        "Primeiro player apenas cue sem autoplay":
-            "pendingDialogAutoplay"
-            in lives_js
-            and "cuePlaylist"
-            in lives_js,
-
-        "Reprodução programática fica ligada a ação do usuário":
-            "loadPlaylist"
-            in lives_js
-            and "playVideoAt"
-            in lives_js
-            and "loadDialogVideo"
-            in lives_js,
-
-        "Miniaturas clicáveis internas respeitam mínimo":
-            "clamp(128px, 14vw, 148px)"
-            in lives_css
-            and "40vw"
-            in lives_css
-            and "144px"
-            in lives_css,
-
-        "Overlays de texto sobre thumbnails foram removidos":
-            "live-thumb-label"
-            not in lives_js
-            and "lives-dialog-thumb-index"
-            not in lives_js
-            and "live-thumb-label"
-            not in lives_css
-            and "lives-dialog-thumb-index"
-            not in lives_css,
-
-        "Fechar popup destrói o único player":
-            "dialogPlayerInstance"
-            in lives_js
-            and ".destroy()"
-            in lives_js
-            and "dialogPlayer.replaceChildren()"
-            in lives_js,
-    }
-
-    failures = [
-        label
-        for label, ok
-        in expectations.items()
-        if not ok
-    ]
-
-    if failures:
-        raise ValidationError(
-            "conformidade YouTube V43.6 incompleta: "
-            + ", ".join(failures)
-        )
-
-    print(
-        "✓ Integração YouTube V43.6 usa apenas player visível e acionado pelo visitante"
-    )
-
 
 
 def validate_agenda() -> None:
@@ -2386,12 +2167,11 @@ def validate_v42_interface() -> None:
 def main() -> int:
     checks = [
         validate_all_json_files,
-        validate_youtube_popup_lives,
+        validate_youtube_manual_lives_v4361,
         validate_card_title_description_spacing,
         validate_lives_card_border,
         validate_loader_pulse_v434,
         validate_carousel_edge_alignment_v435,
-        validate_youtube_platform_compliance_v436,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

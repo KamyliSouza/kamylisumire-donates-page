@@ -675,3 +675,20 @@ origin=window.location.origin
 thumbnail clicável >= 128×72
 ```
 
+## V43.6.1 — Lives manuais
+
+Preservar o modelo:
+
+```text
+videos[] = videoId + title + date
+thumbnail original do YouTube
+link direto para youtube.com/watch
+sem iframe/player/API
+```
+
+Não reintroduzir `YT.Player`, `getPlaylist`, `cuePlaylist`, `iframe_api` ou
+Data API sem uma revisão explícita das políticas vigentes.
+
+`title` deve reproduzir o título publicado no YouTube; a thumbnail não deve
+receber overlay, filtro ou edição visual.
+

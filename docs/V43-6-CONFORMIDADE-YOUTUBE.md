@@ -150,3 +150,16 @@ footer
 Agenda
 arquivos históricos
 ```
+
+## V43.6.1 — revisão posterior
+
+A V43.6.1 substitui o player incorporado por links diretos para os vídeos.
+
+Motivo: a política atual do YouTube exige tratamento do status `Made For Kids`
+para vídeos incorporados e direciona a verificação à YouTube Data API. Como o
+projeto permanece sem Google Cloud/Data API, o caminho mais conservador é não
+incorporar o vídeo.
+
+A V43.6.1 mantém somente thumbnails originais, título/data manuais e links para
+a página oficial do YouTube.
+

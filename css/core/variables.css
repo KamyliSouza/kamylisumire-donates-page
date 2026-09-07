@@ -25,6 +25,7 @@
     --bg-color: #f7eff7;
     --card-bg: rgba(255, 255, 255, 0.92);
     --card-border: rgba(179, 94, 175, 0.30);
+    --card-border-strong: rgba(179, 94, 175, 0.46);
     --notice-bg: rgba(179, 94, 175, 0.08);
     --footer-bg: rgba(255, 255, 255, 0.85);
     --nav-bg: rgba(255, 255, 255, 0.85);
@@ -75,6 +76,7 @@
     --bg-color: #121212;
     --card-bg: rgba(30, 24, 32, 0.85);
     --card-border: rgba(209, 120, 205, 0.35);
+    --card-border-strong: rgba(235, 170, 232, 0.58);
     --notice-bg: rgba(209, 120, 205, 0.12);
     --footer-bg: rgba(25, 20, 27, 0.85);
     --nav-bg: rgba(25, 20, 27, 0.88);
@@ -103,6 +105,7 @@
         --bg-color: #121212;
         --card-bg: rgba(30, 24, 32, 0.85);
         --card-border: rgba(209, 120, 205, 0.35);
+        --card-border-strong: rgba(235, 170, 232, 0.58);
         --notice-bg: rgba(209, 120, 205, 0.12);
         --footer-bg: rgba(25, 20, 27, 0.85);
         --nav-bg: rgba(25, 20, 27, 0.88);

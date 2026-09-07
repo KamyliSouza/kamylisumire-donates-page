@@ -295,3 +295,12 @@ A integração de Lives não usa mais um player auxiliar oculto. O YouTube só �
 carregado após clique explícito; o player visível do popup obtém a playlist e
 monta os carrosséis. O player mantém viewport mínima de 200×200.
 
+### V43.6.1
+
+As Lives passam a ser cadastradas manualmente com `videoId`, título e data.
+Thumbnails são exibidas no carregamento da Home e cada card abre o vídeo no
+YouTube. Não há IFrame Player API, Data API, player incorporado ou Google Cloud.
+
+A atualização também adiciona uma borda de contraste específica para os cards de
+Lives.
+

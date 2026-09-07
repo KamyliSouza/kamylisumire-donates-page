@@ -347,3 +347,11 @@ O player declara 480×270 e nunca deve ser estilizado abaixo de 200×200.
 Thumbnails que iniciam reprodução devem manter pelo menos 128×72 nesta
 implementação.
 
+## V43.6.1 — cards de Lives
+
+Os cards de Lives usam `--card-border-strong` para contraste adicional sem
+alterar as bordas padrão das demais seções.
+
+A thumbnail do YouTube ocupa uma área 16:9 própria, sem overlay/filtro; título,
+data e origem ficam abaixo da imagem.
+

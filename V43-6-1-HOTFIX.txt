@@ -1,0 +1,35 @@
+V43.6.1 — LIVES MANUAIS + METADATA + BORDA DE CONTRASTE
+
+BASE:
+V43.6.
+
+IMPORTANTE:
+Este pacote NÃO sobrescreve data/content/lives.json.
+Depois de aplicar, adicione manualmente a chave videos ao seu arquivo atual.
+Use data/content/lives.example.json como modelo.
+
+NOVO MODELO:
+videoId + title + date
+
+YOUTUBE:
+- thumbnails carregam ao entrar na página;
+- sem player incorporado;
+- sem IFrame Player API;
+- sem YT.Player;
+- sem getPlaylist/cuePlaylist;
+- sem Data API/Google Cloud/API key;
+- card abre diretamente youtube.com/watch?v=VIDEO_ID;
+- thumbnail sem overlay/filtro;
+- title deve copiar exatamente o título publicado no YouTube;
+- date deve ser a data real de publicação.
+
+BORDAS:
+- novo --card-border-strong;
+- aplicado somente a Lives;
+- claro: rgba(179, 94, 175, 0.46);
+- escuro: rgba(235, 170, 232, 0.58).
+
+NÃO ALTERA:
+Worker/API, navbar, loader, footer, Agenda, fonte Nunito ou assets.
+
+Não há arquivos históricos para remover.
