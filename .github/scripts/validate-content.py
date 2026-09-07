@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.1.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.2.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -290,6 +290,46 @@ def validate_youtube_popup_lives() -> None:
             and "buildPopupEmbedUrl"
             in lives_js,
 
+        "Cards principais seguem thumbnail 16:9":
+            "aspect-ratio: 16 / 9"
+            in lives_css
+            and "/mqdefault.jpg"
+            in lives_js
+            and "image.width = 320"
+            in lives_js
+            and "image.height = 180"
+            in lives_js,
+
+        "Popup possui mini-carrossel responsivo":
+            'id="livesDialogTrack"'
+            in home
+            and ".lives-dialog-carousel-track"
+            in lives_css
+            and ".lives-dialog-thumb"
+            in lives_css
+            and "renderDialogCarousel"
+            in lives_js,
+
+        "Mini-carrossel troca live sem fechar popup":
+            "loadDialogVideo"
+            in lives_js
+            and "selectedDialogIndex"
+            in lives_js
+            and "aria-current"
+            in lives_js,
+
+        "Mini-carrossel possui setas e teclado":
+            'id="livesDialogPrev"'
+            in home
+            and 'id="livesDialogNext"'
+            in home
+            and "scrollDialogCarousel"
+            in lives_js
+            and "ArrowLeft"
+            in lives_js
+            and "ArrowRight"
+            in lives_js,
+
         "Fechar popup remove iframe":
             "dialogPlayer.replaceChildren()"
             in lives_js
@@ -332,7 +372,7 @@ def validate_youtube_popup_lives() -> None:
 
     if failures:
         raise ValidationError(
-            "integração YouTube popup V43.1 incompleta: "
+            "integração YouTube popup V43.2 incompleta: "
             + ", ".join(failures)
         )
 
@@ -383,7 +423,7 @@ def validate_youtube_popup_lives() -> None:
         )
 
     print(
-        "✓ Carrossel de lives + popup V43.1 sem Google Cloud integrado"
+        "✓ Carrossel de lives + popup V43.2 sem Google Cloud integrado"
     )
 
 

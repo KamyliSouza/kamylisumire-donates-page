@@ -226,3 +226,33 @@ footer
 preferências
 transição Home → Doações
 ```
+
+## V43.2 — cards 16:9 e mini-carrossel no popup
+
+Os cards do carrossel principal agora possuem `aspect-ratio: 16 / 9` no próprio
+botão. A thumbnail usa `mqdefault.jpg`, com dimensão intrínseca 320×180, para
+combinar diretamente com o tamanho do card.
+
+No popup, abaixo do player, existe um segundo carrossel compacto:
+
+```text
+player
+↓
+[ thumb ][ thumb ][ thumb ][ thumb ]
+↓
+Abrir esta live no YouTube
+```
+
+Esse mini-carrossel reutiliza os mesmos IDs já obtidos por `getPlaylist()`.
+Não existe uma segunda consulta nem Data API.
+
+Clicar em outra thumbnail substitui somente o iframe do player e mantém o
+`dialog` aberto. O item selecionado recebe `aria-current="true"` e borda na cor
+primária.
+
+Desktop possui setas laterais. Mobile permite swipe horizontal e usa thumbnails
+menores. Com foco no mini-carrossel, as teclas ← e → trocam diretamente entre
+as lives adjacentes.
+
+Ao fechar o popup, tanto o iframe quanto as thumbnails internas são removidos.
+

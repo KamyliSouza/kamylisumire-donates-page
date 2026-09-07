@@ -173,7 +173,9 @@
 
     min-width: 0;
 
-    flex: 0 0 clamp(250px, 30vw, 330px);
+    flex: 0 0 clamp(230px, 28vw, 320px);
+
+    aspect-ratio: 16 / 9;
 
     padding: 0;
 
@@ -216,7 +218,7 @@
     position: relative;
 
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 100%;
 
     overflow: hidden;
 
@@ -372,7 +374,10 @@ body.site-lives-dialog-open {
 }
 
 .lives-dialog-card {
-    overflow: hidden;
+    max-height: calc(100dvh - 32px);
+
+    overflow-x: hidden;
+    overflow-y: auto;
 
     background-color: var(--card-bg);
 
@@ -469,6 +474,198 @@ body.site-lives-dialog-open {
     border: 0;
 }
 
+
+.lives-dialog-switcher {
+    position: relative;
+
+    padding: 12px 52px 10px;
+
+    background-color: var(--notice-bg);
+
+    border-top: 1px solid var(--card-border);
+
+    isolation: isolate;
+}
+
+.lives-dialog-carousel-track {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 2px 1px 5px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-behavior: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-inline: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.lives-dialog-carousel-track:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+
+    border-radius: 8px;
+}
+
+.lives-dialog-carousel-track::-webkit-scrollbar {
+    height: 5px;
+}
+
+.lives-dialog-carousel-track::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+
+    border-radius: 999px;
+}
+
+.lives-dialog-thumb {
+    position: relative;
+
+    flex: 0 0 clamp(104px, 13vw, 138px);
+
+    aspect-ratio: 16 / 9;
+
+    padding: 0;
+
+    overflow: hidden;
+
+    background-color: var(--card-bg);
+
+    border: 2px solid transparent;
+    border-radius: 9px;
+
+    scroll-snap-align: center;
+
+    cursor: pointer;
+
+    opacity: .72;
+
+    transition:
+        opacity .18s ease,
+        border-color .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.lives-dialog-thumb:hover,
+.lives-dialog-thumb:focus-visible {
+    opacity: 1;
+
+    border-color: var(--card-border);
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.lives-dialog-thumb[aria-current="true"] {
+    opacity: 1;
+
+    border-color: var(--primary-color);
+
+    box-shadow:
+        0 0 0 1px var(--primary-color),
+        0 5px 16px rgba(0, 0, 0, .16);
+}
+
+.lives-dialog-thumb img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.lives-dialog-thumb-index {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+
+    min-width: 22px;
+    height: 22px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0 5px;
+
+    color: #fff;
+    background-color: rgba(0, 0, 0, .72);
+
+    border-radius: 999px;
+
+    font-size: .66rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.lives-dialog-carousel-button {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+
+    font: inherit;
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+.lives-dialog-carousel-prev {
+    left: 10px;
+}
+
+.lives-dialog-carousel-next {
+    right: 10px;
+}
+
+.lives-dialog-carousel-button:hover:not(:disabled),
+.lives-dialog-carousel-button:focus-visible:not(:disabled) {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    transform: translateY(-50%) scale(1.06);
+
+    outline: none;
+}
+
+.lives-dialog-carousel-button:disabled {
+    opacity: .25;
+
+    cursor: default;
+}
+
 .lives-dialog-footer {
     display: flex;
     justify-content: flex-end;
@@ -521,7 +718,7 @@ body.site-lives-dialog-open {
 
 @media (max-width: 900px) {
     .live-thumb-card {
-        flex-basis: clamp(245px, 43vw, 320px);
+        flex-basis: clamp(220px, 42vw, 300px);
     }
 }
 
@@ -536,7 +733,7 @@ body.site-lives-dialog-open {
     }
 
     .live-thumb-card {
-        flex-basis: min(80vw, 310px);
+        flex-basis: min(78vw, 292px);
     }
 
     .lives-dialog {
@@ -557,6 +754,36 @@ body.site-lives-dialog-open {
         padding: 9px 10px 9px 14px;
     }
 
+    .lives-dialog-switcher {
+        padding:
+            9px 42px 8px;
+    }
+
+    .lives-dialog-thumb {
+        flex-basis: clamp(
+            92px,
+            30vw,
+            116px
+        );
+
+        border-radius: 8px;
+    }
+
+    .lives-dialog-carousel-button {
+        width: 30px;
+        height: 30px;
+
+        font-size: 1.15rem;
+    }
+
+    .lives-dialog-carousel-prev {
+        left: 7px;
+    }
+
+    .lives-dialog-carousel-next {
+        right: 7px;
+    }
+
     .lives-dialog-footer {
         justify-content: center;
 
@@ -568,7 +795,7 @@ body.site-lives-dialog-open {
 
 @media (max-width: 500px) {
     .live-thumb-card {
-        flex-basis: min(84vw, 300px);
+        flex-basis: min(82vw, 280px);
     }
 
     .lives-carousel-button {
@@ -582,7 +809,9 @@ body.site-lives-dialog-open {
     .lives-carousel-button,
     .live-thumb-card,
     .live-thumb-image img,
-    .lives-dialog-close {
+    .lives-dialog-close,
+    .lives-dialog-thumb,
+    .lives-dialog-carousel-button {
         transition: none;
     }
 }
@@ -591,6 +820,8 @@ body.site-lives-dialog-open {
 :root[data-performance="reduced"] .lives-carousel-button,
 :root[data-performance="reduced"] .live-thumb-card,
 :root[data-performance="reduced"] .live-thumb-image img,
-:root[data-performance="reduced"] .lives-dialog-close {
+:root[data-performance="reduced"] .lives-dialog-close,
+:root[data-performance="reduced"] .lives-dialog-thumb,
+:root[data-performance="reduced"] .lives-dialog-carousel-button {
     transition: none;
 }

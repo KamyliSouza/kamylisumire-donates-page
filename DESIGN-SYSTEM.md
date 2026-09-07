@@ -269,3 +269,18 @@ Com blur desligado, backdrop e card removem `backdrop-filter`.
 
 No mobile, um card principal ocupa a maior parte da largura e deixa uma parte
 do próximo visível para indicar rolagem horizontal.
+
+## V43.2 — thumbnails e switcher do popup
+
+Cards de Lives:
+
+```text
+aspect-ratio: 16 / 9
+thumbnail: 320×180
+```
+
+O mini-carrossel do popup usa cards compactos também em 16:9, item ativo com
+`var(--primary-color)` e swipe horizontal em telas pequenas.
+
+O switcher fica entre o player e o link `Abrir esta live no YouTube`.
+

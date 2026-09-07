@@ -34,12 +34,22 @@
     const dialogYoutubeLink =
         document.getElementById("livesDialogYoutubeLink");
 
+    const dialogTrack =
+        document.getElementById("livesDialogTrack");
+
+    const dialogPrev =
+        document.getElementById("livesDialogPrev");
+
+    const dialogNext =
+        document.getElementById("livesDialogNext");
+
     if (
         !content ||
         !section ||
         !track ||
         !dialog ||
-        !dialogPlayer
+        !dialogPlayer ||
+        !dialogTrack
     ) {
         return;
     }
@@ -69,6 +79,11 @@
     let resizeObserver = null;
     let intersectionObserver = null;
     let activeTrigger = null;
+    let selectedDialogIndex = -1;
+
+    const dialogMetrics = {
+        step: 120
+    };
 
     function normalizePlaylistId(value) {
         const candidate =
@@ -175,7 +190,7 @@
         return (
             "https://i.ytimg.com/vi/" +
             encodeURIComponent(videoId) +
-            "/hqdefault.jpg"
+            "/mqdefault.jpg"
         );
     }
 
@@ -547,6 +562,9 @@
 
     function teardownDialogPlayer() {
         dialogPlayer.replaceChildren();
+        dialogTrack.replaceChildren();
+
+        selectedDialogIndex = -1;
 
         document.body.classList.remove(
             "site-lives-dialog-open"
@@ -561,10 +579,149 @@
         activeTrigger = null;
     }
 
-    function openDialog(
+    function updateDialogCarouselButtons() {
+        if (!dialogPrev || !dialogNext) {
+            return;
+        }
+
+        const max =
+            Math.max(
+                0,
+                dialogTrack.scrollWidth -
+                dialogTrack.clientWidth
+            );
+
+        dialogPrev.disabled =
+            dialogTrack.scrollLeft <= 2;
+
+        dialogNext.disabled =
+            dialogTrack.scrollLeft >=
+            max - 2;
+    }
+
+    function measureDialogCarousel() {
+        const card =
+            dialogTrack.querySelector(
+                ".lives-dialog-thumb"
+            );
+
+        const styles =
+            getComputedStyle(
+                dialogTrack
+            );
+
+        const gap =
+            Number.parseFloat(
+                styles.columnGap ||
+                styles.gap ||
+                "0"
+            ) || 0;
+
+        const width =
+            card
+                ? card
+                    .getBoundingClientRect()
+                    .width
+                : 0;
+
+        dialogMetrics.step =
+            width > 0
+                ? width + gap
+                : 120;
+
+        updateDialogCarouselButtons();
+    }
+
+    function scrollDialogCarousel(
+        direction
+    ) {
+        const reduced =
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches ||
+            document.documentElement
+                .dataset.performance ===
+                "reduced";
+
+        dialogTrack.scrollBy({
+            left:
+                dialogMetrics.step *
+                direction,
+            behavior:
+                reduced
+                    ? "auto"
+                    : "smooth"
+        });
+    }
+
+    function centerDialogThumb(index) {
+        const card =
+            dialogTrack.querySelector(
+                `[data-dialog-index="${index}"]`
+            );
+
+        if (!card) {
+            return;
+        }
+
+        const target =
+            card.offsetLeft -
+            (
+                dialogTrack.clientWidth -
+                card.offsetWidth
+            ) / 2;
+
+        const reduced =
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches ||
+            document.documentElement
+                .dataset.performance ===
+                "reduced";
+
+        dialogTrack.scrollTo({
+            left:
+                Math.max(
+                    0,
+                    target
+                ),
+            behavior:
+                reduced
+                    ? "auto"
+                    : "smooth"
+        });
+    }
+
+    function updateDialogSelection(index) {
+        selectedDialogIndex =
+            index;
+
+        dialogTrack
+            .querySelectorAll(
+                ".lives-dialog-thumb"
+            )
+            .forEach(card => {
+                const active =
+                    Number(
+                        card.dataset.dialogIndex
+                    ) === index;
+
+                card.setAttribute(
+                    "aria-current",
+                    active
+                        ? "true"
+                        : "false"
+                );
+            });
+
+        centerDialogThumb(
+            index
+        );
+    }
+
+    function loadDialogVideo(
         videoId,
-        index,
-        trigger
+        index
     ) {
         if (
             !VIDEO_ID_PATTERN.test(
@@ -573,22 +730,6 @@
         ) {
             return;
         }
-
-        activeTrigger = trigger || null;
-
-        document
-            .querySelectorAll(
-                ".live-thumb-card.is-last-viewed"
-            )
-            .forEach(card => {
-                card.classList.remove(
-                    "is-last-viewed"
-                );
-            });
-
-        trigger?.classList.add(
-            "is-last-viewed"
-        );
 
         const iframe =
             document.createElement(
@@ -623,6 +764,133 @@
                 buildVideoUrl(videoId);
         }
 
+        document
+            .querySelectorAll(
+                ".live-thumb-card.is-last-viewed"
+            )
+            .forEach(card => {
+                card.classList.remove(
+                    "is-last-viewed"
+                );
+            });
+
+        document
+            .querySelector(
+                `.live-thumb-card[data-live-index="${index}"]`
+            )
+            ?.classList.add(
+                "is-last-viewed"
+            );
+
+        updateDialogSelection(
+            index
+        );
+    }
+
+    function renderDialogCarousel() {
+        const fragment =
+            document.createDocumentFragment();
+
+        playlistIds.forEach(
+            (videoId, index) => {
+                const card =
+                    document.createElement(
+                        "button"
+                    );
+
+                card.type = "button";
+
+                card.className =
+                    "lives-dialog-thumb";
+
+                card.dataset.dialogIndex =
+                    String(index);
+
+                card.setAttribute(
+                    "aria-label",
+                    `Trocar para live ${index + 1}`
+                );
+
+                card.setAttribute(
+                    "aria-current",
+                    "false"
+                );
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+                image.src =
+                    thumbnailUrl(
+                        videoId
+                    );
+
+                image.alt = "";
+                image.width = 320;
+                image.height = 180;
+                image.loading = "lazy";
+                image.decoding = "async";
+
+                const badge =
+                    document.createElement(
+                        "span"
+                    );
+
+                badge.className =
+                    "lives-dialog-thumb-index";
+
+                badge.textContent =
+                    String(index + 1);
+
+                card.append(
+                    image,
+                    badge
+                );
+
+                card.addEventListener(
+                    "click",
+                    () => {
+                        loadDialogVideo(
+                            videoId,
+                            index
+                        );
+                    }
+                );
+
+                fragment.appendChild(
+                    card
+                );
+            }
+        );
+
+        dialogTrack.replaceChildren(
+            fragment
+        );
+
+        requestAnimationFrame(
+            measureDialogCarousel
+        );
+    }
+
+    function openDialog(
+        videoId,
+        index,
+        trigger
+    ) {
+        if (
+            !VIDEO_ID_PATTERN.test(
+                videoId
+            )
+        ) {
+            return;
+        }
+
+        activeTrigger =
+            trigger || null;
+
+        renderDialogCarousel();
+
         document.body.classList.add(
             "site-lives-dialog-open"
         );
@@ -638,9 +906,83 @@
                 ""
             );
         }
+
+        loadDialogVideo(
+            videoId,
+            index
+        );
     }
 
     function setupDialog() {
+        dialogPrev?.addEventListener(
+            "click",
+            () => {
+                scrollDialogCarousel(-1);
+            }
+        );
+
+        dialogNext?.addEventListener(
+            "click",
+            () => {
+                scrollDialogCarousel(1);
+            }
+        );
+
+        dialogTrack.addEventListener(
+            "scroll",
+            updateDialogCarouselButtons,
+            { passive: true }
+        );
+
+        dialogTrack.addEventListener(
+            "keydown",
+            event => {
+                if (
+                    event.key ===
+                    "ArrowLeft" &&
+                    selectedDialogIndex > 0
+                ) {
+                    event.preventDefault();
+
+                    const index =
+                        selectedDialogIndex - 1;
+
+                    loadDialogVideo(
+                        playlistIds[index],
+                        index
+                    );
+                }
+
+                if (
+                    event.key ===
+                    "ArrowRight" &&
+                    selectedDialogIndex >= 0 &&
+                    selectedDialogIndex <
+                        playlistIds.length - 1
+                ) {
+                    event.preventDefault();
+
+                    const index =
+                        selectedDialogIndex + 1;
+
+                    loadDialogVideo(
+                        playlistIds[index],
+                        index
+                    );
+                }
+            }
+        );
+
+        window.addEventListener(
+            "resize",
+            () => {
+                if (dialog.open) {
+                    measureDialogCarousel();
+                }
+            },
+            { passive: true }
+        );
+
         dialogClose?.addEventListener(
             "click",
             closeDialog
@@ -712,6 +1054,9 @@
                 card.className =
                     "live-thumb-card";
 
+                card.dataset.liveIndex =
+                    String(index);
+
                 card.setAttribute(
                     "aria-label",
                     `Abrir live ${index + 1} em um popup`
@@ -736,8 +1081,8 @@
                     );
 
                 image.alt = "";
-                image.width = 480;
-                image.height = 270;
+                image.width = 320;
+                image.height = 180;
                 image.loading = "lazy";
                 image.decoding = "async";
 

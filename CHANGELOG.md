@@ -1,4 +1,15 @@
 # CHANGELOG
+## V43.2 — cards 16:9 e mini-carrossel no popup
+- hotfix sobre a V43.1;
+- cards principais passam a ter proporção exata 16:9;
+- thumbnails principais usam `mqdefault.jpg` 320×180;
+- popup ganha mini-carrossel responsivo com as lives da mesma playlist;
+- trocar thumbnail no popup substitui apenas o iframe, mantendo o modal aberto;
+- item ativo usa `aria-current="true"` e destaque pela cor primária;
+- setas, swipe e teclado são suportados no mini-carrossel;
+- popup recebe proteção de overflow vertical em viewports baixas;
+- não altera navbar, loader, footer, Worker/API ou arquivos antigos não relacionados.
+
 ## V43.1 — carrossel de lives com player em popup
 - hotfix sobre a V43 de playlist embed já aplicada;
 - preserva a seção `#lives` e a entrada `Lives` da navbar;

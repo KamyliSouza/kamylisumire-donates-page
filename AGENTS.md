@@ -580,3 +580,22 @@ sync-youtube-lives.yml
 
 Agenda e Lives continuam independentes. Worker/API de doações permanecem fora
 deste escopo.
+
+## V43.2 — carrosséis de Lives
+
+Preservar:
+
+```text
+carrossel principal
+→ cards 16:9
+
+popup
+→ player 16:9
+→ mini-carrossel dos mesmos playlistIds
+```
+
+O mini-carrossel deve reutilizar a lista já obtida por `getPlaylist()`. Não
+adicionar nova fonte de dados, Data API ou backend para montar o popup.
+
+Trocar uma live no popup deve substituir o iframe sem fechar o `dialog`.
+

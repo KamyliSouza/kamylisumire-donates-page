@@ -146,3 +146,12 @@ do visitante e é removido ao fechar.
 Não existem credenciais, Google Cloud ou workflow de sincronização.
 
 Nenhuma configuração de Worker/API foi alterada.
+
+## V43.2 — popup com troca de lives
+
+O popup reaproveita os IDs já descobertos na Home para montar um mini-carrossel.
+Nenhuma chamada adicional de backend/API é necessária.
+
+Trocar de live substitui somente o iframe do player. O `dialog` permanece
+aberto e o iframe anterior é descartado.
+

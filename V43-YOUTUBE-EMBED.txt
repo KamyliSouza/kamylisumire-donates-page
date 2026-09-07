@@ -49,3 +49,11 @@ preferências
 doações
 
 Não há arquivos para remover.
+
+V43.2:
+- cards principais exatamente 16:9;
+- thumbnails principais 320×180;
+- mini-carrossel responsivo no popup;
+- troca de live sem fechar o popup;
+- sem alterações em Google Cloud/API/Worker.
+

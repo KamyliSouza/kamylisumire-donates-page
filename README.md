@@ -261,3 +261,9 @@ data/content/lives.json
 Não existe YouTube Data API, API key, Google Cloud ou Action de sincronização.
 
 Consulte `docs/V43-YOUTUBE-EMBED.md`.
+
+### V43.2
+
+Os cards de Lives usam proporção 16:9 alinhada às thumbnails. O popup possui um
+mini-carrossel responsivo que permite trocar entre as lives sem fechar o player.
+
