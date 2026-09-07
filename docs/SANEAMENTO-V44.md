@@ -74,6 +74,26 @@ que o próprio saneamento precisava remover.
 Ele foi substituído por validação do estado arquitetural atual, sem
 dependência de um número de hotfix.
 
+## Fechamento V44.2
+
+Após a publicação da V44, permaneceram na raiz alguns arquivos usados apenas
+durante a aplicação do saneamento. A V44.2 encerra essa migração removendo:
+
+- `APLICAR-V44-1.txt`;
+- `APLICAR-V44.txt`;
+- `REMOVER-V44.txt`;
+- `V43-7-3-HOTFIX.txt`;
+- `V44-MANIFEST.json`;
+- `cleanup_v44.py`.
+
+Os arquivos temporários usados para aplicar a própria V44.2 também não fazem
+parte do estado final do repositório.
+
+O validador passa a bloquear explicitamente todos esses caminhos. Assim, a CI
+falha se um artefato de aplicação/hotfix for reintroduzido no futuro.
+
+A V44.2 não modifica comportamento do site, conteúdo editorial ou backend.
+
 ## Observação editorial
 
 No estado auditado em 7 de setembro de 2026, uma entrada de Live estava

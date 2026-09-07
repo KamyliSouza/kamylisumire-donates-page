@@ -5,7 +5,7 @@ Objetivos:
 - validar JSON editorial;
 - impedir regressões arquiteturais conhecidas;
 - validar referências locais, SEO básico e arquivos de produção;
-- impedir o retorno de resíduos/hotfixes removidos no saneamento V44.
+- impedir o retorno de resíduos/hotfixes removidos no saneamento V44/V44.2.
 
 O validador não altera nenhum arquivo.
 """
@@ -57,6 +57,14 @@ REQUIRED_FILES = (
 )
 
 FORBIDDEN_PATHS = (
+    "APLICAR-V44-1.txt",
+    "APLICAR-V44.txt",
+    "REMOVER-V44.txt",
+    "V43-7-3-HOTFIX.txt",
+    "V44-MANIFEST.json",
+    "cleanup_v44.py",
+    "APLICAR-V44-2.txt",
+    "cleanup_v442.py",
     "V43-7-HOTFIX.txt",
     "V43-7-1-HOTFIX.txt",
     "V43-7-2-HOTFIX.txt",

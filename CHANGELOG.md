@@ -3,6 +3,16 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V44.2 — fechamento do saneamento
+
+- remove os artefatos temporários usados para aplicar V44 e V44.1;
+- remove o documento residual `V43-7-3-HOTFIX.txt`;
+- remove o manifesto temporário `V44-MANIFEST.json`;
+- reforça `FORBIDDEN_PATHS` para impedir o retorno desses resíduos;
+- os próprios arquivos de aplicação V44.2 também são proibidos após o uso;
+- não altera HTML, CSS, JavaScript funcional, JSON editorial, Worker/API,
+  ranking, Agenda, Lives ou assets.
+
 ## V44 — saneamento e consolidação
 
 - remove documentação de versões/hotfixes já superados;
