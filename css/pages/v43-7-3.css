@@ -1,0 +1,40 @@
+/*
+ * V43.7.3 — CTAs DE APOIO + CLICK E ARRASTA
+ * CSS limitado aos elementos adicionados por js/pages/home/v43-7-3.js.
+ */
+
+.home-support-icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+
+    fill: currentColor;
+}
+
+.carousel-click-drag.is-click-dragging,
+.carousel-click-drag.is-click-dragging * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.carousel-click-drag.is-click-dragging {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .carousel-click-drag {
+        cursor: grab;
+    }
+
+    .carousel-click-drag.is-click-dragging {
+        cursor: grabbing;
+    }
+}
+
+@media (max-width: 760px) {
+    .home-support-icon {
+        width: 14px;
+        height: 14px;
+    }
+}
