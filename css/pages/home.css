@@ -200,7 +200,10 @@
 .agenda-carousel {
     position: relative;
 
-    margin-inline: -8px;
+    margin-inline:
+        calc(
+            var(--carousel-edge-gutter) * -1
+        );
 
     isolation: isolate;
 }
@@ -215,10 +218,14 @@
     gap: 12px;
 
     /*
-     * Os cards podem passar visualmente por baixo das setas.
-     * O padding mínimo preserva o primeiro/último card.
+     * O wrapper avança para fora exatamente o mesmo valor
+     * usado pelo track. O primeiro/último card fica alinhado
+     * à linha de conteúdo do painel, sem vazio lateral grande.
      */
-    padding: 4px 20px 12px;
+    padding:
+        4px
+        var(--carousel-edge-gutter)
+        12px;
 
     overflow-x: auto;
     overflow-y: hidden;
@@ -229,7 +236,7 @@
      */
     scroll-behavior: auto;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 20px;
+    scroll-padding-inline: var(--carousel-edge-gutter);
     overscroll-behavior-inline: contain;
 
     scrollbar-width: thin;
@@ -321,7 +328,9 @@
 }
 
 .agenda-carousel-button:disabled {
-    opacity: .24;
+    opacity: 0;
+
+    pointer-events: none;
     cursor: default;
 }
 

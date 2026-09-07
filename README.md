@@ -283,3 +283,9 @@ cor primária.
 A V43.4 consolidada também reforça o pulso da logo do landing para que um ciclo
 completo seja perceptível dentro do mínimo de 1 segundo do loader.
 
+### V43.5
+
+Agenda e Lives passam a usar um gutter lateral comum de 8px, alinhando o
+primeiro e o último card às bordas internas do painel. O mini-carrossel do
+popup também ficou mais compacto lateralmente.
+

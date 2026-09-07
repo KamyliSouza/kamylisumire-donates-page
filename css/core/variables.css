@@ -43,6 +43,9 @@
     /* Ritmo vertical de conteúdo */
     --card-title-description-gap: 8px;
 
+    /* Alinhamento lateral de carrosséis */
+    --carousel-edge-gutter: 8px;
+
     /* Compatibilidade com módulos existentes */
     --radius-xl: var(--radius-card);
     --radius-lg: var(--radius-button);

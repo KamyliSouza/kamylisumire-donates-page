@@ -1,4 +1,14 @@
 # CHANGELOG
+## V43.5 — alinhamento lateral dos carrosséis
+- cria `--carousel-edge-gutter: 8px`;
+- reduz o padding horizontal dos tracks de Agenda e Lives de 20px para 8px;
+- compensa o wrapper pelo mesmo valor para alinhar primeiro/último card à linha de conteúdo;
+- `scroll-padding-inline` passa a reutilizar o mesmo token;
+- setas desabilitadas ficam invisíveis e sem interação;
+- reduz as laterais do mini-carrossel do popup para 44px desktop e 36px mobile;
+- aproxima as setas internas do popup das bordas;
+- não altera cards, JavaScript, playlist, player, loader, navbar, footer ou Worker/API.
+
 ## V43.4 — borda visível nos cards de Lives
 - reforça o pulso da logo do landing: ciclo `.85s`, escala `.90 → 1.08` e opacidade `.62 → 1`, preservando o mínimo de 1s do loader;
 - hotfix visual sobre a V43.3;

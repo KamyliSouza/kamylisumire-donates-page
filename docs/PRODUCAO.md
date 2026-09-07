@@ -178,3 +178,10 @@ perceptível antes da revelação da página.
 
 Reduced motion e performance reduzida continuam sem animação.
 
+## V43.5 — alinhamento dos carrosséis
+
+Correção exclusivamente CSS/design-system. Agenda, Lives e o mini-carrossel do
+popup usam espaços laterais menores e consistentes.
+
+Nenhuma integração ou lógica JavaScript foi alterada.
+

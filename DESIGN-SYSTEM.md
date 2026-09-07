@@ -326,3 +326,12 @@ A logo do loader usa um ciclo de `.85s`, variando `scale(.90)` até
 O objetivo é deixar a pulsação claramente perceptível dentro do mínimo de 1s do
 landing sem adicionar animações ao conteúdo após a entrada.
 
+## V43.5 — gutters dos carrosséis
+
+Carrosséis principais usam `--carousel-edge-gutter: 8px`.
+
+O mesmo valor é usado para a compensação negativa do wrapper, padding do track
+e `scroll-padding-inline`, mantendo borda visual e scroll snap alinhados.
+
+Setas desabilitadas ficam visualmente ocultas nas extremidades.
+

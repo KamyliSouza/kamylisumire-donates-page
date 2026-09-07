@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.4.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.5.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -686,6 +686,97 @@ def validate_loader_pulse_v434() -> None:
 
     print(
         "✓ Pulso do loader V43.4 perceptível e compatível com 1s mínimo"
+    )
+
+
+
+
+def validate_carousel_edge_alignment_v435() -> None:
+    variables = (
+        ROOT / "css/core/variables.css"
+    ).read_text(encoding="utf-8")
+
+    home_css = (
+        ROOT / "css/pages/home.css"
+    ).read_text(encoding="utf-8")
+
+    lives_css = (
+        ROOT / "css/components/lives.css"
+    ).read_text(encoding="utf-8")
+
+    expectations = {
+        "Existe gutter global de 8px":
+            "--carousel-edge-gutter: 8px;"
+            in variables,
+
+        "Agenda compensa gutter no wrapper":
+            ".agenda-carousel"
+            in home_css
+            and "var(--carousel-edge-gutter) * -1"
+            in home_css,
+
+        "Agenda usa gutter no track e snap":
+            ".agenda-carousel-track"
+            in home_css
+            and "scroll-padding-inline: var(--carousel-edge-gutter);"
+            in home_css,
+
+        "Lives compensa gutter no wrapper":
+            ".lives-carousel"
+            in lives_css
+            and "var(--carousel-edge-gutter) * -1"
+            in lives_css,
+
+        "Lives usa gutter no track e snap":
+            ".lives-carousel-track"
+            in lives_css
+            and "scroll-padding-inline: var(--carousel-edge-gutter);"
+            in lives_css,
+
+        "Setas de extremos não criam margem visual":
+            ".agenda-carousel-button:disabled"
+            in home_css
+            and ".lives-carousel-button:disabled"
+            in lives_css
+            and "pointer-events: none;"
+            in home_css
+            and "pointer-events: none;"
+            in lives_css,
+
+        "Popup usa gutter lateral menor no desktop":
+            "--dialog-carousel-edge-gutter: 44px;"
+            in lives_css,
+
+        "Popup usa gutter lateral menor no mobile":
+            "--dialog-carousel-edge-gutter: 36px;"
+            in lives_css,
+
+        "Setas do popup ficam mais próximas das bordas":
+            "left: 8px;"
+            in lives_css
+            and "right: 8px;"
+            in lives_css
+            and "left: 4px;"
+            in lives_css
+            and "right: 4px;"
+            in lives_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "alinhamento lateral V43.5 incompleto: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Carrosséis V43.5 alinhados às bordas internas dos painéis"
     )
 
 
@@ -1702,6 +1793,7 @@ def validate_repository_hygiene() -> None:
         "docs/V43-YOUTUBE-EMBED.md",
         "docs/V43-3-RITMO-CARDS.md",
         "docs/V43-4-BORDA-LIVES.md",
+        "docs/V43-5-ALINHAMENTO-CARROSSEIS.md",
     ]
 
     missing = [
@@ -2168,6 +2260,7 @@ def main() -> int:
         validate_card_title_description_spacing,
         validate_lives_card_border,
         validate_loader_pulse_v434,
+        validate_carousel_edge_alignment_v435,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

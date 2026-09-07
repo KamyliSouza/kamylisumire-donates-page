@@ -638,3 +638,16 @@ opacity = .62 ↔ 1
 
 Não remover as exceções para reduced motion ou performance reduzida.
 
+## V43.5 — alinhamento de carrosséis
+
+Preservar:
+
+```css
+--carousel-edge-gutter: 8px;
+```
+
+Agenda e Lives devem reutilizar esse valor na margem compensatória do wrapper,
+padding do track e `scroll-padding-inline`.
+
+Evitar reintroduzir grandes reservas laterais apenas para setas de navegação.
+
