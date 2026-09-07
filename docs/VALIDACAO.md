@@ -31,6 +31,27 @@ Também é importante notar que a extração pública de HTML não executa todo 
 JavaScript da página. Por isso, comportamento interativo é validado por
 estrutura/código + smoke test manual, e não somente pelo texto extraído.
 
+## V44.3 — conteúdo multilinha de Doações
+
+O site preserva quebras `\n` em:
+
+- `subtitulo`;
+- `livepix.descricao`;
+- `pixie.descricao`;
+- `aviso.texto`.
+
+A implementação continua usando `textContent`. O CSS usa
+`white-space: pre-line`, portanto o conteúdo permanece texto puro.
+
+Não usar `<br>` nem HTML editorial nesses campos. O helper privado V44.3
+converte Enter em `\n` no JSON e mostra uma prévia visual das quebras.
+
+Smoke test específico:
+
+1. inserir duas linhas em `aviso.texto`;
+2. publicar o JSON;
+3. confirmar que as linhas aparecem separadas em `/doacoes/`.
+
 ## CI automática
 
 `.github/scripts/validate-content.py` verifica:
@@ -63,8 +84,6 @@ e pede revisão humana.
 
 ## Smoke test após aplicação
 
-Depois de `python cleanup_v44.py` e da CI:
-
 1. abrir Home em desktop e mobile;
 2. confirmar coração + `Apoiar` nos dois CTAs;
 3. testar clique comum e click + arrasta em Lives;
@@ -73,11 +92,12 @@ Depois de `python cleanup_v44.py` e da CI:
 6. verificar Regras/Créditos/Footer;
 7. abrir `/doacoes/`;
 8. verificar LivePix/Pixie;
-9. confirmar ranking mensal e geral, ou fallback seguro quando o backend falha;
-10. testar tema/blur;
-11. testar confirmação de link externo;
-12. abrir uma URL inexistente e conferir 404;
-13. conferir console do navegador sem erros inesperados.
+9. confirmar quebras de linha editoriais em Doações;
+10. confirmar ranking mensal e geral, ou fallback seguro quando o backend falha;
+11. testar tema/blur;
+12. testar confirmação de link externo;
+13. abrir uma URL inexistente e conferir 404;
+14. conferir console do navegador sem erros inesperados.
 
 ## Limite da validação estática
 

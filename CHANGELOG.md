@@ -3,6 +3,14 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V44.3 — textos multilinha em Doações
+
+- `subtitulo`, `livepix.descricao`, `pixie.descricao` e `aviso.texto`
+  passam a respeitar `\n` visualmente;
+- mantém `textContent`, sem permitir HTML editorial;
+- usa `white-space: pre-line` somente nos elementos que aceitam multilinha;
+- helper privado V44.3 usa o mesmo contrato: Enter → `\n` → quebra no site.
+
 ## V44.2 — fechamento do saneamento
 
 - remove os artefatos temporários usados para aplicar V44 e V44.1;

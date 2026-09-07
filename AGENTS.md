@@ -40,6 +40,18 @@ Somente essa página deve carregar:
 Mudanças em Worker, OAuth, KV, CORS ou endpoints são mudanças deliberadas de
 backend e não devem acompanhar ajustes visuais incidentais.
 
+Os campos editoriais multilinha de `data/content/doacoes.json` são:
+
+- `subtitulo`;
+- `livepix.descricao`;
+- `pixie.descricao`;
+- `aviso.texto`.
+
+Neles, quebra de linha deve ser representada por `\n` no JSON (Enter no
+helper privado). O frontend deve continuar usando `textContent`; não usar
+`innerHTML`, `<br>` ou HTML editorial. A renderização é feita com
+`white-space: pre-line` em `css/pages/doacoes.css`.
+
 ### 404
 
 Deve permanecer `noindex`.
