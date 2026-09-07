@@ -5,28 +5,28 @@
   "itens": [
     {
       "id": "respeito",
-      "titulo": "Respeito em primeiro lugar",
-      "descricao": "Seja respeitoso com a streamer e com o chat. Discriminação não será tolerada."
+      "titulo": "Respeito em primeiro lugar: ",
+      "descricao": "Seja gentil e tenha bom senso. Trate a streamer e o chat com educação. Nenhum tipo de discriminação será tolerado. "
     },
     {
-      "id": "sem-spam",
-      "titulo": "Sem spam ou spoilers",
-      "descricao": "Evite spam, spoilers ou qualquer coisa que atrapalhe a experiência do chat."
+      "id": "ambiente ",
+      "titulo": "Mantenha o ambiente agradável:",
+      "descricao": "É proibido enviar conteúdo inapropriado ou fazer comentários e insinuações que possam incomodar, ofender ou deixar a streamer desconfortável. "
+    },
+    {
+      "id": "chat",
+      "titulo": "Cuide da qualidade do chat:",
+      "descricao": "Não faça spam, não dê spoilers e evite qualquer comportamento que atrapalhe a leitura e a interação da comunidade."
     },
     {
       "id": "privacidade",
-      "titulo": "Proteja informações pessoais",
-      "descricao": "Não compartilhe informações pessoais, suas ou de terceiros."
+      "titulo": "Proteja a privacidade:",
+      "descricao": "É estritamente proibido compartilhar informações pessoais, sejam elas suas, da streamer ou de terceiros."
     },
     {
-      "id": "outras-lives",
-      "titulo": "Evite divulgar outras lives",
-      "descricao": "Não fale de outras lives a não ser que eu as mencione primeiro."
-    },
-    {
-      "id": "gentileza",
-      "titulo": "Seja gentil ✨",
-      "descricao": "Ajude a manter a comunidade confortável e divertida para todo mundo."
+      "id": "live ",
+      "titulo": "Foco na live atual:",
+      "descricao": "Não faça propaganda ou comente sobre outras lives, a menos que a própria streamer puxe esse assunto primeiro."
     }
   ]
 }
