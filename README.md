@@ -304,3 +304,8 @@ YouTube. Não há IFrame Player API, Data API, player incorporado ou Google Clou
 A atualização também adiciona uma borda de contraste específica para os cards de
 Lives.
 
+### V43.6.2
+
+Foram adicionados helpers locais em `tools/json-helpers/` para editar cada JSON
+de conteúdo por formulário. Nenhum JSON de produção é sobrescrito pelo hotfix.
+

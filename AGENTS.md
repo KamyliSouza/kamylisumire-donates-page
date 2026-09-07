@@ -692,3 +692,12 @@ Data API sem uma revisão explícita das políticas vigentes.
 `title` deve reproduzir o título publicado no YouTube; a thumbnail não deve
 receber overlay, filtro ou edição visual.
 
+## V43.6.2 — JSON Helpers
+
+Preservar `tools/json-helpers/` sem dependências externas.
+
+Cada JSON de produção editável deve manter um helper dedicado. Mudança de schema
+deve atualizar o helper correspondente e o validador na mesma versão.
+
+Os helpers nunca sobrescrevem o repositório automaticamente.
+

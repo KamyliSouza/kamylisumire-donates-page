@@ -1,4 +1,16 @@
 # CHANGELOG
+## V43.6.2 — helpers para JSONs editáveis
+- adiciona um helper dedicado para cada um dos 9 JSONs de produção editáveis;
+- permite importar o JSON atual localmente;
+- gera saída com `JSON.stringify(..., null, 2)`;
+- permite validar, copiar e baixar com o filename correto;
+- suporta listas editáveis em Agenda, Créditos, Lives e Regras;
+- mantém os 7 IDs da Agenda fixos;
+- valida `videoId`, data, `maxItems` e URL do canal no helper de Lives;
+- não usa CDN, `fetch`, upload, API ou biblioteca externa;
+- marca os helpers como `noindex`, `nofollow`, `noarchive`;
+- não altera JSONs de produção nem runtime funcional.
+
 ## V43.6.1 — Lives manuais e borda de contraste
 - substitui descoberta automática/playlist por `videos[]` manual;
 - cada vídeo usa `videoId`, título e data ISO;

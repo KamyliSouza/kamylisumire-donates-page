@@ -355,3 +355,8 @@ alterar as bordas padrão das demais seções.
 A thumbnail do YouTube ocupa uma área 16:9 própria, sem overlay/filtro; título,
 data e origem ficam abaixo da imagem.
 
+## V43.6.2 — ferramentas editoriais
+
+Os JSON Helpers são ferramentas de manutenção, independentes do runtime e do
+design system público. Funcionam em claro/escuro pelo sistema operacional.
+

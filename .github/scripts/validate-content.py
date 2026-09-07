@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.6.1.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.6.2.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -689,6 +689,134 @@ def validate_carousel_edge_alignment_v435() -> None:
     print(
         "✓ Agenda/Lives mantêm gutters V43.5 sem resíduos do popup"
     )
+
+
+
+def validate_json_helpers_v4362() -> None:
+    root = ROOT / "tools/json-helpers"
+
+    helpers = {
+        "agenda.html": "data/agenda.json",
+        "creditos.html": "data/content/creditos.json",
+        "doacoes.html": "data/content/doacoes.json",
+        "footer.html": "data/content/footer.json",
+        "hero.html": "data/content/hero.json",
+        "home-doacoes.html": "data/content/home-doacoes.json",
+        "lives.html": "data/content/lives.json",
+        "ranking.html": "data/content/ranking.json",
+        "regras.html": "data/content/regras.json",
+    }
+
+    shared = {
+        "index.html",
+        "helper.css",
+        "helper-core.js",
+        "schemas.js",
+        "README.md",
+    }
+
+    missing = [
+        name
+        for name in sorted(
+            set(helpers) | shared
+        )
+        if not (root / name).exists()
+    ]
+
+    if missing:
+        raise ValidationError(
+            "helpers JSON ausentes: "
+            + ", ".join(missing)
+        )
+
+    schemas = (
+        root / "schemas.js"
+    ).read_text(encoding="utf-8")
+
+    core = (
+        root / "helper-core.js"
+    ).read_text(encoding="utf-8")
+
+    for filename, target in helpers.items():
+        page = (
+            root / filename
+        ).read_text(encoding="utf-8")
+
+        if (
+            'name="robots"'
+            not in page
+            or "noindex"
+            not in page
+        ):
+            raise ValidationError(
+                f"{filename} deve ser noindex"
+            )
+
+        helper_id = filename.removesuffix(
+            ".html"
+        )
+
+        if (
+            f'data-helper="{helper_id}"'
+            not in page
+        ):
+            raise ValidationError(
+                f"{filename} usa schema incorreto"
+            )
+
+        if target not in schemas:
+            raise ValidationError(
+                f"schemas.js não mapeia {target}"
+            )
+
+    if "fetch(" in core:
+        raise ValidationError(
+            "helpers não devem fazer fetch"
+        )
+
+    for token in (
+        "https://",
+        "http://",
+    ):
+        if token in core:
+            raise ValidationError(
+                "helper-core.js possui URL externa"
+            )
+
+    for required in (
+        "JSON.parse",
+        "JSON.stringify",
+        "new Blob",
+        "schema.filename",
+    ):
+        if required not in core:
+            raise ValidationError(
+                f"engine dos helpers sem {required}"
+            )
+
+    if (
+        "videoId" not in schemas
+        or "title" not in schemas
+        or "date" not in schemas
+        or "11 caracteres" not in schemas
+    ):
+        raise ValidationError(
+            "helper de Lives incompleto"
+        )
+
+    if (
+        "domingo" not in schemas
+        or "sabado" not in schemas
+        or "fixed: true" not in schemas
+    ):
+        raise ValidationError(
+            "helper de Agenda não preserva sete dias fixos"
+        )
+
+    print(
+        "✓ V43.6.2 possui helper offline para cada JSON editável"
+    )
+
 
 
 def validate_agenda() -> None:
@@ -2168,6 +2296,7 @@ def main() -> int:
     checks = [
         validate_all_json_files,
         validate_youtube_manual_lives_v4361,
+        validate_json_helpers_v4362,
         validate_card_title_description_spacing,
         validate_lives_card_border,
         validate_loader_pulse_v434,

@@ -204,3 +204,8 @@ abrem a página oficial do vídeo.
 O hotfix não sobrescreve `lives.json`. Adicione manualmente o array seguindo
 `data/content/lives.example.json`.
 
+## V43.6.2 — edição assistida dos JSONs
+
+`tools/json-helpers/` contém ferramentas locais para manutenção editorial.
+O JSON baixado ainda deve passar pela CI normal antes da publicação.
+

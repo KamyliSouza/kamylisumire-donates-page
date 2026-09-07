@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+    <meta
+        name="robots"
+        content="noindex, nofollow, noarchive"
+    >
+    <title>Créditos — JSON Helper</title>
+    <link
+        rel="stylesheet"
+        href="helper.css"
+    >
+</head>
+<body data-helper="creditos">
+    <main class="helper-shell">
+        <header class="helper-header">
+            <p class="helper-kicker">
+                Kamyli Sumire · JSON Helper
+            </p>
+
+            <h1 id="helperTitle">Créditos</h1>
+
+            <p
+                id="helperDescription"
+                class="helper-description"
+            ></p>
+
+            <p
+                id="helperTargetPath"
+                class="helper-path"
+            ></p>
+        </header>
+
+        <p class="helper-notice">
+            Este helper funciona inteiramente no navegador.
+            Nenhum conteúdo é enviado para servidor algum.
+            Importe o JSON atual, edite os campos e baixe o
+            arquivo gerado para substituir o original.
+        </p>
+
+        <div class="helper-toolbar">
+            <a
+                class="helper-button"
+                href="index.html"
+            >
+                ← Todos os helpers
+            </a>
+
+            <label class="file-button">
+                Importar JSON atual
+                <input
+                    id="jsonFileInput"
+                    type="file"
+                    accept=".json,application/json"
+                >
+            </label>
+
+            <button
+                id="resetJsonButton"
+                class="helper-button"
+                type="button"
+            >
+                Usar modelo padrão
+            </button>
+
+            <button
+                id="validateJsonButton"
+                class="helper-button"
+                type="button"
+            >
+                Validar
+            </button>
+
+            <button
+                id="copyJsonButton"
+                class="helper-button"
+                type="button"
+            >
+                Copiar JSON
+            </button>
+
+            <button
+                id="downloadJsonButton"
+                class="helper-button is-primary"
+                type="button"
+            >
+                Baixar JSON
+            </button>
+        </div>
+
+        <p
+            id="helperStatus"
+            class="helper-status"
+            hidden
+            role="status"
+        ></p>
+
+        <div class="helper-grid">
+            <section class="helper-panel">
+                <h2>Editor</h2>
+
+                <div
+                    id="helperForm"
+                    class="form-sections"
+                ></div>
+            </section>
+
+            <section class="helper-panel">
+                <h2>JSON gerado</h2>
+
+                <textarea
+                    id="jsonPreview"
+                    class="json-preview"
+                    readonly
+                    spellcheck="false"
+                    aria-label="JSON gerado"
+                ></textarea>
+
+                <p class="preview-help">
+                    A serialização usa
+                    <code>JSON.stringify</code>.
+                    Caracteres especiais são escapados
+                    automaticamente.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <script src="schemas.js"></script>
+    <script src="helper-core.js"></script>
+</body>
+</html>

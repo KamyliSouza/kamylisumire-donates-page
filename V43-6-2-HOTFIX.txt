@@ -1,0 +1,41 @@
+V43.6.2 — HELPERS PARA TODOS OS JSONS EDITÁVEIS
+
+BASE:
+V43.6.1.
+
+HELPERS:
+- agenda
+- creditos
+- doacoes
+- footer
+- hero
+- home-doacoes
+- lives
+- ranking
+- regras
+
+RECURSOS:
+- importar JSON atual;
+- editar por formulário;
+- validar;
+- copiar;
+- baixar com filename correto;
+- JSON.stringify cuida dos escapes.
+
+NÃO USA:
+- CDN
+- fetch
+- API
+- upload
+- biblioteca externa
+
+NÃO ALTERA:
+- nenhum JSON de produção
+- HTML/CSS/JS funcional do site
+- Worker/API
+- YouTube
+- navbar
+- loader
+- footer funcional
+
+Não há arquivos para remover.
