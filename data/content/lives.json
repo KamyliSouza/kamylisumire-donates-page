@@ -10,4 +10,17 @@
   "mensagemErro": "Não foi possível carregar a playlist agora.",
   "modalTitulo": "Assistir live",
   "maxItems": 10
+  "videos": [
+  {
+    "videoId": "kFO2WApsK0s",
+    "title": "Como Esse Jogo Coube em um DISCO DE PS2?! - OKAMI HD - pt.12【Kamyli Sumire】
+",
+    "date": "2026-09-05"
+  },
+  {
+    "videoId": "lmnopqrstuv",
+    "title": "Outra live exatamente como publicada",
+    "date": "2026-09-01"
+  }
+]
 }
