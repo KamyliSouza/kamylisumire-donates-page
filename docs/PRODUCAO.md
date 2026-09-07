@@ -209,3 +209,35 @@ O hotfix não sobrescreve `lives.json`. Adicione manualmente o array seguindo
 `tools/json-helpers/` contém ferramentas locais para manutenção editorial.
 O JSON baixado ainda deve passar pela CI normal antes da publicação.
 
+## V43.7 — Cloudflare Pages para assets
+
+Origem pública:
+
+```text
+https://assets.kamylisumire.com/
+```
+
+Antes de publicar o código V43.7, o projeto Direct Upload dos assets deve conter
+todos os arquivos gráficos e o seguinte `_headers` na raiz:
+
+```text
+/*
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+```
+
+Sequência:
+
+```text
+1. redeploy completo do projeto de assets com _headers
+2. confirmar os arquivos no custom domain
+3. publicar V43.7 no site
+4. remover os 11 assets gráficos locais listados em V43-7-REMOVER.txt
+5. executar CI
+6. validar Home, Doações e 404
+```
+
+A Nunito e `OFL.txt` continuam no GitHub.
+
+Esta versão não reescreve o histórico Git.
+

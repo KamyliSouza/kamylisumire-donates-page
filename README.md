@@ -234,7 +234,7 @@ O blur automático preserva as heurísticas de suporte, redução de transparên
 Save-Data, memória e CPU.
 
 Home, Doações e 404 passam pelo loader por no mínimo 1 segundo. O overlay é
-transparente e `assets/logo.webp` pulsa no centro. Reduced motion e perfil de
+transparente e `https://assets.kamylisumire.com/logo.webp` pulsa no centro. Reduced motion e perfil de
 performance reduzida mantêm o segundo de espera, mas removem a pulsação.
 
 ### V42.1 — loader adaptativo
@@ -309,3 +309,13 @@ Lives.
 Foram adicionados helpers locais em `tools/json-helpers/` para editar cada JSON
 de conteúdo por formulário. Nenhum JSON de produção é sobrescrito pelo hotfix.
 
+### V43.7
+
+Os assets gráficos públicos passam a ser entregues por um projeto separado do
+Cloudflare Pages em `https://assets.kamylisumire.com`.
+
+O GitHub continua hospedando código, JSONs, documentação, helpers e a Nunito
+local. A migração não altera Worker/API nem a integração de Lives.
+
+Como a logo permanece uma CSS mask cross-origin, o projeto Pages dos assets deve
+responder com `Access-Control-Allow-Origin: *`.

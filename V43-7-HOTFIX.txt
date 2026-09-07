@@ -1,0 +1,49 @@
+V43.7 — ASSETS PÚBLICOS NO CLOUDFLARE PAGES
+
+BASE:
+V43.6.2 real fornecida pela usuária.
+
+ORIGEM:
+https://assets.kamylisumire.com
+
+MIGRA:
+- avatar-192.webp
+- avatar-384.webp
+- avatar.png
+- favicon.webp
+- favicon.png
+- fundo.avif
+- fundo-mobile.avif
+- fundo.webp
+- fundo.png
+- logo.webp
+- preview.png
+
+MANTÉM NO GITHUB:
+- assets/fonts/nunito-variable.woff2
+- assets/fonts/OFL.txt
+- código
+- JSONs
+- helpers
+- documentação
+
+ANTES DE APLICAR:
+O projeto Cloudflare Pages de assets deve receber um deployment completo com
+`_headers` na raiz:
+
+/*
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+
+NÃO ALTERA:
+- Lives / YouTube
+- Worker/API
+- ranking
+- agenda
+- JSONs
+- helpers
+- comportamento da navbar
+- comportamento do loader
+- comportamento do footer
+
+Consulte V43-7-REMOVER.txt.

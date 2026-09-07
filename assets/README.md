@@ -1,14 +1,58 @@
-# Assets
+# Assets locais
 
-## Fontes — V41
+Desde a V43.7, os assets gráficos públicos usados pelo site não ficam mais
+neste repositório.
+
+Origem pública:
 
 ```text
-fonts/nunito-variable.woff2
-fonts/OFL.txt
+https://assets.kamylisumire.com/
 ```
 
-A Nunito é variável e substitui a dependência externa do Google Fonts.
+Arquivos externos esperados:
 
-O WOFF2 deve manter assinatura `wOF2`.
+```text
+avatar-192.webp
+avatar-384.webp
+avatar.png
+favicon.webp
+favicon.png
+fundo.avif
+fundo-mobile.avif
+fundo.webp
+fundo.png
+logo.webp
+preview.png
+```
 
-A licença OFL 1.1 permanece junto da fonte.
+O diretório `assets/` continua reservado para materiais que deliberadamente
+permanecem no repositório.
+
+## Nunito
+
+O runtime continua carregando localmente:
+
+```text
+assets/fonts/nunito-variable.woff2
+assets/fonts/OFL.txt
+```
+
+A licença OFL da Nunito deve permanecer junto do projeto.
+
+## Logo como CSS mask
+
+`logo.webp` continua sendo uma imagem transparente usada por
+`mask-image`/`-webkit-mask-image`.
+
+Como a imagem agora vem de `assets.kamylisumire.com`, o projeto Cloudflare
+Pages que hospeda os assets deve responder com CORS para os arquivos públicos.
+
+Configuração mínima no `_headers` da raiz do projeto de assets:
+
+```text
+/*
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+```
+
+Não reintroduzir cópias locais dos assets gráficos apenas como fallback.

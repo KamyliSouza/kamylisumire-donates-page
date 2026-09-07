@@ -1,4 +1,16 @@
 # CHANGELOG
+## V43.7 — assets públicos no Cloudflare Pages
+- migra avatar, favicon, backgrounds, logo e social preview para `https://assets.kamylisumire.com`;
+- preserva AVIF/WebP/PNG e `srcset`, alterando somente a origem;
+- atualiza Open Graph, Twitter Card e JSON-LD;
+- adiciona `preconnect` em Home, Doações e 404;
+- mantém a logo como CSS mask colorida por `var(--primary-color)`;
+- documenta CORS obrigatório no projeto Pages de assets;
+- CI deixa de exigir binários gráficos locais e passa a exigir URLs externas;
+- CI falha se as 11 imagens públicas forem reintroduzidas em `assets/`;
+- Nunito e OFL continuam locais;
+- não altera Lives/YouTube, Worker/API, JSONs, helpers ou conteúdo.
+
 ## V43.6.2 — helpers para JSONs editáveis
 - adiciona um helper dedicado para cada um dos 9 JSONs de produção editáveis;
 - permite importar o JSON atual localmente;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.6.2.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.7.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -1182,81 +1182,36 @@ def validate_hero_sync() -> None:
 
 
 def validate_visual_assets() -> None:
-    required_webp = {
-        "avatar-192":
-            ROOT / "assets/avatar-192.webp",
-        "avatar-384":
-            ROOT / "assets/avatar-384.webp",
-        "favicon":
-            ROOT / "assets/favicon.webp",
-        "fundo":
-            ROOT / "assets/fundo.webp",
-        "logo":
-            ROOT / "assets/logo.webp",
-    }
+    asset_origin = (
+        "https://assets.kamylisumire.com"
+    )
 
-    required_avif = {
-        "fundo":
-            ROOT / "assets/fundo.avif",
-        "fundo-mobile":
-            ROOT / "assets/fundo-mobile.avif",
-    }
-
-    missing = [
-        str(path.relative_to(ROOT))
-        for path in [
-            *required_webp.values(),
-            *required_avif.values(),
-        ]
-        if not path.exists()
+    public_assets = [
+        "avatar-192.webp",
+        "avatar-384.webp",
+        "avatar.png",
+        "favicon.webp",
+        "favicon.png",
+        "fundo.avif",
+        "fundo-mobile.avif",
+        "fundo.webp",
+        "fundo.png",
+        "logo.webp",
+        "preview.png",
     ]
 
-    if missing:
+    local_present = [
+        f"assets/{filename}"
+        for filename in public_assets
+        if (
+            ROOT / "assets" / filename
+        ).exists()
+    ]
+
+    if local_present:
         raise ValidationError(
-            "assets otimizados obrigatórios ausentes: "
-            + ", ".join(missing)
-        )
-
-    for label, path in required_webp.items():
-        data = path.read_bytes()
-
-        if (
-            len(data) < 12
-            or data[:4] != b"RIFF"
-            or data[8:12] != b"WEBP"
-        ):
-            raise ValidationError(
-                f"{path.relative_to(ROOT)} "
-                "não parece ser um arquivo WebP válido"
-            )
-
-        print(
-            f"✓ WebP válido: {label} "
-            f"({path.relative_to(ROOT)}, "
-            f"{len(data) / 1024:.1f} KiB)"
-        )
-
-    for label, path in required_avif.items():
-        data = path.read_bytes()
-        probe = data[8:40]
-
-        if (
-            len(data) < 16
-            or data[4:8] != b"ftyp"
-            or (
-                b"avif" not in probe
-                and b"avis" not in probe
-            )
-        ):
-            raise ValidationError(
-                f"{path.relative_to(ROOT)} "
-                "não parece ser um arquivo AVIF válido"
-            )
-
-        print(
-            f"✓ AVIF válido: {label} "
-            f"({path.relative_to(ROOT)}, "
-            f"{len(data) / 1024:.1f} KiB)"
+            "assets públicos V43.7 ainda estão locais: "
+            + ", ".join(local_present)
         )
 
     home = (
@@ -1291,81 +1246,206 @@ def validate_visual_assets() -> None:
         ROOT / "js/pages/home/home.js"
     ).read_text(encoding="utf-8")
 
+    runtime_text = "\n".join(
+        [
+            home,
+            donations,
+            not_found,
+            global_css,
+            navbar_css,
+        ]
+    )
+
+    for filename in public_assets:
+        local_pattern = re.compile(
+            r"(?:\.\./)*assets/"
+            + re.escape(filename)
+        )
+
+        if local_pattern.search(
+            runtime_text
+        ):
+            raise ValidationError(
+                "runtime ainda referencia asset local: "
+                f"assets/{filename}"
+            )
+
+    url = {
+        filename:
+            f"{asset_origin}/{filename}"
+        for filename in public_assets
+    }
+
+    expectations = {
+        "Home favicon WebP":
+            url["favicon.webp"]
+            in home,
+
+        "Home favicon PNG":
+            url["favicon.png"]
+            in home,
+
+        "Doações favicon WebP":
+            url["favicon.webp"]
+            in donations,
+
+        "Doações favicon PNG":
+            url["favicon.png"]
+            in donations,
+
+        "404 favicon WebP":
+            url["favicon.webp"]
+            in not_found,
+
+        "404 favicon PNG":
+            url["favicon.png"]
+            in not_found,
+
+        "Home preview externo":
+            url["preview.png"]
+            in home,
+
+        "Doações preview externo":
+            url["preview.png"]
+            in donations,
+
+        "Home avatar responsivo":
+            (
+                url["avatar-192.webp"]
+                + " 192w"
+            ) in home
+            and (
+                url["avatar-384.webp"]
+                + " 384w"
+            ) in home,
+
+        "Doações avatar responsivo":
+            (
+                url["avatar-192.webp"]
+                + " 192w"
+            ) in donations
+            and (
+                url["avatar-384.webp"]
+                + " 384w"
+            ) in donations,
+
+        "Home avatar PNG":
+            url["avatar.png"]
+            in home,
+
+        "Doações avatar PNG":
+            url["avatar.png"]
+            in donations,
+
+        "JSON-LD usa avatar externo":
+            url["avatar.png"]
+            in home
+            and (
+                "kamylisumire.com/assets/avatar.png"
+                not in home
+            ),
+
+        "Background desktop AVIF externo":
+            url["fundo.avif"]
+            in global_css,
+
+        "Background mobile AVIF externo":
+            url["fundo-mobile.avif"]
+            in global_css,
+
+        "Background WebP externo":
+            url["fundo.webp"]
+            in global_css,
+
+        "Background PNG externo":
+            url["fundo.png"]
+            in global_css,
+
+        "Navbar usa logo externo":
+            url["logo.webp"]
+            in navbar_css,
+
+        "Loader usa logo externo":
+            url["logo.webp"]
+            in global_css,
+
+        "Home preconnect":
+            (
+                '<link rel="preconnect" '
+                f'href="{asset_origin}">'
+            ) in home,
+
+        "Doações preconnect":
+            (
+                '<link rel="preconnect" '
+                f'href="{asset_origin}">'
+            ) in donations,
+
+        "404 preconnect":
+            (
+                '<link rel="preconnect" '
+                f'href="{asset_origin}">'
+            ) in not_found,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "migração de assets V43.7 incompleta: "
+            + ", ".join(failures)
+        )
+
     loader_start = global_css.find(
         ".site-loader {"
     )
+
     loader_end = global_css.find(
         ".site-loader-inner",
         loader_start,
     )
 
     loader_css = (
-        global_css[loader_start:loader_end]
+        global_css[
+            loader_start:loader_end
+        ]
         if loader_start >= 0
         and loader_end > loader_start
         else ""
     )
 
-    expectations = {
-        "Home usa avatar responsivo 192/384":
-            "assets/avatar-192.webp 192w" in home
-            and "assets/avatar-384.webp 384w" in home,
-
-        "Doações usa avatar responsivo 192/384":
-            "../assets/avatar-192.webp 192w"
-            in donations
-            and "../assets/avatar-384.webp 384w"
-            in donations,
-
-        "Home mantém avatar.png fallback":
-            'src="assets/avatar.png"' in home,
-
-        "Doações mantém avatar.png fallback":
-            'src="../assets/avatar.png"'
-            in donations,
-
-        "Home usa favicon.webp":
-            "assets/favicon.webp" in home,
-
-        "Doações usa favicon.webp":
-            "../assets/favicon.webp" in donations,
-
-        "Background desktop prioriza fundo.avif":
-            "assets/fundo.avif" in global_css,
-
-        "Background mobile prioriza fundo-mobile.avif":
-            "assets/fundo-mobile.avif" in global_css,
-
+    performance_expectations = {
         "V42.4 usa camada fixa no mobile":
             "body::before" in global_css
-            and "position: fixed" in global_css
-            and "isolation: isolate" in global_css,
+            and "position: fixed"
+            in global_css
+            and "isolation: isolate"
+            in global_css,
 
         "V42.4 evita imagem duplicada no body mobile":
-            "background-image: none" in global_css
-            and "background-color: transparent" in global_css,
+            "background-image: none"
+            in global_css
+            and "background-color: transparent"
+            in global_css,
 
         "V42.4 desativa camada fixa em performance reduzida":
             ':root[data-performance="reduced"] body::before'
             in global_css
-            and "content: none" in global_css,
-
-        "Background mantém fundo.webp":
-            "assets/fundo.webp" in global_css,
-
-        "Background mantém fundo.png":
-            "assets/fundo.png" in global_css,
-
-        "Navbar usa logo.webp":
-            "assets/logo.webp" in navbar_css,
-
-        "Loader usa logo.webp":
-            "assets/logo.webp" in global_css,
+            and "content: none"
+            in global_css,
 
         "Loader segue superfície e blur dos cards":
-            "background-color: var(--card-bg)" in loader_css
-            and "backdrop-filter: blur(var(--blur-card))" in loader_css
-            and "assets/fundo." not in loader_css,
+            "background-color: var(--card-bg)"
+            in loader_css
+            and "backdrop-filter: blur(var(--blur-card))"
+            in loader_css
+            and "/fundo."
+            not in loader_css,
 
         "Perfil de performance é exposto":
             "dataset.performance"
@@ -1375,7 +1455,7 @@ def validate_visual_assets() -> None:
             "dataset.performanceReason"
             in preferences_js,
 
-        "Save-Data pode remover fundo decorativo":
+        "Save-Data remove fundo":
             'data-performance-reason="save-data"'
             in global_css
             and ':root[data-performance-reason="save-data"] body'
@@ -1408,13 +1488,13 @@ def validate_visual_assets() -> None:
                 'src="js/core/preferences.js"'
             ) > not_found.find("</head>"),
 
-        "Loader V42 mantém mínimo estético de 1 segundo":
+        "Loader mantém 1 segundo":
             "site-loading-pending"
             in loader_js
             and "MIN_DISPLAY_MS = 1000"
             in loader_js,
 
-        "Loader V42 sempre participa do reveal":
+        "Loader participa do reveal":
             "site-loading-visible"
             in loader_js
             and "beginReveal"
@@ -1433,17 +1513,19 @@ def validate_visual_assets() -> None:
             in home_js,
     }
 
-    failures = [
+    performance_failures = [
         label
-        for label, ok in expectations.items()
+        for label, ok
+        in performance_expectations.items()
         if not ok
     ]
 
-    if failures:
+    if performance_failures:
         raise ValidationError(
-            "integração de assets/performance "
-            "incompleta: "
-            + ", ".join(failures)
+            "performance V43.7 incompleta: "
+            + ", ".join(
+                performance_failures
+            )
         )
 
     forbidden_v41 = [
@@ -1457,7 +1539,9 @@ def validate_visual_assets() -> None:
         if (ROOT / rel).exists()
     ]
 
-    if (ROOT / "css/build").exists():
+    if (
+        ROOT / "css/build"
+    ).exists():
         forbidden_present.append(
             "css/build/"
         )
@@ -1465,7 +1549,9 @@ def validate_visual_assets() -> None:
     if forbidden_present:
         raise ValidationError(
             "resíduos do bundle CSS rejeitado: "
-            + ", ".join(forbidden_present)
+            + ", ".join(
+                forbidden_present
+            )
         )
 
     if (
@@ -1477,9 +1563,9 @@ def validate_visual_assets() -> None:
         )
 
     print(
-        "✓ Assets responsivos, loader atrasado "
-        "e performance V39/V40 integrados"
+        "✓ Assets gráficos V43.7 externos e performance preservada"
     )
+
 
 
 def validate_production_files() -> None:
@@ -1833,6 +1919,7 @@ def validate_repository_hygiene() -> None:
         "docs/V43-4-BORDA-LIVES.md",
         "docs/V43-5-ALINHAMENTO-CARROSSEIS.md",
         "docs/V43-6-CONFORMIDADE-YOUTUBE.md",
+        "docs/V43-7-ASSETS-CLOUDFLARE-PAGES.md",
     ]
 
     missing = [
@@ -2246,7 +2333,8 @@ def validate_v42_interface() -> None:
 
         "loader pulsa logo.webp":
             "site-loader-logo-pulse" in global_css
-            and "assets/logo.webp" in global_css,
+            and "https://assets.kamylisumire.com/logo.webp"
+            in global_css,
 
         "404 também usa loader V42":
             'id="site-loader"' in (

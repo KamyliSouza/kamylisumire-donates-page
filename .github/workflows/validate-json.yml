@@ -1,4 +1,4 @@
-name: Validate V43.6.1 manual YouTube lives and contrast
+name: Validate V43.7 external Cloudflare Pages assets
 
 on:
   push:
@@ -22,6 +22,7 @@ on:
       - "DESIGN-SYSTEM.md"
       - "CHANGELOG.md"
       - "docs/**"
+      - "tools/json-helpers/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 
@@ -43,6 +44,7 @@ on:
       - "DESIGN-SYSTEM.md"
       - "CHANGELOG.md"
       - "docs/**"
+      - "tools/json-helpers/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 
@@ -57,7 +59,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate content, SEO, references and assets
+      - name: Validate content, SEO, references and external assets
         run: python .github/scripts/validate-content.py
 
       - name: Check all JavaScript syntax

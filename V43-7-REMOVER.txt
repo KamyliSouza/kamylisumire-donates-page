@@ -1,0 +1,23 @@
+V43.7 — REMOVER DO REPOSITÓRIO APÓS CONFIRMAR O CLOUDFLARE PAGES
+
+Remover somente estes arquivos locais, se ainda existirem:
+
+assets/avatar-192.webp
+assets/avatar-384.webp
+assets/avatar.png
+assets/favicon.webp
+assets/favicon.png
+assets/fundo.avif
+assets/fundo-mobile.avif
+assets/fundo.webp
+assets/fundo.png
+assets/logo.webp
+assets/preview.png
+
+NÃO REMOVER:
+
+assets/fonts/
+assets/fonts/nunito-variable.woff2
+assets/fonts/OFL.txt
+
+Não reescrever o histórico Git nesta etapa.

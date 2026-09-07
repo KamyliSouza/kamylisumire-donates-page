@@ -360,3 +360,18 @@ data e origem ficam abaixo da imagem.
 Os JSON Helpers são ferramentas de manutenção, independentes do runtime e do
 design system público. Funcionam em claro/escuro pelo sistema operacional.
 
+## V43.7 — origem dos assets
+
+Assets gráficos públicos:
+
+```text
+https://assets.kamylisumire.com/
+```
+
+Os fallbacks AVIF → WebP → PNG permanecem iguais; somente a origem muda.
+
+A logo continua por `mask-image` para receber `var(--primary-color)`. O servidor
+de assets deve permitir CORS.
+
+A Nunito continua local no repositório.
+

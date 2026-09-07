@@ -22,11 +22,11 @@ body {
      * AVIF é preferido; WebP e PNG permanecem como fallbacks.
      * Não há preload: o fundo não deve competir com conteúdo crítico.
      */
-    background-image: url('../../assets/fundo.png');
+    background-image: url('https://assets.kamylisumire.com/fundo.png');
     background-image: image-set(
-        url('../../assets/fundo.avif') type('image/avif'),
-        url('../../assets/fundo.webp') type('image/webp'),
-        url('../../assets/fundo.png') type('image/png')
+        url('https://assets.kamylisumire.com/fundo.avif') type('image/avif'),
+        url('https://assets.kamylisumire.com/fundo.webp') type('image/webp'),
+        url('https://assets.kamylisumire.com/fundo.png') type('image/png')
     );
     background-size: cover;
     background-position: center;
@@ -560,11 +560,11 @@ a {
         pointer-events: none;
 
         background-color: var(--bg-color);
-        background-image: url('../../assets/fundo.webp');
+        background-image: url('https://assets.kamylisumire.com/fundo.webp');
         background-image: image-set(
-            url('../../assets/fundo-mobile.avif') type('image/avif'),
-            url('../../assets/fundo.webp') type('image/webp'),
-            url('../../assets/fundo.png') type('image/png')
+            url('https://assets.kamylisumire.com/fundo-mobile.avif') type('image/avif'),
+            url('https://assets.kamylisumire.com/fundo.webp') type('image/webp'),
+            url('https://assets.kamylisumire.com/fundo.png') type('image/png')
         );
         background-size: cover;
         background-position: center;
@@ -655,11 +655,11 @@ a {
 @media (max-width: 760px) {
     :root[data-performance="reduced"] body {
         background-color: var(--bg-color);
-        background-image: url('../../assets/fundo.webp');
+        background-image: url('https://assets.kamylisumire.com/fundo.webp');
         background-image: image-set(
-            url('../../assets/fundo-mobile.avif') type('image/avif'),
-            url('../../assets/fundo.webp') type('image/webp'),
-            url('../../assets/fundo.png') type('image/png')
+            url('https://assets.kamylisumire.com/fundo-mobile.avif') type('image/avif'),
+            url('https://assets.kamylisumire.com/fundo.webp') type('image/webp'),
+            url('https://assets.kamylisumire.com/fundo.png') type('image/png')
         );
         background-size: cover;
         background-position: center;
@@ -912,8 +912,8 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
 
     background-color: var(--primary-color);
 
-    -webkit-mask-image: url('../../assets/logo.webp');
-    mask-image: url('../../assets/logo.webp');
+    -webkit-mask-image: url('https://assets.kamylisumire.com/logo.webp');
+    mask-image: url('https://assets.kamylisumire.com/logo.webp');
 
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
@@ -970,7 +970,7 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
 @supports not ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
     .site-loader-logo {
         background-color: transparent;
-        background-image: url('../../assets/logo.webp');
+        background-image: url('https://assets.kamylisumire.com/logo.webp');
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;

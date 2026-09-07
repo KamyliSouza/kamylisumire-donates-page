@@ -71,29 +71,42 @@ Não reintroduzir arquivos temporários de aplicação/migração já consolidad
 
 ## Assets
 
-Avatar atual:
+Desde a V43.7, os assets gráficos públicos ficam no Cloudflare Pages:
 
 ```text
-assets/avatar-192.webp
-assets/avatar-384.webp
-assets/avatar.png
+https://assets.kamylisumire.com/
 ```
 
-`assets/avatar.webp` é legado removido na V40.
+Avatar:
+
+```text
+https://assets.kamylisumire.com/avatar-192.webp
+https://assets.kamylisumire.com/avatar-384.webp
+https://assets.kamylisumire.com/avatar.png
+```
 
 Background:
 
 ```text
 desktop/tablet:
-assets/fundo.avif → assets/fundo.webp → assets/fundo.png
+https://assets.kamylisumire.com/fundo.avif
+→ https://assets.kamylisumire.com/fundo.webp
+→ https://assets.kamylisumire.com/fundo.png
 
 mobile <= 760 px:
-assets/fundo-mobile.avif → assets/fundo.webp → assets/fundo.png
+https://assets.kamylisumire.com/fundo-mobile.avif
+→ https://assets.kamylisumire.com/fundo.webp
+→ https://assets.kamylisumire.com/fundo.png
 ```
 
-`assets/logo.webp` deve continuar transparente porque é usado como máscara CSS.
+`https://assets.kamylisumire.com/logo.webp` continua transparente e é usado como máscara CSS.
+O projeto Pages de assets deve permitir CORS para a máscara cross-origin.
 
-`assets/preview.png` continua 1200 × 630 para Open Graph/Twitter.
+`https://assets.kamylisumire.com/preview.png` continua 1200 × 630 para Open Graph/Twitter.
+
+A Nunito permanece local em `assets/fonts/` com `OFL.txt`.
+
+`assets/avatar.webp` é legado removido na V40.
 
 ## CSS
 
@@ -480,7 +493,7 @@ Home, Doações e 404 usam o loader V42.
 MIN_DISPLAY_MS = 1000
 ```
 
-O fundo do overlay é transparente. A marca é `assets/logo.webp` via máscara
+O fundo do overlay é transparente. A marca é `https://assets.kamylisumire.com/logo.webp` via máscara
 CSS. O loader pode permanecer além de 1 segundo se o conteúdo local ainda não
 estiver pronto, com timeout de segurança.
 
@@ -701,3 +714,24 @@ deve atualizar o helper correspondente e o validador na mesma versão.
 
 Os helpers nunca sobrescrevem o repositório automaticamente.
 
+## V43.7 — assets públicos no Cloudflare Pages
+
+A origem canônica dos assets gráficos públicos é:
+
+```text
+https://assets.kamylisumire.com/
+```
+
+Não reintroduzir cópias locais dos 11 arquivos migrados.
+
+O projeto Pages dos assets usa Direct Upload e deve incluir na raiz:
+
+```text
+/*
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+```
+
+Isso é necessário especialmente para `logo.webp`, usado como CSS mask.
+
+Não mover `assets/fonts/nunito-variable.woff2` nem `assets/fonts/OFL.txt`.
