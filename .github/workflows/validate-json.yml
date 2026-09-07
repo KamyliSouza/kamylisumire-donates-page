@@ -1,4 +1,4 @@
-name: Validate V43.7 external Cloudflare Pages assets
+name: Validate V43.7.2 public site without private helpers
 
 on:
   push:
@@ -22,7 +22,6 @@ on:
       - "DESIGN-SYSTEM.md"
       - "CHANGELOG.md"
       - "docs/**"
-      - "tools/json-helpers/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 
@@ -44,7 +43,6 @@ on:
       - "DESIGN-SYSTEM.md"
       - "CHANGELOG.md"
       - "docs/**"
-      - "tools/json-helpers/**"
       - ".github/scripts/validate-content.py"
       - ".github/workflows/validate-json.yml"
 

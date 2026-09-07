@@ -705,14 +705,24 @@ Data API sem uma revisão explícita das políticas vigentes.
 `title` deve reproduzir o título publicado no YouTube; a thumbnail não deve
 receber overlay, filtro ou edição visual.
 
-## V43.6.2 — JSON Helpers
+## V43.7.2 — JSON Helpers privados
 
-Preservar `tools/json-helpers/` sem dependências externas.
+Os JSON Helpers foram retirados do repositório público.
 
-Cada JSON de produção editável deve manter um helper dedicado. Mudança de schema
-deve atualizar o helper correspondente e o validador na mesma versão.
+Origem operacional:
 
-Os helpers nunca sobrescrevem o repositório automaticamente.
+```text
+Cloudflare Pages separado
+→ helpers.kamylisumire.com
+→ Cloudflare Access
+```
+
+Não reintroduzir `tools/json-helpers/` neste repositório.
+
+Alterações futuras nos helpers devem ser feitas no pacote/projeto privado e não
+misturadas ao runtime público.
+
+Os JSONs de produção continuam neste repositório e são atualizados manualmente.
 
 ## V43.7 — assets públicos no Cloudflare Pages
 
@@ -735,3 +745,16 @@ O projeto Pages dos assets usa Direct Upload e deve incluir na raiz:
 Isso é necessário especialmente para `logo.webp`, usado como CSS mask.
 
 Não mover `assets/fonts/nunito-variable.woff2` nem `assets/fonts/OFL.txt`.
+
+## V43.7.1 — estabilização
+
+`data/content/lives.json` continua sendo conteúdo editorial manual da usuária.
+
+Não ordenar, alterar datas, alterar títulos ou preencher vídeos
+automaticamente.
+
+O helper pode validar problemas técnicos de serialização/formatação, mas não
+deve modificar silenciosamente o título informado.
+
+O fallback HTML de Lives deve permanecer neutro e não mencionar playlist ou
+player.

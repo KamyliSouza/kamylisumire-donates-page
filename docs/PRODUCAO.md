@@ -241,3 +241,42 @@ A Nunito e `OFL.txt` continuam no GitHub.
 
 Esta versão não reescreve o histórico Git.
 
+## V43.7.1 — estabilização
+
+Nenhum dado de `data/content/lives.json` é alterado por este hotfix.
+
+O fallback inicial da seção de Lives passa a ser `Carregando últimas lives...`.
+
+Ao usar `tools/json-helpers/lives.html`, o helper sinaliza títulos que possuem
+espaços ou quebras de linha acidentais no início/fim. A correção continua sendo
+feita manualmente antes do download.
+
+## V43.7.2 — JSON Helpers privados
+
+Os helpers não são mais publicados junto de `kamylisumire.com`.
+
+Arquitetura:
+
+```text
+kamylisumire.com
+→ site público
+→ sem tools/json-helpers/
+
+helpers.kamylisumire.com
+→ Cloudflare Pages separado
+→ Cloudflare Access
+→ One-time PIN/identidade autorizada
+```
+
+O domínio `*.pages.dev` do projeto de helpers também deve ser protegido por
+Access ou redirecionado para o custom domain protegido, sem deixar um caminho
+público alternativo.
+
+Depois de aplicar a V43.7.2, executar:
+
+```text
+python remove_v4372_public_helpers.py
+```
+
+A CI passa a falhar se `tools/json-helpers/` continuar no repositório.
+

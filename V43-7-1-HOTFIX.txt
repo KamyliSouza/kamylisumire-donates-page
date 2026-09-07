@@ -1,0 +1,23 @@
+V43.7.1 — ESTABILIZAÇÃO
+
+BASE:
+V43.7.
+
+ALTERA:
+- fallback de Lives para "Carregando últimas lives...";
+- helper de Lives detecta espaços/quebras de linha no início/fim do título;
+- CI verifica que esse comportamento permanece.
+
+NÃO ALTERA:
+- data/content/lives.json
+- videoId
+- títulos cadastrados
+- datas cadastradas
+- ordem dos vídeos
+- YouTube
+- assets Cloudflare Pages
+- Nunito/OFL
+- Worker/API
+- layout
+
+Não há arquivos para remover.

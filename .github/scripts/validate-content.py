@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validação editorial/semântica do site Kamyli Sumire — V43.7.
+"""Validação editorial/semântica do site Kamyli Sumire — V43.7.2.
 
 Sem dependências externas: usa somente a biblioteca padrão do Python.
 """
@@ -692,129 +692,53 @@ def validate_carousel_edge_alignment_v435() -> None:
 
 
 
-def validate_json_helpers_v4362() -> None:
-    root = ROOT / "tools/json-helpers"
+def validate_v4372_private_helpers() -> None:
+    home = (
+        ROOT / "index.html"
+    ).read_text(encoding="utf-8")
 
-    helpers = {
-        "agenda.html": "data/agenda.json",
-        "creditos.html": "data/content/creditos.json",
-        "doacoes.html": "data/content/doacoes.json",
-        "footer.html": "data/content/footer.json",
-        "hero.html": "data/content/hero.json",
-        "home-doacoes.html": "data/content/home-doacoes.json",
-        "lives.html": "data/content/lives.json",
-        "ranking.html": "data/content/ranking.json",
-        "regras.html": "data/content/regras.json",
+    helper_root = (
+        ROOT / "tools/json-helpers"
+    )
+
+    expectations = {
+        "Fallback de Lives continua neutro":
+            "Carregando últimas lives..."
+            in home
+            and "Carregando lives da playlist..."
+            not in home,
+
+        "Helpers privados não estão no repositório público":
+            not helper_root.exists(),
+
+        "Script seguro de remoção está documentado":
+            (
+                ROOT /
+                "remove_v4372_public_helpers.py"
+            ).exists(),
+
+        "Documentação da migração privada existe":
+            (
+                ROOT /
+                "docs/V43-7-2-HELPERS-PRIVADOS.md"
+            ).exists(),
     }
 
-    shared = {
-        "index.html",
-        "helper.css",
-        "helper-core.js",
-        "schemas.js",
-        "README.md",
-    }
-
-    missing = [
-        name
-        for name in sorted(
-            set(helpers) | shared
-        )
-        if not (root / name).exists()
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
     ]
 
-    if missing:
+    if failures:
         raise ValidationError(
-            "helpers JSON ausentes: "
-            + ", ".join(missing)
-        )
-
-    schemas = (
-        root / "schemas.js"
-    ).read_text(encoding="utf-8")
-
-    core = (
-        root / "helper-core.js"
-    ).read_text(encoding="utf-8")
-
-    for filename, target in helpers.items():
-        page = (
-            root / filename
-        ).read_text(encoding="utf-8")
-
-        if (
-            'name="robots"'
-            not in page
-            or "noindex"
-            not in page
-        ):
-            raise ValidationError(
-                f"{filename} deve ser noindex"
-            )
-
-        helper_id = filename.removesuffix(
-            ".html"
-        )
-
-        if (
-            f'data-helper="{helper_id}"'
-            not in page
-        ):
-            raise ValidationError(
-                f"{filename} usa schema incorreto"
-            )
-
-        if target not in schemas:
-            raise ValidationError(
-                f"schemas.js não mapeia {target}"
-            )
-
-    if "fetch(" in core:
-        raise ValidationError(
-            "helpers não devem fazer fetch"
-        )
-
-    for token in (
-        "https://",
-        "http://",
-    ):
-        if token in core:
-            raise ValidationError(
-                "helper-core.js possui URL externa"
-            )
-
-    for required in (
-        "JSON.parse",
-        "JSON.stringify",
-        "new Blob",
-        "schema.filename",
-    ):
-        if required not in core:
-            raise ValidationError(
-                f"engine dos helpers sem {required}"
-            )
-
-    if (
-        "videoId" not in schemas
-        or "title" not in schemas
-        or "date" not in schemas
-        or "11 caracteres" not in schemas
-    ):
-        raise ValidationError(
-            "helper de Lives incompleto"
-        )
-
-    if (
-        "domingo" not in schemas
-        or "sabado" not in schemas
-        or "fixed: true" not in schemas
-    ):
-        raise ValidationError(
-            "helper de Agenda não preserva sete dias fixos"
+            "separação privada V43.7.2 incompleta: "
+            + ", ".join(failures)
         )
 
     print(
-        "✓ V43.6.2 possui helper offline para cada JSON editável"
+        "✓ V43.7.2 mantém JSON Helpers fora do repositório público"
     )
 
 
@@ -1920,6 +1844,8 @@ def validate_repository_hygiene() -> None:
         "docs/V43-5-ALINHAMENTO-CARROSSEIS.md",
         "docs/V43-6-CONFORMIDADE-YOUTUBE.md",
         "docs/V43-7-ASSETS-CLOUDFLARE-PAGES.md",
+        "docs/V43-7-1-ESTABILIZACAO.md",
+        "docs/V43-7-2-HELPERS-PRIVADOS.md",
     ]
 
     missing = [
@@ -2384,7 +2310,7 @@ def main() -> int:
     checks = [
         validate_all_json_files,
         validate_youtube_manual_lives_v4361,
-        validate_json_helpers_v4362,
+        validate_v4372_private_helpers,
         validate_card_title_description_spacing,
         validate_lives_card_border,
         validate_loader_pulse_v434,

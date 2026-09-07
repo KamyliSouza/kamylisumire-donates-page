@@ -319,3 +319,24 @@ local. A migração não altera Worker/API nem a integração de Lives.
 
 Como a logo permanece uma CSS mask cross-origin, o projeto Pages dos assets deve
 responder com `Access-Control-Allow-Origin: *`.
+
+### V43.7.1
+
+Hotfix de estabilização sem alteração dos dados cadastrados em
+`data/content/lives.json`.
+
+O fallback inicial de Lives deixa de mencionar playlist e o JSON Helper de
+Lives passa a detectar espaços/quebras de linha acidentais no início ou fim do
+título antes do download, sem modificar o título automaticamente.
+
+### V43.7.2
+
+Os JSON Helpers deixam de fazer parte do repositório/deploy público.
+
+Eles passam a ser hospedados em um projeto Cloudflare Pages separado, protegido
+por Cloudflare Access. O site público mantém apenas os JSONs de conteúdo e a CI
+que valida esses arquivos.
+
+`remove_v4372_public_helpers.py` remove somente os arquivos conhecidos dos
+helpers e preserva qualquer arquivo inesperado.
+

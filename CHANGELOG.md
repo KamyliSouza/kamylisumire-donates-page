@@ -1,4 +1,24 @@
 # CHANGELOG
+## V43.7.2 — JSON Helpers privados
+- move a distribuição dos JSON Helpers para um Cloudflare Pages separado;
+- repositório/site público passam a exigir ausência de `tools/json-helpers/`;
+- adiciona `remove_v4372_public_helpers.py` com remoção restrita aos arquivos conhecidos;
+- arquivos inesperados dentro da pasta de helpers são preservados pelo script;
+- mantém todos os JSONs de produção inalterados;
+- mantém fallback e integração manual de Lives da V43.7.1;
+- remove da CI pública a validação interna do código dos helpers;
+- adiciona documentação para proteger custom domain e `pages.dev` com Cloudflare Access;
+- não altera assets, Nunito/OFL, Worker/API, Lives JS/CSS ou layout.
+
+## V43.7.1 — estabilização de Lives
+- troca o fallback HTML `Carregando lives da playlist...` por `Carregando últimas lives...`;
+- mantém a arquitetura manual de Lives da V43.6.1 sem player, IFrame API ou Data API;
+- helper de Lives passa a detectar whitespace/quebras de linha acidentais no início/fim do título;
+- helper não altera nem faz trim silencioso do título;
+- não impõe ordenação cronológica nem corrige datas automaticamente;
+- não inclui nem modifica `data/content/lives.json`;
+- não altera assets externos, Nunito, Worker/API, layout ou comportamento dos demais componentes.
+
 ## V43.7 — assets públicos no Cloudflare Pages
 - migra avatar, favicon, backgrounds, logo e social preview para `https://assets.kamylisumire.com`;
 - preserva AVIF/WebP/PNG e `srcset`, alterando somente a origem;

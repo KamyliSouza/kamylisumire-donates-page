@@ -112,24 +112,27 @@ existentes, mas não é usado pelo carrossel manual.
 Use `data/content/lives.example.json` apenas como referência e não o publique
 como conteúdo real sem trocar os valores de exemplo.
 
-## V43.6.2 — helpers de edição
+## V43.7.2 — edição assistida privada
 
-Todos os JSONs de conteúdo editáveis possuem interface dedicada em:
+Os JSON Helpers são hospedados separadamente em:
 
 ```text
-tools/json-helpers/
+https://helpers.kamylisumire.com/
 ```
+
+O endereço deve permanecer protegido por Cloudflare Access.
 
 Fluxo:
 
 ```text
-importar JSON atual
+autenticar no helper privado
+→ importar JSON atual
 → editar
 → validar
 → baixar JSON
 → substituir arquivo original
 ```
 
-O helper de Lives aceita títulos exatamente como publicados, incluindo aspas,
-barras, emojis e acentos. `JSON.stringify` faz os escapes automaticamente.
+Nenhum helper lê ou escreve diretamente no repositório. Os JSONs continuam
+sendo arquivos estáticos versionados aqui.
 
