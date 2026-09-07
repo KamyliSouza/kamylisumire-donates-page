@@ -1,20 +1,17 @@
 /*
- * V43.7.3 — CTAs DE APOIO + CLICK E ARRASTA
+ * Interações específicas da Home.
  *
- * Escopo estrito:
- * - Hero: mantém "Apoiar" e acrescenta o mesmo coração SVG da navbar.
- * - Card "Gostou das lives?": força o rótulo "Apoiar" e acrescenta
- *   o mesmo coração SVG da navbar.
- * - Agenda e Lives: acrescenta click + arrasta horizontal para mouse/caneta.
- *
- * Não altera Worker, API, ranking, navbar, footer, loader ou conteúdo
- * de outras seções.
+ * - usa o mesmo coração SVG da navbar nos dois CTAs de apoio;
+ * - habilita click + arrasta horizontal com mouse/caneta em Lives e Agenda;
+ * - preserva touch nativo, teclado, setas, scroll-snap e clique normal.
  */
 (() => {
     const HEART_PATH =
         "M12 21s-7.2-4.35-9.6-8.35C.65 9.95 1.5 6.4 4.6 5.1c2-.85 4.25-.3 5.65 1.35L12 8.5l1.75-2.05c1.4-1.65 3.65-2.2 5.65-1.35 3.1 1.3 3.95 4.85 2.2 7.55C19.2 16.65 12 21 12 21Z";
 
     const SVG_NS = "http://www.w3.org/2000/svg";
+    const DRAG_THRESHOLD = 5;
+    const CLICK_SUPPRESSION_MS = 300;
 
     function createHeartIcon() {
         const svg = document.createElementNS(SVG_NS, "svg");
@@ -25,48 +22,44 @@
 
         const path = document.createElementNS(SVG_NS, "path");
         path.setAttribute("d", HEART_PATH);
-
         svg.appendChild(path);
+
         return svg;
     }
 
-    function decorateSupportButton(button, forcedLabel = "") {
+    function decorateSupportButton(button) {
         if (!button) return;
 
-        const currentLabel =
-            String(forcedLabel || button.textContent || "Apoiar").trim() ||
-            "Apoiar";
+        const labelText =
+            String(button.textContent || "Apoiar").trim() || "Apoiar";
 
-        const existingIcon =
+        const currentIcon =
             button.querySelector(":scope > .home-support-icon");
-        const existingLabel =
+        const currentLabel =
             button.querySelector(":scope > .home-support-label");
 
         if (
-            existingIcon &&
-            existingLabel &&
-            existingLabel.textContent === currentLabel
+            currentIcon &&
+            currentLabel &&
+            currentLabel.textContent === labelText
         ) {
             return;
         }
 
         const label = document.createElement("span");
         label.className = "home-support-label";
-        label.textContent = currentLabel;
+        label.textContent = labelText;
 
-        button.replaceChildren(
-            createHeartIcon(),
-            label
-        );
+        button.replaceChildren(createHeartIcon(), label);
     }
 
-    function keepSupportButtonDecorated(button, forcedLabel = "") {
+    function keepSupportButtonDecorated(button) {
         if (!button) return;
 
-        decorateSupportButton(button, forcedLabel);
+        decorateSupportButton(button);
 
         const observer = new MutationObserver(() => {
-            decorateSupportButton(button, forcedLabel);
+            decorateSupportButton(button);
         });
 
         observer.observe(button, {
@@ -75,18 +68,6 @@
             subtree: true
         });
     }
-
-    keepSupportButtonDecorated(
-        document.getElementById("heroSupportButton")
-    );
-
-    keepSupportButtonDecorated(
-        document.getElementById("homeDonationButton"),
-        "Apoiar"
-    );
-
-    const DRAG_THRESHOLD = 5;
-    const CLICK_SUPPRESSION_MS = 300;
 
     function enableClickDrag(track) {
         if (!track || track.dataset.clickDrag === "ready") return;
@@ -108,7 +89,6 @@
 
             pointerId = null;
             dragging = false;
-
             track.classList.remove("is-click-dragging");
         }
 
@@ -180,11 +160,7 @@
         track.addEventListener(
             "click",
             event => {
-                if (
-                    performance.now() >= suppressClickUntil
-                ) {
-                    return;
-                }
+                if (performance.now() >= suppressClickUntil) return;
 
                 event.preventDefault();
                 event.stopPropagation();
@@ -196,6 +172,14 @@
             event.preventDefault();
         });
     }
+
+    keepSupportButtonDecorated(
+        document.getElementById("heroSupportButton")
+    );
+
+    keepSupportButtonDecorated(
+        document.getElementById("homeDonationButton")
+    );
 
     enableClickDrag(document.getElementById("livesTrack"));
     enableClickDrag(document.getElementById("agendaGrid"));

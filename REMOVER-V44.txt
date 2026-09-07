@@ -1,0 +1,43 @@
+V44 — ITENS REMOVIDOS PELO SANEAMENTO
+
+O ZIP não consegue apagar arquivos já existentes ao ser extraído.
+Por isso, depois de sobrepor os arquivos finais, execute:
+
+    python cleanup_v44.py
+
+O script remove SOMENTE os caminhos conhecidos abaixo e consolida o index.
+
+RAIZ
+V43-7-HOTFIX.txt
+V43-7-1-HOTFIX.txt
+V43-7-2-HOTFIX.txt
+V43-7-REMOVER.txt
+remove_v4372_public_helpers.py
+
+CÓDIGO TEMPORÁRIO
+css/pages/v43-7-3.css
+js/pages/home/v43-7-3.js
+.github/scripts/__pycache__/
+*.pyc / *.pyo gerados
+
+ASSETS GRÁFICOS DUPLICADOS
+assets/avatar.png
+assets/favicon.png
+assets/fundo.png
+assets/preview.png
+
+DOCUMENTAÇÃO HISTÓRICA
+docs/SANEAMENTO-V28.md
+todos os docs/V*.md listados no cleanup_v44.py
+
+PRESERVADOS
+workers.js
+CNAME
+.nojekyll
+_headers
+robots.txt
+sitemap.xml
+assets/fonts/**
+data/agenda.json
+conteúdo editorial dos vídeos em data/content/lives.json
+todo o backend/ranking

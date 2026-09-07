@@ -1,760 +1,180 @@
-# AGENTS.md — Referência operacional para agentes de IA
+# Regras de manutenção
 
-Este arquivo descreve o estado atual do projeto e as invariantes que devem ser
-preservadas ao editar `main` ou `site-v2`.
+Este arquivo descreve apenas o estado vigente do projeto. Histórico de
+implementações antigas deve ser consultado pelo Git, não reintroduzido como
+regra atual.
 
 ## Princípios
 
-- site estático;
-- HTML, CSS e JavaScript vanilla;
-- sem framework;
-- sem bundler;
-- sem build obrigatório;
-- JSON editorial local;
-- CI customizada apenas para validação;
-- Worker/OAuth/KV/CORS/DNS são tarefas separadas.
+1. Manter o projeto sem framework, bundler ou etapa de build.
+2. Preferir HTML/CSS/JavaScript vanilla e conteúdo editorial em JSON.
+3. Alterações devem ser localizadas: não ampliar escopo sem necessidade.
+4. Home deve continuar funcional mesmo se Worker/Streamlabs estiverem fora.
+5. Não duplicar navbar/footer manualmente nas páginas.
+6. Preservar acessibilidade, responsividade e preferências de performance.
 
-## Ambientes
+## Páginas
 
-```text
-main
-→ GitHub Pages
-→ https://kamylisumire.com/
+### Home
 
-site-v2
-→ Cloudflare Pages
-→ https://site-v2.kamylisumire-site.pages.dev/
-```
+A Home carrega conteúdo local e inclui:
 
-`donate.kamylisumire.com` é legado e deve continuar redirecionando com 301
-para `https://kamylisumire.com/doacoes/`.
+- Hero e redes;
+- Lives recentes;
+- Agenda;
+- Regras;
+- Créditos;
+- CTA de apoio.
 
-A migração do domínio principal está concluída.
+A Home **não** deve carregar `js/core/api.js` nem o ranking.
 
-`CNAME` deve conter somente:
+### Doações
 
-```text
-kamylisumire.com
-```
+`/doacoes/` contém LivePix, Pixie e ranking.
 
-## Estrutura esperada
+Somente essa página deve carregar:
 
-```text
-/
-├── .github/
-│   ├── scripts/validate-content.py
-│   └── workflows/validate-json.yml
-├── assets/
-├── css/
-│   ├── core/
-│   ├── components/
-│   └── pages/
-├── data/
-│   ├── agenda.json
-│   └── content/
-├── doacoes/index.html
-├── docs/
-├── js/
-│   ├── core/
-│   └── pages/
-├── index.html
-├── 404.html
-├── CNAME
-├── .nojekyll
-├── _headers
-├── robots.txt
-├── sitemap.xml
-└── workers.js
-```
+- `js/core/api.js`;
+- `js/pages/doacoes/ranking.js`.
 
-Não reintroduzir arquivos temporários de aplicação/migração já consolidados.
+Mudanças em Worker, OAuth, KV, CORS ou endpoints são mudanças deliberadas de
+backend e não devem acompanhar ajustes visuais incidentais.
+
+### 404
+
+Deve permanecer `noindex`.
+
+## Lives
+
+O modelo vigente é manual.
+
+`data/content/lives.json` armazena:
+
+- `videoId`;
+- `title`;
+- `date`;
+- metadados textuais do bloco.
+
+O frontend usa thumbnail de `i.ytimg.com` e link
+`youtube.com/watch?v=...`.
+
+Não reintroduzir sem decisão arquitetural explícita:
+
+- iframe/player incorporado;
+- `YT.Player`;
+- `iframe_api`;
+- playlists automáticas;
+- `cuePlaylist`/`getPlaylist`;
+- YouTube Data API;
+- API key Google.
+
+Títulos, IDs, datas e ordem das Lives são conteúdo editorial. Validadores
+podem avisar sobre anomalias, mas não devem corrigi-los silenciosamente.
+
+## Agenda
+
+`data/agenda.json` é local, contém sete dias e não depende de API.
+Um dia com live pode ter horário vazio; a interface deve tratar como
+“A definir”.
+
+## CTAs de apoio e carrosséis
+
+Na Home:
+
+- `#heroSupportButton` e `#homeDonationButton` usam o mesmo desenho de coração
+  do botão Apoiar da navbar;
+- o CTA “Gostou das lives?” usa o rótulo `Apoiar`;
+- `#livesTrack` e `#agendaGrid` aceitam click + arrasta com mouse/caneta;
+- touch, teclado, setas, links e scroll-snap existentes devem continuar
+  funcionando.
+
+A implementação isolada fica em:
+
+- `js/pages/home/home-interactions.js`;
+- `css/components/home-interactions.css`.
+
+## Conteúdo editorial
+
+Editar textos nos JSON correspondentes em vez de hardcode sempre que o
+campo já for editorial.
+
+Arquivos principais:
+
+- `data/content/hero.json`;
+- `data/content/lives.json`;
+- `data/content/regras.json`;
+- `data/content/creditos.json`;
+- `data/content/home-doacoes.json`;
+- `data/content/doacoes.json`;
+- `data/content/ranking.json`;
+- `data/content/footer.json`;
+- `data/agenda.json`.
+
+Helpers de edição são privados e não pertencem ao site público.
 
 ## Assets
 
-Desde a V43.7, os assets gráficos públicos ficam no Cloudflare Pages:
+Assets gráficos publicados ficam em `https://assets.kamylisumire.com`.
 
-```text
-https://assets.kamylisumire.com/
-```
+Não manter duplicatas públicas de:
 
-Avatar:
+- avatar;
+- favicon;
+- fundo;
+- preview social.
 
-```text
-https://assets.kamylisumire.com/avatar-192.webp
-https://assets.kamylisumire.com/avatar-384.webp
-https://assets.kamylisumire.com/avatar.png
-```
+Nunito e sua licença continuam locais em `assets/fonts/`.
 
-Background:
+## Configuração de API
 
-```text
-desktop/tablet:
-https://assets.kamylisumire.com/fundo.avif
-→ https://assets.kamylisumire.com/fundo.webp
-→ https://assets.kamylisumire.com/fundo.png
+`js/core/config.js` deve permanecer apenas como configuração compartilhada.
 
-mobile <= 760 px:
-https://assets.kamylisumire.com/fundo-mobile.avif
-→ https://assets.kamylisumire.com/fundo.webp
-→ https://assets.kamylisumire.com/fundo.png
-```
+Não usar `config.js` para carregar CSS/JS de páginas ou hotfixes.
 
-`https://assets.kamylisumire.com/logo.webp` continua transparente e é usado como máscara CSS.
-O projeto Pages de assets deve permitir CORS para a máscara cross-origin.
+A mudança `useCustomDomain` deve ser explícita e testada. Enquanto isso,
+`workers.dev` permanece como origem ativa, com domínio customizado preparado.
 
-`https://assets.kamylisumire.com/preview.png` continua 1200 × 630 para Open Graph/Twitter.
+## Navbar/footer e links externos
 
-A Nunito permanece local em `assets/fonts/` com `OFL.txt`.
+Navbar e footer são componentes compartilhados em `js/core/`.
 
-`assets/avatar.webp` é legado removido na V40.
-
-## CSS
-
-Fonte de verdade visual:
-
-```text
-css/core/variables.css
-```
-
-Organização:
-
-- `variables.css` — tokens, temas e superfícies;
-- `global.css` — base, botões, painéis, footer, background, loader e reveal;
-- `navbar.css` — navbar e controles;
-- `components/ranking.css` — ranking;
-- `pages/*.css` — regras por página.
-
-Preservar CSS modular. Não introduzir bundle/build sem solicitação explícita.
-
-Identidade:
-
-```text
-cor primária: #B35EAF
-fonte: Nunito
-cards: raio 24 px
-botões: raio 16 px
-blur padrão: 10 px
-```
+Links externos continuam sujeitos ao fluxo global de confirmação por
+delegação de eventos. Não implementar confirmadores concorrentes por página.
 
 ## Preferências e performance
 
-Persistência:
+Preservar:
 
-```text
-kamyli:ui-theme
-kamyli:ui-blur
-```
-
-Estados:
-
-```text
-data-blur="on|off"
-data-blur-mode="auto|manual"
-data-blur-preference="auto|on|off"
-data-blur-reason="supported|manual|unsupported|reduced-transparency|save-data|low-memory|low-cpu"
-
-data-performance="normal|reduced"
-data-performance-reason="standard|save-data|low-memory|low-cpu"
-```
-
-O modo automático não usa User-Agent.
-
-Ele considera:
-
-- suporte a `backdrop-filter`;
+- tema automático/claro/escuro;
+- blur automático/ligado/desligado;
+- `prefers-reduced-motion`;
 - `prefers-reduced-transparency`;
-- `Save-Data`;
-- `deviceMemory <= 2` quando disponível;
-- `hardwareConcurrency <= 2` quando disponível.
+- Save-Data;
+- perfil adaptativo por memória/CPU quando disponível.
 
-Não adicionar preload do background decorativo.
+Não substituir isso por detecção de user-agent.
 
-## Home
-
-A Home continua independente do Worker.
-
-Arquivos principais:
-
-```text
-js/pages/home/home.js
-js/pages/home/content.js
-css/pages/home.css
-data/agenda.json
-data/content/hero.json
-data/content/home-doacoes.json
-data/content/regras.json
-data/content/creditos.json
-```
-
-Agenda:
-
-- exatamente sete dias;
-- IDs domingo → sábado;
-- datas `AAAA-MM-DD`;
-- `temLive=false` exige `horario`, `titulo` e `descricao` vazios;
-- scroll-snap;
-- setas, touch, wheel e teclado;
-- `prefers-reduced-motion`;
-- métricas reutilizadas para evitar reflow repetido;
-- renderização agrupada com `DocumentFragment`.
-
-## Doações
-
-`/doacoes/` concentra LivePix, Pixie e ranking.
-
-Arquivos principais:
-
-```text
-js/pages/doacoes/doacoes.js
-js/pages/doacoes/content.js
-js/pages/doacoes/ranking.js
-js/core/api.js
-css/pages/doacoes.css
-css/components/ranking.css
-```
-
-Ranking:
-
-- Top 5;
-- mensal/todos os tempos;
-- cache local de 30 minutos;
-- fallback para cache expirado;
-- tabs acessíveis por teclado;
-- privacidade aplicada em `ranking.js`.
-
-Não mover o ranking para a Home.
-
-## API / Worker
-
-Configuração:
-
-```text
-js/core/config.js
-js/core/api.js
-workers.js
-```
-
-Worker, OAuth, tokens, KV, CORS, cron e domínio da API são infraestrutura
-separada. Não alterar callback OAuth, secrets ou `useCustomDomain` junto de
-mudanças comuns do frontend.
-
-## Navbar
-
-Gerada somente por:
-
-```text
-js/core/navbar.js
-```
+## SEO e publicação
 
 Preservar:
 
-- fixa;
-- conteúdo centralizado;
-- scroll horizontal mobile;
-- Início, Agenda, Jogos, Regras, Créditos e Doações;
-- logo via máscara `logo.webp`;
-- tema e blur;
-- scrollspy;
-- rolagem suave;
-- `aria-current`;
-- acompanhamento automático do item ativo.
-
-Não duplicar a navbar diretamente nos HTMLs.
-
-## Links externos
-
-O aviso global pertence a:
-
-```text
-js/core/external-links.js
-```
-
-Ele deve interceptar links `http/https` externos, inclusive links inseridos
-depois pela leitura dos JSONs.
-
-Exceção:
-
-```html
-data-external-warning="skip"
-```
-
-## Footer
-
-Gerado por:
-
-```text
-js/core/footer.js
-```
-
-Conteúdo editável:
-
-```text
-data/content/footer.json
-```
-
-Créditos essenciais devem continuar com fallback.
-
-## Loader
-
-Home e Doações usam:
-
-```text
-js/core/loader.js
-```
-
-Fluxo atual:
-
-```text
-site-loading-pending
-→ após 180 ms, se necessário: site-loading-visible
-→ site-revealing
-→ site-ready
-```
-
-Se o conteúdo local ficar pronto rapidamente, o loader pode nunca aparecer.
-
-Preservar:
-
-- favicon pulsando;
-- sem texto visual;
-- timeout de segurança;
-- `prefers-reduced-motion`;
-- não esperar API externa do ranking;
-- não carregar background pesado no loader.
-
-A 404 não usa loader.
-
-## 404
-
-Deve:
-
-- permanecer `noindex`;
-- funcionar no domínio principal;
-- funcionar em URLs aninhadas;
-- funcionar em GitHub Pages de projeto;
-- carregar preferências, navbar e footer;
-- não carregar `api.js`.
-
-## SEO
-
-Indexáveis:
-
-```text
-https://kamylisumire.com/
-https://kamylisumire.com/doacoes/
-```
-
-A 404 não entra no sitemap.
-
-Home e Doações mantêm:
-
-- title;
-- description;
-- robots;
-- canonical absoluto;
+- canonical;
 - Open Graph;
-- Twitter/X;
-- JSON-LD.
-
-Scrapers sociais não dependem de JavaScript. O Hero visível, `hero.json` e os
-metadados sociais devem permanecer sincronizados.
-
-Não adicionar `meta keywords`.
-
-## Preview Cloudflare Pages
-
-`_headers` deve continuar aplicando:
-
-```text
-X-Robots-Tag: noindex
-```
-
-aos hosts `*.pages.dev`.
-
-## CI customizada
-
-Arquivos:
-
-```text
-.github/scripts/validate-content.py
-.github/workflows/validate-json.yml
-```
-
-A CI deve continuar verificando:
-
-- JSONs e chaves duplicadas;
-- esquema da agenda;
-- Hero/SEO/preview;
-- assets responsivos e AVIF/WebP;
-- estados críticos V38/V39;
+- Twitter Cards;
+- JSON-LD;
+- `robots.txt`;
+- `sitemap.xml`;
 - `CNAME`;
-- `_headers`;
-- referências locais em HTML/CSS;
-- robots/sitemap;
-- 404 `noindex`;
-- higiene V40;
-- sintaxe de todos os `js/**/*.js`.
+- `noindex` de preview Cloudflare Pages.
 
-A CI valida o repositório, mas não cria bundle nem build do site.
+## Validação
 
-## V41 — fontes e transições
+Todo PR relevante deve passar:
 
-### Nunito local
-
-```text
-assets/fonts/nunito-variable.woff2
-assets/fonts/OFL.txt
+```bash
+python .github/scripts/validate-content.py
+find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 ```
 
-`@font-face` fica em `css/core/variables.css`.
-
-Não reintroduzir:
-
-```text
-fonts.googleapis.com
-fonts.gstatic.com
-```
-
-Home, Doações e 404 fazem preload da fonte.
-
-### Home → Doações
-
-Módulo:
-
-```text
-js/core/page-transitions.js
-```
-
-Só intercepta navegação interna normal da Home para `/doacoes/`.
-
-Não interceptar links externos, hashes, nova aba, downloads nem cliques com
-modificadores.
-
-Fluxo:
-
-```text
-site-page-leaving
-→ navegação real
-→ site-page-arriving
-→ loader/reveal
-→ site-ready
-```
-
-A animação é desativada por `prefers-reduced-motion` ou
-`data-performance="reduced"`.
-
-### CSS modular
-
-Não usar `css/build/` nem `.github/scripts/build-css.py`.
-
-## V42 — configurações e loader
-
-### Navbar
-
-A navbar não possui mais `themeToggle` ou `blurToggle`.
-
-`Apoiar` fica em `.site-nav-support-wrap`, fora de `.site-nav-links`, para não
-rolar junto com os links no mobile.
-
-### Preferências no footer
-
-`js/core/footer.js` renderiza o botão `Configurações` e um popover não modal.
-
-Tema:
-
-```text
-auto | light | dark
-```
-
-Blur:
-
-```text
-auto | on | off
-```
-
-Persistência:
-
-```text
-kamyli:ui-theme
-kamyli:ui-blur
-```
-
-`data-theme` continua contendo o tema resolvido (`light|dark`). A preferência
-fica em `data-theme-preference` e o modo em `data-theme-mode`.
-
-O menu fecha por botão, Escape ou clique fora e usa radios nativos para
-navegação por teclado.
-
-### Loader
-
-Home, Doações e 404 usam o loader V42.
-
-```text
-MIN_DISPLAY_MS = 1000
-```
-
-O fundo do overlay é transparente. A marca é `https://assets.kamylisumire.com/logo.webp` via máscara
-CSS. O loader pode permanecer além de 1 segundo se o conteúdo local ainda não
-estiver pronto, com timeout de segurança.
-
-`prefers-reduced-motion` e `data-performance="reduced"` removem somente a
-pulsação; não removem o tempo mínimo solicitado.
-
-## V42.1 — loader e blur
-
-O loader deve seguir a configuração resolvida de blur do site:
-
-```text
-data-blur="on"
-→ background var(--card-bg)
-→ backdrop-filter blur(var(--blur-card))
-
-data-blur="off"
-→ background var(--card-bg)
-→ sem backdrop-filter
-```
-
-Não voltar a usar fundo totalmente transparente nem uma cor fixa independente
-dos tokens de tema.
-
-## V42.4 — fundo mobile
-
-Para `max-width: 760px`, preservar:
-
-```text
-body::before
-→ position: fixed
-→ fundo-mobile.avif
-→ center / cover
-```
-
-O `body` não deve carregar simultaneamente a mesma imagem no perfil normal.
-
-Fallbacks:
-
-```text
-data-performance="reduced"
-→ remover a camada fixa
-→ usar background mobile rolável no body
-
-data-performance-reason="save-data"
-→ nenhuma imagem decorativa
-```
-
-Desktop não deve ser alterado por esta regra.
-
-## V42.5 — popover de configurações
-
-Preservar o workaround de backdrop aninhado:
-
-```text
-popover aberto
-→ site-footer recebe site-settings-open
-→ backdrop-filter do footer = none
-→ popover continua usando --blur-card
-
-popover fechado
-→ site-settings-open removido
-→ blur normal do footer retorna
-```
-
-Em `data-blur="off"`, o popover também deve permanecer sem filtro.
-
-O título visível do card deve ser somente `Configurações`; não reintroduzir
-`Preferências` como eyebrow/título adicional.
-
-## V43.1 — carrossel YouTube + popup
-
-Preservar:
-
-```text
-data/content/lives.json
-→ YouTube IFrame Player API
-→ cuePlaylist() / getPlaylist()
-→ carrossel de thumbnails
-→ dialog com youtube-nocookie.com
-```
-
-O player visível deve existir somente no `dialog`. Não voltar a integrar o
-player diretamente ao layout da Home.
-
-O player auxiliar de descoberta deve permanecer fora da tela e ser destruído
-depois que `getPlaylist()` retornar os IDs.
-
-Não introduzir:
-
-```text
-YOUTUBE_API_KEY
-YouTube Data API
-Google Cloud
-sync-youtube-lives.py
-sync-youtube-lives.yml
-```
-
-Agenda e Lives continuam independentes. Worker/API de doações permanecem fora
-deste escopo.
-
-## V43.2 — carrosséis de Lives
-
-Preservar:
-
-```text
-carrossel principal
-→ cards 16:9
-
-popup
-→ player 16:9
-→ mini-carrossel dos mesmos playlistIds
-```
-
-O mini-carrossel deve reutilizar a lista já obtida por `getPlaylist()`. Não
-adicionar nova fonte de dados, Data API ou backend para montar o popup.
-
-Trocar uma live no popup deve substituir o iframe sem fechar o `dialog`.
-
-## V43.3 — ritmo de cards
-
-Preservar o token:
-
-```css
---card-title-description-gap: 8px;
-```
-
-Novos cards de conteúdo com título seguido de descrição devem reutilizar esse
-token em vez de introduzir valores locais diferentes.
-
-Não aplicar automaticamente o token a microconteúdo interno de botões ou badges.
-
-## V43.4 — borda de Lives
-
-Preservar a equivalência de token:
-
-```text
-Agenda → var(--card-border)
-Lives  → var(--card-border)
-```
-
-Como as thumbnails de Lives são full-bleed, manter o frame `::after` por cima
-da imagem. Não substituir por mudanças de API ou metadata: esta é uma regra
-puramente visual.
-
-### Loader na V43.4
-
-Preservar:
-
-```text
-MIN_DISPLAY_MS = 1000
-pulse = .85s
-scale = .90 ↔ 1.08
-opacity = .62 ↔ 1
-```
-
-Não remover as exceções para reduced motion ou performance reduzida.
-
-## V43.5 — alinhamento de carrosséis
-
-Preservar:
-
-```css
---carousel-edge-gutter: 8px;
-```
-
-Agenda e Lives devem reutilizar esse valor na margem compensatória do wrapper,
-padding do track e `scroll-padding-inline`.
-
-Evitar reintroduzir grandes reservas laterais apenas para setas de navegação.
-
-## V43.6 — conformidade YouTube
-
-Não reintroduzir:
-
-```text
-player 1×1
-player offscreen
-lives-playlist-probe
-discovery automática por IntersectionObserver
-```
-
-A lista deve ser obtida pelo mesmo player visível do popup, somente depois de
-uma ação explícita.
-
-Preservar:
-
-```text
-iframe 480×270
-CSS >= 200×200
-strict-origin-when-cross-origin
-origin=window.location.origin
-thumbnail clicável >= 128×72
-```
-
-## V43.6.1 — Lives manuais
-
-Preservar o modelo:
-
-```text
-videos[] = videoId + title + date
-thumbnail original do YouTube
-link direto para youtube.com/watch
-sem iframe/player/API
-```
-
-Não reintroduzir `YT.Player`, `getPlaylist`, `cuePlaylist`, `iframe_api` ou
-Data API sem uma revisão explícita das políticas vigentes.
-
-`title` deve reproduzir o título publicado no YouTube; a thumbnail não deve
-receber overlay, filtro ou edição visual.
-
-## V43.7.2 — JSON Helpers privados
-
-Os JSON Helpers foram retirados do repositório público.
-
-Origem operacional:
-
-```text
-Cloudflare Pages separado
-→ helpers.kamylisumire.com
-→ Cloudflare Access
-```
-
-Não reintroduzir `tools/json-helpers/` neste repositório.
-
-Alterações futuras nos helpers devem ser feitas no pacote/projeto privado e não
-misturadas ao runtime público.
-
-Os JSONs de produção continuam neste repositório e são atualizados manualmente.
-
-## V43.7 — assets públicos no Cloudflare Pages
-
-A origem canônica dos assets gráficos públicos é:
-
-```text
-https://assets.kamylisumire.com/
-```
-
-Não reintroduzir cópias locais dos 11 arquivos migrados.
-
-O projeto Pages dos assets usa Direct Upload e deve incluir na raiz:
-
-```text
-/*
-  Access-Control-Allow-Origin: *
-  Cross-Origin-Resource-Policy: cross-origin
-```
-
-Isso é necessário especialmente para `logo.webp`, usado como CSS mask.
-
-Não mover `assets/fonts/nunito-variable.woff2` nem `assets/fonts/OFL.txt`.
-
-## V43.7.1 — estabilização
-
-`data/content/lives.json` continua sendo conteúdo editorial manual da usuária.
-
-Não ordenar, alterar datas, alterar títulos ou preencher vídeos
-automaticamente.
-
-O helper pode validar problemas técnicos de serialização/formatação, mas não
-deve modificar silenciosamente o título informado.
-
-O fallback HTML de Lives deve permanecer neutro e não mencionar playlist ou
-player.
+Não versionar `__pycache__`, `.pyc`, `.pyo` ou resíduos temporários de
+migração/hotfix.

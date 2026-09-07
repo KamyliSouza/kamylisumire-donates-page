@@ -1,0 +1,24 @@
+V44 — COMO APLICAR
+
+1. Faça a aplicação sobre a branch/working tree atual do repositório.
+2. Extraia V44-SANEAMENTO-FINAL.zip diretamente na raiz.
+3. Permita substituir os arquivos existentes.
+4. Execute:
+
+   python cleanup_v44.py
+
+5. Revise:
+
+   git status
+   git diff --check
+
+6. Faça o smoke test descrito em docs/PRODUCAO.md.
+7. Commit/merge somente depois da CI verde.
+
+POR QUE HÁ UM SCRIPT DE LIMPEZA?
+Um ZIP consegue adicionar/substituir arquivos, mas não consegue apagar
+arquivos antigos do destino. O script existe exclusivamente para realizar
+essas exclusões conhecidas, consolidar as referências da Home e executar
+a validação final.
+
+O script não faz commit, push, deploy nem altera credenciais/backend.

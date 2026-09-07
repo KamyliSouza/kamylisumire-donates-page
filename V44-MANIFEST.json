@@ -1,0 +1,47 @@
+{
+  "version": "V44",
+  "type": "saneamento",
+  "base": "estado main auditado em 2026-09-07 + V43.7.3",
+  "replacements": [
+    ".github/scripts/validate-content.py",
+    ".github/workflows/validate-json.yml",
+    ".gitignore",
+    "README.md",
+    "AGENTS.md",
+    "DESIGN-SYSTEM.md",
+    "CHANGELOG.md",
+    "assets/README.md",
+    "data/content/README.md",
+    "data/content/home-doacoes.json",
+    "docs/ARQUITETURA.md",
+    "docs/PRODUCAO.md",
+    "docs/SANEAMENTO-V44.md",
+    "docs/VALIDACAO.md",
+    "js/core/config.js"
+  ],
+  "additions": [
+    "css/components/home-interactions.css",
+    "js/pages/home/home-interactions.js"
+  ],
+  "deletions": [
+    "hotfixes V43 da raiz",
+    "remove_v4372_public_helpers.py",
+    "css/pages/v43-7-3.css",
+    "js/pages/home/v43-7-3.js",
+    ".github/scripts/__pycache__/",
+    "duplicatas gráficas locais migradas",
+    "documentação histórica docs/V*.md",
+    "docs/SANEAMENTO-V28.md"
+  ],
+  "editorial_preserved": [
+    "data/agenda.json",
+    "videos de data/content/lives.json (IDs, títulos, datas e ordem)"
+  ],
+  "backend_untouched": [
+    "workers.js",
+    "OAuth",
+    "KV",
+    "CORS",
+    "contrato do ranking"
+  ]
+}

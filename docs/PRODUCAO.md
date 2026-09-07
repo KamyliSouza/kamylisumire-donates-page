@@ -1,282 +1,69 @@
-# Produção e ambientes
+# Produção
 
-## Estado atual
+## Produção pública
 
-A migração para o domínio principal está concluída.
+Domínio canônico:
 
-```text
-https://kamylisumire.com/          produção
-https://kamylisumire.com/doacoes/  produção
-https://donate.kamylisumire.com/   redirect 301 para /doacoes/
-```
+`https://kamylisumire.com/`
 
-Preview:
+A branch de produção é `main`, publicada pelo GitHub Pages.
 
-```text
-https://site-v2.kamylisumire-site.pages.dev/
-```
+Arquivos que não devem ser removidos:
 
-## Hospedagem
-
-```text
-main     → GitHub Pages
-site-v2  → Cloudflare Pages
-```
-
-Não há framework, bundler ou build obrigatório.
-
-A CI customizada apenas audita o conteúdo/código antes ou depois dos commits;
-ela não gera os arquivos usados pelo GitHub Pages.
-
-## HTTPS
-
-Produção deve permanecer em HTTPS.
-
-## SEO
-
-Indexáveis:
-
-```text
-https://kamylisumire.com/
-https://kamylisumire.com/doacoes/
-```
-
-A 404 permanece `noindex`.
-
-`robots.txt` deve apontar para:
-
-```text
-https://kamylisumire.com/sitemap.xml
-```
-
-O sitemap deve conter somente as URLs públicas/canônicas.
+- `CNAME`;
+- `.nojekyll`;
+- `robots.txt`;
+- `sitemap.xml`;
+- assets/fonts locais;
+- páginas HTML;
+- CSS/JS utilizados;
+- JSON editorial.
 
 ## Preview
 
-`_headers` protege os hosts `*.pages.dev` com:
+A branch `site-v2` é usada como preview Cloudflare Pages.
+O arquivo `_headers` deve continuar aplicando `X-Robots-Tag`/noindex aos
+domínios `pages.dev`.
 
-```text
-X-Robots-Tag: noindex
+Não publicar canonical apontando para preview.
+
+## Assets
+
+Gráficos públicos usam `https://assets.kamylisumire.com`.
+Antes de remover um asset remoto ou mudar seu nome, verificar Home, Doações,
+404, Open Graph, Twitter Cards e JSON-LD.
+
+## Backend do ranking
+
+A configuração está em `js/core/config.js`.
+
+Enquanto `useCustomDomain` estiver `false`, o frontend usa o endpoint
+`workers.dev` configurado e mantém o domínio customizado preparado.
+
+Ativar `api.kamylisumire.com` deve ser uma mudança isolada e testada.
+
+Nunca armazenar client secret, token OAuth ou credencial em HTML/JS/JSON
+público.
+
+## Checklist antes de merge
+
+```bash
+python .github/scripts/validate-content.py
+find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+git diff --check
 ```
 
-O GitHub Pages não usa `_headers` como header de produção; o arquivo existe
-para o preview do Cloudflare Pages.
-
-## Conteúdo
-
-```text
-data/agenda.json
-data/content/
-```
-
-## API
-
-O ranking de Doações usa:
-
-```text
-js/core/config.js
-js/core/api.js
-workers.js
-```
-
-Endpoint, OAuth, KV, CORS e domínio customizado da API devem ser tratados
-separadamente.
-
-## CI
-
-```text
-.github/workflows/validate-json.yml
-→ .github/scripts/validate-content.py
-→ node --check em js/**/*.js
-```
-
-## Checklist de publicação
-
-1. CI verde;
-2. Home abre sem erro;
-3. Doações abre sem erro;
-4. agenda carrega;
-5. Regras/Créditos carregam;
-6. navbar e scrollspy funcionam;
-7. tema/blur funcionam;
-8. links externos exibem aviso;
-9. ranking mantém fallback se a API falhar;
-10. 404 continua `noindex`;
-11. canonical/robots/sitemap permanecem coerentes.
-
-## V41 — caminho crítico
-
-Nunito é servida pelo próprio domínio.
-
-Não há mais dependência de:
-
-```text
-fonts.googleapis.com
-fonts.gstatic.com
-```
-
-Home, Doações e 404 fazem preload do WOFF2.
-
-A CI valida fonte/licença, ausência de Google Fonts, CSS modular e transições.
-
-A transição Home → Doações não altera Worker, OAuth, KV, CORS, DNS ou ranking.
-
-## V42 — preferências e loader
-
-A preferência de tema agora aceita `auto`, `light` e `dark`; o blur aceita
-`auto`, `on` e `off`.
-
-A CI valida os três estados, o botão Apoiar fixo à direita, o menu no rodapé e
-o loader transparente de no mínimo 1 segundo.
-
-A mudança é somente de frontend e não altera Worker, API, OAuth, KV, CORS ou
-DNS.
-
-## V43.1 — carrossel de lives em popup
-
-A integração continua estática no GitHub Pages.
-
-O navegador carrega a IFrame Player API somente quando a seção Lives se
-aproxima da viewport, usa `getPlaylist()` para montar as thumbnails e destrói o
-player auxiliar.
-
-O player de reprodução é criado somente dentro de um `dialog` depois do clique
-do visitante e é removido ao fechar.
-
-Não existem credenciais, Google Cloud ou workflow de sincronização.
-
-Nenhuma configuração de Worker/API foi alterada.
-
-## V43.2 — popup com troca de lives
-
-O popup reaproveita os IDs já descobertos na Home para montar um mini-carrossel.
-Nenhuma chamada adicional de backend/API é necessária.
-
-Trocar de live substitui somente o iframe do player. O `dialog` permanece
-aberto e o iframe anterior é descartado.
-
-## V43.3 — ritmo visual dos cards
-
-A correção é exclusivamente CSS/design-system. Não há alteração de dados,
-integrações ou publicação.
-
-O intervalo título → descrição dos cards de conteúdo passa a ser governado por
-`--card-title-description-gap: 8px`.
-
-## V43.4 — borda dos cards de Lives
-
-Correção exclusivamente visual em `css/components/lives.css`.
-
-O frame adicional é renderizado sobre a thumbnail e não modifica a integração
-com o YouTube, dados, deploy ou APIs.
-
-### Revisão do loader na V43.4
-
-A duração mínima continua definida pelo JavaScript em 1000 ms. O CSS apenas
-torna a pulsação da logo mais rápida e mais ampla para que o movimento seja
-perceptível antes da revelação da página.
-
-Reduced motion e performance reduzida continuam sem animação.
-
-## V43.5 — alinhamento dos carrosséis
-
-Correção exclusivamente CSS/design-system. Agenda, Lives e o mini-carrossel do
-popup usam espaços laterais menores e consistentes.
-
-Nenhuma integração ou lógica JavaScript foi alterada.
-
-## V43.6 — conformidade do YouTube
-
-A página deixa de criar qualquer player YouTube automaticamente.
-
-A API IFrame e o player são carregados apenas depois do clique em `Carregar
-lives`. O player fica visível no dialog, com viewport mínima de 200×200, e é
-destruído quando o popup fecha.
-
-Nenhuma chave, Google Cloud ou backend foi adicionado.
-
-## V43.6.1 — Lives manuais
-
-A Home não cria mais player do YouTube. O conteúdo é lido de `videos` em
-`data/content/lives.json`; thumbnails carregam diretamente do YouTube e os cards
-abrem a página oficial do vídeo.
-
-O hotfix não sobrescreve `lives.json`. Adicione manualmente o array seguindo
-`data/content/lives.example.json`.
-
-## V43.6.2 — edição assistida dos JSONs
-
-`tools/json-helpers/` contém ferramentas locais para manutenção editorial.
-O JSON baixado ainda deve passar pela CI normal antes da publicação.
-
-## V43.7 — Cloudflare Pages para assets
-
-Origem pública:
-
-```text
-https://assets.kamylisumire.com/
-```
-
-Antes de publicar o código V43.7, o projeto Direct Upload dos assets deve conter
-todos os arquivos gráficos e o seguinte `_headers` na raiz:
-
-```text
-/*
-  Access-Control-Allow-Origin: *
-  Cross-Origin-Resource-Policy: cross-origin
-```
-
-Sequência:
-
-```text
-1. redeploy completo do projeto de assets com _headers
-2. confirmar os arquivos no custom domain
-3. publicar V43.7 no site
-4. remover os 11 assets gráficos locais listados em V43-7-REMOVER.txt
-5. executar CI
-6. validar Home, Doações e 404
-```
-
-A Nunito e `OFL.txt` continuam no GitHub.
-
-Esta versão não reescreve o histórico Git.
-
-## V43.7.1 — estabilização
-
-Nenhum dado de `data/content/lives.json` é alterado por este hotfix.
-
-O fallback inicial da seção de Lives passa a ser `Carregando últimas lives...`.
-
-Ao usar `tools/json-helpers/lives.html`, o helper sinaliza títulos que possuem
-espaços ou quebras de linha acidentais no início/fim. A correção continua sendo
-feita manualmente antes do download.
-
-## V43.7.2 — JSON Helpers privados
-
-Os helpers não são mais publicados junto de `kamylisumire.com`.
-
-Arquitetura:
-
-```text
-kamylisumire.com
-→ site público
-→ sem tools/json-helpers/
-
-helpers.kamylisumire.com
-→ Cloudflare Pages separado
-→ Cloudflare Access
-→ One-time PIN/identidade autorizada
-```
-
-O domínio `*.pages.dev` do projeto de helpers também deve ser protegido por
-Access ou redirecionado para o custom domain protegido, sem deixar um caminho
-público alternativo.
-
-Depois de aplicar a V43.7.2, executar:
-
-```text
-python remove_v4372_public_helpers.py
-```
-
-A CI passa a falhar se `tools/json-helpers/` continuar no repositório.
-
+Depois, smoke test:
+
+1. Home abre sem erros visíveis.
+2. Hero e CTA “Gostou das lives?” exibem coração + “Apoiar”.
+3. Lives carregam e abrem o vídeo correto no YouTube.
+4. Lives e Agenda aceitam setas, teclado, touch e click + arrasta.
+5. Agenda exibe sete dias.
+6. Regras e Créditos carregam.
+7. `/doacoes/` abre LivePix/Pixie.
+8. Ranking carrega ou utiliza seu fallback/cache sem quebrar a página.
+9. Tema/blur continuam persistindo preferências.
+10. Links externos continuam passando pelo confirmador global.
+11. 404 continua `noindex`.
+12. canonical/OG/sitemap continuam apontando para produção.

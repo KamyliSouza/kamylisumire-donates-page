@@ -1,4 +1,4 @@
-name: Validate V43.7.2 public site without private helpers
+name: Validate public site
 
 on:
   push:
@@ -57,9 +57,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate content, SEO, references and external assets
+      - name: Validate content, architecture, SEO and references
         run: python .github/scripts/validate-content.py
 
       - name: Check all JavaScript syntax
         run: |
-          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
+
+      - name: Reject generated Python cache
+        run: |
+          if find . -type d -name '__pycache__' -o -type f \( -name '*.pyc' -o -name '*.pyo' \) | grep -q .; then
+            echo "Python cache/bytecode must not be versioned."
+            exit 1
+          fi

@@ -1,13 +1,12 @@
 /*
- * V43.7.3 — CTAs DE APOIO + CLICK E ARRASTA
- * CSS limitado aos elementos adicionados por js/pages/home/v43-7-3.js.
+ * Interações específicas da Home:
+ * coração dos CTAs e estado visual do click + arrasta.
  */
 
 .home-support-icon {
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
-
     fill: currentColor;
 }
 
