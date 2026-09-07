@@ -1,4 +1,4 @@
-name: Validate V43.4 site content and live card border
+name: Validate V43.4 site content and visual refinements
 
 on:
   push:

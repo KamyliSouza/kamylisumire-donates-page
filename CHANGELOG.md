@@ -1,5 +1,6 @@
 # CHANGELOG
 ## V43.4 — borda visível nos cards de Lives
+- reforça o pulso da logo do landing: ciclo `.85s`, escala `.90 → 1.08` e opacidade `.62 → 1`, preservando o mínimo de 1s do loader;
 - hotfix visual sobre a V43.3;
 - mantém `var(--card-border)`, o mesmo token usado pelos cards da Agenda;
 - adiciona frame `::after` sobre thumbnails full-bleed para tornar a borda perceptível;

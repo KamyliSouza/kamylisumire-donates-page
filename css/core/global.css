@@ -926,9 +926,14 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
 
     animation:
         site-loader-logo-pulse
-        1s
+        .85s
         ease-in-out
         infinite;
+
+    transform-origin: center;
+    will-change:
+        transform,
+        opacity;
 
     filter:
         drop-shadow(
@@ -952,13 +957,13 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
 @keyframes site-loader-logo-pulse {
     0%,
     100% {
-        opacity: .7;
-        transform: scale(.94);
+        opacity: .62;
+        transform: scale(.90);
     }
 
     50% {
         opacity: 1;
-        transform: scale(1.04);
+        transform: scale(1.08);
     }
 }
 

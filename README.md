@@ -278,3 +278,8 @@ Os cards do carrossel de Lives passam a desenhar a borda também sobre a
 thumbnail, usando o mesmo `var(--card-border)` da Agenda. O estado ativo usa a
 cor primária.
 
+#### Revisão da V43.4
+
+A V43.4 consolidada também reforça o pulso da logo do landing para que um ciclo
+completo seja perceptível dentro do mínimo de 1 segundo do loader.
+

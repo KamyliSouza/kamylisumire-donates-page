@@ -625,3 +625,16 @@ Como as thumbnails de Lives são full-bleed, manter o frame `::after` por cima
 da imagem. Não substituir por mudanças de API ou metadata: esta é uma regra
 puramente visual.
 
+### Loader na V43.4
+
+Preservar:
+
+```text
+MIN_DISPLAY_MS = 1000
+pulse = .85s
+scale = .90 ↔ 1.08
+opacity = .62 ↔ 1
+```
+
+Não remover as exceções para reduced motion ou performance reduzida.
+

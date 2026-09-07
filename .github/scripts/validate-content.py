@@ -617,6 +617,79 @@ def validate_lives_card_border() -> None:
 
 
 
+
+def validate_loader_pulse_v434() -> None:
+    global_css = (
+        ROOT / "css/core/global.css"
+    ).read_text(encoding="utf-8")
+
+    loader_js = (
+        ROOT / "js/core/loader.js"
+    ).read_text(encoding="utf-8")
+
+    expectations = {
+        "Loader mantém mínimo de 1 segundo":
+            "const MIN_DISPLAY_MS = 1000;"
+            in loader_js,
+
+        "Pulso completa ciclo em menos de 1 segundo":
+            "site-loader-logo-pulse"
+            in global_css
+            and ".85s"
+            in global_css,
+
+        "Pulso reduz para 90 por cento":
+            "transform: scale(.90);"
+            in global_css,
+
+        "Pulso cresce para 108 por cento":
+            "transform: scale(1.08);"
+            in global_css,
+
+        "Pulso varia opacidade de forma perceptível":
+            "opacity: .62;"
+            in global_css
+            and "opacity: 1;"
+            in global_css,
+
+        "Logo mantém origem central":
+            "transform-origin: center;"
+            in global_css,
+
+        "Reduced motion continua estático":
+            "@media (prefers-reduced-motion: reduce)"
+            in global_css
+            and ".site-loader-logo"
+            in global_css
+            and "animation: none;"
+            in global_css,
+
+        "Performance reduzida continua estática":
+            'html[data-performance="reduced"] .site-loader-logo'
+            in global_css
+            and "animation: none;"
+            in global_css,
+    }
+
+    failures = [
+        label
+        for label, ok
+        in expectations.items()
+        if not ok
+    ]
+
+    if failures:
+        raise ValidationError(
+            "pulso do loader V43.4 incompleto: "
+            + ", ".join(failures)
+        )
+
+    print(
+        "✓ Pulso do loader V43.4 perceptível e compatível com 1s mínimo"
+    )
+
+
+
 def validate_agenda() -> None:
     data = load_json_strict(ROOT / "data/agenda.json")
 
@@ -2094,6 +2167,7 @@ def main() -> int:
         validate_youtube_popup_lives,
         validate_card_title_description_spacing,
         validate_lives_card_border,
+        validate_loader_pulse_v434,
         validate_agenda,
         validate_hero_sync,
         validate_visual_assets,

@@ -170,3 +170,11 @@ Correção exclusivamente visual em `css/components/lives.css`.
 O frame adicional é renderizado sobre a thumbnail e não modifica a integração
 com o YouTube, dados, deploy ou APIs.
 
+### Revisão do loader na V43.4
+
+A duração mínima continua definida pelo JavaScript em 1000 ms. O CSS apenas
+torna a pulsação da logo mais rápida e mais ampla para que o movimento seja
+perceptível antes da revelação da página.
+
+Reduced motion e performance reduzida continuam sem animação.
+

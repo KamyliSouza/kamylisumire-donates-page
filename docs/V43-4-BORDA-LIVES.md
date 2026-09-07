@@ -76,3 +76,36 @@ footer
 Worker/API
 arquivos históricos
 ```
+
+## Revisão V43.4 — pulso do loader
+
+A mesma V43.4 também ajusta a animação da logo durante o landing.
+
+Antes:
+
+```text
+duração: 1.00 s
+escala: .94 → 1.04
+opacidade: .70 → 1
+```
+
+Agora:
+
+```text
+duração: .85 s
+escala: .90 → 1.08
+opacidade: .62 → 1
+```
+
+O loader já mantém `MIN_DISPLAY_MS = 1000`, portanto uma abertura normal possui
+tempo suficiente para mostrar pelo menos um ciclo completo antes da saída.
+
+A animação continua desabilitada quando:
+
+```text
+prefers-reduced-motion: reduce
+data-performance="reduced"
+```
+
+Esses casos permanecem estáticos por acessibilidade e pelo modo de performance.
+

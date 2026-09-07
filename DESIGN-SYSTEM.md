@@ -318,3 +318,11 @@ o aspect ratio.
 
 Estados hover/foco/selecionado usam `var(--primary-color)`.
 
+### Pulso do landing — revisão V43.4
+
+A logo do loader usa um ciclo de `.85s`, variando `scale(.90)` até
+`scale(1.08)` e opacidade `.62` até `1`.
+
+O objetivo é deixar a pulsação claramente perceptível dentro do mínimo de 1s do
+landing sem adicionar animações ao conteúdo após a entrada.
+
