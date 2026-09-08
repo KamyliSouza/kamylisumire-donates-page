@@ -30,7 +30,7 @@
      * entrada antecipada da página antes do loader terminar.
      * Use este valor em vez de delay negativo.
      */
-    const PAGE_REVEAL_DELAY_MS = 150;
+    const PAGE_REVEAL_DELAY_MS = 0;
     const PAGE_REVEAL_OVERLAP_MS = 0;
 
     const REVEAL_STATE_MS = 420;
