@@ -3,6 +3,18 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45.2.3 — hotfix de timing do loader
+
+- `PAGE_REVEAL_DELAY_MS` agora é uma pausa real medida depois de
+  `loader.remove()`;
+- adiciona `PAGE_REVEAL_OVERLAP_MS` para controlar entrada antes do fim do
+  loader sem usar delay negativo;
+- expõe versão/delay/overlap como atributos `data-*` no `<html>` para
+  diagnóstico no DevTools;
+- adiciona `?v=45.2.3` ao `loader.js` na Home, Doações e 404 para impedir que
+  cache antigo masque mudanças;
+- mantém loader translúcido com blur e o reveal atual.
+
 ## V45.2.2 — delay entre loader e página
 
 - impede que Navbar, conteúdo e Footer fiquem visíveis por trás do loader
