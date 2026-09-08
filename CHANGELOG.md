@@ -3,6 +3,22 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45.1 — correção do blur pós-loader
+
+- corrige o priming da V45 para atingir as superfícies que realmente usam
+  `backdrop-filter`, especialmente `.glass-panel`;
+- mantém `will-change` ativo durante todo o reveal em vez de removê-lo após
+  apenas duas frames;
+- usa três frames de preparação e resolve os estilos de `backdrop-filter`
+  antes da saída do loader;
+- mantém `main`, Navbar e Footer praticamente invisíveis atrás do loader
+  durante a preparação, evitando flash visual;
+- remove as dicas de composição depois da animação para não manter custo de
+  GPU permanentemente;
+- continua ignorando o priming quando blur está desligado, o perfil é
+  reduzido ou `prefers-reduced-motion` está ativo;
+- não altera conteúdo, Helper, API, Doações, Lives, Agenda, Navbar ou Footer.
+
 ## V45 — sistema editorial global e blur priming
 
 - adiciona JSONs editoriais para Navbar, Interface global, 404 e SEO;
