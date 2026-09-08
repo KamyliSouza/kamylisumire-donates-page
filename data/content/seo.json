@@ -1,0 +1,20 @@
+{
+  "compartilhado": {
+    "siteName": "Kamyli Sumire",
+    "imagem": "https://assets.kamylisumire.com/preview.png"
+  },
+  "home": {
+    "documentTitle": "Kamyli Sumire | Lives, agenda e comunidade",
+    "description": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.",
+    "ogTitle": "Oiê! Eu sou a Kamyli ✨",
+    "ogDescription": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.",
+    "imageAlt": "Kamyli Sumire"
+  },
+  "doacoes": {
+    "documentTitle": "Doações | Kamyli Sumire — LivePix e Pixie",
+    "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.",
+    "ogTitle": "Apoie a Kamyli Sumire ✨",
+    "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!",
+    "imageAlt": "Apoie a Kamyli Sumire"
+  }
+}

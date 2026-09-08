@@ -1,0 +1,63 @@
+{
+  "loader": {
+    "ariaLabel": "Carregando o site"
+  },
+  "footer": {
+    "ariaLabel": "Créditos e informações do site"
+  },
+  "linksExternos": {
+    "titulo": "Abrir link externo?",
+    "antesHost": "Você está saindo deste site e será direcionado para ",
+    "hostFallback": "outro site",
+    "depoisHost": ".",
+    "cancelar": "Cancelar",
+    "continuar": "Continuar"
+  },
+  "configuracoes": {
+    "abrir": "Configurações",
+    "titulo": "Configurações",
+    "fecharAriaLabel": "Fechar configurações",
+    "aparencia": "Aparência",
+    "temaAutomatico": "Automático",
+    "temaClaro": "Claro",
+    "temaEscuro": "Escuro",
+    "blur": "Blur",
+    "blurAutomatico": "Automático",
+    "blurLigado": "Ligado",
+    "blurDesligado": "Desligado",
+    "preferenciasIndisponiveis": "Preferências indisponíveis",
+    "temaStatusAutomatico": "Automático • sistema em modo {tema}.",
+    "temaStatusEscuro": "Modo escuro selecionado.",
+    "temaStatusClaro": "Modo claro selecionado.",
+    "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.",
+    "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).",
+    "blurStatusLigado": "Blur ligado manualmente.",
+    "blurStatusDesligado": "Blur desligado manualmente.",
+    "motivosBlur": {
+      "unsupported": "não suportado pelo navegador",
+      "reduced-transparency": "redução de transparência",
+      "save-data": "economia de dados",
+      "low-memory": "memória limitada",
+      "low-cpu": "processamento limitado",
+      "supported": "condições adequadas",
+      "manual": "escolha manual",
+      "fallback": "condições do dispositivo"
+    }
+  },
+  "homeFallback": {
+    "livesAnteriorAria": "Mostrar live anterior",
+    "livesProximaAria": "Mostrar próxima live",
+    "livesTrackAria": "Lives recentes no YouTube",
+    "livesCarregando": "Carregando últimas lives...",
+    "agendaEyebrow": "Programação",
+    "agendaTitulo": "Agenda da semana",
+    "agendaAnteriorAria": "Mostrar dia anterior",
+    "agendaProximoAria": "Mostrar próximo dia",
+    "agendaTrackAria": "Dias da semana",
+    "agendaCarregando": "Carregando agenda...",
+    "regrasListaAria": "Regras da comunidade",
+    "regrasCarregando": "Carregando regras...",
+    "creditosListaAria": "Créditos de artistas e assets",
+    "creditosCarregando": "Carregando créditos..."
+  }
+}

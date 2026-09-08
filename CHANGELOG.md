@@ -3,6 +3,15 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45 — sistema editorial global e blur priming
+
+- adiciona JSONs editoriais para Navbar, Interface global, 404 e SEO;
+- amplia o Helper para praticamente todo texto humano do site;
+- mantém Open Graph/Twitter estático no HTML via exportador do Helper;
+- loader aguarda a UI global antes do reveal;
+- prepara backdrop-filter antes da animação para reduzir o atraso do blur;
+- consolida api.kamylisumire.com como API primária com fallback workers.dev.
+
 ## V44.4 — domínio próprio da API
 
 - ativa `https://api.kamylisumire.com` como endpoint primário do ranking;
