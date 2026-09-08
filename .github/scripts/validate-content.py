@@ -449,6 +449,40 @@ def validate_architecture() -> None:
     if "v43-7-3" in config.lower() or "home-interactions" in config:
         error("js/core/config.js: configuração central não deve carregar hotfix/Home.")
 
+    global_css = read_text("css/core/global.css")
+    loader_js = read_text("js/core/loader.js")
+
+    if re.search(
+        r"site-loading-pending[\s\S]{0,260}body\s*>\s*main[\s\S]{0,160}opacity\s*:\s*0",
+        global_css,
+        re.I,
+    ):
+        error(
+            "css/core/global.css: body > main não deve ficar opacity: 0 "
+            "durante o loader; isso reintroduz o atraso de backdrop-filter."
+        )
+
+    loader_block_match = re.search(
+        r"\.site-loader\s*\{([\s\S]*?)\n\}",
+        global_css,
+        re.I,
+    )
+    if loader_block_match and re.search(
+        r"backdrop-filter\s*:\s*blur\(",
+        loader_block_match.group(1),
+        re.I,
+    ):
+        error(
+            "css/core/global.css: loader fullscreen não deve usar "
+            "backdrop-filter."
+        )
+
+    if 'querySelectorAll(".glass-panel")' not in loader_js:
+        error("js/core/loader.js: warm-up precisa atingir os .glass-panel.")
+
+    if "KAMYLI_BACKDROP_ASSET_URL" not in loader_js:
+        error("js/core/loader.js: preparo do fundo crítico não reconhecido.")
+
     if "useCustomDomain: false" not in config:
         warn("js/core/config.js: useCustomDomain não está false; confirmar mudança deliberada.")
 

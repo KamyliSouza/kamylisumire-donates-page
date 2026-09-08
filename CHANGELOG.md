@@ -3,6 +3,17 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45.2 — correção estrutural do blur pós-loader
+
+- mantém navbar/main/footer renderizáveis atrás de um loader opaco;
+- remove `opacity: 0` do ancestral que contém os `.glass-panel`;
+- remove o `backdrop-filter` fullscreen do loader;
+- preserva a entrada usando transformação, sem fade `0 → 1` dos contêineres;
+- antecipa condicionalmente o fundo AVIF correto no `<head>` quando blur e performance permitem;
+- aguarda transferência/decodificação do fundo por tempo limitado antes do reveal;
+- aquece `.glass-panel`, `.site-nav` e `.site-footer` enquanto já estão paintable;
+- adiciona guardas de CI contra a regressão estrutural.
+
 ## V45.1 — correção do blur pós-loader
 
 - corrige o priming da V45 para atingir as superfícies que realmente usam

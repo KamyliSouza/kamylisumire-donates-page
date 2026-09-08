@@ -40,3 +40,17 @@ A migração do domínio exige smoke test real em navegador.
 
 A Home deve continuar funcionando mesmo que todos os endpoints do ranking
 estejam indisponíveis.
+
+## V45.2 — blur pós-loader
+
+Contrato:
+
+1. `body > main` não fica `opacity: 0` durante o loader;
+2. `.site-loader` não usa `backdrop-filter` fullscreen;
+3. o loader opaco cobre conteúdo que continua paintable atrás dele;
+4. o fundo AVIF apropriado é preloaded somente com blur ligado/performance normal;
+5. `loader.js` tenta decodificar esse fundo antes do reveal, com timeout;
+6. `.glass-panel`, `.site-nav` e `.site-footer` são aquecidos antes do reveal;
+7. blur off/Save-Data/performance reduzida não antecipam o fundo.
+
+A CI contém guardas para os principais itens acima.

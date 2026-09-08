@@ -20,7 +20,9 @@ body {
     /*
      * Fundo decorativo em formatos progressivos.
      * AVIF é preferido; WebP e PNG permanecem como fallbacks.
-     * Não há preload: o fundo não deve competir com conteúdo crítico.
+     * V45.2: quando blur está ativo e o perfil é normal, o bootstrap do
+     * <head> antecipa somente a variante AVIF apropriada para o viewport.
+     * Em blur off/performance reduzida/Save-Data, não existe preload.
      */
     background-image: url('https://assets.kamylisumire.com/fundo.png');
     background-image: image-set(
@@ -690,10 +692,16 @@ a {
    ENTRADA PÓS-LOADER + TRANSIÇÃO ENTRE PÁGINAS — V41
    ========================================================= */
 
-html.site-loading-pending .site-nav,
-html.site-loading-pending body > main,
-html.site-loading-pending .site-footer {
-    opacity: 0;
+/*
+ * V45.2 — conteúdo paintable atrás do loader.
+ *
+ * O ancestral <main> não pode ficar opacity: 0, porque isso permite ao
+ * navegador adiar a pintura dos backdrop-filter dos .glass-panel.
+ * O loader é opaco e cobre a página; por isso o conteúdo pode permanecer
+ * renderizado atrás dele sem flash visual.
+ */
+html.site-loading-pending body {
+    pointer-events: none;
 }
 
 html.site-revealing .site-nav {
@@ -704,7 +712,7 @@ html.site-revealing .site-nav {
         .03s
         both;
 
-    will-change: opacity, transform;
+    will-change: transform;
 }
 
 html.site-revealing body > main {
@@ -715,7 +723,7 @@ html.site-revealing body > main {
         .05s
         both;
 
-    will-change: opacity, transform;
+    will-change: transform;
 }
 
 html.site-revealing .site-footer {
@@ -726,7 +734,7 @@ html.site-revealing .site-footer {
         .09s
         both;
 
-    will-change: opacity, transform;
+    will-change: transform;
 }
 
 html.site-revealing.site-page-arriving[data-page-transition="forward"] body > main {
@@ -735,7 +743,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-nav-enter {
     from {
-        opacity: 0;
+        opacity: 1;
         transform: translateY(-5px);
     }
 
@@ -747,7 +755,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-content-enter {
     from {
-        opacity: 0;
+        opacity: 1;
         transform: translateY(10px) scale(.995);
     }
 
@@ -759,7 +767,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-page-enter-forward {
     from {
-        opacity: 0;
+        opacity: 1;
         transform: translateX(16px) scale(.994);
     }
 
@@ -869,15 +877,16 @@ html.site-loading-pending body {
     padding: 24px;
 
     /*
-     * V42.1: o loader usa a mesma superfície dos cards.
-     * Com blur ligado/automático ativo, o conteúdo ao fundo fica borrado.
-     * Com blur desligado, permanece somente a transparência reforçada
-     * definida pelos tokens de superfície do tema.
+     * V45.2 — cobertura opaca e barata de compor.
+     *
+     * Um backdrop-filter fullscreen no loader competia com os filtros dos
+     * cards justamente durante o reveal. O loader agora só cobre a página
+     * com a cor sólida do tema; os cards ficam renderizados atrás dele.
      */
-    background-color: var(--card-bg);
+    background-color: var(--bg-color);
 
-    backdrop-filter: blur(var(--blur-card));
-    -webkit-backdrop-filter: blur(var(--blur-card));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 
     opacity: 0;
     visibility: hidden;
@@ -940,11 +949,6 @@ html.site-loading-visible .site-loader:not(.is-leaving) {
             0 6px 16px
             rgba(179, 94, 175, .22)
         );
-}
-
-:root[data-blur="off"] .site-loader {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
 }
 
 .site-loader.is-leaving {

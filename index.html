@@ -185,6 +185,56 @@
                 performance: performanceProfile,
                 performanceReason
             });
+
+            /*
+             * V45.2 — fundo crítico para backdrop-filter.
+             *
+             * O CSS dos painéis borra a arte de fundo. Se a imagem ainda não
+             * estiver disponível quando o loader sai, o navegador recompõe o
+             * backdrop depois e isso parece um "blur atrasado".
+             *
+             * Só antecipamos a imagem quando blur está ligado, o perfil de
+             * performance é normal e Save-Data não está ativo.
+             */
+            if (
+                blur === "on" &&
+                performanceProfile === "normal" &&
+                !connection?.saveData
+            ) {
+                const isMobile =
+                    media("(max-width: 760px)");
+
+                const backdropUrl =
+                    isMobile
+                        ? "https://assets.kamylisumire.com/fundo-mobile.avif"
+                        : "https://assets.kamylisumire.com/fundo.avif";
+
+                const backdropPreload =
+                    document.createElement("link");
+
+                backdropPreload.rel = "preload";
+                backdropPreload.as = "image";
+                backdropPreload.type = "image/avif";
+                backdropPreload.href = backdropUrl;
+                backdropPreload.fetchPriority = "high";
+
+                window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                window.KAMYLI_BACKDROP_PRELOAD_READY =
+                    new Promise(resolve => {
+                        backdropPreload.addEventListener(
+                            "load",
+                            () => resolve("loaded"),
+                            { once: true }
+                        );
+                        backdropPreload.addEventListener(
+                            "error",
+                            () => resolve("error"),
+                            { once: true }
+                        );
+                    });
+
+                document.head.appendChild(backdropPreload);
+            }
         })();
     </script>
 
