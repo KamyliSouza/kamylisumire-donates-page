@@ -143,8 +143,24 @@ Nunito e sua licença continuam locais em `assets/fonts/`.
 
 Não usar `config.js` para carregar CSS/JS de páginas ou hotfixes.
 
-A mudança `useCustomDomain` deve ser explícita e testada. Enquanto isso,
-`workers.dev` permanece como origem ativa, com domínio customizado preparado.
+Na V44.4, a configuração de produção é:
+
+- `useCustomDomain: true`;
+- `customDomainUrl: "https://api.kamylisumire.com"`;
+- `fallbackToWorkersDev: true` durante a estabilização.
+
+`api.kamylisumire.com` é o endpoint primário do ranking. `workers.dev`
+permanece apenas como contingência temporária.
+
+A configuração OAuth do Worker deve usar exatamente:
+
+`REDIRECT_URI=https://api.kamylisumire.com/oauth/callback`
+
+CORS deve permitir `https://kamylisumire.com` e somente outras origens
+explicitamente necessárias.
+
+`STREAMLABS_CLIENT_SECRET`, `OAUTH_SETUP_TOKEN`, tokens OAuth e demais
+credenciais continuam fora do Git.
 
 ## Navbar/footer e links externos
 

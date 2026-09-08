@@ -9,7 +9,8 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 - **Home:** totalmente estática/local; não depende do Worker.
 - **Doações:** página independente em `/doacoes/`.
 - **Ranking:** única funcionalidade pública que consome backend.
-- **Backend:** Cloudflare Worker em `workers.js`, com integração Streamlabs e persistência em KV.
+- **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
+- **Fallback da API:** `workers.dev` mantido temporariamente para contingência.
 - **Produção:** GitHub Pages pela branch `main`.
 - **Preview:** Cloudflare Pages, protegido contra indexação.
 - **Assets gráficos públicos:** `assets.kamylisumire.com`.
@@ -44,16 +45,24 @@ js/pages/doacoes/        lógica de Doações
 workers.js               backend do ranking
 ```
 
+## API de produção
+
+O frontend de `/doacoes/` usa `https://api.kamylisumire.com` como endpoint
+primário.
+
+Durante a estabilização da V44.4, `workers.dev` permanece como fallback.
+A Home continua totalmente independente dessa camada.
+
+OAuth, client secret, tokens e credenciais não pertencem ao repositório
+público. A configuração sensível permanece no Cloudflare Worker.
+
 ## Desenvolvimento
 
 Como o projeto não possui build, sirva a raiz por HTTP para testes locais.
-Exemplo:
 
 ```bash
 python -m http.server 8000
 ```
-
-Depois abra `http://localhost:8000/`.
 
 Antes de publicar:
 
@@ -62,8 +71,6 @@ python .github/scripts/validate-content.py
 find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 ```
 
-A mesma validação é executada pela CI.
-
 ## Documentação atual
 
 - `AGENTS.md` — regras de manutenção e invariantes.
@@ -71,8 +78,5 @@ A mesma validação é executada pela CI.
 - `docs/ARQUITETURA.md` — componentes e fluxos.
 - `docs/PRODUCAO.md` — publicação, preview e backend.
 - `docs/VALIDACAO.md` — matriz de validação.
-- `docs/SANEAMENTO-V44.md` — escopo do saneamento que consolidou o repositório.
+- `docs/SANEAMENTO-V44.md` — histórico consolidado do saneamento.
 - `CHANGELOG.md` — histórico resumido.
-
-Documentos de hotfix e versões antigas foram removidos no saneamento V44.
-O histórico detalhado continua disponível no Git.

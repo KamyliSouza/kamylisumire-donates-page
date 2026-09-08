@@ -2,50 +2,86 @@
 
 ## Produção pública
 
-Domínio canônico:
+Site:
 
 `https://kamylisumire.com/`
 
+API:
+
+`https://api.kamylisumire.com/`
+
 A branch de produção é `main`, publicada pelo GitHub Pages.
-
-Arquivos que não devem ser removidos:
-
-- `CNAME`;
-- `.nojekyll`;
-- `robots.txt`;
-- `sitemap.xml`;
-- assets/fonts locais;
-- páginas HTML;
-- CSS/JS utilizados;
-- JSON editorial.
 
 ## Preview
 
 A branch `site-v2` é usada como preview Cloudflare Pages.
-O arquivo `_headers` deve continuar aplicando `X-Robots-Tag`/noindex aos
-domínios `pages.dev`.
+`_headers` deve continuar aplicando `X-Robots-Tag`/noindex aos domínios
+`pages.dev`.
 
-Não publicar canonical apontando para preview.
+Se o preview precisar consumir o ranking real, adicione sua origem
+explicitamente a `ALLOWED_ORIGINS`.
 
 ## Assets
 
 Gráficos públicos usam `https://assets.kamylisumire.com`.
-Antes de remover um asset remoto ou mudar seu nome, verificar Home, Doações,
-404, Open Graph, Twitter Cards e JSON-LD.
 
 ## Backend do ranking
 
-A configuração está em `js/core/config.js`.
+A configuração do frontend está em `js/core/config.js`.
 
-Enquanto `useCustomDomain` estiver `false`, o frontend usa o endpoint
-`workers.dev` configurado e mantém o domínio customizado preparado.
+Na V44.4:
 
-Ativar `api.kamylisumire.com` deve ser uma mudança isolada e testada.
+- `api.kamylisumire.com` é a origem primária;
+- `workers.dev` permanece como fallback temporário;
+- a Home continua sem carregar a API.
 
-Nunca armazenar client secret, token OAuth ou credencial em HTML/JS/JSON
-público.
+No Cloudflare Worker, configure:
 
-## Checklist antes de merge
+```text
+REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
+ALLOWED_ORIGINS=https://kamylisumire.com
+```
+
+`REDIRECT_URI` e `ALLOWED_ORIGINS` não são segredos.
+
+Continuam sensíveis e fora do Git:
+
+- `STREAMLABS_CLIENT_SECRET`;
+- `OAUTH_SETUP_TOKEN`;
+- tokens OAuth armazenados no KV;
+- demais credenciais privadas.
+
+## Streamlabs OAuth
+
+A aplicação Streamlabs deve usar exatamente:
+
+`https://api.kamylisumire.com/oauth/callback`
+
+como Redirect/Redirection URI.
+
+O Worker usa `env.REDIRECT_URI` na autorização e também na troca/renovação
+de tokens, por isso Cloudflare e Streamlabs devem estar idênticos.
+
+Após a mudança, faça uma nova autorização pelo domínio novo:
+
+```text
+https://api.kamylisumire.com/oauth/authorize?key=SEU_OAUTH_SETUP_TOKEN
+```
+
+Nunca publicar ou compartilhar o valor real de `OAUTH_SETUP_TOKEN`.
+
+## Ordem de migração V44.4
+
+1. adicionar `api.kamylisumire.com` como Custom Domain do Worker;
+2. confirmar DNS/TLS;
+3. atualizar `REDIRECT_URI` no Cloudflare;
+4. atualizar a Redirect URI da aplicação Streamlabs;
+5. reautorizar pelo novo domínio;
+6. testar ranking e diagnóstico;
+7. publicar a V44.4 na `main`;
+8. manter `fallbackToWorkersDev: true` durante a estabilização.
+
+## Checklist
 
 ```bash
 python .github/scripts/validate-content.py
@@ -53,17 +89,15 @@ find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 git diff --check
 ```
 
-Depois, smoke test:
+O validador V44.3 pode emitir o aviso de que `useCustomDomain` não está
+`false`. Na V44.4 isso é deliberado e o aviso não representa falha.
 
-1. Home abre sem erros visíveis.
-2. Hero e CTA “Gostou das lives?” exibem coração + “Apoiar”.
-3. Lives carregam e abrem o vídeo correto no YouTube.
-4. Lives e Agenda aceitam setas, teclado, touch e click + arrasta.
-5. Agenda exibe sete dias.
-6. Regras e Créditos carregam.
-7. `/doacoes/` abre LivePix/Pixie.
-8. Ranking carrega ou utiliza seu fallback/cache sem quebrar a página.
-9. Tema/blur continuam persistindo preferências.
-10. Links externos continuam passando pelo confirmador global.
-11. 404 continua `noindex`.
-12. canonical/OG/sitemap continuam apontando para produção.
+Smoke test:
+
+1. Home abre normalmente.
+2. `/doacoes/` abre LivePix/Pixie.
+3. `https://api.kamylisumire.com/` retorna JSON.
+4. DevTools mostra a requisição para `api.kamylisumire.com`.
+5. Console registra `API atendida por: https://api.kamylisumire.com`.
+6. ranking mensal/geral permanece funcional.
+7. fallback/cache continua seguro em falha remota.

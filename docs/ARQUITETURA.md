@@ -15,12 +15,16 @@ Navegador
    ├─ HTML/CSS/JS vanilla
    ├─ conteúdo local
    └─ ranking
-      └─ Cloudflare Worker
-         ├─ Streamlabs API/OAuth
-         └─ KV
+      └─ https://api.kamylisumire.com
+         └─ Cloudflare Worker
+            ├─ Streamlabs API/OAuth
+            └─ KV
 ```
 
 A disponibilidade do backend não deve determinar a disponibilidade da Home.
+
+Durante a estabilização da V44.4, `workers.dev` continua disponível como
+fallback de contingência.
 
 ## JavaScript compartilhado
 
@@ -31,7 +35,7 @@ A disponibilidade do backend não deve determinar a disponibilidade da Home.
 - `content.js` — utilitários de conteúdo;
 - `navbar.js` / `footer.js` — componentes compartilhados;
 - `external-links.js` — confirmação de navegação externa;
-- `page-transitions.js` — transição de página com regras de acessibilidade;
+- `page-transitions.js` — transição de página;
 - `loader.js` — loader local;
 - `api.js` — cliente de API usado em Doações.
 
@@ -39,60 +43,58 @@ A disponibilidade do backend não deve determinar a disponibilidade da Home.
 
 ## Home
 
-`js/pages/home/`:
-
-- `home.js` — agenda e comportamentos principais;
-- `content.js` — conteúdo editorial da Home;
-- `lives.js` — cards manuais do YouTube;
-- `home-interactions.js` — coração dos CTAs e drag dos carrosséis.
-
-A Home não importa `api.js`.
+A Home permanece totalmente estática/local e não importa `api.js`.
 
 ## Doações
-
-`js/pages/doacoes/`:
-
-- `doacoes.js`;
-- `content.js`;
-- `ranking.js`.
 
 O ranking possui cache local e fallback para o último cache disponível quando
 a consulta remota falha.
 
+Na V44.4, a ordem dos endpoints é:
+
+1. `https://api.kamylisumire.com`;
+2. `workers.dev`, somente se o primeiro falhar.
+
 ## Lives
 
-`data/content/lives.json` contém uma lista manual.
-
-Não existe:
-
-- player incorporado;
-- iframe;
-- playlist automática;
-- YouTube Data API;
-- chave Google.
-
-O `videoId` é usado para gerar:
-
-- `https://i.ytimg.com/vi/<id>/mqdefault.jpg`;
-- `https://www.youtube.com/watch?v=<id>`.
+Lives permanecem manuais, usando thumbnails oficiais e links diretos do
+YouTube. Não existe player incorporado, iframe, playlist automática, YouTube
+Data API ou chave Google.
 
 ## Backend
 
-`workers.js` é isolado da Home.
-Ele atende o ranking e administra a integração necessária com Streamlabs/KV.
+`workers.js` é isolado da Home e funciona como origem de
+`api.kamylisumire.com`.
 
-Mudanças nesse arquivo exigem revisão específica de backend, segredos e CORS.
+Rotas relevantes:
+
+- `/` — ranking público;
+- `/oauth/authorize` — início controlado do OAuth;
+- `/oauth/callback` — callback OAuth do Streamlabs;
+- `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
+- `/debug/sync` — sincronização manual protegida.
+
+Configuração de produção:
+
+```text
+REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
+ALLOWED_ORIGINS=https://kamylisumire.com
+```
+
+O binding KV continua sendo `RANKINGS`.
+Credenciais sensíveis continuam como Secrets/bindings do Worker.
 
 ## Publicação
 
 - `main` → GitHub Pages / produção;
 - `site-v2` → preview Cloudflare Pages;
 - `_headers` impede indexação do preview;
-- `CNAME` define `kamylisumire.com`.
+- `CNAME` define `kamylisumire.com`;
+- Custom Domain do Worker define `api.kamylisumire.com`.
 
 ## Assets
 
-Avatar, favicon, fundo e preview social são servidos pelo domínio
+Avatar, favicon, fundo e preview social são servidos por
 `assets.kamylisumire.com`.
 
 Nunito permanece no próprio repositório.

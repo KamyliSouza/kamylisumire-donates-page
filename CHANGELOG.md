@@ -3,6 +3,14 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V44.4 — domínio próprio da API
+
+- ativa `https://api.kamylisumire.com` como endpoint primário do ranking;
+- mantém `workers.dev` como fallback temporário;
+- preserva a Home totalmente estática e independente do Worker;
+- documenta Custom Domain, CORS, `REDIRECT_URI` e reautorização Streamlabs;
+- não altera `workers.js`, KV, Lives, Agenda ou conteúdo editorial.
+
 ## V44.3 — textos multilinha em Doações
 
 - `subtitulo`, `livepix.descricao`, `pixie.descricao` e `aviso.texto`
