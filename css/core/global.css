@@ -700,8 +700,24 @@ a {
  * O loader é opaco e cobre a página; por isso o conteúdo pode permanecer
  * renderizado atrás dele sem flash visual.
  */
+/*
+ * V45.2.2 — a página fica invisível enquanto o loader está ativo.
+ *
+ * O loader é translúcido, então sem este estado a página fica perceptível
+ * atrás dele. Como o pequeno ajuste tardio do blur foi aceito, priorizamos
+ * uma sequência visual limpa: loader -> intervalo -> página.
+ */
 html.site-loading-pending body {
     pointer-events: none;
+}
+
+html.site-loading-pending .site-nav,
+html.site-loading-pending body > main,
+html.site-loading-pending .site-footer,
+html.site-page-delay .site-nav,
+html.site-page-delay body > main,
+html.site-page-delay .site-footer {
+    opacity: 0;
 }
 
 :root[data-blur="off"] .site-loader {
@@ -748,7 +764,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-nav-enter {
     from {
-        opacity: 1;
+        opacity: 0;
         transform: translateY(-5px);
     }
 
@@ -760,7 +776,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-content-enter {
     from {
-        opacity: 1;
+        opacity: 0;
         transform: translateY(10px) scale(.995);
     }
 
@@ -772,7 +788,7 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
 
 @keyframes site-page-enter-forward {
     from {
-        opacity: 1;
+        opacity: 0;
         transform: translateX(16px) scale(.994);
     }
 

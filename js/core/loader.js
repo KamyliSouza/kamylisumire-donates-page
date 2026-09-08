@@ -19,6 +19,7 @@
     const MIN_DISPLAY_MS = 1000;
     const MAX_WAIT_MS = 4000;
     const EXIT_MS = 320;
+    const PAGE_REVEAL_DELAY_MS = 150;
     const REVEAL_STATE_MS = 420;
     const BACKDROP_READY_TIMEOUT_MS = 1400;
     const BACKDROP_DECODE_TIMEOUT_MS = 700;
@@ -56,7 +57,8 @@
                     minimumDisplayMs: MIN_DISPLAY_MS,
                     pageTransition: root.dataset.pageTransition || null,
                     backdropReady,
-                    blurPrepared
+                    blurPrepared,
+                    pageRevealDelayMs: PAGE_REVEAL_DELAY_MS
                 }
             })
         );
@@ -174,25 +176,38 @@
 
     async function prepareVisualBackdrop() {
         if (!shouldPrepareBackdrop()) return;
-        await Promise.all([
-            waitForBackdropAsset(),
-            warmBlurSurfaces()
-        ]);
+
+        /*
+         * V45.2.2: mantemos o preload/decode do fundo, mas não tentamos
+         * eliminar completamente o ajuste tardio do blur dos cards.
+         */
+        await waitForBackdropAsset();
     }
 
     function finishReveal() {
+        /*
+         * V45.2.2:
+         * loader fade-out -> loader removido -> 150 ms -> página entra.
+         */
+        root.classList.add("site-page-delay");
+
         loader.classList.add("is-leaving");
         root.classList.remove("site-loading-pending", "site-loading-visible");
 
         setTimeout(() => loader.remove(), EXIT_MS);
 
         setTimeout(() => {
-            root.classList.remove("site-revealing");
-            root.classList.add("site-ready");
-            cleanupBlurWarmup();
-            dispatchRevealed();
-            clearPageArrival();
-        }, REVEAL_STATE_MS);
+            root.classList.add("site-revealing");
+            root.classList.remove("site-page-delay");
+
+            setTimeout(() => {
+                root.classList.remove("site-revealing");
+                root.classList.add("site-ready");
+                cleanupBlurWarmup();
+                dispatchRevealed();
+                clearPageArrival();
+            }, REVEAL_STATE_MS);
+        }, EXIT_MS + PAGE_REVEAL_DELAY_MS);
     }
 
     async function prepareReveal() {
@@ -221,7 +236,6 @@
         }
 
         finished = true;
-        root.classList.add("site-revealing");
         finishReveal();
     }
 

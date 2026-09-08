@@ -452,20 +452,32 @@ def validate_architecture() -> None:
     global_css = read_text("css/core/global.css")
     loader_js = read_text("js/core/loader.js")
 
-    if re.search(
-        r"site-loading-pending[\s\S]{0,260}body\s*>\s*main[\s\S]{0,160}opacity\s*:\s*0",
+    # V45.2.2: esconder main durante o loader é deliberado para impedir que
+    # a página apareça por trás da superfície translúcida.
+    if not re.search(
+        r"site-loading-pending[\s\S]{0,320}body\s*>\s*main[\s\S]{0,180}opacity\s*:\s*0",
         global_css,
         re.I,
     ):
         error(
-            "css/core/global.css: body > main não deve ficar opacity: 0 "
-            "durante o loader; isso reintroduz o atraso de backdrop-filter."
+            "css/core/global.css: V45.2.2 espera body > main invisível "
+            "durante o loader."
+        )
+
+    if "PAGE_REVEAL_DELAY_MS" not in loader_js:
+        error(
+            "js/core/loader.js: delay entre loader e página não reconhecido."
+        )
+
+    if "site-page-delay" not in loader_js:
+        error(
+            "js/core/loader.js: estado site-page-delay não reconhecido."
         )
 
     # V45.2.1: backdrop-filter no loader fullscreen voltou a ser uma
     # escolha visual deliberada. Não tratar como erro de arquitetura.
     loader_block_match = re.search(
-        r"\.site-loader\s*\{([\s\S]*?)\n\}",
+        r"(?m)^\.site-loader\s*\{([\s\S]*?)\n\}",
         global_css,
         re.I,
     )
@@ -484,8 +496,9 @@ def validate_architecture() -> None:
                 "translúcida/blur esperada pela V45.2.1."
             )
 
-    if 'querySelectorAll(".glass-panel")' not in loader_js:
-        error("js/core/loader.js: warm-up precisa atingir os .glass-panel.")
+    # Warm-up dos glass panels deixou de ser requisito na V45.2.2;
+
+        # a pequena diferença de composição do blur foi aceita.
 
     if "KAMYLI_BACKDROP_ASSET_URL" not in loader_js:
         error("js/core/loader.js: preparo do fundo crítico não reconhecido.")

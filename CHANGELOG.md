@@ -3,6 +3,18 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45.2.2 — delay entre loader e página
+
+- impede que Navbar, conteúdo e Footer fiquem visíveis por trás do loader
+  translúcido;
+- adiciona 150 ms entre a remoção do loader e o início do reveal da página;
+- sequência: loader fade-out (320 ms) → 150 ms → página fade-in;
+- mantém loader com blur e esquema claro/escuro;
+- mantém preload/decode do fundo;
+- deixa de exigir warm-up dos `.glass-panel`, pois a pequena diferença de
+  composição do blur foi aceita como limitação conhecida;
+- atualiza a CI para validar o novo contrato visual.
+
 ## V45.2.1 — blur visual do loader restaurado
 
 - restaura o loader translúcido com `var(--card-bg)` e

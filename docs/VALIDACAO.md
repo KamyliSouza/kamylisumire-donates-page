@@ -69,3 +69,19 @@ O loader volta a usar a superfície translúcida do site:
 Limitação conhecida e aceita: em alguns navegadores/dispositivos pode existir
 um curto intervalo até a composição final do blur dos painéis depois do
 reveal. A V45.2.1 não tenta eliminar completamente esse comportamento.
+
+## V45.2.2 — loader separado da página
+
+Sequência:
+
+1. loader translúcido permanece visível;
+2. Navbar, `main` e Footer permanecem invisíveis;
+3. loader faz fade-out por 320 ms;
+4. o loader é removido;
+5. há um intervalo adicional de 150 ms;
+6. só então `site-revealing` inicia a entrada da página.
+
+A página não deve aparecer por trás do loader.
+
+A pequena diferença de composição do blur dos cards após o reveal permanece
+como limitação conhecida e aceita.
