@@ -1,0 +1,10 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# OS/editor residue
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
