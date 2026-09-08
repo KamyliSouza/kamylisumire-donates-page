@@ -231,8 +231,8 @@
     overflow-y: hidden;
 
     /*
-     * O clique nas setas usa animação JS própria.
-     * O scroll manual/touch continua natural.
+     * O controlador compartilhado usa smooth scroll nativo, igual ao
+     * carrossel de Lives. Touch/drag continuam naturais.
      */
     scroll-behavior: auto;
     scroll-snap-type: x mandatory;
@@ -258,87 +258,6 @@
     border-radius: 999px;
 }
 
-.agenda-carousel-button {
-    position: absolute;
-    top: 50%;
-    z-index: 6;
-
-    width: 46px;
-    height: 46px;
-
-    display: grid;
-    place-items: center;
-
-    padding: 0;
-
-    color: var(--primary-color);
-
-    /*
-     * Fundo translúcido para deixar parte do card visível
-     * sob a seta.
-     */
-    background-color: var(--card-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: 50%;
-
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
-
-    font: inherit;
-    font-size: 1.85rem;
-    font-weight: 800;
-    line-height: 1;
-
-    cursor: pointer;
-
-    transform: translateY(-50%);
-
-    transition:
-        color .2s ease,
-        background-color .2s ease,
-        border-color .2s ease,
-        box-shadow .2s ease,
-        opacity .2s ease,
-        transform .2s ease;
-}
-
-.agenda-carousel-prev {
-    left: 12px;
-}
-
-.agenda-carousel-next {
-    right: 12px;
-}
-
-.agenda-carousel-button:hover:not(:disabled),
-.agenda-carousel-button:focus-visible:not(:disabled) {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-
-    box-shadow: 0 9px 26px rgba(179, 94, 175, .28);
-
-    transform: translateY(-50%) scale(1.07);
-
-    outline: none;
-}
-
-.agenda-carousel-button:active:not(:disabled) {
-    transform: translateY(-50%) scale(.98);
-}
-
-.agenda-carousel-button:disabled {
-    opacity: 0;
-
-    pointer-events: none;
-    cursor: default;
-}
-
-.agenda-carousel-button span {
-    display: block;
-
-    margin-top: -2px;
-}
 
 .agenda-card {
     position: relative;
@@ -851,17 +770,72 @@
         font-size: 1.12rem;
     }
 
-    .agenda-carousel-button {
-        width: 36px;
-        height: 36px;
-    }
 }
 
 
 
 @media (prefers-reduced-motion: reduce) {
-    .agenda-carousel-button,
     .agenda-card {
         transition-duration: .01ms;
+    }
+}
+
+/* =========================================================
+   HOME — BLOG CONDICIONAL
+   O bloco permanece hidden até existir ao menos um post publicado.
+   ========================================================= */
+
+.home-blog-heading {
+    align-items: center;
+}
+
+.home-blog-all-link {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 38px;
+    padding: 8px 11px;
+
+    color: var(--primary-color);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+
+    font-size: .78rem;
+    font-weight: 800;
+    text-decoration: none;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.home-blog-all-link:hover,
+.home-blog-all-link:focus-visible {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.home-blog-description {
+    margin: 8px 0 14px;
+}
+
+.home-blog-list {
+    margin-inline: -2px;
+
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-small);
+}
+
+@media (max-width: 720px) {
+    .home-blog-heading {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

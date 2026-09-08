@@ -22,6 +22,15 @@
         lista: document.getElementById("creditosLista")
     };
 
+    const blogElements = {
+        section: document.getElementById("homeBlogSection"),
+        eyebrow: document.getElementById("homeBlogEyebrow"),
+        title: document.getElementById("homeBlogTitle"),
+        description: document.getElementById("homeBlogDescription"),
+        list: document.getElementById("homeBlogList"),
+        allLink: document.getElementById("homeBlogAllLink")
+    };
+
     function escapeHtml(value) {
         return String(value ?? "")
             .replaceAll("&", "&amp;")
@@ -107,6 +116,76 @@
             "homeDonationButton",
             data.botao
         );
+    }
+
+    function renderHomeBlog(config, index) {
+        if (!blogElements.section || !blogElements.list) return;
+
+        const posts = content.getPublishedBlogPosts(index);
+
+        if (!posts.length) {
+            blogElements.section.hidden = true;
+            blogElements.list.replaceChildren();
+            return;
+        }
+
+        const maxItems = Math.min(
+            5,
+            Math.max(1, Number(config.home?.maxItems) || 3)
+        );
+
+        content.setText(blogElements.eyebrow, config.home?.eyebrow);
+        content.setText(blogElements.title, config.home?.titulo);
+        content.setText(blogElements.description, config.home?.descricao);
+        content.setText(blogElements.allLink, config.home?.botao);
+
+        if (blogElements.allLink) {
+            blogElements.allLink.href =
+                (window.KAMYLI_SITE_PATH || (value => value))("/blog/");
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        posts.slice(0, maxItems).forEach(post => {
+            const link = document.createElement("a");
+            link.className = "blog-post-row";
+            link.href = content.getBlogPostUrl(post);
+
+            const copy = document.createElement("div");
+
+            const meta = document.createElement("p");
+            meta.className = "blog-post-meta";
+            meta.textContent = content.getBlogPostMeta(post);
+
+            const title = document.createElement("h3");
+            title.className = "blog-post-title";
+            title.textContent = post.title;
+
+            const summary = document.createElement("p");
+            summary.className = "blog-post-summary";
+            summary.textContent = post.summary;
+
+            const tags = document.createElement("div");
+            tags.className = "blog-post-tags";
+            post.tags.slice(0, 3).forEach(value => {
+                const tag = document.createElement("span");
+                tag.className = "blog-post-tag";
+                tag.textContent = value;
+                tags.appendChild(tag);
+            });
+
+            const arrow = document.createElement("span");
+            arrow.className = "blog-post-arrow";
+            arrow.setAttribute("aria-hidden", "true");
+            arrow.textContent = "→";
+
+            copy.append(meta, title, summary, tags);
+            link.append(copy, arrow);
+            fragment.appendChild(link);
+        });
+
+        blogElements.list.replaceChildren(fragment);
+        blogElements.section.hidden = false;
     }
 
     function renderSectionHeader(elements, data) {
@@ -339,14 +418,20 @@
                 ),
                 content.getJSON(
                     "/data/content/creditos.json"
-                )
+                ),
+                content.getJSON(
+                    "/data/blog/config.json"
+                ),
+                Promise.resolve(window.KAMYLI_GLOBAL_UI_PROMISE)
             ]);
 
         const [
             heroResult,
             homeDonationResult,
             regrasResult,
-            creditosResult
+            creditosResult,
+            blogConfigResult,
+            globalResult
         ] = results;
 
         if (heroResult.status === "fulfilled") {
@@ -406,6 +491,18 @@
                 creditosElements,
                 "os créditos"
             );
+        }
+
+        if (
+            blogConfigResult.status === "fulfilled" &&
+            globalResult.status === "fulfilled"
+        ) {
+            renderHomeBlog(
+                blogConfigResult.value || {},
+                globalResult.value?.blogPosts || {}
+            );
+        } else {
+            blogElements.section && (blogElements.section.hidden = true);
         }
     }
 

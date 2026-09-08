@@ -82,15 +82,84 @@
     }
 
     const defaults = {
-        navbar: {"ariaLabel": "Navegação principal", "brandAriaLabel": "Ir para a página inicial", "links": {"inicio": "Início", "lives": "Lives", "agenda": "Agenda", "jogos": {"texto": "Jogos", "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"}, "regras": "Regras", "creditos": "Créditos"}, "apoio": {"texto": "Apoiar", "ariaLabel": "Apoiar a Kamyli"}},
+        navbar: {"ariaLabel": "Navegação principal", "brandAriaLabel": "Ir para a página inicial", "links": {"inicio": "Início", "lives": "Lives", "agenda": "Agenda", "blog": "Blog", "jogos": {"texto": "Jogos", "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"}, "regras": "Regras", "creditos": "Créditos"}, "apoio": {"texto": "Apoiar", "ariaLabel": "Apoiar a Kamyli"}},
+        blogConfig: {"page": {"eyebrow": "Blog", "titulo": "Publicações", "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.", "buscaPlaceholder": "Buscar por título, resumo ou tag...", "todos": "Todos", "vazio": "Nenhuma publicação disponível no momento.", "minutosLeitura": "{minutos} min de leitura"}, "home": {"eyebrow": "Blog", "titulo": "Últimas publicações", "descricao": "Textos recentes publicados por aqui.", "botao": "Ver todas", "maxItems": 3}, "article": {"eyebrow": "Blog", "voltar": "Voltar ao Blog"}},
+        blogPosts: {"version": 1, "posts": []},
         interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": ".", "cancelar": "Cancelar", "continuar": "Continuar"}, "configuracoes": {"abrir": "Configurações", "titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
         notFound: {"eyebrow": "Página não encontrada", "codigo": "404", "titulo": "Essa página não existe.", "descricao": "Talvez o link tenha mudado ou você tenha chegado aqui por engano.", "botao": "Voltar para o início", "documentTitle": "Página não encontrada · Kamyli Sumire", "metaDescription": "A página solicitada não foi encontrada."},
-        seo: {"compartilhado": {"siteName": "Kamyli Sumire", "imagem": "https://assets.kamylisumire.com/preview.png"}, "home": {"documentTitle": "Kamyli Sumire | Lives, agenda e comunidade", "description": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "ogTitle": "Oiê! Eu sou a Kamyli ✨", "ogDescription": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "imageAlt": "Kamyli Sumire"}, "doacoes": {"documentTitle": "Doações | Kamyli Sumire — LivePix e Pixie", "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.", "ogTitle": "Apoie a Kamyli Sumire ✨", "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!", "imageAlt": "Apoie a Kamyli Sumire"}}
+        seo: {"compartilhado": {"siteName": "Kamyli Sumire", "imagem": "https://assets.kamylisumire.com/preview.png"}, "home": {"documentTitle": "Kamyli Sumire | Lives, agenda e comunidade", "description": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "ogTitle": "Oiê! Eu sou a Kamyli ✨", "ogDescription": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "imageAlt": "Kamyli Sumire"}, "doacoes": {"documentTitle": "Doações | Kamyli Sumire — LivePix e Pixie", "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.", "ogTitle": "Apoie a Kamyli Sumire ✨", "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!", "imageAlt": "Apoie a Kamyli Sumire"}, "blog": {"documentTitle": "Blog | Kamyli Sumire", "description": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "ogTitle": "Blog da Kamyli Sumire", "ogDescription": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "imageAlt": "Blog da Kamyli Sumire"}}
     };
 
     let globalData = defaults;
     let observer = null;
     let scheduled = false;
+
+    const BLOG_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+    const BLOG_MONTHS = [
+        "JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
+        "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"
+    ];
+
+    function getPublishedBlogPosts(data = globalData.blogPosts) {
+        const posts = Array.isArray(data?.posts)
+            ? data.posts
+            : [];
+
+        return posts
+            .filter(post => (
+                post &&
+                post.published === true &&
+                typeof post.slug === "string" &&
+                BLOG_SLUG_PATTERN.test(post.slug) &&
+                typeof post.title === "string" &&
+                post.title.trim() &&
+                typeof post.summary === "string" &&
+                post.summary.trim() &&
+                /^\d{4}-\d{2}-\d{2}$/.test(String(post.date || ""))
+            ))
+            .map(post => ({
+                slug: post.slug,
+                title: post.title.trim(),
+                summary: post.summary.trim(),
+                date: post.date,
+                readMinutes: Math.max(1, Number(post.readMinutes) || 1),
+                tags: Array.isArray(post.tags)
+                    ? post.tags
+                        .filter(tag => typeof tag === "string" && tag.trim())
+                        .map(tag => tag.trim())
+                    : []
+            }))
+            .sort((a, b) => (
+                b.date.localeCompare(a.date) ||
+                a.title.localeCompare(b.title, "pt-BR")
+            ));
+    }
+
+    function getBlogPostUrl(post) {
+        return resolvePath(`/blog/${post.slug}/`);
+    }
+
+    function formatBlogDate(value) {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ""));
+        if (!match) return String(value || "");
+
+        const [, year, month, day] = match;
+        const monthLabel = BLOG_MONTHS[Number(month) - 1] || month;
+        return `${day} ${monthLabel} ${year}`;
+    }
+
+    function getBlogPostMeta(post) {
+        const template =
+            globalData.blogConfig?.page?.minutosLeitura ||
+            "{minutos} min de leitura";
+
+        const reading = template.replace(
+            "{minutos}",
+            String(post.readMinutes)
+        );
+
+        return `${formatBlogDate(post.date)} · ${reading}`;
+    }
 
     function safeHttpUrl(value, fallback) {
         try {
@@ -135,6 +204,40 @@
                 value
             );
         });
+
+        const navLinks = nav.querySelector(".site-nav-links");
+        const publishedPosts = getPublishedBlogPosts(globalData.blogPosts);
+        let blogLink = nav.querySelector('[data-nav-page="blog"]');
+
+        if (!publishedPosts.length) {
+            blogLink?.remove();
+            blogLink = null;
+        } else if (!blogLink && navLinks) {
+            blogLink = document.createElement("a");
+            blogLink.className = "site-nav-link";
+            blogLink.dataset.navPage = "blog";
+            blogLink.href = resolvePath("/blog/");
+
+            const agendaLink = nav.querySelector('[data-nav-section="agenda"]');
+            if (agendaLink) {
+                agendaLink.insertAdjacentElement("afterend", blogLink);
+            } else {
+                navLinks.appendChild(blogLink);
+            }
+        }
+
+        if (blogLink) {
+            setText(blogLink, data.links?.blog || "Blog");
+
+            const onBlog = /\/blog(?:\/|$)/.test(window.location.pathname);
+            blogLink.classList.toggle("is-active", onBlog);
+
+            if (onBlog) {
+                blogLink.setAttribute("aria-current", "page");
+            } else {
+                blogLink.removeAttribute("aria-current");
+            }
+        }
 
         const games = nav.querySelector('.site-nav-links a[href*="trello.com"]');
         if (games) {
@@ -384,10 +487,20 @@
     }
 
     function applyRuntimeSeo(data) {
+        if (
+            document.querySelector(".not-found-card") ||
+            document.querySelector("[data-blog-post]")
+        ) {
+            return;
+        }
+
+        const path = window.location.pathname;
         const page =
-            window.location.pathname.includes("/doacoes")
+            path.includes("/doacoes")
                 ? data.doacoes
-                : data.home;
+                : path.includes("/blog")
+                    ? data.blog
+                    : data.home;
 
         if (!page) return;
 
@@ -453,6 +566,8 @@
 
         const files = {
             navbar: "/data/content/navbar.json",
+            blogConfig: "/data/blog/config.json",
+            blogPosts: "/data/blog/posts.json",
             interface: "/data/content/interface.json",
             notFound: "/data/content/404.json",
             seo: "/data/content/seo.json"
@@ -516,7 +631,11 @@
     window.KamyliContent = Object.freeze({
         getJSON,
         setText,
-        applyGlobalContent
+        applyGlobalContent,
+        getPublishedBlogPosts,
+        getBlogPostUrl,
+        getBlogPostMeta,
+        formatBlogDate
     });
 
     window.KAMYLI_GLOBAL_UI_PROMISE = loadGlobalEditorial();

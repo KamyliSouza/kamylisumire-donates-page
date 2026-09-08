@@ -7,6 +7,7 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 - **Frontend:** HTML, CSS e JavaScript vanilla.
 - **Conteúdo editorial:** JSON versionado em `data/`.
 - **Home:** totalmente estática/local; não depende do Worker.
+- **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
 - **Doações:** página independente em `/doacoes/`.
 - **Ranking:** única funcionalidade pública que consome backend.
 - **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
@@ -38,9 +39,11 @@ css/components/          componentes reutilizáveis/isolados
 css/pages/               estilos por página
 data/                    conteúdo editorial
 docs/                    documentação atual
+blog/                    índice estático do Blog
 doacoes/                 página de apoio/ranking
 js/core/                 infraestrutura compartilhada
 js/pages/home/           lógica da Home
+js/pages/blog/           lógica da listagem do Blog
 js/pages/doacoes/        lógica de Doações
 workers.js               backend do ranking
 ```

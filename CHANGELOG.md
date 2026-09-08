@@ -1,7 +1,30 @@
 # Changelog
 
+## V46 — Blog estático condicional
+
+- adiciona `/blog/` com listagem textual simples, busca e filtros por tag;
+- mantém Navbar e Footer compartilhados sem redesenho;
+- o link `Blog` na Navbar é inserido apenas quando existe post publicado;
+- a Home ganha uma seção de últimas publicações, também oculta quando não há posts;
+- `data/content/blog.json` passa a controlar metadados/listagem;
+- posts continuam sendo páginas HTML estáticas em `blog/<slug>/index.html`;
+- não adiciona API, Worker, imagens de capa, framework ou etapa de build;
+- adiciona validação de schema, slug e existência da página de cada post publicado.
+
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
+
+## V45.2.3 — hotfix de timing do loader
+
+- `PAGE_REVEAL_DELAY_MS` agora é uma pausa real medida depois de
+  `loader.remove()`;
+- adiciona `PAGE_REVEAL_OVERLAP_MS` para controlar entrada antes do fim do
+  loader sem usar delay negativo;
+- expõe versão/delay/overlap como atributos `data-*` no `<html>` para
+  diagnóstico no DevTools;
+- adiciona `?v=45.2.3` ao `loader.js` na Home, Doações e 404 para impedir que
+  cache antigo masque mudanças;
+- mantém loader translúcido com blur e o reveal atual.
 
 ## V45.2.2 — delay entre loader e página
 

@@ -28,6 +28,15 @@ A Home carrega conteúdo local e inclui:
 
 A Home **não** deve carregar `js/core/api.js` nem o ranking.
 
+### Blog
+
+`/blog/` é estático e textual. A Navbar e a seção de últimas publicações da
+Home só aparecem quando `data/content/blog.json` possui ao menos um post com
+`published: true`.
+
+Cada post publicado deve ter uma página estática correspondente em
+`blog/<slug>/index.html`. Não carregar API/Worker no Blog.
+
 ### Doações
 
 `/doacoes/` contém LivePix, Pixie e ranking.
@@ -120,6 +129,7 @@ Arquivos principais:
 - `data/content/doacoes.json`;
 - `data/content/ranking.json`;
 - `data/content/footer.json`;
+- `data/content/blog.json`;
 - `data/agenda.json`.
 
 Helpers de edição são privados e não pertencem ao site público.

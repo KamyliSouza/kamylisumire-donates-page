@@ -16,5 +16,12 @@
     "ogTitle": "Apoie a Kamyli Sumire ✨",
     "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!",
     "imageAlt": "Apoie a Kamyli Sumire"
+  },
+  "blog": {
+    "documentTitle": "Blog | Kamyli Sumire",
+    "description": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.",
+    "ogTitle": "Blog da Kamyli Sumire",
+    "ogDescription": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.",
+    "imageAlt": "Blog da Kamyli Sumire"
   }
 }

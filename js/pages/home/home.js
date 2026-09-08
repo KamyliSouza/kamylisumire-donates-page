@@ -27,243 +27,27 @@ function formatDate(dateString) {
 
 const DEFAULT_CAROUSEL_STEP = 280;
 
-const agendaMetrics = {
-    step: DEFAULT_CAROUSEL_STEP,
-    maxScrollLeft: 0
-};
-
-let agendaAnimationFrame = null;
-let agendaMeasureFrame = null;
-let agendaButtonFrame = null;
-let agendaResizeObserver = null;
-
-function applyCarouselButtonState() {
-    if (!agendaGrid || !agendaPrev || !agendaNext) return;
-
-    const currentLeft = agendaGrid.scrollLeft;
-    const prevDisabled = currentLeft <= 2;
-    const nextDisabled =
-        currentLeft >= agendaMetrics.maxScrollLeft - 2;
-
-    if (agendaPrev.disabled !== prevDisabled) {
-        agendaPrev.disabled = prevDisabled;
-    }
-
-    if (agendaNext.disabled !== nextDisabled) {
-        agendaNext.disabled = nextDisabled;
-    }
-}
-
-function scheduleCarouselButtonUpdate() {
-    if (agendaButtonFrame !== null) return;
-
-    agendaButtonFrame = requestAnimationFrame(() => {
-        agendaButtonFrame = null;
-        applyCarouselButtonState();
-    });
-}
-
-function measureCarousel() {
-    if (!agendaGrid) return;
-
-    /*
-     * Todas as leituras geométricas ficam agrupadas neste único frame.
-     * Durante a animação do scroll reutilizamos os valores em cache.
-     */
-    const card =
-        agendaGrid.querySelector(".agenda-card");
-    const styles =
-        getComputedStyle(agendaGrid);
-    const gap =
-        Number.parseFloat(
-            styles.columnGap || styles.gap || "0"
-        ) || 0;
-    const cardWidth =
-        card
-            ? card.getBoundingClientRect().width
-            : 0;
-    const clientWidth =
-        agendaGrid.clientWidth;
-    const scrollWidth =
-        agendaGrid.scrollWidth;
-
-    agendaMetrics.step =
-        cardWidth > 0
-            ? cardWidth + gap
-            : DEFAULT_CAROUSEL_STEP;
-    agendaMetrics.maxScrollLeft =
-        Math.max(
-            0,
-            scrollWidth - clientWidth
-        );
-
-    applyCarouselButtonState();
-}
-
-function scheduleCarouselMeasure() {
-    if (agendaMeasureFrame !== null) return;
-
-    agendaMeasureFrame = requestAnimationFrame(() => {
-        agendaMeasureFrame = null;
-        measureCarousel();
-    });
-}
-
-function easeInOutQuint(t) {
-    return t < 0.5
-        ? 16 * t * t * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 5) / 2;
-}
-
-function animateAgendaTo(targetLeft, duration = 520) {
-    if (!agendaGrid) return;
-
-    if (agendaAnimationFrame) {
-        cancelAnimationFrame(agendaAnimationFrame);
-        agendaAnimationFrame = null;
-    }
-
-    const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    const destination = Math.max(
-        0,
-        Math.min(
-            targetLeft,
-            agendaMetrics.maxScrollLeft
-        )
-    );
-
-    if (prefersReducedMotion) {
-        agendaGrid.scrollLeft = destination;
-        scheduleCarouselButtonUpdate();
-        return;
-    }
-
-    const startLeft = agendaGrid.scrollLeft;
-    const distance = destination - startLeft;
-
-    if (Math.abs(distance) < 1) {
-        scheduleCarouselButtonUpdate();
-        return;
-    }
-
-    const startTime = performance.now();
-
-    function step(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = easeInOutQuint(progress);
-
-        /*
-         * Só escrevemos scrollLeft neste loop. Leituras de largura ficam
-         * fora da animação para evitar layout síncrono a cada frame.
-         */
-        agendaGrid.scrollLeft =
-            startLeft + (distance * eased);
-
-        if (progress < 1) {
-            agendaAnimationFrame =
-                requestAnimationFrame(step);
-        } else {
-            agendaGrid.scrollLeft = destination;
-            agendaAnimationFrame = null;
-            scheduleCarouselButtonUpdate();
-        }
-    }
-
-    agendaAnimationFrame = requestAnimationFrame(step);
-}
-
-function scrollAgenda(direction) {
-    if (!agendaGrid) return;
-
-    const target =
-        agendaGrid.scrollLeft +
-        (agendaMetrics.step * direction);
-
-    animateAgendaTo(target);
-}
+let agendaCarousel = null;
 
 function setupAgendaCarousel() {
     if (!agendaGrid) return;
 
-    scheduleCarouselMeasure();
+    const carousel = window.KamyliCarousel;
 
-    agendaPrev?.addEventListener(
-        "click",
-        () => scrollAgenda(-1)
-    );
-    agendaNext?.addEventListener(
-        "click",
-        () => scrollAgenda(1)
-    );
-
-    agendaGrid.addEventListener(
-        "scroll",
-        scheduleCarouselButtonUpdate,
-        { passive: true }
-    );
-
-    const cancelProgrammaticAnimation = () => {
-        if (!agendaAnimationFrame) return;
-
-        cancelAnimationFrame(agendaAnimationFrame);
-        agendaAnimationFrame = null;
-        scheduleCarouselButtonUpdate();
-    };
-
-    agendaGrid.addEventListener(
-        "pointerdown",
-        cancelProgrammaticAnimation,
-        { passive: true }
-    );
-    agendaGrid.addEventListener(
-        "touchstart",
-        cancelProgrammaticAnimation,
-        { passive: true }
-    );
-    agendaGrid.addEventListener(
-        "wheel",
-        cancelProgrammaticAnimation,
-        { passive: true }
-    );
-
-    if ("onscrollend" in window) {
-        agendaGrid.addEventListener(
-            "scrollend",
-            scheduleCarouselButtonUpdate
+    if (!carousel?.create) {
+        console.error(
+            "KamyliCarousel não foi carregado antes da Agenda."
         );
+        return;
     }
 
-    agendaGrid.addEventListener("keydown", event => {
-        if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            scrollAgenda(-1);
-        }
-
-        if (event.key === "ArrowRight") {
-            event.preventDefault();
-            scrollAgenda(1);
-        }
+    agendaCarousel = carousel.create({
+        track: agendaGrid,
+        prev: agendaPrev,
+        next: agendaNext,
+        itemSelector: ".agenda-card",
+        defaultStep: DEFAULT_CAROUSEL_STEP
     });
-
-    if ("ResizeObserver" in window) {
-        agendaResizeObserver =
-            new ResizeObserver(
-                scheduleCarouselMeasure
-            );
-        agendaResizeObserver.observe(
-            agendaGrid
-        );
-    } else {
-        window.addEventListener(
-            "resize",
-            scheduleCarouselMeasure,
-            { passive: true }
-        );
-    }
 }
 
 function renderAgenda(data) {
@@ -280,7 +64,7 @@ function renderAgenda(data) {
         agendaGrid.replaceChildren(
             emptyMessage
         );
-        scheduleCarouselMeasure();
+        agendaCarousel?.refresh();
         return;
     }
 
@@ -350,7 +134,7 @@ function renderAgenda(data) {
     agendaObservacao.textContent = data.observacao || "";
 
     agendaGrid.scrollLeft = 0;
-    scheduleCarouselMeasure();
+    agendaCarousel?.refresh();
 }
 
 async function carregarAgenda() {
@@ -377,7 +161,7 @@ async function carregarAgenda() {
             </p>
         `;
 
-        scheduleCarouselMeasure();
+        agendaCarousel?.refresh();
     }
 }
 

@@ -341,9 +341,7 @@
          * naturalmente depois de carregar.
          */
         navSectionLinks.forEach(link => {
-            link.addEventListener("click", event => {
-                event.preventDefault();
-
+            link.addEventListener("click", () => {
                 const sectionId = link.dataset.navSection;
 
                 try {
@@ -355,7 +353,11 @@
                     // sessionStorage pode estar indisponível em modos restritos.
                 }
 
-                window.location.href = sitePath("/");
+                /*
+                 * Não cancelamos mais o clique. A navegação normal permite
+                 * que page-transitions.js aplique a mesma saída usada entre
+                 * Home, Doações e Blog.
+                 */
             });
         });
     } else if (onHome) {

@@ -35,14 +35,7 @@
 
     const DEFAULT_STEP = 320;
 
-    const metrics = {
-        step: DEFAULT_STEP,
-        maxScrollLeft: 0
-    };
-
-    let animationFrame = null;
-    let measureFrame = null;
-    let resizeObserver = null;
+    let carouselController = null;
 
     function normalizeVideoId(value) {
         const candidate =
@@ -349,178 +342,27 @@
             fragment
         );
 
-        requestAnimationFrame(
-            measureCarousel
-        );
-    }
-
-    function isReducedMotion() {
-        return (
-            window.matchMedia(
-                "(prefers-reduced-motion: reduce)"
-            ).matches ||
-            document.documentElement
-                .dataset.performance ===
-                "reduced"
-        );
-    }
-
-    function updateButtons() {
-        if (!prev || !next) {
-            return;
-        }
-
-        const max =
-            Math.max(
-                0,
-                track.scrollWidth -
-                track.clientWidth
-            );
-
-        metrics.maxScrollLeft = max;
-
-        prev.disabled =
-            track.scrollLeft <= 2;
-
-        next.disabled =
-            track.scrollLeft >=
-            max - 2;
-    }
-
-    function scheduleButtonUpdate() {
-        if (animationFrame !== null) {
-            return;
-        }
-
-        animationFrame =
-            requestAnimationFrame(
-                () => {
-                    animationFrame = null;
-                    updateButtons();
-                }
-            );
-    }
-
-    function measureCarousel() {
-        measureFrame = null;
-
-        const card =
-            track.querySelector(
-                ".live-card"
-            );
-
-        const styles =
-            getComputedStyle(
-                track
-            );
-
-        const gap =
-            Number.parseFloat(
-                styles.columnGap ||
-                styles.gap ||
-                "0"
-            ) || 0;
-
-        const width =
-            card
-                ? card
-                    .getBoundingClientRect()
-                    .width
-                : 0;
-
-        metrics.step =
-            width > 0
-                ? width + gap
-                : DEFAULT_STEP;
-
-        updateButtons();
-    }
-
-    function scheduleMeasure() {
-        if (measureFrame !== null) {
-            cancelAnimationFrame(
-                measureFrame
-            );
-        }
-
-        measureFrame =
-            requestAnimationFrame(
-                measureCarousel
-            );
-    }
-
-    function scrollCarousel(direction) {
-        track.scrollBy({
-            left:
-                metrics.step *
-                direction,
-            behavior:
-                isReducedMotion()
-                    ? "auto"
-                    : "smooth"
-        });
+        carouselController?.refresh();
     }
 
     function setupCarousel() {
-        prev?.addEventListener(
-            "click",
-            () => {
-                scrollCarousel(-1);
-            }
-        );
+        const carousel =
+            window.KamyliCarousel;
 
-        next?.addEventListener(
-            "click",
-            () => {
-                scrollCarousel(1);
-            }
-        );
-
-        track.addEventListener(
-            "scroll",
-            scheduleButtonUpdate,
-            { passive: true }
-        );
-
-        track.addEventListener(
-            "keydown",
-            event => {
-                if (
-                    event.key !== "ArrowLeft" &&
-                    event.key !== "ArrowRight"
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                scrollCarousel(
-                    event.key ===
-                    "ArrowLeft"
-                        ? -1
-                        : 1
-                );
-            }
-        );
-
-        if (
-            "ResizeObserver" in window
-        ) {
-            resizeObserver =
-                new ResizeObserver(
-                    scheduleMeasure
-                );
-
-            resizeObserver.observe(
-                track
+        if (!carousel?.create) {
+            console.error(
+                "KamyliCarousel não foi carregado antes das Lives."
             );
-        } else {
-            window.addEventListener(
-                "resize",
-                scheduleMeasure,
-                { passive: true }
-            );
+            return;
         }
+
+        carouselController = carousel.create({
+            track,
+            prev,
+            next,
+            itemSelector: ".live-card",
+            defaultStep: DEFAULT_STEP
+        });
     }
 
     function applySectionContent(data) {

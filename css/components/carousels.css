@@ -1,0 +1,158 @@
+/* =========================================================
+   V46.2 — CARROSSÉIS DA HOME
+   Lives e Agenda compartilham as mesmas setas e o mesmo
+   comportamento visual em desktop e mobile.
+   ========================================================= */
+
+
+.lives-carousel-track,
+.agenda-carousel-track {
+    scrollbar-color: var(--card-border-strong) transparent;
+}
+
+.lives-carousel-track::-webkit-scrollbar-thumb,
+.agenda-carousel-track::-webkit-scrollbar-thumb {
+    background-color: var(--card-border-strong);
+}
+
+.lives-carousel-button,
+.agenda-carousel-button {
+    position: absolute;
+    top: 50%;
+    z-index: 6;
+
+    width: 46px;
+    height: 46px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border-strong);
+    border-radius: 50%;
+
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+
+    font: inherit;
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+
+    transition:
+        color .2s ease,
+        background-color .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+.lives-carousel-prev,
+.agenda-carousel-prev {
+    left: 8px;
+}
+
+.lives-carousel-next,
+.agenda-carousel-next {
+    right: 8px;
+}
+
+.lives-carousel-button:hover:not(:disabled),
+.lives-carousel-button:focus-visible:not(:disabled),
+.agenda-carousel-button:hover:not(:disabled),
+.agenda-carousel-button:focus-visible:not(:disabled) {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    box-shadow: 0 9px 26px rgba(179, 94, 175, .28);
+
+    transform: translateY(-50%) scale(1.06);
+
+    outline: none;
+}
+
+.lives-carousel-button:active:not(:disabled),
+.agenda-carousel-button:active:not(:disabled) {
+    transform: translateY(-50%) scale(.98);
+}
+
+/*
+ * As setas continuam visíveis nas extremidades para que os dois carrosséis
+ * mantenham a mesma linguagem visual. O estado desabilitado só fica discreto.
+ */
+.lives-carousel-button:disabled,
+.agenda-carousel-button:disabled {
+    opacity: .28;
+
+    pointer-events: none;
+    cursor: default;
+
+    box-shadow: none;
+}
+
+.lives-carousel-button span,
+.agenda-carousel-button span {
+    display: block;
+    margin-top: -2px;
+}
+
+@media (max-width: 700px) {
+    .lives-carousel-button,
+    .agenda-carousel-button {
+        width: 40px;
+        height: 40px;
+
+        font-size: 1.55rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .lives-carousel-button,
+    .agenda-carousel-button {
+        width: 36px;
+        height: 36px;
+
+        font-size: 1.45rem;
+    }
+
+    .lives-carousel-prev,
+    .agenda-carousel-prev {
+        left: 4px;
+    }
+
+    .lives-carousel-next,
+    .agenda-carousel-next {
+        right: 4px;
+    }
+
+    .lives-carousel-track,
+    .agenda-carousel-track {
+        scrollbar-width: none;
+    }
+
+    .lives-carousel-track::-webkit-scrollbar,
+    .agenda-carousel-track::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lives-carousel-button,
+    .agenda-carousel-button {
+        transition-duration: .01ms;
+    }
+}
+
+:root[data-performance="reduced"] .lives-carousel-button,
+:root[data-performance="reduced"] .agenda-carousel-button {
+    transition: none;
+}

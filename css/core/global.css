@@ -689,7 +689,7 @@ a {
 
 
 /* =========================================================
-   ENTRADA PÓS-LOADER + TRANSIÇÃO ENTRE PÁGINAS — V41
+   ENTRADA PÓS-LOADER + TRANSIÇÃO ENTRE PÁGINAS — V46.2
    ========================================================= */
 
 /*
@@ -758,10 +758,6 @@ html.site-revealing .site-footer {
     will-change: transform;
 }
 
-html.site-revealing.site-page-arriving[data-page-transition="forward"] body > main {
-    animation-name: site-page-enter-forward;
-}
-
 @keyframes site-nav-enter {
     from {
         opacity: 0;
@@ -786,19 +782,10 @@ html.site-revealing.site-page-arriving[data-page-transition="forward"] body > ma
     }
 }
 
-@keyframes site-page-enter-forward {
-    from {
-        opacity: 0;
-        transform: translateX(16px) scale(.994);
-    }
-
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-/* Saída curta da Home antes da navegação real para /doacoes/. */
+/*
+ * Saída curta e única para navegação entre Home, Doações e Blog.
+ * A chegada usa o mesmo site-content-enter do reveal pós-loader.
+ */
 
 html.site-page-leaving body {
     pointer-events: none;
@@ -814,7 +801,7 @@ html.site-page-leaving .site-nav {
 
 html.site-page-leaving body > main {
     animation:
-        site-page-exit-forward
+        site-content-exit
         .18s
         cubic-bezier(.4, 0, 1, 1)
         both;
@@ -835,10 +822,10 @@ html.site-page-leaving .site-footer {
     }
 }
 
-@keyframes site-page-exit-forward {
+@keyframes site-content-exit {
     to {
         opacity: 0;
-        transform: translateX(-14px) scale(.996);
+        transform: translateY(-8px) scale(.995);
     }
 }
 

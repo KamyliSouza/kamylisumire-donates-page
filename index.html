@@ -252,11 +252,13 @@
     >
 
     <link rel="stylesheet" href="css/core/variables.css">
-    <link rel="stylesheet" href="css/core/global.css">
+    <link rel="stylesheet" href="css/core/global.css?v=46.2">
     <link rel="stylesheet" href="css/core/navbar.css">
-    <link rel="stylesheet" href="css/pages/home.css">
-    <link rel="stylesheet" href="css/components/lives.css">
+    <link rel="stylesheet" href="css/pages/home.css?v=46.2">
+    <link rel="stylesheet" href="css/components/lives.css?v=46.2">
     <link rel="stylesheet" href="css/components/home-interactions.css">
+    <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
+    <link rel="stylesheet" href="css/components/blog.css">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -574,6 +576,41 @@
             <p id="agendaObservacao" class="agenda-note"></p>
         </section>
 
+        <section
+            class="glass-panel section-panel home-blog-section"
+            id="homeBlogSection"
+            aria-labelledby="homeBlogTitle"
+            hidden
+        >
+            <div class="section-heading home-blog-heading">
+                <div>
+                    <span class="eyebrow" id="homeBlogEyebrow">Blog</span>
+                    <h2 id="homeBlogTitle">Últimas publicações</h2>
+                </div>
+
+                <a
+                    class="home-blog-all-link"
+                    id="homeBlogAllLink"
+                    href="blog/"
+                >
+                    Ver todas
+                </a>
+            </div>
+
+            <p
+                class="body-copy home-blog-description"
+                id="homeBlogDescription"
+            >
+                Textos recentes publicados por aqui.
+            </p>
+
+            <div
+                class="blog-post-list home-blog-list"
+                id="homeBlogList"
+                aria-label="Últimas publicações do blog"
+            ></div>
+        </section>
+
         <section class="two-column-section">
             <article
                 class="glass-panel section-panel editable-section-card"
@@ -635,14 +672,15 @@
     <script src="js/core/preferences.js"></script>
     <script src="js/core/config.js"></script>
     <script src="js/core/content.js"></script>
-    <script src="js/core/navbar.js"></script>
+    <script src="js/core/navbar.js?v=46.2"></script>
     <script src="js/core/external-links.js"></script>
-    <script src="js/core/page-transitions.js"></script>
+    <script src="js/core/page-transitions.js?v=46.2"></script>
     <script src="js/core/footer.js"></script>
-    <script src="js/pages/home/home.js"></script>
+    <script src="js/pages/home/carousel.js?v=46.2"></script>
+    <script src="js/pages/home/home.js?v=46.2"></script>
     <script src="js/pages/home/content.js"></script>
-    <script src="js/pages/home/lives.js"></script>
+    <script src="js/pages/home/lives.js?v=46.2"></script>
     <script src="js/pages/home/home-interactions.js"></script>
-    <script src="js/core/loader.js"></script>
+    <script src="js/core/loader.js?v=45.2.3"></script>
 </body>
 </html>

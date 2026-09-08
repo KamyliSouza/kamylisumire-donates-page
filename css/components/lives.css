@@ -102,71 +102,6 @@
     border-radius: 999px;
 }
 
-.lives-carousel-button {
-    position: absolute;
-    top: 50%;
-    z-index: 6;
-
-    width: 46px;
-    height: 46px;
-
-    display: grid;
-    place-items: center;
-
-    padding: 0;
-
-    color: var(--primary-color);
-    background-color: var(--card-bg);
-
-    border: 1px solid var(--card-border-strong);
-    border-radius: 50%;
-
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
-
-    font: inherit;
-    font-size: 1.85rem;
-    font-weight: 800;
-    line-height: 1;
-
-    cursor: pointer;
-
-    transform: translateY(-50%);
-
-    transition:
-        color .2s ease,
-        background-color .2s ease,
-        border-color .2s ease,
-        opacity .2s ease,
-        transform .2s ease;
-}
-
-.lives-carousel-prev {
-    left: 0;
-}
-
-.lives-carousel-next {
-    right: 0;
-}
-
-.lives-carousel-button:hover:not(:disabled),
-.lives-carousel-button:focus-visible:not(:disabled) {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-
-    outline: none;
-
-    transform:
-        translateY(-50%)
-        scale(1.04);
-}
-
-.lives-carousel-button:disabled {
-    opacity: 0;
-
-    pointer-events: none;
-    cursor: default;
-}
 
 .live-card {
     flex: 0 0 clamp(260px, 31vw, 320px);
@@ -309,31 +244,11 @@
         flex-basis: clamp(248px, 78vw, 300px);
     }
 
-    .lives-carousel-button {
-        width: 40px;
-        height: 40px;
-
-        font-size: 1.55rem;
-    }
 }
 
-@media (max-width: 520px) {
-    .lives-carousel-button {
-        display: none;
-    }
-
-    .lives-carousel-track {
-        scrollbar-width: none;
-    }
-
-    .lives-carousel-track::-webkit-scrollbar {
-        display: none;
-    }
-}
 
 @media (prefers-reduced-motion: reduce) {
     .lives-youtube-link,
-    .lives-carousel-button,
     .live-card {
         transition: none;
     }
@@ -345,7 +260,6 @@
 }
 
 :root[data-performance="reduced"] .lives-youtube-link,
-:root[data-performance="reduced"] .lives-carousel-button,
 :root[data-performance="reduced"] .live-card {
     transition: none;
 }

@@ -4,30 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <link rel="preconnect" href="https://assets.kamylisumire.com">
-
-    <title>Página não encontrada · Kamyli Sumire</title>
-    <meta name="description" content="A página solicitada não foi encontrada.">
-    <meta name="robots" content="noindex">
+    <title>Blog | Kamyli Sumire</title>
+    <meta name="description" content="Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.">
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    >
     <meta name="theme-color" content="#B35EAF">
 
-    <script>
-        (() => {
-            const isGitHubProjectPage =
-                window.location.hostname === "kamylisouza.github.io";
+    <link rel="canonical" href="https://kamylisumire.com/blog/">
 
-            const root = isGitHubProjectPage
-                ? "/kamylisumire-donates-page/"
-                : "/";
-
-            const base = document.createElement("base");
-            base.href = root;
-            document.head.appendChild(base);
-        })();
-    </script>
+    <link rel="preconnect" href="https://assets.kamylisumire.com">
 
     <link rel="icon" type="image/webp" href="https://assets.kamylisumire.com/favicon.webp">
     <link rel="icon" type="image/png" href="https://assets.kamylisumire.com/favicon.png">
+    <link rel="preload" as="image" href="https://assets.kamylisumire.com/favicon.webp" type="image/webp">
+
+    <!-- Preview social — mantém os textos históricos da branch main -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Kamyli Sumire">
+    <meta property="og:title" content="Blog da Kamyli Sumire">
+    <meta property="og:description" content="Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.">
+    <meta property="og:url" content="https://kamylisumire.com/blog/">
+    <meta property="og:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:secure_url" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Blog da Kamyli Sumire">
+
+    <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog da Kamyli Sumire">
+    <meta name="twitter:description" content="Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.">
+    <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta name="twitter:image:alt" content="Blog da Kamyli Sumire">
 
     <script>
         (() => {
@@ -224,18 +236,34 @@
 
     <link
         rel="preload"
-        href="assets/fonts/nunito-variable.woff2"
+        href="../assets/fonts/nunito-variable.woff2"
         as="font"
         type="font/woff2"
         crossorigin
     >
 
-    <link rel="stylesheet" href="css/core/variables.css">
-    <link rel="stylesheet" href="css/core/global.css?v=46.2">
-    <link rel="stylesheet" href="css/core/navbar.css">
-    <link rel="stylesheet" href="css/pages/404.css">
-</head>
+    <link rel="stylesheet" href="../css/core/variables.css">
+    <link rel="stylesheet" href="../css/core/global.css?v=46.2">
+    <link rel="stylesheet" href="../css/core/navbar.css">
+    <link rel="stylesheet" href="../css/components/blog.css">
+    <link rel="stylesheet" href="../css/pages/blog.css?v=46.2">
 
+    <!-- Dados estruturados para mecanismos de busca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": "https://kamylisumire.com/blog/#blog",
+      "url": "https://kamylisumire.com/blog/",
+      "name": "Blog | Kamyli Sumire",
+      "description": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.",
+      "inLanguage": "pt-BR",
+      "publisher": {
+        "@id": "https://kamylisumire.com/#person"
+      }
+    }
+    </script>
+</head>
 <body>
     <div
         class="site-loader"
@@ -245,36 +273,54 @@
         aria-label="Carregando o site"
     >
         <div class="site-loader-inner">
-            <span
-                class="site-loader-logo"
-                aria-hidden="true"
-            ></span>
+            <span class="site-loader-logo" aria-hidden="true"></span>
         </div>
     </div>
 
     <noscript>
         <style>
-            .site-loader {
-                display: none !important;
-            }
+            .site-loader { display: none !important; }
         </style>
     </noscript>
 
     <header id="site-navbar"></header>
 
-    <main class="not-found">
-        <section class="glass-panel not-found-card">
-            <span class="eyebrow">Página não encontrada</span>
-            <h1>404</h1>
-            <h2>Essa página não existe.</h2>
-
-            <p>
-                Talvez o link tenha mudado ou você tenha chegado aqui por engano.
+    <main class="site-shell blog-shell" id="blogIndexPage">
+        <header class="glass-panel blog-intro">
+            <span class="eyebrow" id="blogEyebrow">Blog</span>
+            <h1 id="blogTitle">Publicações</h1>
+            <p id="blogDescription">
+                Textos, pensamentos, bastidores e novidades em uma lista simples,
+                sem imagens de capa.
             </p>
+        </header>
 
-            <a class="button button-primary" href="">
-                Voltar para o início
-            </a>
+        <section
+            class="blog-tools"
+            id="blogTools"
+            aria-label="Busca e filtros das publicações"
+            hidden
+        >
+            <label class="blog-search">
+                <span class="blog-search-icon" aria-hidden="true">⌕</span>
+                <input
+                    id="blogSearch"
+                    type="search"
+                    placeholder="Buscar por título, resumo ou tag..."
+                    aria-label="Buscar publicações"
+                >
+            </label>
+
+            <div class="blog-filters" id="blogFilters" aria-label="Filtrar por tag"></div>
+        </section>
+
+        <section
+            class="glass-panel blog-post-list"
+            id="blogPostList"
+            aria-live="polite"
+            aria-label="Lista de publicações"
+        >
+            <p class="blog-empty">Carregando publicações...</p>
         </section>
     </main>
 
@@ -284,15 +330,14 @@
         aria-label="Créditos e informações do site"
     ></footer>
 
-    <script src="js/core/preferences.js"></script>
-    <script src="js/core/config.js"></script>
-    <script src="js/core/content.js"></script>
-    <script src="js/core/navbar.js?v=46.2"></script>
-    <script src="js/core/external-links.js"></script>
-    <script src="js/core/footer.js"></script>
-    <script>
-        window.KAMYLI_PAGE_CONTENT_READY = true;
-    </script>
-    <script src="js/core/loader.js?v=45.2.3"></script>
+    <script src="../js/core/preferences.js"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js"></script>
+    <script src="../js/core/navbar.js?v=46.2"></script>
+    <script src="../js/core/external-links.js"></script>
+    <script src="../js/core/page-transitions.js?v=46.2"></script>
+    <script src="../js/core/footer.js"></script>
+    <script src="../js/pages/blog/blog.js"></script>
+    <script src="../js/core/loader.js?v=45.2.3"></script>
 </body>
 </html>

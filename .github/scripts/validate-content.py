@@ -28,6 +28,9 @@ WARNINGS: list[str] = []
 REQUIRED_FILES = (
     "index.html",
     "doacoes/index.html",
+    "blog/index.html",
+    "data/blog/config.json",
+    "data/blog/posts.json",
     "404.html",
     "CNAME",
     ".nojekyll",
@@ -38,13 +41,18 @@ REQUIRED_FILES = (
     "js/core/config.js",
     "js/pages/home/home.js",
     "js/pages/home/content.js",
+    "js/pages/home/carousel.js",
     "js/pages/home/lives.js",
     "js/pages/home/home-interactions.js",
+    "js/pages/blog/blog.js",
     "js/pages/doacoes/doacoes.js",
     "js/pages/doacoes/content.js",
     "js/pages/doacoes/ranking.js",
     "css/pages/home.css",
+    "css/pages/blog.css",
     "css/pages/doacoes.css",
+    "css/components/blog.css",
+    "css/components/carousels.css",
     "css/components/lives.css",
     "css/components/ranking.css",
     "css/components/home-interactions.css",
@@ -302,6 +310,188 @@ def validate_lives() -> None:
             warn(f"{label}.title contém marcador de citação incomum; revisar editorialmente.")
 
 
+def validate_blog() -> None:
+    config = load_json("data/blog/config.json")
+    index_data = load_json("data/blog/posts.json")
+
+    if not isinstance(config, dict):
+        return
+
+    for key in ("page", "home", "article"):
+        if key not in config:
+            error(f"data/blog/config.json: campo obrigatório ausente: {key}")
+
+    page = config.get("page")
+    if not isinstance(page, dict):
+        error("data/blog/config.json: page deve ser objeto.")
+    else:
+        for key in (
+            "eyebrow", "titulo", "descricao", "buscaPlaceholder",
+            "todos", "vazio", "minutosLeitura",
+        ):
+            if not isinstance(page.get(key), str) or not page[key].strip():
+                error(f"data/blog/config.json: page.{key} deve ser texto não vazio.")
+        if (
+            isinstance(page.get("minutosLeitura"), str)
+            and "{minutos}" not in page["minutosLeitura"]
+        ):
+            error("data/blog/config.json: page.minutosLeitura deve conter {minutos}.")
+
+    home = config.get("home")
+    if not isinstance(home, dict):
+        error("data/blog/config.json: home deve ser objeto.")
+    else:
+        for key in ("eyebrow", "titulo", "descricao", "botao"):
+            if not isinstance(home.get(key), str) or not home[key].strip():
+                error(f"data/blog/config.json: home.{key} deve ser texto não vazio.")
+        max_items = home.get("maxItems")
+        if not isinstance(max_items, int) or not 1 <= max_items <= 5:
+            error("data/blog/config.json: home.maxItems deve ser inteiro entre 1 e 5.")
+
+    article = config.get("article")
+    if not isinstance(article, dict):
+        error("data/blog/config.json: article deve ser objeto.")
+    else:
+        for key in ("eyebrow", "voltar"):
+            if not isinstance(article.get(key), str) or not article[key].strip():
+                error(f"data/blog/config.json: article.{key} deve ser texto não vazio.")
+
+    if not isinstance(index_data, dict):
+        return
+
+    if index_data.get("version") != 1:
+        error("data/blog/posts.json: version deve ser 1.")
+
+    posts = index_data.get("posts")
+    if not isinstance(posts, list):
+        error("data/blog/posts.json: posts deve ser lista.")
+        return
+
+    slugs = set()
+    published = []
+    metadata_keys = (
+        "slug", "title", "date", "summary",
+        "tags", "readMinutes", "published",
+    )
+
+    def validate_metadata(post, label):
+        if not isinstance(post, dict):
+            error(f"{label} deve ser objeto.")
+            return None
+
+        slug = post.get("slug")
+        if not isinstance(slug, str) or not re.fullmatch(
+            r"[a-z0-9]+(?:-[a-z0-9]+)*", slug or ""
+        ):
+            error(f"{label}.slug deve usar minúsculas, números e hífens.")
+
+        for key in ("title", "summary"):
+            if not isinstance(post.get(key), str) or not post[key].strip():
+                error(f"{label}.{key} deve ser texto não vazio.")
+
+        if not is_iso_date(post.get("date")):
+            error(f"{label}.date deve ser YYYY-MM-DD.")
+
+        tags = post.get("tags")
+        if (
+            not isinstance(tags, list)
+            or not tags
+            or not all(isinstance(tag, str) and tag.strip() for tag in tags)
+        ):
+            error(f"{label}.tags deve conter ao menos um texto não vazio.")
+
+        read_minutes = post.get("readMinutes")
+        if not isinstance(read_minutes, int) or not 1 <= read_minutes <= 120:
+            error(f"{label}.readMinutes deve ser inteiro entre 1 e 120.")
+
+        if not isinstance(post.get("published"), bool):
+            error(f"{label}.published deve ser booleano.")
+
+        return slug
+
+    for item_index, post in enumerate(posts):
+        label = f"data/blog/posts.json: posts[{item_index}]"
+        slug = validate_metadata(post, label)
+        if not isinstance(slug, str):
+            continue
+
+        if slug in slugs:
+            error(f"{label}.slug está duplicado: {slug}")
+        else:
+            slugs.add(slug)
+
+        source_rel = f"data/blog/posts/{slug}.json"
+        source_path = ROOT / source_rel
+        if not source_path.is_file():
+            error(f"{label}: fonte individual ausente: {source_rel}")
+            continue
+
+        source = load_json(source_rel)
+        if not isinstance(source, dict):
+            continue
+
+        validate_metadata(source, source_rel)
+
+        for key in metadata_keys:
+            if source.get(key) != post.get(key):
+                error(f"{source_rel}: {key} diverge de data/blog/posts.json.")
+
+        body = source.get("body")
+        if not isinstance(body, list) or not body:
+            error(f"{source_rel}: body deve conter ao menos um bloco.")
+        else:
+            for block_index, block in enumerate(body):
+                block_label = f"{source_rel}: body[{block_index}]"
+                if not isinstance(block, dict):
+                    error(f"{block_label} deve ser objeto.")
+                    continue
+
+                block_type = block.get("type")
+                if block_type in ("paragraph", "heading", "quote"):
+                    text = block.get("text")
+                    if not isinstance(text, str) or not text.strip():
+                        error(f"{block_label}.text deve ser texto não vazio.")
+                elif block_type == "list":
+                    items = block.get("items")
+                    if (
+                        not isinstance(items, list)
+                        or not items
+                        or not all(
+                            isinstance(item, str) and item.strip() for item in items
+                        )
+                    ):
+                        error(f"{block_label}.items deve ser lista de textos não vazios.")
+                else:
+                    error(f"{block_label}.type inválido: {block_type!r}.")
+
+        article_rel = f"blog/{slug}/index.html"
+        article_path = ROOT / article_rel
+        if post.get("published") is True:
+            published.append(post)
+            if not article_path.is_file():
+                error(f"{label}: post publicado sem página estática: {article_rel}")
+            else:
+                article_html = read_text(article_rel)
+                if "data-blog-post" not in article_html:
+                    error(f"{article_rel}: marcador data-blog-post ausente.")
+                canonical = (
+                    'rel="canonical" '
+                    f'href="https://kamylisumire.com/blog/{slug}/"'
+                )
+                if canonical not in article_html:
+                    error(f"{article_rel}: canonical ausente/incorreto.")
+                if "js/core/api.js" in article_html or "ranking.js" in article_html:
+                    error(f"{article_rel}: artigo não deve carregar API/ranking.")
+
+    if published:
+        home_html = read_text("index.html")
+        content_js = read_text("js/core/content.js")
+        if 'id="homeBlogSection"' not in home_html:
+            error("index.html: seção condicional do Blog ausente.")
+        if 'data-nav-page="blog"' not in content_js:
+            error("js/core/content.js: link condicional do Blog não reconhecido.")
+
+
 def validate_agenda() -> None:
     agenda = load_json("data/agenda.json")
     if not isinstance(agenda, dict):
@@ -408,11 +598,14 @@ def validate_css_local_refs() -> None:
 def validate_architecture() -> None:
     index = read_text("index.html")
     donations = read_text("doacoes/index.html")
+    blog_index = read_text("blog/index.html")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
     lives_js = read_text("js/pages/home/lives.js")
+    carousel_js = read_text("js/pages/home/carousel.js")
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
+    page_transitions = read_text("js/core/page-transitions.js")
 
     for element_id in (
         'id="inicio"',
@@ -429,6 +622,12 @@ def validate_architecture() -> None:
     if "js/pages/home/home-interactions.js" not in index:
         error("index.html: home-interactions.js não está carregado.")
 
+    if "css/components/carousels.css" not in index:
+        error("index.html: carousels.css compartilhado não está carregado.")
+
+    if "js/pages/home/carousel.js" not in index:
+        error("index.html: carousel.js compartilhado não está carregado.")
+
     if re.search(
         r'id="homeDonationButton"[^>]*>\s*Ir para doações\s*</a>',
         index,
@@ -438,6 +637,22 @@ def validate_architecture() -> None:
 
     if "js/core/api.js" in index or "ranking.js" in index:
         error("index.html: Home não deve carregar API/ranking.")
+
+    if "js/core/api.js" in blog_index or "ranking.js" in blog_index:
+        error("blog/index.html: Blog não deve carregar API/ranking.")
+
+    for expected in (
+        "css/components/blog.css",
+        "css/pages/blog.css",
+        "js/pages/blog/blog.js",
+        "js/core/page-transitions.js",
+    ):
+        if expected not in blog_index:
+            error(f"blog/index.html: recurso obrigatório ausente: {expected}")
+
+    if "css/components/blog.css" not in index:
+        error("index.html: blog.css compartilhado não está carregado.")
+
 
     for expected in ("js/core/api.js", "js/pages/doacoes/ranking.js"):
         if expected not in donations:
@@ -497,14 +712,70 @@ def validate_architecture() -> None:
             )
 
     # Warm-up dos glass panels deixou de ser requisito na V45.2.2;
-
-        # a pequena diferença de composição do blur foi aceita.
+    # a pequena diferença de composição do blur foi aceita.
 
     if "KAMYLI_BACKDROP_ASSET_URL" not in loader_js:
         error("js/core/loader.js: preparo do fundo crítico não reconhecido.")
 
-    if "useCustomDomain: false" not in config:
-        warn("js/core/config.js: useCustomDomain não está false; confirmar mudança deliberada.")
+    # O domínio próprio é a configuração deliberada desde V44.4.
+    if "https://api.kamylisumire.com" not in config:
+        error(
+            "js/core/config.js: domínio principal api.kamylisumire.com "
+            "não reconhecido."
+        )
+
+    if "useCustomDomain: true" not in config:
+        error(
+            "js/core/config.js: useCustomDomain deve permanecer true "
+            "enquanto o domínio próprio for o endpoint principal."
+        )
+
+    # V46.2: Lives e Agenda compartilham controlador e setas.
+    for needle in (
+        "scrollTo({",
+        'behavior: reducedMotion() ? "auto" : "smooth"',
+        "ResizeObserver",
+        'event.key !== "ArrowLeft"',
+        'event.key !== "ArrowRight"',
+    ):
+        if needle not in carousel_js:
+            error(
+                "js/pages/home/carousel.js: contrato de carrossel "
+                f"não reconhecido: {needle}"
+            )
+
+    home_css = read_text("css/pages/home.css")
+    lives_css = read_text("css/components/lives.css")
+    carousel_css = read_text("css/components/carousels.css")
+
+    if re.search(
+        r"@media\s*\(max-width:\s*520px\)[\s\S]{0,300}"
+        r"\.lives-carousel-button[\s\S]{0,120}display\s*:\s*none",
+        lives_css + "\n" + carousel_css,
+        re.I,
+    ):
+        error(
+            "Lives: setas não devem ser escondidas no mobile na V46.2."
+        )
+
+    if "window.KamyliCarousel" not in lives_js:
+        error("js/pages/home/lives.js: controlador compartilhado ausente.")
+
+    home_js = read_text("js/pages/home/home.js")
+    if "window.KamyliCarousel" not in home_js:
+        error("js/pages/home/home.js: controlador compartilhado ausente.")
+
+    for route in ('"home"', '"doacoes"', '"blog"'):
+        if route not in page_transitions:
+            error(
+                "js/core/page-transitions.js: rota padronizada ausente: "
+                f"{route}"
+            )
+
+    if "site-page-leaving-forward" in page_transitions:
+        error(
+            "js/core/page-transitions.js: estado forward legado ainda presente."
+        )
 
     forbidden_youtube = (
         "YT.Player",
@@ -575,12 +846,19 @@ def validate_seo_and_deployment() -> None:
     index = read_text("index.html")
     donations = read_text("doacoes/index.html")
 
+    blog_index = read_text("blog/index.html")
+
     checks = (
         (index, 'rel="canonical" href="https://kamylisumire.com/"', "Home canonical"),
         (
             donations,
             'rel="canonical" href="https://kamylisumire.com/doacoes/"',
             "Doações canonical",
+        ),
+        (
+            blog_index,
+            'rel="canonical" href="https://kamylisumire.com/blog/"',
+            "Blog canonical",
         ),
     )
     for text, needle, label in checks:
@@ -611,8 +889,24 @@ def validate_seo_and_deployment() -> None:
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
     }
+
+    blog = load_json("data/blog/posts.json")
+    published = []
+    if isinstance(blog, dict) and isinstance(blog.get("posts"), list):
+        published = [
+            post for post in blog["posts"]
+            if isinstance(post, dict) and post.get("published") is True
+        ]
+
+    if published:
+        expected.add("https://kamylisumire.com/blog/")
+        for post in published:
+            slug = post.get("slug")
+            if isinstance(slug, str):
+                expected.add(f"https://kamylisumire.com/blog/{slug}/")
+
     if not expected.issubset(urls):
-        error("sitemap.xml: Home e /doacoes/ precisam estar presentes.")
+        error("sitemap.xml: URLs públicas obrigatórias estão ausentes.")
 
 
 def main() -> int:
@@ -620,10 +914,19 @@ def main() -> int:
     validate_all_json()
     validate_home_content()
     validate_lives()
+    validate_blog()
     validate_agenda()
 
-    for rel in ("index.html", "doacoes/index.html", "404.html"):
+    for rel in ("index.html", "doacoes/index.html", "blog/index.html", "404.html"):
         validate_html_local_refs(rel)
+
+    blog = load_json("data/blog/posts.json")
+    if isinstance(blog, dict) and isinstance(blog.get("posts"), list):
+        for post in blog["posts"]:
+            if isinstance(post, dict) and post.get("published") is True:
+                slug = post.get("slug")
+                if isinstance(slug, str):
+                    validate_html_local_refs(f"blog/{slug}/index.html")
 
     validate_css_local_refs()
     validate_architecture()

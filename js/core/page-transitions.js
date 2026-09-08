@@ -1,4 +1,6 @@
 (() => {
+    "use strict";
+
     const root =
         document.documentElement;
 
@@ -7,6 +9,13 @@
 
     const EXIT_MS = 180;
     const MAX_AGE_MS = 8000;
+
+    const TRANSITIONABLE_ROUTES =
+        new Set([
+            "home",
+            "doacoes",
+            "blog"
+        ]);
 
     function prefersReducedMotion() {
         try {
@@ -55,32 +64,50 @@
             path = `/${path}`;
         }
 
+        path = path.replace(
+            /\/index\.html$/,
+            "/"
+        );
+
+        if (
+            path.length > 1 &&
+            !path.endsWith("/")
+        ) {
+            path += "/";
+        }
+
         return path;
     }
 
     function routeFromPath(pathname) {
         const path =
-            normalizePath(pathname)
-                .replace(
-                    /\/index\.html$/,
-                    "/"
-                );
+            normalizePath(pathname);
 
-        if (
-            path === "/" ||
-            path === ""
-        ) {
+        if (path === "/") {
             return "home";
         }
 
         if (
-            path === "/doacoes" ||
+            path === "/doacoes/" ||
             path.startsWith("/doacoes/")
         ) {
             return "doacoes";
         }
 
+        if (
+            path === "/blog/" ||
+            path.startsWith("/blog/")
+        ) {
+            return "blog";
+        }
+
         return "other";
+    }
+
+    function isTransitionablePath(pathname) {
+        return TRANSITIONABLE_ROUTES.has(
+            routeFromPath(pathname)
+        );
     }
 
     function clearArrivalState() {
@@ -123,23 +150,24 @@
             Date.now() -
             Number(state.timestamp || 0);
 
-        const currentRoute =
-            routeFromPath(
+        const currentPath =
+            normalizePath(
                 window.location.pathname
             );
 
         if (
             age < 0 ||
             age > MAX_AGE_MS ||
-            state.to !== currentRoute ||
-            state.direction !== "forward"
+            state.kind !== "internal" ||
+            state.toPath !== currentPath ||
+            !isTransitionablePath(currentPath)
         ) {
             clearArrivalState();
             return;
         }
 
         root.dataset.pageTransition =
-            "forward";
+            "internal";
 
         root.classList.add(
             "site-page-arriving"
@@ -208,17 +236,13 @@
         return { link, url };
     }
 
-    function rememberTransition(
-        from,
-        to
-    ) {
+    function rememberTransition(toPath) {
         try {
             sessionStorage.setItem(
                 STORAGE_KEY,
                 JSON.stringify({
-                    from,
-                    to,
-                    direction: "forward",
+                    kind: "internal",
+                    toPath,
                     timestamp: Date.now()
                 })
             );
@@ -234,8 +258,7 @@
             );
 
         root.classList.remove(
-            "site-page-leaving",
-            "site-page-leaving-forward"
+            "site-page-leaving"
         );
 
         if (
@@ -260,23 +283,28 @@
                 return;
             }
 
-            const currentRoute =
-                routeFromPath(
+            const currentPath =
+                normalizePath(
                     window.location.pathname
                 );
 
-            const targetRoute =
-                routeFromPath(
+            const targetPath =
+                normalizePath(
                     internal.url.pathname
                 );
 
             /*
-             * Escopo V41:
-             * somente Home -> /doacoes/.
+             * Hash/âncoras dentro da mesma página continuam sob o controle
+             * da Navbar. As transições de página entram somente quando o
+             * pathname realmente muda.
              */
+            if (currentPath === targetPath) {
+                return;
+            }
+
             if (
-                currentRoute !== "home" ||
-                targetRoute !== "doacoes"
+                !isTransitionablePath(currentPath) ||
+                !isTransitionablePath(targetPath)
             ) {
                 return;
             }
@@ -288,16 +316,14 @@
             event.preventDefault();
 
             rememberTransition(
-                currentRoute,
-                targetRoute
+                targetPath
             );
 
             root.dataset.pageTransition =
-                "forward";
+                "internal";
 
             root.classList.add(
-                "site-page-leaving",
-                "site-page-leaving-forward"
+                "site-page-leaving"
             );
 
             window.setTimeout(
