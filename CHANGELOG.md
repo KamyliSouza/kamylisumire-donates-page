@@ -3,6 +3,18 @@
 Histórico resumido do projeto. O histórico detalhado de patches anteriores
 permanece disponível nos commits/tags do Git.
 
+## V45.2.1 — blur visual do loader restaurado
+
+- restaura o loader translúcido com `var(--card-bg)` e
+  `blur(var(--blur-card))`;
+- mantém o esquema de cores claro/escuro pelos mesmos tokens globais;
+- com blur desligado, o loader também desliga o `backdrop-filter`;
+- preserva a página renderizável atrás do loader e as demais mudanças da
+  V45.2;
+- registra como limitação conhecida e aceita um pequeno intervalo de
+  composição do blur após o reveal em alguns navegadores/dispositivos;
+- a CI deixa de tratar `backdrop-filter` no loader como erro estrutural.
+
 ## V45.2 — correção estrutural do blur pós-loader
 
 - mantém navbar/main/footer renderizáveis atrás de um loader opaco;

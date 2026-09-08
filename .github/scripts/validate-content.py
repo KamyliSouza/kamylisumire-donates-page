@@ -462,20 +462,27 @@ def validate_architecture() -> None:
             "durante o loader; isso reintroduz o atraso de backdrop-filter."
         )
 
+    # V45.2.1: backdrop-filter no loader fullscreen voltou a ser uma
+    # escolha visual deliberada. Não tratar como erro de arquitetura.
     loader_block_match = re.search(
         r"\.site-loader\s*\{([\s\S]*?)\n\}",
         global_css,
         re.I,
     )
-    if loader_block_match and re.search(
-        r"backdrop-filter\s*:\s*blur\(",
-        loader_block_match.group(1),
-        re.I,
-    ):
-        error(
-            "css/core/global.css: loader fullscreen não deve usar "
-            "backdrop-filter."
-        )
+    if loader_block_match:
+        loader_block = loader_block_match.group(1)
+        if (
+            "background-color: var(--card-bg)" not in loader_block
+            or not re.search(
+                r"backdrop-filter\s*:\s*blur\(",
+                loader_block,
+                re.I,
+            )
+        ):
+            warn(
+                "css/core/global.css: loader não está usando a superfície "
+                "translúcida/blur esperada pela V45.2.1."
+            )
 
     if 'querySelectorAll(".glass-panel")' not in loader_js:
         error("js/core/loader.js: warm-up precisa atingir os .glass-panel.")

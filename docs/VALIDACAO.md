@@ -54,3 +54,18 @@ Contrato:
 7. blur off/Save-Data/performance reduzida não antecipam o fundo.
 
 A CI contém guardas para os principais itens acima.
+
+
+## V45.2.1 — loader com blur
+
+O loader volta a usar a superfície translúcida do site:
+
+- `background-color: var(--card-bg)`;
+- `backdrop-filter: blur(var(--blur-card))`;
+- tema claro/escuro continua vindo dos tokens globais;
+- `data-blur="off"` remove o filtro do loader;
+- a página continua renderizável atrás do loader.
+
+Limitação conhecida e aceita: em alguns navegadores/dispositivos pode existir
+um curto intervalo até a composição final do blur dos painéis depois do
+reveal. A V45.2.1 não tenta eliminar completamente esse comportamento.
