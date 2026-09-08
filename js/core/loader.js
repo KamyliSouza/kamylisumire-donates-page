@@ -19,7 +19,7 @@
     const MIN_DISPLAY_MS = 1000;
     const MAX_WAIT_MS = 4000;
     const EXIT_MS = 320;
-    const PAGE_REVEAL_DELAY_MS = 50;
+    const PAGE_REVEAL_DELAY_MS = 0;
     const REVEAL_STATE_MS = 420;
     const BACKDROP_READY_TIMEOUT_MS = 1400;
     const BACKDROP_DECODE_TIMEOUT_MS = 700;
