@@ -19,7 +19,20 @@
     const MIN_DISPLAY_MS = 1000;
     const MAX_WAIT_MS = 4000;
     const EXIT_MS = 320;
+
+    /*
+     * V45.2.3 — timing manual previsível.
+     *
+     * PAGE_REVEAL_DELAY_MS:
+     * pausa REAL depois que o loader termina e é removido.
+     *
+     * PAGE_REVEAL_OVERLAP_MS:
+     * entrada antecipada da página antes do loader terminar.
+     * Use este valor em vez de delay negativo.
+     */
     const PAGE_REVEAL_DELAY_MS = 150;
+    const PAGE_REVEAL_OVERLAP_MS = 0;
+
     const REVEAL_STATE_MS = 420;
     const BACKDROP_READY_TIMEOUT_MS = 1400;
     const BACKDROP_DECODE_TIMEOUT_MS = 700;
@@ -37,6 +50,31 @@
     let blurWarmupSession = null;
     let backdropReady = false;
     let blurPrepared = false;
+
+    const pageRevealDelayMs =
+        Math.max(
+            0,
+            Number(PAGE_REVEAL_DELAY_MS) || 0
+        );
+
+    const pageRevealOverlapMs =
+        Math.min(
+            EXIT_MS,
+            Math.max(
+                0,
+                Number(PAGE_REVEAL_OVERLAP_MS) || 0
+            )
+        );
+
+    /*
+     * Diagnóstico no DevTools: confirma a versão e os valores realmente
+     * carregados pelo navegador.
+     */
+    root.dataset.loaderTimingVersion = "45.2.3";
+    root.dataset.pageRevealDelayMs =
+        String(pageRevealDelayMs);
+    root.dataset.pageRevealOverlapMs =
+        String(pageRevealOverlapMs);
 
     root.classList.add("site-loading-visible");
 
@@ -58,7 +96,9 @@
                     pageTransition: root.dataset.pageTransition || null,
                     backdropReady,
                     blurPrepared,
-                    pageRevealDelayMs: PAGE_REVEAL_DELAY_MS
+                    pageRevealDelayMs,
+                    pageRevealOverlapMs,
+                    loaderTimingVersion: "45.2.3"
                 }
             })
         );
@@ -186,17 +226,29 @@
 
     function finishReveal() {
         /*
-         * V45.2.2:
-         * loader fade-out -> loader removido -> 150 ms -> página entra.
+         * V45.2.3 — timeline explícita.
+         *
+         * Sem overlap:
+         * loader fade-out -> loader removido -> delay -> página entra.
+         *
+         * Com overlap:
+         * a página começa PAGE_REVEAL_OVERLAP_MS antes do fim do loader.
+         * Nesse modo o delay pós-loader é ignorado.
          */
         root.classList.add("site-page-delay");
 
         loader.classList.add("is-leaving");
-        root.classList.remove("site-loading-pending", "site-loading-visible");
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible"
+        );
 
-        setTimeout(() => loader.remove(), EXIT_MS);
+        let pageRevealStarted = false;
 
-        setTimeout(() => {
+        const beginPageReveal = () => {
+            if (pageRevealStarted) return;
+            pageRevealStarted = true;
+
             root.classList.add("site-revealing");
             root.classList.remove("site-page-delay");
 
@@ -207,7 +259,34 @@
                 dispatchRevealed();
                 clearPageArrival();
             }, REVEAL_STATE_MS);
-        }, EXIT_MS + PAGE_REVEAL_DELAY_MS);
+        };
+
+        if (pageRevealOverlapMs > 0) {
+            setTimeout(
+                beginPageReveal,
+                Math.max(
+                    0,
+                    EXIT_MS - pageRevealOverlapMs
+                )
+            );
+        }
+
+        /*
+         * O delay positivo nasce após a remoção REAL do loader.
+         * Isso torna 100 ms, 250 ms ou 500 ms diretamente perceptíveis.
+         */
+        setTimeout(() => {
+            loader.remove();
+
+            if (pageRevealOverlapMs > 0) {
+                return;
+            }
+
+            setTimeout(
+                beginPageReveal,
+                pageRevealDelayMs
+            );
+        }, EXIT_MS);
     }
 
     async function prepareReveal() {
