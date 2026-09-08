@@ -8,7 +8,8 @@
         root.classList.remove(
             "site-loading-pending",
             "site-loading-visible",
-            "site-page-arriving"
+            "site-page-arriving",
+            "site-navigation-loading"
         );
         delete root.dataset.pageTransition;
         delete root.dataset.blurPreparing;
@@ -16,28 +17,70 @@
         return;
     }
 
-    const MIN_DISPLAY_MS = 1000;
-    const MAX_WAIT_MS = 4000;
-    const EXIT_MS = 320;
+    const INITIAL_MIN_DISPLAY_MS = 1000;
+    const INITIAL_MAX_WAIT_MS = 4000;
+    const INITIAL_EXIT_MS = 320;
+
+    const NAVIGATION_MIN_DISPLAY_MS = 240;
+    const NAVIGATION_MAX_WAIT_MS = 1800;
+    const NAVIGATION_ENTER_MS = 220;
+    const NAVIGATION_EXIT_MS = 240;
 
     /*
-     * V45.2.3 — timing manual previsível.
+     * V46.3 — o loader passa a ter dois modos:
      *
-     * PAGE_REVEAL_DELAY_MS:
-     * pausa REAL depois que o loader termina e é removido.
+     * initial:
+     * carregamento completo da primeira visita/reload.
      *
-     * PAGE_REVEAL_OVERLAP_MS:
-     * entrada antecipada da página antes do loader terminar.
-     * Use este valor em vez de delay negativo.
+     * navigation:
+     * ponte curta entre páginas internas. O loader entra sobre a página
+     * atual, a troca de documento acontece já coberta, e o documento de
+     * destino usa um tempo mínimo reduzido antes do reveal.
      */
     const PAGE_REVEAL_DELAY_MS = 0;
     const PAGE_REVEAL_OVERLAP_MS = 320;
+
+    const NAVIGATION_REVEAL_DELAY_MS = 0;
+    const NAVIGATION_REVEAL_OVERLAP_MS = 240;
 
     const REVEAL_STATE_MS = 420;
     const BACKDROP_READY_TIMEOUT_MS = 1400;
     const BACKDROP_DECODE_TIMEOUT_MS = 700;
     const BLUR_WARMUP_FRAMES = 3;
     const PREPARE_LEAD_MS = 180;
+
+    const navigationArrival =
+        window.KAMYLI_PAGE_TRANSITION_ARRIVAL?.kind === "internal";
+
+    const loaderMode =
+        navigationArrival
+            ? "navigation"
+            : "initial";
+
+    const MIN_DISPLAY_MS =
+        navigationArrival
+            ? NAVIGATION_MIN_DISPLAY_MS
+            : INITIAL_MIN_DISPLAY_MS;
+
+    const MAX_WAIT_MS =
+        navigationArrival
+            ? NAVIGATION_MAX_WAIT_MS
+            : INITIAL_MAX_WAIT_MS;
+
+    const EXIT_MS =
+        navigationArrival
+            ? NAVIGATION_EXIT_MS
+            : INITIAL_EXIT_MS;
+
+    const configuredRevealDelayMs =
+        navigationArrival
+            ? NAVIGATION_REVEAL_DELAY_MS
+            : PAGE_REVEAL_DELAY_MS;
+
+    const configuredRevealOverlapMs =
+        navigationArrival
+            ? NAVIGATION_REVEAL_OVERLAP_MS
+            : PAGE_REVEAL_OVERLAP_MS;
 
     const startedAt =
         Number(window.KAMYLI_LOADER_STARTED_AT) || performance.now();
@@ -54,7 +97,7 @@
     const pageRevealDelayMs =
         Math.max(
             0,
-            Number(PAGE_REVEAL_DELAY_MS) || 0
+            Number(configuredRevealDelayMs) || 0
         );
 
     const pageRevealOverlapMs =
@@ -62,21 +105,40 @@
             EXIT_MS,
             Math.max(
                 0,
-                Number(PAGE_REVEAL_OVERLAP_MS) || 0
+                Number(configuredRevealOverlapMs) || 0
             )
         );
 
-    /*
-     * Diagnóstico no DevTools: confirma a versão e os valores realmente
-     * carregados pelo navegador.
-     */
-    root.dataset.loaderTimingVersion = "45.2.3";
+    root.dataset.loaderTimingVersion = "46.3";
+    root.dataset.loaderMode = loaderMode;
     root.dataset.pageRevealDelayMs =
         String(pageRevealDelayMs);
     root.dataset.pageRevealOverlapMs =
         String(pageRevealOverlapMs);
 
+    if (navigationArrival) {
+        loader.classList.add("is-navigation");
+    }
+
+    loader.setAttribute("aria-hidden", "false");
     root.classList.add("site-loading-visible");
+
+    function prefersReducedMotion() {
+        try {
+            return window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches;
+        } catch {
+            return false;
+        }
+    }
+
+    function animationAllowed() {
+        return (
+            !prefersReducedMotion() &&
+            root.dataset.performance !== "reduced"
+        );
+    }
 
     function localContentReady() {
         return (
@@ -92,13 +154,14 @@
             new CustomEvent("kamyli:site-revealed", {
                 detail: {
                     loaderShown: true,
+                    loaderMode,
                     minimumDisplayMs: MIN_DISPLAY_MS,
                     pageTransition: root.dataset.pageTransition || null,
                     backdropReady,
                     blurPrepared,
                     pageRevealDelayMs,
                     pageRevealOverlapMs,
-                    loaderTimingVersion: "45.2.3"
+                    loaderTimingVersion: "46.3"
                 }
             })
         );
@@ -107,6 +170,7 @@
     function clearPageArrival() {
         root.classList.remove("site-page-arriving");
         delete root.dataset.pageTransition;
+        delete window.KAMYLI_PAGE_TRANSITION_ARRIVAL;
     }
 
     const waitFrame = () =>
@@ -123,7 +187,7 @@
         return (
             root.dataset.blur === "on" &&
             root.dataset.performance === "normal" &&
-            !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            !prefersReducedMotion()
         );
     }
 
@@ -216,31 +280,24 @@
 
     async function prepareVisualBackdrop() {
         if (!shouldPrepareBackdrop()) return;
-
-        /*
-         * V45.2.2: mantemos o preload/decode do fundo, mas não tentamos
-         * eliminar completamente o ajuste tardio do blur dos cards.
-         */
         await waitForBackdropAsset();
     }
 
+    function keepLoaderIdle() {
+        loader.setAttribute("aria-hidden", "true");
+        loader.classList.remove("is-navigation", "is-resetting");
+        root.classList.remove("site-navigation-loading");
+        root.dataset.loaderMode = "idle";
+    }
+
     function finishReveal() {
-        /*
-         * V45.2.3 — timeline explícita.
-         *
-         * Sem overlap:
-         * loader fade-out -> loader removido -> delay -> página entra.
-         *
-         * Com overlap:
-         * a página começa PAGE_REVEAL_OVERLAP_MS antes do fim do loader.
-         * Nesse modo o delay pós-loader é ignorado.
-         */
         root.classList.add("site-page-delay");
 
         loader.classList.add("is-leaving");
         root.classList.remove(
             "site-loading-pending",
-            "site-loading-visible"
+            "site-loading-visible",
+            "site-navigation-loading"
         );
 
         let pageRevealStarted = false;
@@ -271,12 +328,12 @@
             );
         }
 
-        /*
-         * O delay positivo nasce após a remoção REAL do loader.
-         * Isso torna 100 ms, 250 ms ou 500 ms diretamente perceptíveis.
-         */
         setTimeout(() => {
-            loader.remove();
+            /*
+             * V46.3: o loader não é removido. Ele permanece invisível e
+             * reutilizável para a próxima navegação interna.
+             */
+            keepLoaderIdle();
 
             if (pageRevealOverlapMs > 0) {
                 return;
@@ -336,6 +393,57 @@
         if (finishTimer !== null) return;
         finishTimer = setTimeout(prepareReveal, untilPrepare);
     }
+
+    async function showForNavigation() {
+        if (!animationAllowed()) {
+            return false;
+        }
+
+        loader.classList.add("is-navigation");
+        loader.classList.remove("is-leaving", "is-resetting");
+        loader.setAttribute("aria-hidden", "false");
+
+        root.dataset.loaderMode = "navigation-outgoing";
+        root.classList.remove("site-page-delay", "site-page-leaving");
+
+        /*
+         * Garante que o navegador enxergue o estado oculto antes de iniciar
+         * a transição de opacity para o loader visível.
+         */
+        void loader.offsetWidth;
+
+        root.classList.add("site-navigation-loading");
+
+        window.dispatchEvent(
+            new CustomEvent("kamyli:navigation-loader-show")
+        );
+
+        await new Promise(resolve =>
+            setTimeout(resolve, NAVIGATION_ENTER_MS)
+        );
+
+        return true;
+    }
+
+    function resetNavigationState() {
+        root.classList.remove(
+            "site-navigation-loading",
+            "site-page-leaving"
+        );
+
+        loader.classList.add("is-resetting", "is-leaving");
+        loader.setAttribute("aria-hidden", "true");
+        root.dataset.loaderMode = "idle";
+
+        requestAnimationFrame(() => {
+            loader.classList.remove("is-resetting", "is-navigation");
+        });
+    }
+
+    window.KamyliLoader = Object.freeze({
+        showForNavigation,
+        resetNavigationState
+    });
 
     const checkReady = () => scheduleReveal(false);
 

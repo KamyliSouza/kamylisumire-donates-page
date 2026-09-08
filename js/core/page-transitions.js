@@ -7,7 +7,8 @@
     const STORAGE_KEY =
         "kamyli:page-transition";
 
-    const EXIT_MS = 180;
+    const FALLBACK_EXIT_MS = 180;
+    const MAX_LOADER_COVER_WAIT_MS = 520;
     const MAX_AGE_MS = 8000;
 
     const TRANSITIONABLE_ROUTES =
@@ -16,6 +17,8 @@
             "doacoes",
             "blog"
         ]);
+
+    let navigationInProgress = false;
 
     function prefersReducedMotion() {
         try {
@@ -116,6 +119,7 @@
         );
 
         delete root.dataset.pageTransition;
+        delete window.KAMYLI_PAGE_TRANSITION_ARRIVAL;
     }
 
     function readArrivalState() {
@@ -165,6 +169,15 @@
             clearArrivalState();
             return;
         }
+
+        const arrivalState = Object.freeze({
+            kind: "internal",
+            toPath: currentPath,
+            timestamp: Number(state.timestamp || 0)
+        });
+
+        window.KAMYLI_PAGE_TRANSITION_ARRIVAL =
+            arrivalState;
 
         root.dataset.pageTransition =
             "internal";
@@ -251,18 +264,60 @@
         }
     }
 
-    function clearLeavingState() {
-        const wasLeaving =
-            root.classList.contains(
-                "site-page-leaving"
-            );
+    const wait = ms =>
+        new Promise(resolve => setTimeout(resolve, ms));
 
-        root.classList.remove(
+    async function coverWithLoader() {
+        const loaderApi =
+            window.KamyliLoader;
+
+        if (
+            loaderApi &&
+            typeof loaderApi.showForNavigation === "function"
+        ) {
+            try {
+                await Promise.race([
+                    Promise.resolve(
+                        loaderApi.showForNavigation()
+                    ),
+                    wait(MAX_LOADER_COVER_WAIT_MS)
+                ]);
+
+                return;
+            } catch {
+                /* Fallback abaixo mantém a navegação utilizável. */
+            }
+        }
+
+        root.classList.add(
             "site-page-leaving"
         );
 
+        await wait(FALLBACK_EXIT_MS);
+    }
+
+    async function navigateInternal(url, targetPath) {
+        rememberTransition(
+            targetPath
+        );
+
+        root.dataset.pageTransition =
+            "internal";
+
+        await coverWithLoader();
+
+        window.location.assign(
+            url.href
+        );
+    }
+
+    function clearLeavingState() {
+        root.classList.remove(
+            "site-page-leaving",
+            "site-navigation-loading"
+        );
+
         if (
-            wasLeaving &&
             !root.classList.contains(
                 "site-page-arriving"
             )
@@ -276,6 +331,10 @@
     document.addEventListener(
         "click",
         event => {
+            if (navigationInProgress) {
+                return;
+            }
+
             const internal =
                 getInternalLink(event);
 
@@ -295,8 +354,7 @@
 
             /*
              * Hash/âncoras dentro da mesma página continuam sob o controle
-             * da Navbar. As transições de página entram somente quando o
-             * pathname realmente muda.
+             * da Navbar. O loader-ponte só entra quando o pathname muda.
              */
             if (currentPath === targetPath) {
                 return;
@@ -314,35 +372,32 @@
             }
 
             event.preventDefault();
+            navigationInProgress = true;
 
-            rememberTransition(
+            navigateInternal(
+                internal.url,
                 targetPath
-            );
-
-            root.dataset.pageTransition =
-                "internal";
-
-            root.classList.add(
-                "site-page-leaving"
-            );
-
-            window.setTimeout(
-                () => {
-                    window.location.assign(
-                        internal.url.href
-                    );
-                },
-                EXIT_MS
-            );
+            ).catch(() => {
+                window.location.assign(
+                    internal.url.href
+                );
+            });
         }
     );
 
     window.addEventListener(
         "pageshow",
         event => {
-            if (event.persisted) {
-                clearLeavingState();
+            if (!event.persisted) {
+                return;
             }
+
+            navigationInProgress = false;
+            clearLeavingState();
+
+            window.KamyliLoader
+                ?.resetNavigationState
+                ?.();
         }
     );
 })();

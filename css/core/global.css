@@ -689,7 +689,7 @@ a {
 
 
 /* =========================================================
-   ENTRADA PÓS-LOADER + TRANSIÇÃO ENTRE PÁGINAS — V46.2
+   ENTRADA PÓS-LOADER + LOADER-PONTE ENTRE PÁGINAS — V46.3
    ========================================================= */
 
 /*
@@ -783,12 +783,21 @@ html.site-revealing .site-footer {
 }
 
 /*
- * Saída curta e única para navegação entre Home, Doações e Blog.
- * A chegada usa o mesmo site-content-enter do reveal pós-loader.
+ * Fallback de saída para navegação entre Home, Doações e Blog.
+ *
+ * V46.3: o caminho principal usa o próprio loader como ponte. Estas animações
+ * permanecem como fallback caso a API do loader não esteja disponível.
  */
 
-html.site-page-leaving body {
+html.site-revealing body,
+html.site-page-leaving body,
+html.site-navigation-loading body {
     pointer-events: none;
+}
+
+html.site-navigation-loading,
+html.site-navigation-loading body {
+    overflow: hidden;
 }
 
 html.site-page-leaving .site-nav {
@@ -903,14 +912,25 @@ html.site-loading-pending body {
     visibility: hidden;
     pointer-events: none;
 
+    --site-loader-transition-duration: .32s;
+
     transition:
-        opacity .32s ease,
-        visibility .32s ease,
+        opacity var(--site-loader-transition-duration) ease,
+        visibility var(--site-loader-transition-duration) ease,
         background-color .22s ease;
 }
 
+.site-loader.is-navigation {
+    --site-loader-transition-duration: .22s;
+}
+
+.site-loader.is-resetting {
+    transition: none !important;
+}
+
 html.site-loading-pending .site-loader:not(.is-leaving),
-html.site-loading-visible .site-loader:not(.is-leaving) {
+html.site-loading-visible .site-loader:not(.is-leaving),
+html.site-navigation-loading .site-loader:not(.is-leaving) {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;

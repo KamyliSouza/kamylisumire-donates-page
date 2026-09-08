@@ -717,6 +717,60 @@ def validate_architecture() -> None:
     if "KAMYLI_BACKDROP_ASSET_URL" not in loader_js:
         error("js/core/loader.js: preparo do fundo crítico não reconhecido.")
 
+    # V46.3: o loader permanece reutilizável e faz a ponte entre documentos.
+    for needle in (
+        "window.KamyliLoader",
+        "showForNavigation",
+        "resetNavigationState",
+        "NAVIGATION_MIN_DISPLAY_MS",
+        "NAVIGATION_ENTER_MS",
+        "site-navigation-loading",
+    ):
+        if needle not in loader_js:
+            error(
+                "js/core/loader.js: contrato do loader-ponte V46.3 "
+                f"não reconhecido: {needle}"
+            )
+
+    if re.search(r"\bloader\.remove\s*\(", loader_js):
+        error(
+            "js/core/loader.js: V46.3 exige manter o loader no DOM "
+            "para reutilização entre páginas."
+        )
+
+    if "site-navigation-loading" not in global_css:
+        error(
+            "css/core/global.css: estado do loader de navegação V46.3 ausente."
+        )
+
+    for needle in (
+        "KAMYLI_PAGE_TRANSITION_ARRIVAL",
+        "showForNavigation",
+        "MAX_LOADER_COVER_WAIT_MS",
+    ):
+        if needle not in page_transitions:
+            error(
+                "js/core/page-transitions.js: integração com loader V46.3 "
+                f"não reconhecida: {needle}"
+            )
+
+    for rel, html in (
+        ("index.html", index),
+        ("doacoes/index.html", donations),
+        ("blog/index.html", blog_index),
+    ):
+        if "page-transitions.js?v=46.3" not in html:
+            error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
+        if "loader.js?v=46.3" not in html:
+            error(f"{rel}: cache-buster do loader V46.3 ausente.")
+        if "global.css?v=46.3" not in html:
+            error(f"{rel}: cache-buster do CSS global V46.3 ausente.")
+
+    if "loader.js?v=46.3" not in not_found:
+        error("404.html: cache-buster do loader V46.3 ausente.")
+    if "global.css?v=46.3" not in not_found:
+        error("404.html: cache-buster do CSS global V46.3 ausente.")
+
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
         error(
