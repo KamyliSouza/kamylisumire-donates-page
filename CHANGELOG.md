@@ -1,5 +1,15 @@
 # Changelog
 
+## V47.4.4 — Âncoras estáveis após carregamento assíncrono
+
+- corrige a abertura direta de URLs com hash, como `/#creditos`, `/#regras`, `/#agenda` e `/#lives`, quando seções anteriores mudam de altura durante o carregamento assíncrono;
+- a navegação inicial aguarda `kamyli:site-revealed` antes de calcular a posição final da seção, com fallback temporizado caso o evento não seja emitido;
+- após o scroll, `navbar.js` estabiliza temporariamente a âncora com `ResizeObserver` e verificações leves, recalculando o offset quando Hero, Lives, imagens ou outros conteúdos alteram o layout;
+- a estabilização é cancelada imediatamente se o usuário usar roda do mouse, toque, ponteiro ou teclas de rolagem, evitando disputar o controle da página;
+- adiciona tratamento de `hashchange` para mudanças de âncora realizadas depois que a Home já está carregada;
+- durante a estabilização, o scrollspy mantém o destino selecionado para não alternar a navbar enquanto o layout ainda está se acomodando;
+- atualiza o cache-buster de `js/core/navbar.js` para `?v=47.4.4` em todas as páginas públicas que carregam a navbar.
+
 ## V47.4.3 — Status ao vivo da Twitch e Hero dinâmico
 
 - adiciona `GET /twitch/live`, que lê somente um snapshot no KV e nunca consulta a Twitch durante a visita do usuário;

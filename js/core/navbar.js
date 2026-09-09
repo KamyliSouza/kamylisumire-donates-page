@@ -153,7 +153,15 @@
 
     let pageScrollFrame = null;
     let isProgrammaticScroll = false;
+    let isSectionStabilizing = false;
     let previousRootScrollBehavior = "";
+    let sectionStabilizationCleanup = null;
+    let pendingRevealNavigationCleanup = null;
+
+    const SECTION_STABILIZATION_MS = 9000;
+    const SECTION_STABILIZATION_INTERVAL_MS = 250;
+    const SECTION_POSITION_TOLERANCE_PX = 3;
+    const SITE_REVEAL_FALLBACK_MS = 5500;
 
     function prefersReducedMotion() {
         return window.matchMedia(
@@ -195,6 +203,193 @@
         pageScrollFrame = null;
         isProgrammaticScroll = false;
         restoreRootScrollBehavior();
+    }
+
+    function cancelSectionStabilization() {
+        sectionStabilizationCleanup?.();
+        sectionStabilizationCleanup = null;
+        isSectionStabilizing = false;
+    }
+
+    function cancelPendingRevealNavigation() {
+        pendingRevealNavigationCleanup?.();
+        pendingRevealNavigationCleanup = null;
+    }
+
+    function cancelAutomatedSectionNavigation() {
+        cancelPendingRevealNavigation();
+        cancelPageScrollAnimation();
+        cancelSectionStabilization();
+    }
+
+    function scrollInstantlyTo(targetTop) {
+        const currentScrollBehavior =
+            document.documentElement.style.scrollBehavior;
+
+        document.documentElement.style.scrollBehavior = "auto";
+        window.scrollTo(0, targetTop);
+        document.documentElement.style.scrollBehavior =
+            currentScrollBehavior;
+    }
+
+    function startSectionStabilization(section, link) {
+        cancelSectionStabilization();
+
+        if (!section?.isConnected) return;
+
+        let stopped = false;
+        let correctionFrame = null;
+        let intervalId = null;
+        let timeoutId = null;
+        let resizeObserver = null;
+
+        const layoutRoot =
+            document.querySelector("main") || document.body;
+
+        function stop() {
+            if (stopped) return;
+            stopped = true;
+
+            if (correctionFrame !== null) {
+                cancelAnimationFrame(correctionFrame);
+                correctionFrame = null;
+            }
+
+            if (intervalId !== null) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            resizeObserver?.disconnect();
+            resizeObserver = null;
+
+            window.removeEventListener("resize", scheduleCorrection);
+            window.removeEventListener("load", scheduleCorrection);
+
+            if (sectionStabilizationCleanup === stop) {
+                sectionStabilizationCleanup = null;
+            }
+
+            isSectionStabilizing = false;
+        }
+
+        function correctPosition() {
+            if (stopped || isProgrammaticScroll || !section.isConnected) {
+                return;
+            }
+
+            const maxTop = Math.max(
+                0,
+                document.documentElement.scrollHeight - window.innerHeight
+            );
+
+            const expectedTop = Math.max(
+                0,
+                Math.min(getSectionTop(section), maxTop)
+            );
+
+            const difference = expectedTop - window.scrollY;
+
+            if (Math.abs(difference) <= SECTION_POSITION_TOLERANCE_PX) {
+                return;
+            }
+
+            scrollInstantlyTo(expectedTop);
+            setActiveLink(link, "auto");
+        }
+
+        function scheduleCorrection() {
+            if (stopped || correctionFrame !== null) return;
+
+            correctionFrame = requestAnimationFrame(() => {
+                correctionFrame = null;
+                correctPosition();
+            });
+        }
+
+        if (typeof ResizeObserver === "function" && layoutRoot) {
+            resizeObserver = new ResizeObserver(scheduleCorrection);
+            resizeObserver.observe(layoutRoot);
+        }
+
+        window.addEventListener("resize", scheduleCorrection, { passive: true });
+        window.addEventListener("load", scheduleCorrection);
+
+        intervalId = window.setInterval(
+            scheduleCorrection,
+            SECTION_STABILIZATION_INTERVAL_MS
+        );
+
+        timeoutId = window.setTimeout(
+            stop,
+            SECTION_STABILIZATION_MS
+        );
+
+        sectionStabilizationCleanup = stop;
+        isSectionStabilizing = true;
+        scheduleCorrection();
+    }
+
+    function runAfterSiteReveal(callback) {
+        cancelPendingRevealNavigation();
+
+        let finished = false;
+        let timeoutId = null;
+
+        function cleanup() {
+            window.removeEventListener(
+                "kamyli:site-revealed",
+                finish
+            );
+
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            if (pendingRevealNavigationCleanup === cancel) {
+                pendingRevealNavigationCleanup = null;
+            }
+        }
+
+        function cancel() {
+            if (finished) return;
+            finished = true;
+            cleanup();
+        }
+
+        function finish() {
+            if (finished) return;
+            finished = true;
+            cleanup();
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(callback);
+            });
+        }
+
+        pendingRevealNavigationCleanup = cancel;
+
+        if (document.documentElement.classList.contains("site-ready")) {
+            finish();
+            return;
+        }
+
+        window.addEventListener(
+            "kamyli:site-revealed",
+            finish,
+            { once: true }
+        );
+
+        timeoutId = window.setTimeout(
+            finish,
+            SITE_REVEAL_FALLBACK_MS
+        );
     }
 
     function animatePageScroll(targetTop, onComplete) {
@@ -285,6 +480,7 @@
     function scrollToSection(section, link, updateHash = true) {
         if (!section) return;
 
+        cancelSectionStabilization();
         setActiveLink(link);
 
         animatePageScroll(
@@ -295,6 +491,8 @@
                 if (updateHash) {
                     updateSectionHash(section.id);
                 }
+
+                startSectionStabilization(section, link);
             }
         );
     }
@@ -306,7 +504,7 @@
     ["wheel", "touchstart", "pointerdown"].forEach(eventName => {
         window.addEventListener(
             eventName,
-            cancelPageScrollAnimation,
+            cancelAutomatedSectionNavigation,
             { passive: true }
         );
     });
@@ -323,7 +521,7 @@
         ]);
 
         if (interruptKeys.has(event.key)) {
-            cancelPageScrollAnimation();
+            cancelAutomatedSectionNavigation();
         }
     });
 
@@ -375,7 +573,13 @@
              * assim o scrollspy não passa rapidamente por Agenda/Regras
              * enquanto a animação vai até Créditos.
              */
-            if (isProgrammaticScroll || !visibleSections.size) return;
+            if (
+                isProgrammaticScroll ||
+                isSectionStabilizing ||
+                !visibleSections.size
+            ) {
+                return;
+            }
 
             const entries = [...visibleSections.entries()]
                 .filter(([, value]) => value.isIntersecting)
@@ -463,14 +667,12 @@
                 window.scrollTo(0, 0);
                 restoreRootScrollBehavior();
 
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        scrollToSection(
-                            initialSection,
-                            initialLink,
-                            true
-                        );
-                    });
+                runAfterSiteReveal(() => {
+                    scrollToSection(
+                        initialSection,
+                        initialLink,
+                        true
+                    );
                 });
             }
         }
@@ -503,6 +705,24 @@
                     true
                 );
             });
+        });
+
+        window.addEventListener("hashchange", () => {
+            const sectionId =
+                window.location.hash.replace(/^#/, "") || "inicio";
+
+            const section = document.getElementById(sectionId);
+            const link = navSectionLinks.find(item =>
+                item.dataset.navSection === sectionId
+            );
+
+            if (!section || !link) return;
+
+            scrollToSection(
+                section,
+                link,
+                false
+            );
         });
     }
 

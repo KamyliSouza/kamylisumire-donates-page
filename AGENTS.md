@@ -270,3 +270,10 @@ migração/hotfix.
 - Não introduzir texto que apresente autorização excepcional para treinamento de IA sem uma decisão editorial explícita em versão futura.
 - Conteúdo de terceiros e código com licença própria devem continuar claramente distinguidos dos assets autorais abrangidos pela política.
 - `robots.txt` contém sinalização complementar para crawlers de IA conhecidos; não descrever esse mecanismo como bloqueio técnico absoluto.
+
+### V47.4.4 — navegação por hash
+
+- Links diretos da Home com hash devem aguardar `kamyli:site-revealed` antes do scroll inicial.
+- A estabilização pós-scroll em `navbar.js` existe para absorver mudanças de altura de conteúdo assíncrono; não substituí-la por um `setTimeout` fixo sem observar o layout.
+- Qualquer estabilização automática deve ser cancelada assim que o usuário iniciar interação de rolagem.
+- Mudanças em `js/core/navbar.js` exigem atualização do `?v=` em todas as páginas públicas que carregam a navbar.

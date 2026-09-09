@@ -36,6 +36,11 @@ no máximo uma vez a cada 10 minutos. Se o canal estiver online, o Hero mostra
 `Sobre | Ao vivo`, mantendo o avatar visível com anel de status. Offline ou sem
 snapshot válido, o Hero continua no layout padrão.
 
+Desde a V47.4.4, links diretos com hash (`/#agenda`, `/#regras`, `/#creditos` etc.)
+aguardam o reveal da página e recebem uma estabilização temporária de posição.
+Isso evita que conteúdo assíncrono anterior desloque a seção depois do scroll,
+sem impedir que o visitante reassuma o controle ao rolar manualmente.
+
 ## Estrutura principal
 
 ```text
