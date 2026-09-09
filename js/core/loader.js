@@ -46,7 +46,6 @@
     const REVEAL_STATE_MS = 420;
     const BACKDROP_READY_TIMEOUT_MS = 1400;
     const BACKDROP_DECODE_TIMEOUT_MS = 700;
-    const BLUR_WARMUP_FRAMES = 3;
     const PREPARE_LEAD_MS = 180;
 
     const navigationArrival =
@@ -90,9 +89,7 @@
     let finished = false;
     let revealPreparing = false;
     let finishTimer = null;
-    let blurWarmupSession = null;
     let backdropReady = false;
-    let blurPrepared = false;
 
     const pageRevealDelayMs =
         Math.max(
@@ -158,7 +155,6 @@
                     minimumDisplayMs: MIN_DISPLAY_MS,
                     pageTransition: root.dataset.pageTransition || null,
                     backdropReady,
-                    blurPrepared,
                     pageRevealDelayMs,
                     pageRevealOverlapMs,
                     loaderTimingVersion: "46.3"
@@ -173,15 +169,8 @@
         delete window.KAMYLI_PAGE_TRANSITION_ARRIVAL;
     }
 
-    const waitFrame = () =>
-        new Promise(resolve => requestAnimationFrame(resolve));
-
     const timeout = ms =>
         new Promise(resolve => setTimeout(() => resolve("timeout"), ms));
-
-    function uniqueElements(elements) {
-        return [...new Set(elements.filter(element => element instanceof Element))];
-    }
 
     function shouldPrepareBackdrop() {
         return (
@@ -228,56 +217,6 @@
         return backdropReady;
     }
 
-    function getBlurSurfaces() {
-        return uniqueElements([
-            document.querySelector("#site-navbar .site-nav"),
-            ...document.querySelectorAll(".glass-panel"),
-            document.querySelector(".site-footer")
-        ]);
-    }
-
-    function cleanupBlurWarmup() {
-        if (!blurWarmupSession) {
-            delete root.dataset.blurPreparing;
-            return;
-        }
-
-        blurWarmupSession.forEach(({ element, willChange }) => {
-            element.style.willChange = willChange;
-        });
-
-        blurWarmupSession = null;
-        delete root.dataset.blurPreparing;
-    }
-
-    async function warmBlurSurfaces() {
-        if (!shouldPrepareBackdrop()) return false;
-
-        const surfaces = getBlurSurfaces();
-        if (!surfaces.length) return false;
-
-        root.dataset.blurPreparing = "true";
-        blurWarmupSession = surfaces.map(element => ({
-            element,
-            willChange: element.style.willChange
-        }));
-
-        surfaces.forEach(element => {
-            element.style.willChange = "backdrop-filter, transform";
-            const styles = getComputedStyle(element);
-            void styles.backdropFilter;
-            void styles.webkitBackdropFilter;
-            void element.offsetHeight;
-        });
-
-        for (let index = 0; index < BLUR_WARMUP_FRAMES; index += 1) {
-            await waitFrame();
-        }
-
-        blurPrepared = true;
-        return true;
-    }
-
     async function prepareVisualBackdrop() {
         if (!shouldPrepareBackdrop()) return;
         await waitForBackdropAsset();
@@ -312,7 +251,6 @@
             setTimeout(() => {
                 root.classList.remove("site-revealing");
                 root.classList.add("site-ready");
-                cleanupBlurWarmup();
                 dispatchRevealed();
                 clearPageArrival();
             }, REVEAL_STATE_MS);
@@ -367,7 +305,6 @@
         }
 
         if (finished) {
-            cleanupBlurWarmup();
             return;
         }
 

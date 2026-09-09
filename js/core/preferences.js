@@ -321,10 +321,6 @@
         }
     }
 
-    function refreshAutomaticBlur(notify = true) {
-        refreshAdaptiveConditions(notify);
-    }
-
     function setTheme(value, persist = true) {
         themePreference =
             normalizeThemePreference(value);
@@ -355,30 +351,6 @@
         resolveBlur();
         apply();
         dispatchPreferenceChange();
-    }
-
-    function toggleTheme() {
-        setTheme(
-            theme === THEME_DARK
-                ? THEME_LIGHT
-                : THEME_DARK
-        );
-    }
-
-    function toggleBlur() {
-        setBlur(
-            blur === BLUR_ON
-                ? BLUR_OFF
-                : BLUR_ON
-        );
-    }
-
-    function resetThemeToAuto() {
-        setTheme(THEME_AUTO);
-    }
-
-    function resetBlurToAuto() {
-        setBlur(BLUR_AUTO);
     }
 
     function addMediaChangeListener(query, callback) {
@@ -461,12 +433,6 @@
     window.KAMYLI_UI_PREFS = Object.freeze({
         getState,
         setTheme,
-        setBlur,
-        toggleTheme,
-        toggleBlur,
-        resetThemeToAuto,
-        resetBlurToAuto,
-        refreshAutomaticBlur,
-        refreshAdaptiveConditions
+        setBlur
     });
 })();

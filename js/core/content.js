@@ -631,11 +631,9 @@
     window.KamyliContent = Object.freeze({
         getJSON,
         setText,
-        applyGlobalContent,
         getPublishedBlogPosts,
         getBlogPostUrl,
-        getBlogPostMeta,
-        formatBlogDate
+        getBlogPostMeta
     });
 
     window.KAMYLI_GLOBAL_UI_PROMISE = loadGlobalEditorial();

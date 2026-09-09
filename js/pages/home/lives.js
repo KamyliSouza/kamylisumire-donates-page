@@ -376,9 +376,6 @@
             data.titulo
         );
 
-        const legacyDescription =
-            "Escolha uma live da playlist para assistir sem sair do site.";
-
         const description =
             String(
                 data.descricao || ""
@@ -386,10 +383,8 @@
 
         content.setText(
             "livesDescription",
-            !description ||
-            description === legacyDescription
-                ? "Confira algumas lives recentes e abra a escolhida no YouTube."
-                : description
+            description ||
+            "Confira algumas lives recentes e abra a escolhida no YouTube."
         );
 
         if (

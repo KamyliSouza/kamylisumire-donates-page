@@ -2,13 +2,8 @@
   "eyebrow": "YouTube",
   "titulo": "Últimas lives",
   "descricao": "Confira algumas lives recentes e abra a escolhida no YouTube.",
-  "playlistId": "",
   "canalUrl": "https://youtube.com/kamyli",
   "botaoCanal": "Abrir no YouTube",
-  "mensagemCarregando": "Carregando lives...",
-  "mensagemSemPlaylist": "As lives serão adicionadas aqui em breve.",
-  "mensagemErro": "Não foi possível carregar as lives agora.",
-  "modalTitulo": "",
   "maxItems": 10,
   "videos": [
     {

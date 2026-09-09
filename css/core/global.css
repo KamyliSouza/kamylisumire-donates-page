@@ -165,17 +165,6 @@ a {
     background-color: var(--notice-bg);
 }
 
-.button-soft {
-    color: var(--primary-color);
-    background-color: var(--notice-bg);
-
-    border-color: var(--card-border);
-}
-
-.button-soft:hover {
-    border-color: var(--primary-color);
-}
-
 /* =========================================================
    FOOTER GLOBAL
    Mesmo componente para Home, Doações e páginas futuras.

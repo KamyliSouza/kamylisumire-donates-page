@@ -47,14 +47,9 @@
     /* Alinhamento lateral de carrosséis */
     --carousel-edge-gutter: 8px;
 
-    /* Compatibilidade com módulos existentes */
-    --radius-xl: var(--radius-card);
-    --radius-lg: var(--radius-button);
-
     /* Efeitos */
     --blur-card: 10px;
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.15);
-    --shadow: var(--shadow-card);
 
     /* Tipografia */
     --font-main: "Nunito", sans-serif;
@@ -87,7 +82,6 @@
     --footer-text: #d0c0ce;
 
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
-    --shadow: var(--shadow-card);
 
     color-scheme: dark;
 }
@@ -116,7 +110,6 @@
         --footer-text: #d0c0ce;
 
         --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
-        --shadow: var(--shadow-card);
 
         color-scheme: dark;
     }

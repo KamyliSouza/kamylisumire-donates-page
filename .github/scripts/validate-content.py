@@ -241,6 +241,15 @@ def validate_lives() -> None:
     if not isinstance(content, dict):
         return
 
+    example = load_json("data/content/lives.example.json")
+    if isinstance(example, dict):
+        for key in LEGACY_LIVES_KEYS:
+            if key in example:
+                error(
+                    "data/content/lives.example.json: "
+                    f"chave legada deve ser removida: {key}"
+                )
+
     for key in LEGACY_LIVES_KEYS:
         if key in content:
             error(f"data/content/lives.json: chave legada deve ser removida: {key}")

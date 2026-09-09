@@ -105,7 +105,6 @@ window.KamyliAPI = (() => {
     }
 
     return Object.freeze({
-        request,
         getJSON
     });
 })();

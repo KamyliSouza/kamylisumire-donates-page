@@ -60,10 +60,6 @@
             .replaceAll("'", "&#039;");
     }
 
-    function escapeAttribute(value) {
-        return escapeHtml(value);
-    }
-
     function blurReasonLabel(reason) {
         const labels = {
             "unsupported": "não suportado pelo navegador",
@@ -410,7 +406,7 @@
                     </span>
 
                     <a
-                        href="${escapeAttribute(sourceUrl)}"
+                        href="${escapeHtml(sourceUrl)}"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
@@ -422,7 +418,7 @@
                     <span>
                         ${escapeHtml(fundo.prefixo)}
                         <a
-                            href="${escapeAttribute(fundoUrl)}"
+                            href="${escapeHtml(fundoUrl)}"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -440,7 +436,7 @@
                     <span>
                         ${escapeHtml(avatar.prefixo)}
                         <a
-                            href="${escapeAttribute(avatarUrl)}"
+                            href="${escapeHtml(avatarUrl)}"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
