@@ -1,5 +1,18 @@
 # Changelog
 
+## V47.4.5 — Conformidade das APIs Twitch e Streamlabs
+
+- adiciona `state` assinado por HMAC ao OAuth da Streamlabs e valida o valor no callback, reduzindo risco de CSRF sem criar estado temporário no KV;
+- o `state` usa `OAUTH_SETUP_TOKEN` apenas como chave de assinatura, expira em 10 minutos e não expõe o segredo na URL;
+- adiciona validação periódica do App Access Token da Twitch em `https://id.twitch.tv/oauth2/validate`; tokens novos são validados imediatamente e tokens reutilizados são revalidados em janelas de 50 minutos, mantendo margem para a exigência horária da Twitch;
+- registra `twitch:app_access_token_validated_at` no KV e expõe o estado da validação em `/debug/status`; respostas `401` do Helix também invalidam imediatamente o token local para impedir reutilização;
+- `twitch:user_id` e `twitch:user_login` passam a expirar automaticamente após 24 horas e são resolvidos novamente por `helix/users` quando necessário;
+- CORS deixa de usar `*` como fallback implícito: sem `ALLOWED_ORIGINS`/`ALLOWED_ORIGIN`, o Worker permite por padrão apenas `https://kamylisumire.com` e `https://www.kamylisumire.com`; wildcard continua possível apenas quando configurado explicitamente;
+- a Política de Privacidade esclarece que miniaturas da Twitch podem ser carregadas diretamente da infraestrutura da plataforma pelo navegador;
+- atualiza documentação e validação automatizada para os novos invariantes de OAuth, retenção e CORS.
+
+**Compatibilidade:** tokens Streamlabs já existentes continuam válidos e não exigem nova autorização apenas por causa deste patch. Na próxima autorização manual, o fluxo deve ser iniciado novamente por `/oauth/authorize` para que o callback receba o novo `state`. As variáveis existentes do Cloudflare permanecem compatíveis.
+
 ## V47.4.4 — Âncoras estáveis após carregamento assíncrono
 
 - corrige a abertura direta de URLs com hash, como `/#creditos`, `/#regras`, `/#agenda` e `/#lives`, quando seções anteriores mudam de altura durante o carregamento assíncrono;

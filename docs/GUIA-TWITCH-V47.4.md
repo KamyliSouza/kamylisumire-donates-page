@@ -48,9 +48,9 @@ Na primeira inicialização, normalmente são necessárias três chamadas ao eco
 2. resolver uma vez o `user_id` de `kamyli`;
 3. buscar os vídeos em `helix/videos`.
 
-Depois disso, o Worker guarda o token e o `user_id` no KV. Enquanto o token continuar válido, o ciclo normal de 24 horas faz **uma única chamada a `helix/videos`**.
+Depois disso, o Worker reutiliza o token no KV e mantém `user_id`/login por no máximo 24 horas. O identificador é resolvido novamente por `helix/users` após a expiração desse TTL. O ciclo normal de VODs continua fazendo **uma única chamada a `helix/videos` por janela de 24 horas**.
 
-Quando o App Access Token expirar, haverá também uma chamada ao endpoint OAuth da Twitch para gerar um novo token. Isso é necessário para continuar usando a API e não ocorre a cada visita nem a cada atualização normal.
+O App Access Token é validado em `https://id.twitch.tv/oauth2/validate` em janelas de 50 minutos. Quando expirar ou for invalidado, o Worker obtém outro pelo fluxo Client Credentials. Essas verificações são servidor-servidor e não ocorrem por visita.
 
 ## 1. Criar uma aplicação na Twitch
 
@@ -415,8 +415,9 @@ Garantir literalmente zero invocações do Worker para visitantes exigiria trans
 ```text
 twitch:app_access_token
 twitch:app_access_token_expires_at
-twitch:user_login
-twitch:user_id
+twitch:app_access_token_validated_at
+twitch:user_login (TTL 24 h)
+twitch:user_id (TTL 24 h)
 twitch:videos
 twitch:updated_at
 twitch:last_error
@@ -492,3 +493,15 @@ A V47.4.1 endurece a política de cache da Twitch:
 - a nova página `/privacidade/` documenta Twitch, Streamlabs, Cloudflare e armazenamento local.
 
 Depois de publicar o Worker V47.4.1, execute `/debug/twitch-sync` uma vez para garantir um snapshot fresco e confirme que `/twitch/videos` retorna `stale: false`.
+
+## Atualização V47.4.5 — validação OAuth e retenção
+
+A V47.4.5 acrescenta três garantias de conformidade sem mudar a interface da Home:
+
+- o App Access Token é validado no endpoint oficial `/oauth2/validate` quando é criado e depois em janelas de 50 minutos; qualquer `401` do Helix remove imediatamente o token local para que ele não seja reutilizado;
+- `twitch:user_id` e `twitch:user_login` recebem TTL de 24 horas no KV;
+- sem `ALLOWED_ORIGINS`/`ALLOWED_ORIGIN`, o CORS permite por padrão apenas os domínios oficiais `kamylisumire.com` e `www.kamylisumire.com`.
+
+`/debug/status` passa a expor `twitch.tokenValidation.validatedAt` e
+`twitch.tokenValidation.validationDue` para diagnóstico. Não é necessário criar
+novas variáveis do Cloudflare.

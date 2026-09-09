@@ -753,6 +753,7 @@ def validate_architecture() -> None:
     buttons_js = read_text("js/core/buttons.js")
     button_icons_js = read_text("js/core/button-icons.js")
     worker_js = read_text("workers.js")
+    privacy_html = read_text("privacidade/index.html")
 
     for element_id in (
         'id="inicio"',
@@ -1091,6 +1092,33 @@ def validate_architecture() -> None:
     ):
         if needle not in worker_js:
             error(f"workers.js: contrato Twitch Live V47.4.3 ausente: {needle}")
+
+    # V47.4.5: conformidade OAuth Twitch/Streamlabs e retenção curta de metadata.
+    for needle in (
+        "TWITCH_OAUTH_VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate'",
+        "TWITCH_TOKEN_VALIDATE_INTERVAL_MS = 50 * 60 * 1000",
+        "TWITCH_USER_CACHE_TTL_SECONDS = 24 * 60 * 60",
+        "twitch:app_access_token_validated_at",
+        "expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS",
+        "createStreamlabsOAuthState(env)",
+        "validateStreamlabsOAuthState(env, state)",
+        "authUrl.searchParams.set('state'",
+        "DEFAULT_ALLOWED_ORIGINS",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: contrato de conformidade V47.4.5 ausente: {needle}")
+
+    if "env.ALLOWED_ORIGIN || '*" in worker_js or "env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*'" in worker_js:
+        error("workers.js: CORS não deve voltar ao wildcard implícito na V47.4.5.")
+
+    for needle in (
+        "V47.4.5",
+        "miniaturas exibidas podem ser carregadas diretamente",
+        "infraestrutura",
+        "Twitch",
+    ):
+        if needle not in privacy_html:
+            error(f"privacidade/index.html: transparência Twitch V47.4.5 ausente: {needle}")
 
     for route in ('"home"', '"doacoes"', '"blog"'):
         if route not in page_transitions:

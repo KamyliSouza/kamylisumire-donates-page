@@ -85,8 +85,8 @@ o Hero padrão.
 Rotas relevantes:
 
 - `/` — ranking público;
-- `/oauth/authorize` — início controlado do OAuth;
-- `/oauth/callback` — callback OAuth do Streamlabs;
+- `/oauth/authorize` — início controlado do OAuth, com `state` assinado desde V47.4.5;
+- `/oauth/callback` — callback OAuth do Streamlabs, que valida `state` antes de trocar o `code`;
 - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
 - `/debug/sync` — sincronização manual protegida do ranking;
 - `/twitch/videos` — snapshot público das últimas VODs da Twitch;
@@ -105,6 +105,8 @@ TWITCH_MAX_VIDEOS=10
 
 O binding KV continua sendo `RANKINGS`.
 Credenciais sensíveis continuam como Secrets/bindings do Worker. `TWITCH_CLIENT_SECRET` deve ser Secret; `TWITCH_CLIENT_ID` pode ser variável e também permanece fora do conteúdo editorial.
+
+Na V47.4.5, o App Access Token da Twitch é validado periodicamente em `/oauth2/validate`, e o `user_id`/login resolvidos pelo Helix usam retenção máxima de 24 horas no KV.
 
 ## Publicação
 

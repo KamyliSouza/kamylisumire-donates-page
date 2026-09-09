@@ -46,6 +46,11 @@ TWITCH_MAX_VIDEOS=10
 
 `REDIRECT_URI` e `ALLOWED_ORIGINS` não são segredos.
 
+Na V47.4.5, se `ALLOWED_ORIGINS` e a compatibilidade `ALLOWED_ORIGIN` estiverem
+ausentes, o Worker usa como fallback seguro apenas `https://kamylisumire.com`
+e `https://www.kamylisumire.com`. Não use `*` em produção; wildcard só deve ser
+configurado explicitamente em ambiente temporário de teste.
+
 Continuam sensíveis e fora do Git:
 
 - `STREAMLABS_CLIENT_SECRET`;
@@ -64,6 +69,11 @@ como Redirect/Redirection URI.
 
 O Worker usa `env.REDIRECT_URI` na autorização e também na troca/renovação
 de tokens, por isso Cloudflare e Streamlabs devem estar idênticos.
+
+Desde a V47.4.5, `/oauth/authorize` também gera um `state` assinado por HMAC,
+com validade de 10 minutos, e `/oauth/callback` rejeita estado ausente,
+adulterado ou vencido. Não é necessária nova variável: `OAUTH_SETUP_TOKEN` é
+reutilizado apenas como chave interna de assinatura.
 
 Após a mudança, faça uma nova autorização pelo domínio novo:
 
@@ -122,8 +132,10 @@ TWITCH_MAX_VIDEOS=10
 
 O primeiro preenchimento é feito por `/debug/twitch-sync`. Chamadas posteriores
 a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passado
-24 horas desde `twitch:updated_at`. O App Access Token e o `user_id` resolvido
-também são reutilizados no KV.
+24 horas desde `twitch:updated_at`. O App Access Token é reutilizado no KV, mas
+é validado no endpoint oficial `/oauth2/validate` em janelas de 50 minutos; o
+`user_id` e o login do canal usam TTL de 24 horas e são resolvidos novamente
+quando expirarem.
 
 Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
 

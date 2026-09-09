@@ -87,7 +87,8 @@ A integração Twitch deve obedecer estes invariantes:
 - o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
 - o snapshot e `updated_at` ficam no binding KV `RANKINGS`;
 - `TWITCH_CLIENT_SECRET` nunca entra no frontend/Git;
-- App Access Token e `user_id` devem ser reutilizados quando válidos;
+- App Access Token deve ser reutilizado quando válido, mas revalidado em `/oauth2/validate` em intervalos menores que 1 h; qualquer `401` do Helix deve invalidar o token local imediatamente;
+- `twitch:user_id` e `twitch:user_login` podem ser reutilizados por no máximo 24 h e devem usar TTL no KV;
 - falha de VOD não apaga o último snapshot válido; status ao vivo vencido não deve manter indicação visual de live;
 - YouTube continua sem iframe/player, `YT.Player`, `iframe_api`, playlists
 automáticas, YouTube Data API ou chave Google.
@@ -185,6 +186,14 @@ aceitam o token de administração via `Authorization: Bearer <token>`
 clicável no navegador). As três rotas administrativas e o `/oauth/callback`
 agora respondem com os mesmos cabeçalhos de CORS de `handleRanking`, em vez
 de um subconjunto inconsistente.
+
+
+Desde a V47.4.5, o OAuth Streamlabs deve enviar um `state` assinado por HMAC em
+`/oauth/authorize` e rejeitar callbacks com `state` ausente, adulterado ou
+expirado. A assinatura reutiliza `OAUTH_SETUP_TOKEN` como segredo interno e não
+deve exigir chave adicional nem armazenamento temporário no KV. O estado expira
+em 10 minutos. CORS sem variável configurada deve restringir-se aos domínios
+oficiais do site; `*` só é aceitável quando definido explicitamente para teste.
 
 A anonimização de nomes no ranking público passou do frontend (lista
 fixa em `js/pages/doacoes/ranking.js`) para o Worker, via a variável de

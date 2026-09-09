@@ -41,6 +41,12 @@ aguardam o reveal da página e recebem uma estabilização temporária de posiç
 Isso evita que conteúdo assíncrono anterior desloque a seção depois do scroll,
 sem impedir que o visitante reassuma o controle ao rolar manualmente.
 
+Desde a V47.4.5, o Worker reforça a conformidade das integrações: o OAuth da
+Streamlabs usa `state` assinado e temporário; o App Access Token da Twitch é
+validado periodicamente no endpoint oficial `/oauth2/validate`; `twitch:user_id`
+e `twitch:user_login` expiram em 24 horas; e o CORS de produção deixa de cair
+implicitamente em `*` quando nenhuma origem é configurada.
+
 ## Estrutura principal
 
 ```text

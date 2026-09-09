@@ -1,6 +1,7 @@
 const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
 const TWITCH_API = 'https://api.twitch.tv/helix';
 const TWITCH_OAUTH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
+const TWITCH_OAUTH_VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate';
 const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
@@ -8,6 +9,13 @@ const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
 const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
 const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
 const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
+const TWITCH_TOKEN_VALIDATE_INTERVAL_MS = 50 * 60 * 1000;
+const TWITCH_USER_CACHE_TTL_SECONDS = 24 * 60 * 60;
+const STREAMLABS_OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://kamylisumire.com',
+  'https://www.kamylisumire.com'
+];
 
 function clientId(env) {
   return (env.STREAMLABS_CLIENT_ID || '').trim();
@@ -70,11 +78,15 @@ export default {
 // https://kamylisumire.com,https://www.kamylisumire.com,https://donate.kamylisumire.com
 //
 // Compatibilidade: se ALLOWED_ORIGINS não existir, o código ainda aceita
-// a variável antiga ALLOWED_ORIGIN.
+// a variável antiga ALLOWED_ORIGIN. Sem nenhuma delas, a produção permite
+// somente kamylisumire.com e www.kamylisumire.com por padrão.
 // ---------------------------------------------------------------------
 function getAllowedOrigins(env) {
-  const configured = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*').trim();
+  const configured = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '').trim();
 
+  // Produção é restrita por padrão. O wildcard só permanece disponível
+  // quando for configurado explicitamente para um ambiente de teste.
+  if (!configured) return DEFAULT_ALLOWED_ORIGINS;
   if (configured === '*') return ['*'];
 
   return configured
@@ -134,6 +146,92 @@ function isAdminAuthorized(request, url, env) {
 // ---------------------------------------------------------------------
 // OAuth
 // ---------------------------------------------------------------------
+function base64UrlEncode(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
+}
+
+function base64UrlDecode(value) {
+  const normalized = String(value || '')
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+
+async function streamlabsStateKey(env) {
+  const secret = (env.OAUTH_SETUP_TOKEN || '').trim();
+
+  if (!secret) {
+    throw new Error('OAUTH_SETUP_TOKEN não configurado.');
+  }
+
+  return crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
+}
+
+async function createStreamlabsOAuthState(env) {
+  const issuedAt = Date.now();
+  const nonce = crypto.randomUUID();
+  const payload = `v1.${issuedAt}.${nonce}`;
+  const key = await streamlabsStateKey(env);
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(payload)
+  );
+
+  return `${payload}.${base64UrlEncode(signature)}`;
+}
+
+async function validateStreamlabsOAuthState(env, state) {
+  const parts = String(state || '').split('.');
+
+  if (parts.length !== 4 || parts[0] !== 'v1') return false;
+
+  const issuedAt = Number(parts[1]);
+  const nonce = parts[2];
+  const signature = parts[3];
+  const age = Date.now() - issuedAt;
+
+  if (
+    !Number.isFinite(issuedAt) ||
+    !nonce ||
+    !signature ||
+    age < -60 * 1000 ||
+    age > STREAMLABS_OAUTH_STATE_TTL_MS
+  ) {
+    return false;
+  }
+
+  try {
+    const key = await streamlabsStateKey(env);
+    return await crypto.subtle.verify(
+      'HMAC',
+      key,
+      base64UrlDecode(signature),
+      new TextEncoder().encode(`v1.${issuedAt}.${nonce}`)
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function handleAuthorize(request, url, env) {
   if (!isAdminAuthorized(request, url, env)) {
     return cors(request, env, new Response('Não autorizado', { status: 403 }));
@@ -144,11 +242,29 @@ async function handleAuthorize(request, url, env) {
   authUrl.searchParams.set('redirect_uri', env.REDIRECT_URI);
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('scope', 'donations.read');
+  authUrl.searchParams.set('state', await createStreamlabsOAuthState(env));
 
   return cors(request, env, Response.redirect(authUrl.toString(), 302));
 }
 
 async function handleCallback(request, url, env) {
+  const state = url.searchParams.get('state');
+
+  if (!(await validateStreamlabsOAuthState(env, state))) {
+    return cors(request, env, new Response(
+      'Estado OAuth ausente, inválido ou expirado. Inicie a autorização novamente.',
+      { status: 400 }
+    ));
+  }
+
+  const oauthError = url.searchParams.get('error');
+  if (oauthError) {
+    return cors(request, env, new Response(
+      'Autorização Streamlabs não concluída: ' + oauthError,
+      { status: 400 }
+    ));
+  }
+
   const code = url.searchParams.get('code');
 
   if (!code) {
@@ -380,14 +496,14 @@ async function syncDonations(env) {
 // ---------------------------------------------------------------------
 // Twitch — últimas lives (VODs)
 //
-// Política V47.4.1:
+// Política V47.4.5:
 // - o endpoint público /twitch/videos NUNCA chama a API da Twitch;
 // - o snapshot fica no KV RANKINGS por no máximo 24 h (expirationTtl);
 // - conteúdo vencido nunca é devolvido pelo endpoint público;
 // - a atualização automática passa por syncTwitchVideosIfDue(), que só
 //   consulta os vídeos após 24 h da última atualização bem-sucedida;
-// - a primeira sincronização resolve o user_id pelo login e o mantém no KV;
-// - o App Access Token também é reutilizado enquanto estiver válido.
+// - user_id/login resolvidos via Helix ficam no KV por no máximo 24 h;
+// - o App Access Token é reutilizado, mas validado periodicamente em /validate.
 // ---------------------------------------------------------------------
 function twitchClientId(env) {
   return (env.TWITCH_CLIENT_ID || '').trim();
@@ -422,18 +538,80 @@ function assertTwitchConfigured(env) {
   }
 }
 
+async function validateTwitchAppAccessToken(env, token) {
+  const response = await fetch(TWITCH_OAUTH_VALIDATE_URL, {
+    headers: {
+      Authorization: `OAuth ${token}`
+    }
+  });
+
+  if (response.status === 401) return null;
+
+  if (!response.ok) {
+    throw new Error(`Falha ao validar App Access Token da Twitch (${response.status}).`);
+  }
+
+  const data = await response.json();
+  const returnedClientId = String(data?.client_id || '').trim();
+
+  if (!returnedClientId || returnedClientId !== twitchClientId(env)) {
+    return null;
+  }
+
+  const expiresIn = Math.max(0, Number(data?.expires_in) || 0);
+
+  if (expiresIn * 1000 <= TWITCH_TOKEN_SAFETY_MS) {
+    return null;
+  }
+
+  const validatedAt = Date.now();
+
+  await env.RANKINGS.put(
+    'twitch:app_access_token_validated_at',
+    String(validatedAt)
+  );
+  await env.RANKINGS.put(
+    'twitch:app_access_token_expires_at',
+    String(validatedAt + expiresIn * 1000)
+  );
+
+  return { validatedAt, expiresIn };
+}
+
+async function clearTwitchAppAccessToken(env) {
+  await Promise.all([
+    env.RANKINGS.delete('twitch:app_access_token'),
+    env.RANKINGS.delete('twitch:app_access_token_expires_at'),
+    env.RANKINGS.delete('twitch:app_access_token_validated_at')
+  ]);
+}
+
 async function getTwitchAppAccessToken(env) {
   const storedToken = await env.RANKINGS.get('twitch:app_access_token');
   const expiresAt = Number(
     (await env.RANKINGS.get('twitch:app_access_token_expires_at')) || 0
   );
+  const validatedAt = Number(
+    (await env.RANKINGS.get('twitch:app_access_token_validated_at')) || 0
+  );
+  const now = Date.now();
 
   if (
     storedToken &&
     expiresAt &&
-    Date.now() < expiresAt - TWITCH_TOKEN_SAFETY_MS
+    now < expiresAt - TWITCH_TOKEN_SAFETY_MS
   ) {
-    return storedToken;
+    if (
+      validatedAt &&
+      now - validatedAt < TWITCH_TOKEN_VALIDATE_INTERVAL_MS
+    ) {
+      return storedToken;
+    }
+
+    const validation = await validateTwitchAppAccessToken(env, storedToken);
+    if (validation) return storedToken;
+
+    await clearTwitchAppAccessToken(env);
   }
 
   const body = new URLSearchParams();
@@ -458,17 +636,19 @@ async function getTwitchAppAccessToken(env) {
 
   const data = await response.json();
   const token = String(data.access_token || '').trim();
-  const expiresIn = Math.max(60, Number(data.expires_in) || 3600);
 
   if (!token) {
     throw new Error('Twitch não retornou access_token.');
   }
 
+  // Tokens novos também são validados imediatamente. Depois disso, o Cron de
+  // 10 minutos garante nova validação em intervalos menores que uma hora.
+  const validation = await validateTwitchAppAccessToken(env, token);
+  if (!validation) {
+    throw new Error('App Access Token recém-emitido pela Twitch não foi validado.');
+  }
+
   await env.RANKINGS.put('twitch:app_access_token', token);
-  await env.RANKINGS.put(
-    'twitch:app_access_token_expires_at',
-    String(Date.now() + expiresIn * 1000)
-  );
 
   return token;
 }
@@ -496,6 +676,11 @@ async function getTwitchUserId(env, accessToken) {
     }
   });
 
+  if (response.status === 401) {
+    await clearTwitchAppAccessToken(env);
+    throw new Error('App Access Token da Twitch foi invalidado durante helix/users.');
+  }
+
   if (!response.ok) {
     throw new Error(`Falha ao resolver canal da Twitch (${response.status}).`);
   }
@@ -507,8 +692,18 @@ async function getTwitchUserId(env, accessToken) {
     throw new Error(`Canal da Twitch não encontrado: ${login}.`);
   }
 
-  await env.RANKINGS.put('twitch:user_login', login);
-  await env.RANKINGS.put('twitch:user_id', userId);
+  await Promise.all([
+    env.RANKINGS.put(
+      'twitch:user_login',
+      login,
+      { expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS }
+    ),
+    env.RANKINGS.put(
+      'twitch:user_id',
+      userId,
+      { expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS }
+    )
+  ]);
 
   return userId;
 }
@@ -549,6 +744,11 @@ async function fetchTwitchVideos(env) {
       'Client-Id': twitchClientId(env)
     }
   });
+
+  if (response.status === 401) {
+    await clearTwitchAppAccessToken(env);
+    throw new Error('App Access Token da Twitch foi invalidado durante helix/videos.');
+  }
 
   if (!response.ok) {
     throw new Error(`Falha ao consultar vídeos da Twitch (${response.status}).`);
@@ -819,6 +1019,11 @@ async function fetchTwitchLiveStatus(env) {
     }
   });
 
+  if (response.status === 401) {
+    await clearTwitchAppAccessToken(env);
+    throw new Error('App Access Token da Twitch foi invalidado durante helix/streams.');
+  }
+
   if (!response.ok) {
     throw new Error(`Falha ao consultar status da Twitch (${response.status}).`);
   }
@@ -1035,6 +1240,9 @@ async function handleDebugStatus(request, url, env) {
   const twitchLive = await getTwitchLiveSnapshot(env);
   const twitchLiveCheckedAt = twitchLiveSnapshotCheckedAt(twitchLive);
   const twitchLiveLastError = await env.RANKINGS.get('twitch:live_last_error');
+  const twitchTokenValidatedAt = Number(
+    (await env.RANKINGS.get('twitch:app_access_token_validated_at')) || 0
+  );
 
   return cors(request, env, new Response(
     JSON.stringify({
@@ -1054,6 +1262,13 @@ async function handleDebugStatus(request, url, env) {
           : null,
         refreshDue: twitchState.due,
         lastError: twitchLastError || null,
+        tokenValidation: {
+          validatedAt: twitchTokenValidatedAt
+            ? new Date(twitchTokenValidatedAt).toISOString()
+            : null,
+          validationDue: !twitchTokenValidatedAt ||
+            Date.now() - twitchTokenValidatedAt >= TWITCH_TOKEN_VALIDATE_INTERVAL_MS
+        },
         liveStatus: {
           live: Boolean(twitchLive?.live),
           checkedAt: twitchLiveCheckedAt
