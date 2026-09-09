@@ -3,6 +3,10 @@ const TWITCH_API = 'https://api.twitch.tv/helix';
 const TWITCH_OAUTH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
+const TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
+const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
+const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
 const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
 
 function clientId(env) {
@@ -26,7 +30,9 @@ export default {
     if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
     if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
     if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
+    if (url.pathname === '/debug/twitch-live-sync') return handleDebugTwitchLiveSync(request, url, env);
     if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env);
+    if (url.pathname === '/twitch/live') return handleTwitchLive(request, env, ctx);
 
     return handleRanking(request, env);
   },
@@ -45,6 +51,13 @@ export default {
       syncTwitchVideosIfDue(env).catch((err) =>
         env.RANKINGS.put('twitch:last_error', String(err.message))
       )
+    );
+
+    // O status ao vivo possui janela própria de 10 minutos. Mesmo que o
+    // Cron rode com frequência maior, a Twitch só é consultada quando o
+    // snapshot estiver vencido. Uma execução a cada 10 minutos é recomendada.
+    ctx.waitUntil(
+      syncTwitchLiveIfDue(env).catch(() => {})
     );
   }
 };
@@ -241,12 +254,12 @@ async function syncDonations(env) {
   const now = new Date();
   const currentMonthKey = monthKey(now);
   const storedMonthKey = await env.RANKINGS.get('state:current_month');
+  const monthChanged = storedMonthKey !== currentMonthKey;
 
   let globalTotals = await getJSON(env, 'totals:global', {});
-  let monthlyTotals =
-    storedMonthKey === currentMonthKey
-      ? await getJSON(env, 'totals:monthly', {})
-      : {};
+  let monthlyTotals = monthChanged
+    ? {}
+    : await getJSON(env, 'totals:monthly', {});
 
   const newDonations = [];
   let before = null;
@@ -294,9 +307,10 @@ async function syncDonations(env) {
     }
   }
 
-  if (newDonations.length > 0) {
-    let highestId = lastId;
+  const hasNewDonations = newDonations.length > 0;
+  let highestId = lastId;
 
+  if (hasNewDonations) {
     for (const donation of newDonations) {
       const name = (donation.name || 'Anônimo').trim();
       const amount = Number(donation.amount) || 0;
@@ -321,40 +335,46 @@ async function syncDonations(env) {
     );
 
     await env.RANKINGS.put(
-      'totals:monthly',
-      JSON.stringify(monthlyTotals)
-    );
-
-    await env.RANKINGS.put(
       'state:last_donation_id',
       String(highestId)
     );
   }
 
-  await env.RANKINGS.put(
-    'state:current_month',
-    currentMonthKey
-  );
+  // Com Cron a cada 10 minutos, regravar snapshots idênticos consumiria
+  // desnecessariamente a cota diária de writes do KV Free. Só persistimos
+  // dados do ranking quando houve doação nova ou virada de mês.
+  if (hasNewDonations || monthChanged) {
+    await env.RANKINGS.put(
+      'totals:monthly',
+      JSON.stringify(monthlyTotals)
+    );
 
-  await env.RANKINGS.put(
-    'ranking:monthly',
-    JSON.stringify(getTopFive(monthlyTotals))
-  );
+    if (monthChanged) {
+      await env.RANKINGS.put(
+        'state:current_month',
+        currentMonthKey
+      );
+    }
 
-  await env.RANKINGS.put(
-    'ranking:allTime',
-    JSON.stringify(getTopFive(globalTotals))
-  );
+    await env.RANKINGS.put(
+      'ranking:monthly',
+      JSON.stringify(getTopFive(monthlyTotals))
+    );
 
-  await env.RANKINGS.put(
-    'ranking:updated_at',
-    String(Date.now())
-  );
+    if (hasNewDonations) {
+      await env.RANKINGS.put(
+        'ranking:allTime',
+        JSON.stringify(getTopFive(globalTotals))
+      );
+    }
+  }
 
-  await env.RANKINGS.put(
-    'ranking:last_error',
-    ''
-  );
+  // Limpa um erro anterior somente quando ele realmente existe. Assim uma
+  // sincronização sem novidades não gera um write extra a cada execução.
+  const previousError = await env.RANKINGS.get('ranking:last_error');
+  if (previousError) {
+    await env.RANKINGS.put('ranking:last_error', '');
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -739,6 +759,268 @@ async function handleDebugTwitchSync(request, url, env) {
   }
 }
 
+
+// ---------------------------------------------------------------------
+// Twitch — status ao vivo
+//
+// Política V47.4.3:
+// - consulta Helix /streams no máximo uma vez a cada 10 minutos;
+// - grava um único snapshot no KV, com TTL de 30 minutos;
+// - /twitch/live nunca consulta a Twitch e usa Cache API por 60 s para
+//   reduzir leituras KV repetidas no mesmo data center;
+// - se o snapshot ficar com mais de 20 minutos, a API pública retorna 503
+//   e a Home mantém o Hero padrão em vez de exibir um estado possivelmente
+//   incorreto.
+// ---------------------------------------------------------------------
+function twitchLiveThumbnailUrl(value) {
+  return String(value || '')
+    .replace(/\{width\}/g, '640')
+    .replace(/\{height\}/g, '360')
+    .trim();
+}
+
+function normalizeTwitchLiveStream(stream, checkedAt) {
+  if (!stream || typeof stream !== 'object') {
+    return {
+      live: false,
+      checkedAt
+    };
+  }
+
+  return {
+    live: true,
+    checkedAt,
+    id: String(stream.id || '').trim(),
+    userId: String(stream.user_id || '').trim(),
+    userLogin: String(stream.user_login || '').trim(),
+    userName: String(stream.user_name || '').trim(),
+    title: String(stream.title || '').trim(),
+    gameName: String(stream.game_name || '').trim(),
+    viewerCount: Math.max(0, Number(stream.viewer_count) || 0),
+    startedAt: String(stream.started_at || '').trim(),
+    thumbnail: twitchLiveThumbnailUrl(stream.thumbnail_url),
+    url: ''
+  };
+}
+
+async function fetchTwitchLiveStatus(env) {
+  assertTwitchConfigured(env);
+
+  const accessToken = await getTwitchAppAccessToken(env);
+  const userId = await getTwitchUserId(env, accessToken);
+  const url = new URL(`${TWITCH_API}/streams`);
+
+  url.searchParams.set('user_id', userId);
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Client-Id': twitchClientId(env)
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao consultar status da Twitch (${response.status}).`);
+  }
+
+  const data = await response.json();
+  const stream = Array.isArray(data?.data) ? data.data[0] : null;
+  const checkedAt = Date.now();
+  const normalized = normalizeTwitchLiveStream(stream, checkedAt);
+
+  if (normalized.live) {
+    normalized.url = `https://www.twitch.tv/${twitchChannelLogin(env)}`;
+  }
+
+  return normalized;
+}
+
+async function getTwitchLiveSnapshot(env) {
+  return getJSON(env, 'twitch:live', null);
+}
+
+function twitchLiveSnapshotCheckedAt(snapshot) {
+  return Math.max(0, Number(snapshot?.checkedAt) || 0);
+}
+
+async function syncTwitchLiveIfDue(env, options = {}) {
+  assertTwitchConfigured(env);
+
+  const current = await getTwitchLiveSnapshot(env);
+  const checkedAt = twitchLiveSnapshotCheckedAt(current);
+  const now = Date.now();
+  const force = options.force === true;
+
+  if (!force && checkedAt && now - checkedAt < TWITCH_LIVE_REFRESH_INTERVAL_MS) {
+    return {
+      updated: false,
+      reason: 'cache_fresh',
+      live: Boolean(current?.live),
+      checkedAt,
+      nextRefreshAt: checkedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS
+    };
+  }
+
+  try {
+    const snapshot = await fetchTwitchLiveStatus(env);
+
+    await env.RANKINGS.put(
+      'twitch:live',
+      JSON.stringify(snapshot),
+      { expirationTtl: TWITCH_LIVE_CACHE_TTL_SECONDS }
+    );
+
+    const previousError = await env.RANKINGS.get('twitch:live_last_error');
+    if (previousError) {
+      await env.RANKINGS.put('twitch:live_last_error', '');
+    }
+
+    return {
+      updated: true,
+      live: Boolean(snapshot.live),
+      checkedAt: snapshot.checkedAt,
+      nextRefreshAt: snapshot.checkedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS
+    };
+  } catch (error) {
+    await env.RANKINGS.put('twitch:live_last_error', String(error.message));
+    throw error;
+  }
+}
+
+function buildTwitchLivePublicPayload(snapshot) {
+  if (!snapshot?.live) {
+    return {
+      platform: 'twitch',
+      live: false,
+      checkedAt: new Date(twitchLiveSnapshotCheckedAt(snapshot)).toISOString()
+    };
+  }
+
+  return {
+    platform: 'twitch',
+    live: true,
+    checkedAt: new Date(twitchLiveSnapshotCheckedAt(snapshot)).toISOString(),
+    title: String(snapshot.title || '').trim(),
+    gameName: String(snapshot.gameName || '').trim(),
+    viewerCount: Math.max(0, Number(snapshot.viewerCount) || 0),
+    startedAt: String(snapshot.startedAt || '').trim(),
+    thumbnail: String(snapshot.thumbnail || '').trim(),
+    url: String(snapshot.url || '').trim()
+  };
+}
+
+async function handleTwitchLive(request, env, ctx) {
+  const cache = caches.default;
+  const cacheUrl = new URL(request.url);
+  cacheUrl.search = '';
+  const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' });
+  const cached = await cache.match(cacheKey);
+
+  if (cached) {
+    return cors(request, env, cached);
+  }
+
+  const snapshot = await getTwitchLiveSnapshot(env);
+  const checkedAt = twitchLiveSnapshotCheckedAt(snapshot);
+  const age = checkedAt ? Date.now() - checkedAt : Number.POSITIVE_INFINITY;
+
+  if (!snapshot || !checkedAt || age >= TWITCH_LIVE_STALE_AFTER_MS) {
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          platform: 'twitch',
+          live: false,
+          available: false,
+          checkedAt: checkedAt ? new Date(checkedAt).toISOString() : null
+        }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  }
+
+  const response = new Response(
+    JSON.stringify({
+      ...buildTwitchLivePublicPayload(snapshot),
+      available: true
+    }),
+    {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': `public, max-age=${TWITCH_LIVE_EDGE_CACHE_SECONDS}`
+      }
+    }
+  );
+
+  ctx?.waitUntil(cache.put(cacheKey, response.clone()));
+
+  return cors(request, env, response);
+}
+
+async function handleDebugTwitchLiveSync(request, url, env) {
+  if (!isAdminAuthorized(request, url, env)) {
+    return cors(request, env, new Response('Não autorizado', { status: 403 }));
+  }
+
+  try {
+    const force = url.searchParams.get('force') === '1';
+    const result = await syncTwitchLiveIfDue(env, { force });
+
+    // Remove o cache local do data center usado pelo comando administrativo,
+    // permitindo validar imediatamente o novo estado nesse mesmo ponto de presença.
+    const publicUrl = new URL('/twitch/live', request.url);
+    await caches.default.delete(new Request(publicUrl.toString(), { method: 'GET' }));
+
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          status: 'ok',
+          ...result,
+          checkedAt: result.checkedAt
+            ? new Date(result.checkedAt).toISOString()
+            : null,
+          nextRefreshAt: result.nextRefreshAt
+            ? new Date(result.nextRefreshAt).toISOString()
+            : null
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  } catch (error) {
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          status: 'error',
+          message: error.message
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  }
+}
+
 // ---------------------------------------------------------------------
 // Diagnóstico
 // ---------------------------------------------------------------------
@@ -750,6 +1032,9 @@ async function handleDebugStatus(request, url, env) {
   const twitchState = await getTwitchRefreshState(env);
   const twitchVideos = await getJSON(env, 'twitch:videos', []);
   const twitchLastError = await env.RANKINGS.get('twitch:last_error');
+  const twitchLive = await getTwitchLiveSnapshot(env);
+  const twitchLiveCheckedAt = twitchLiveSnapshotCheckedAt(twitchLive);
+  const twitchLiveLastError = await env.RANKINGS.get('twitch:live_last_error');
 
   return cors(request, env, new Response(
     JSON.stringify({
@@ -768,7 +1053,18 @@ async function handleDebugStatus(request, url, env) {
           ? new Date(twitchState.nextRefreshAt).toISOString()
           : null,
         refreshDue: twitchState.due,
-        lastError: twitchLastError || null
+        lastError: twitchLastError || null,
+        liveStatus: {
+          live: Boolean(twitchLive?.live),
+          checkedAt: twitchLiveCheckedAt
+            ? new Date(twitchLiveCheckedAt).toISOString()
+            : null,
+          nextRefreshAt: twitchLiveCheckedAt
+            ? new Date(twitchLiveCheckedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS).toISOString()
+            : null,
+          stale: !twitchLiveCheckedAt || Date.now() - twitchLiveCheckedAt >= TWITCH_LIVE_STALE_AFTER_MS,
+          lastError: twitchLiveLastError || null
+        }
       }
     }),
     {

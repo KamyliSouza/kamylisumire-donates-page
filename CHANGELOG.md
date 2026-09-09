@@ -1,5 +1,22 @@
 # Changelog
 
+## V47.4.3 — Status ao vivo da Twitch e Hero dinâmico
+
+- adiciona `GET /twitch/live`, que lê somente um snapshot no KV e nunca consulta a Twitch durante a visita do usuário;
+- adiciona `/debug/twitch-live-sync`, protegido por `OAUTH_SETUP_TOKEN`, com `?force=1` opcional para diagnóstico manual;
+- consulta `helix/streams` no máximo uma vez a cada 10 minutos e reutiliza o mesmo App Access Token e `user_id` já usados pela integração de VODs;
+- grava o status ao vivo em um único snapshot `twitch:live` com TTL de 30 minutos e considera o dado indisponível após 20 minutos sem atualização válida;
+- usa `caches.default` por 60 segundos em `/twitch/live`, reduzindo leituras repetidas do KV no mesmo data center sem transformar visitas em chamadas à Twitch;
+- otimiza `syncDonations()`: snapshots idênticos deixam de ser regravados, e o marcador legado `ranking:updated_at` deixa de gerar writes sem consumidor; isso preserva a cota de KV Free com Cron a cada 10 minutos;
+- corrige a virada mensal do ranking para persistir `totals:monthly` vazio mesmo quando o novo mês começa sem doações;
+- quando o canal está ao vivo, o Hero exibe as abas acessíveis `Sobre | Ao vivo`, abre `Ao vivo` por padrão e mostra thumbnail, título, categoria e espectadores;
+- quando o canal está offline ou o status está indisponível, o Hero permanece exatamente no modo `Sobre` atual e as abas ficam ocultas;
+- adiciona um anel visual de status ao vivo ao redor do avatar com o selo `AO VIVO` acoplado à borda, respeitando `prefers-reduced-motion`;
+- as thumbnails da Twitch recebem uma revisão baseada em `updatedAt`/`checkedAt`, evitando reutilização de imagem antiga após uma nova sincronização sem aumentar consultas à API Helix;
+- atualiza `home.css`, `lives.js` e o novo `twitch-live.js` para cache-buster `?v=47.4.3`.
+
+**Cloudflare:** configurar o Cron Trigger como `*/10 * * * *` para que o status possa ser atualizado a cada 10 minutos. A trava interna impede consulta mais frequente ao endpoint `helix/streams`. As variáveis `TWITCH_*` e o binding `RANKINGS` permanecem os mesmos da V47.4.
+
 ## V47.4.2 — Políticas institucionais simplificadas
 
 - simplifica `/privacidade/` para concentrar a página nas informações tratadas, finalidades, integrações, armazenamento, controle e segurança do visitante;

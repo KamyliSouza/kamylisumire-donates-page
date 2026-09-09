@@ -100,3 +100,22 @@ Além da validação estática, confirmar em produção:
 
 A CI valida a presença da trava de 24 horas, das rotas Twitch e dos elementos do
 seletor, mas o comportamento temporal real deve ser confirmado pelo smoke test.
+
+## V47.4.3 — status ao vivo e Hero dinâmico
+
+Além da validação V47.4, confirmar em produção:
+
+1. configurar o Cron como `*/10 * * * *`;
+2. executar `/debug/twitch-live-sync?force=1` com Bearer e confirmar `status: ok`;
+3. offline: `/twitch/live` responde `200` com `live: false` e a Home mantém o Hero padrão;
+4. online: `/twitch/live` responde `200` com `live: true`, título, categoria, espectadores e thumbnail;
+5. online: o avatar recebe o anel de live e o Hero exibe `Sobre | Ao vivo`, iniciando em `Ao vivo`;
+6. a aba `Sobre` restaura o conteúdo normal do Hero sem ocultar avatar/redes;
+7. uma segunda sincronização antes de 10 min retorna `cache_fresh` e não chama novamente `helix/streams`;
+8. após 20 min sem snapshot válido, `/twitch/live` responde `503` e o Hero volta ao padrão;
+9. requisições repetidas a `/twitch/live` no mesmo data center podem ser atendidas por `caches.default`, reduzindo leituras KV;
+10. uma sincronização do ranking sem novas doações não deve regravar snapshots idênticos no KV.
+
+O smoke test deve confirmar também que a thumbnail da live/VOD recebe uma nova
+revisão quando `checkedAt`/`updatedAt` muda, sem aumentar a quantidade de
+consultas aos endpoints Helix.

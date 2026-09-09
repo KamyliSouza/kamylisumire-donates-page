@@ -33,7 +33,7 @@ Na V44.4:
 
 - `api.kamylisumire.com` é a origem primária;
 - `workers.dev` permanece como fallback temporário;
-- a Home usa a API somente para o snapshot diário da aba Twitch; o restante continua independente.
+- a Home usa a API somente para VODs da aba Twitch e status ao vivo do Hero; o restante continua independente e mantém fallback local/visual.
 
 No Cloudflare Worker, configure:
 
@@ -107,8 +107,9 @@ Smoke test:
 
 ## Twitch V47.4
 
-A aba Twitch da Home consulta somente `GET /twitch/videos`. Esse endpoint lê o
-snapshot `twitch:videos` do binding KV `RANKINGS` e **não consulta a Twitch**.
+A aba Twitch da Home consulta `GET /twitch/videos`. O Hero consulta
+`GET /twitch/live`. Ambos os endpoints públicos leem somente cache/KV e
+**não consultam a Twitch durante a visita**.
 
 Configure no Worker:
 
@@ -124,6 +125,14 @@ a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passa
 24 horas desde `twitch:updated_at`. O App Access Token e o `user_id` resolvido
 também são reutilizados no KV.
 
-O Cron já usado pelo Worker pode permanecer com sua frequência atual: não é
-necessário criar um Cron de 24 h exclusivo para a Twitch, desde que exista ao
-menos uma execução agendada por dia.
+Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
+
+```text
+*/10 * * * *
+```
+
+`syncTwitchLiveIfDue()` impede chamadas a `helix/streams` antes de completar
+a janela de 10 minutos. `syncTwitchVideosIfDue()` continua impondo 24 horas
+para VODs. O ranking de doações também roda no mesmo `scheduled()`, mas a
+V47.4.3 deixa de regravar snapshots idênticos no KV quando não há doação nova
+nem virada de mês, evitando consumir a cota diária de writes do plano Free.

@@ -65,7 +65,9 @@
     display: grid;
     place-items: center;
 
-    overflow: hidden;
+    position: relative;
+
+    overflow: visible;
 
     background-color: var(--notice-bg);
     border: 3px solid var(--primary-color);
@@ -79,6 +81,10 @@
 
     width: 100%;
     height: 100%;
+
+    overflow: hidden;
+
+    border-radius: inherit;
 }
 
 .hero-avatar {
@@ -838,4 +844,272 @@
         align-items: flex-start;
         flex-direction: column;
     }
+}
+
+/* =========================================================
+   V47.4.3 — HERO / STATUS AO VIVO DA TWITCH
+   ========================================================= */
+
+.hero {
+    --hero-live-color: #e9195e;
+    --hero-live-soft: rgba(233, 25, 94, .16);
+}
+
+.hero-view-tabs {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 4px;
+    margin-bottom: 16px;
+    padding: 4px;
+
+    background-color: var(--notice-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+}
+
+.hero-view-tabs[hidden],
+.hero-view-panel[hidden] {
+    display: none;
+}
+
+.hero-view-tab {
+    min-height: 36px;
+    padding: 7px 13px;
+
+    color: var(--subtitle-color);
+    background: transparent;
+
+    border: 0;
+    border-radius: 999px;
+
+    font: inherit;
+    font-size: .78rem;
+    font-weight: 850;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        transform .18s ease;
+}
+
+.hero-view-tab[aria-selected="true"] {
+    color: #fff;
+    background-color: var(--primary-color);
+}
+
+.hero-view-tab:hover,
+.hero-view-tab:focus-visible {
+    color: var(--primary-color);
+    background-color: var(--primary-soft);
+    outline: none;
+}
+
+.hero-view-tab[aria-selected="true"]:hover,
+.hero-view-tab[aria-selected="true"]:focus-visible {
+    color: #fff;
+    background-color: var(--primary-hover);
+}
+
+.hero-live-eyebrow {
+    color: var(--hero-live-color);
+}
+
+.hero-live-preview {
+    display: grid;
+
+    gap: 13px;
+    max-width: 690px;
+
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.hero-live-media {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    display: block;
+    overflow: hidden;
+
+    background: #000;
+    border: 2px solid var(--hero-live-color);
+    border-radius: var(--radius-small);
+
+    box-shadow: 0 8px 24px var(--hero-live-soft);
+}
+
+.hero-live-thumbnail {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    background: #000;
+}
+
+.hero-live-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 28px;
+    padding: 5px 9px;
+
+    color: #fff;
+    background-color: var(--hero-live-color);
+
+    border-radius: 999px;
+
+    font-size: .7rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
+}
+
+.hero-live-copy {
+    min-width: 0;
+
+    display: grid;
+
+    gap: 7px;
+}
+
+.hero-live-title {
+    display: -webkit-box;
+    overflow: hidden;
+
+    color: var(--text-color);
+
+    font-size: clamp(1.2rem, 2.6vw, 1.65rem);
+    font-weight: 900;
+    line-height: 1.25;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.hero-live-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px 12px;
+
+    color: var(--subtitle-color);
+
+    font-size: .84rem;
+    font-weight: 750;
+}
+
+.hero-live-meta > span:not([hidden]) + span::before {
+    content: "•";
+    margin-right: 12px;
+
+    color: var(--hero-live-color);
+}
+
+.hero-live-actions {
+    margin-top: 18px;
+}
+
+.hero-avatar-frame.is-live {
+    border-color: var(--hero-live-color);
+
+    box-shadow:
+        0 0 0 4px var(--card-bg),
+        0 0 0 8px var(--hero-live-color),
+        0 9px 28px var(--hero-live-soft);
+
+    animation: hero-live-ring 2.2s ease-in-out infinite;
+}
+
+.hero-avatar-frame.is-live::after {
+    content: "AO VIVO";
+
+    position: absolute;
+    left: 50%;
+    bottom: -15px;
+    z-index: 2;
+
+    min-height: 25px;
+    padding: 4px 10px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+    background-color: var(--hero-live-color);
+
+    border: 3px solid var(--card-bg);
+    border-radius: 999px;
+
+    font-size: .66rem;
+    font-weight: 1000;
+    line-height: 1;
+    letter-spacing: .07em;
+    white-space: nowrap;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+
+    transform: translateX(-50%);
+}
+
+@keyframes hero-live-ring {
+    0%, 100% {
+        box-shadow:
+            0 0 0 4px var(--card-bg),
+            0 0 0 8px var(--hero-live-color),
+            0 9px 28px var(--hero-live-soft);
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 4px var(--card-bg),
+            0 0 0 10px rgba(233, 25, 94, .72),
+            0 10px 32px rgba(233, 25, 94, .26);
+    }
+}
+
+@media (max-width: 720px) {
+    .hero-view-tabs {
+        margin-inline: auto;
+    }
+
+    .hero-live-preview {
+        max-width: 100%;
+        text-align: left;
+    }
+
+    .hero-live-actions {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-avatar-frame.is-live {
+        animation: none;
+    }
+}
+
+.hero-live-preview:hover .hero-live-media,
+.hero-live-preview:focus-visible .hero-live-media {
+    border-color: var(--hero-live-color);
+    box-shadow:
+        0 10px 28px var(--hero-live-soft),
+        0 0 0 2px rgba(233, 25, 94, .18);
+}
+
+.hero-live-preview:focus-visible {
+    outline: none;
 }

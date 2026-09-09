@@ -6,10 +6,10 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 
 - **Frontend:** HTML, CSS e JavaScript vanilla.
 - **Conteúdo editorial:** JSON versionado em `data/`.
-- **Home:** majoritariamente local; somente a aba Twitch em Lives lê um snapshot público do Worker e possui fallback independente para o YouTube.
+- **Home:** majoritariamente local; a aba Twitch de Lives e o status ao vivo do Hero leem snapshots públicos do Worker, com fallback local/visual quando a API está indisponível.
 - **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
 - **Doações:** página independente em `/doacoes/`.
-- **Backend público:** ranking de doações e snapshot diário das últimas lives da Twitch.
+- **Backend público:** ranking de doações, snapshot diário das VODs da Twitch e status ao vivo atualizado em janelas de 10 minutos.
 - **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
 - **Fallback da API:** `workers.dev` mantido temporariamente para contingência.
 - **Produção:** GitHub Pages pela branch `main`.
@@ -29,6 +29,12 @@ recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twit
 O Worker atualiza esse snapshot no máximo uma vez a cada 24 horas e o guarda no KV.
 A aba YouTube continua editorial/local em `data/content/lives.json`, com `videoId`,
 `title` e `date`, sem YouTube Data API, iframe ou chave Google.
+
+Desde a V47.4.3, o Hero também consulta `GET /twitch/live`. O endpoint lê apenas
+o snapshot `twitch:live` do KV; a consulta real ao `helix/streams` ocorre no Worker
+no máximo uma vez a cada 10 minutos. Se o canal estiver online, o Hero mostra
+`Sobre | Ao vivo`, mantendo o avatar visível com anel de status. Offline ou sem
+snapshot válido, o Hero continua no layout padrão.
 
 ## Estrutura principal
 
@@ -51,7 +57,7 @@ workers.js               backend do ranking
 
 ## API de produção
 
-O frontend de `/doacoes/` e a aba Twitch da seção Lives usam
+O frontend de `/doacoes/` e as integrações Twitch da Home usam
 `https://api.kamylisumire.com` como endpoint primário.
 
 Durante a estabilização da V44.4, `workers.dev` permanece como fallback.

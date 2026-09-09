@@ -67,8 +67,15 @@ O mesmo componente visual possui duas abas:
 2. **YouTube:** lista manual/local de `data/content/lives.json`.
 
 O endpoint público `/twitch/videos` nunca chama a Twitch durante uma visita.
-A sincronização agendada respeita uma janela mínima de 24 horas. Não existe
+A sincronização de VODs respeita uma janela mínima de 24 horas. Não existe
 player incorporado, iframe ou YouTube Data API.
+
+Desde a V47.4.3, o Hero consulta também `/twitch/live`. A rota pública lê um
+snapshot `twitch:live` do KV e usa Cache API por 60 segundos para reduzir
+leituras repetidas. A consulta real a `helix/streams` ocorre somente no
+`scheduled()`/debug, no máximo uma vez a cada 10 minutos. Online, o Hero mostra
+`Sobre | Ao vivo`, um anel no avatar e o selo `AO VIVO` acoplado à borda; offline, erro ou snapshot vencido mantém
+o Hero padrão.
 
 ## Backend
 
@@ -83,7 +90,9 @@ Rotas relevantes:
 - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
 - `/debug/sync` — sincronização manual protegida do ranking;
 - `/twitch/videos` — snapshot público das últimas VODs da Twitch;
-- `/debug/twitch-sync` — inicialização/sincronização protegida da Twitch, respeitando a janela de 24 h.
+- `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, respeitando a janela de 24 h;
+- `/twitch/live` — status público ao vivo, servido de cache/KV;
+- `/debug/twitch-live-sync` — sincronização protegida do status ao vivo, com `?force=1` opcional.
 
 Configuração de produção:
 

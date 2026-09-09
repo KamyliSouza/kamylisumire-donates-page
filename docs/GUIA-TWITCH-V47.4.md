@@ -276,15 +276,15 @@ lastError
 
 Nenhuma dessas verificações chama a Twitch.
 
-## 8. Cron Trigger
+## 8. Cron Trigger — V47.4.3
 
-O `workers.js` já possuía `scheduled()` para o ranking de doações. A V47.4 reaproveita o mesmo evento e chama `syncTwitchVideosIfDue()`.
+A V47.4.3 adiciona o status ao vivo do Hero. Para que o site perceba o início
+ou fim de uma transmissão com atraso de aproximadamente 10 minutos, configure
+o Cron Trigger do Worker como:
 
-### Se já existe Cron Trigger
-
-Não crie outro apenas para Twitch se o Worker já executa pelo menos uma vez por dia. Pode manter a frequência necessária para Streamlabs: a trava de 24 horas impede a Twitch de ser consultada em todas as execuções.
-
-### Se não existe Cron Trigger
+```text
+*/10 * * * *
+```
 
 No Cloudflare Dashboard:
 
@@ -296,19 +296,49 @@ Workers & Pages
 → Cron Triggers
 ```
 
-Adicione uma execução ao menos diária.
+O `scheduled()` executa três rotinas, cada uma com seu próprio comportamento:
 
-Exemplo de uma vez por dia:
+- **status ao vivo:** `syncTwitchLiveIfDue()` consulta `helix/streams` no máximo
+  uma vez a cada 10 minutos;
+- **VODs:** `syncTwitchVideosIfDue()` continua consultando `helix/videos` no
+  máximo uma vez a cada 24 horas;
+- **ranking Streamlabs:** continua verificando novas doações, mas snapshots
+  idênticos deixam de ser regravados no KV quando nada mudou.
 
-```text
-0 9 * * *
+Isso é importante no Workers KV Free: o status ao vivo usa um único write por
+sincronização bem-sucedida (cerca de 144/dia), enquanto o ranking deixa de
+gastar writes quando nada mudou e não regrava o marcador legado
+`ranking:updated_at`.
+
+O endpoint público `/twitch/live` usa `caches.default` por 60 segundos. Assim,
+visitas repetidas atendidas pelo mesmo data center não precisam executar uma
+leitura KV a cada acesso. O cache é apenas de leitura pública; ele não aumenta
+a frequência de chamadas à Twitch.
+
+Cron Triggers do Cloudflare usam UTC, mas `*/10 * * * *` independe de fuso.
+
+### Inicializar/testar o status ao vivo
+
+Depois de publicar o Worker V47.4.3, execute uma vez:
+
+```powershell
+Invoke-RestMethod `
+  -Uri "https://api.kamylisumire.com/debug/twitch-live-sync?force=1" `
+  -Headers @{ Authorization = "Bearer SEU_OAUTH_SETUP_TOKEN" }
 ```
 
-Cron Triggers do Cloudflare usam **UTC**. `09:00 UTC` corresponde a `06:00` em America/Fortaleza (UTC-3).
+Depois confira:
 
-A escolha do horário não muda a proteção de 24 horas implementada no código.
+```text
+https://api.kamylisumire.com/twitch/live
+```
 
-## 9. Publicar o frontend V47.4
+Offline, a resposta válida possui `live: false`. Online, possui `live: true` e
+inclui título, categoria, espectadores, horário de início, thumbnail e URL.
+Se o snapshot não for atualizado por 20 minutos, a rota retorna `503` e a Home
+mostra o Hero padrão, evitando manter um falso estado de live.
+
+## 9. Publicar o frontend V47.4.3
 
 Somente depois de o endpoint público da Twitch estar funcionando, publique o patch do site.
 
@@ -317,12 +347,14 @@ A ordem segura é:
 ```text
 1. Criar app Twitch
 2. Configurar TWITCH_* no Cloudflare
-3. Publicar workers.js V47.4
+3. Publicar workers.js V47.4.3
 4. Rodar /debug/twitch-sync
-5. Testar /twitch/videos
-6. Testar /debug/status
-7. Publicar frontend V47.4
-8. Abrir a Home e testar as duas abas
+5. Rodar /debug/twitch-live-sync?force=1
+6. Testar /twitch/videos e /twitch/live
+7. Testar /debug/status
+8. Configurar Cron */10 * * * *
+9. Publicar frontend V47.4.3
+10. Abrir a Home e testar Hero + abas de Lives
 ```
 
 Isso evita publicar uma aba Twitch que ainda não possui snapshot no KV.

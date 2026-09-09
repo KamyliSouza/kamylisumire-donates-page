@@ -46,6 +46,7 @@ REQUIRED_FILES = (
     "js/pages/home/content.js",
     "js/pages/home/carousel.js",
     "js/pages/home/lives.js",
+    "js/pages/home/twitch-live.js",
     "js/pages/home/home-interactions.js",
     "js/pages/blog/blog.js",
     "js/pages/doacoes/doacoes.js",
@@ -744,6 +745,7 @@ def validate_architecture() -> None:
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
     lives_js = read_text("js/pages/home/lives.js")
+    twitch_live_js = read_text("js/pages/home/twitch-live.js")
     carousel_js = read_text("js/pages/home/carousel.js")
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
@@ -943,7 +945,8 @@ def validate_architecture() -> None:
 
     for asset in (
         "js/pages/home/content.js?v=47",
-        "js/pages/home/lives.js?v=47.4",
+        "js/pages/home/lives.js?v=47.4.3",
+        "js/pages/home/twitch-live.js?v=47.4.3",
         "js/pages/home/home-interactions.js?v=47",
         "css/components/home-interactions.css?v=47",
     ):
@@ -1055,6 +1058,39 @@ def validate_architecture() -> None:
     ):
         if needle not in worker_js:
             error(f"workers.js: contrato Twitch V47.4 ausente: {needle}")
+
+
+    # V47.4.3: status ao vivo da Twitch isolado do snapshot diário de VODs.
+    for element_id in (
+        'id="heroViewTabs"',
+        'id="heroTabAbout"',
+        'id="heroTabLive"',
+        'id="heroLivePanel"',
+        'id="heroAvatarFrame"',
+    ):
+        if element_id not in index:
+            error(f"index.html: Hero ao vivo V47.4.3 ausente: {element_id}")
+
+    for needle in (
+        '"/twitch/live"',
+        'heroAvatarFrame',
+        'heroLivePanel',
+        'setSelectedView("live")',
+    ):
+        if needle not in twitch_live_js:
+            error(f"js/pages/home/twitch-live.js: contrato V47.4.3 ausente: {needle}")
+
+    for needle in (
+        "TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000",
+        "'/twitch/live'",
+        "'/debug/twitch-live-sync'",
+        "syncTwitchLiveIfDue(env)",
+        "`${TWITCH_API}/streams`",
+        "twitch:live",
+        "caches.default",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: contrato Twitch Live V47.4.3 ausente: {needle}")
 
     for route in ('"home"', '"doacoes"', '"blog"'):
         if route not in page_transitions:

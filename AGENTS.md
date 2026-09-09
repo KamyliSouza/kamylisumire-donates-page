@@ -9,7 +9,7 @@ regra atual.
 1. Manter o projeto sem framework, bundler ou etapa de build.
 2. Preferir HTML/CSS/JavaScript vanilla e conteúdo editorial em JSON.
 3. Alterações devem ser localizadas: não ampliar escopo sem necessidade.
-4. Home deve continuar funcional mesmo se Worker/Streamlabs/Twitch estiverem fora; falha da API pode afetar a aba Twitch, mas não deve bloquear a página nem a aba YouTube.
+4. Home deve continuar funcional mesmo se Worker/Streamlabs/Twitch estiverem fora; falha da API pode afetar a aba Twitch e o status ao vivo, mas deve manter o Hero padrão e não bloquear a página nem a aba YouTube.
 5. Não duplicar navbar/footer manualmente nas páginas.
 6. Preservar acessibilidade, responsividade e preferências de performance.
 
@@ -26,8 +26,9 @@ A Home carrega conteúdo local e inclui:
 - Créditos;
 - CTA de apoio.
 
-A Home carrega `js/core/api.js` somente para a aba Twitch de Lives. Não deve
-carregar `ranking.js`, e nenhuma outra seção da Home pode depender do Worker.
+A Home carrega `js/core/api.js` somente para as integrações públicas da Twitch:
+a aba Twitch de Lives e o status ao vivo do Hero. Não deve carregar `ranking.js`;
+falha do Worker deve manter o Hero padrão e as demais seções locais funcionando.
 
 ### Blog
 
@@ -77,13 +78,17 @@ e também declara `defaultPlatform: "twitch"` e `twitchCanalUrl`.
 
 A integração Twitch deve obedecer estes invariantes:
 
-- o navegador consulta somente `/twitch/videos`;
-- `/twitch/videos` lê KV e nunca chama diretamente `api.twitch.tv`;
+- VODs: o navegador consulta `/twitch/videos`;
+- status ao vivo: o navegador consulta `/twitch/live`;
+- `/twitch/videos` e `/twitch/live` leem cache/KV e nunca chamam diretamente `api.twitch.tv` durante uma visita;
 - `syncTwitchVideosIfDue()` deve respeitar no mínimo 24 h entre atualizações;
+- `syncTwitchLiveIfDue()` deve respeitar no mínimo 10 min entre consultas a `helix/streams`;
+- `twitch:live` usa TTL de 30 min e não pode ser servido como válido após 20 min sem atualização;
+- o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
 - o snapshot e `updated_at` ficam no binding KV `RANKINGS`;
 - `TWITCH_CLIENT_SECRET` nunca entra no frontend/Git;
 - App Access Token e `user_id` devem ser reutilizados quando válidos;
-- falha de Twitch não apaga o último snapshot válido;
+- falha de VOD não apaga o último snapshot válido; status ao vivo vencido não deve manter indicação visual de live;
 - YouTube continua sem iframe/player, `YT.Player`, `iframe_api`, playlists
 automáticas, YouTube Data API ou chave Google.
 

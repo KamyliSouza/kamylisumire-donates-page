@@ -87,7 +87,19 @@
         };
     }
 
-    function normalizeTwitchVideo(item) {
+    function withCacheRevision(url, revision) {
+        const source = String(url || "").trim();
+        const cacheRevision = String(revision || "").trim();
+
+        if (!source || !cacheRevision) {
+            return source;
+        }
+
+        const separator = source.includes("?") ? "&" : "?";
+        return `${source}${separator}v=${encodeURIComponent(cacheRevision)}`;
+    }
+
+    function normalizeTwitchVideo(item, revision) {
         if (!item || typeof item !== "object" || Array.isArray(item)) {
             return null;
         }
@@ -114,7 +126,7 @@
             title,
             date,
             url,
-            thumbnail
+            thumbnail: withCacheRevision(thumbnail, revision)
         };
     }
 
@@ -278,9 +290,10 @@
                 .getJSON(TWITCH_ENDPOINT, { timeoutMs: 8000 })
                 .then(data => {
                     const maxItems = getMaxItems();
+                    const revision = String(data?.updatedAt || "").trim();
                     const videos = Array.isArray(data?.videos)
                         ? data.videos
-                            .map(normalizeTwitchVideo)
+                            .map(item => normalizeTwitchVideo(item, revision))
                             .filter(Boolean)
                             .slice(0, maxItems)
                         : [];

@@ -2,7 +2,7 @@
  * CONFIGURAÇÃO CENTRAL DO SITE / APLICAÇÕES
  *
  * A Home permanece majoritariamente local.
- * Desde a V47.4, somente a aba Twitch de Lives e /doacoes/ consomem a API.
+ * Desde a V47.4.3, a aba Twitch de Lives, o status ao vivo do Hero e /doacoes/ consomem a API.
  *
  * V44.4:
  * - api.kamylisumire.com é o endpoint primário de produção;

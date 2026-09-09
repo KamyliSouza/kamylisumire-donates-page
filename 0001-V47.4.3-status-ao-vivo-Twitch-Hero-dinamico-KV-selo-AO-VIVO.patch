@@ -1,0 +1,1608 @@
+From 19a07a57c9143dbfb4a738d31bf2f50bfec7c92a Mon Sep 17 00:00:00 2001
+From: OpenAI <noreply@openai.com>
+Date: Wed, 9 Sep 2026 21:46:54 +0000
+Subject: [PATCH] =?UTF-8?q?V47.4.3:=20status=20ao=20vivo=20Twitch,=20Hero?=
+ =?UTF-8?q?=20din=C3=A2mico=20e=20selo=20no=20avatar?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/scripts/validate-content.py |  38 ++-
+ AGENTS.md                           |  17 +-
+ CHANGELOG.md                        |  17 ++
+ README.md                           |  12 +-
+ css/pages/home.css                  | 276 ++++++++++++++++++++-
+ docs/ARQUITETURA.md                 |  13 +-
+ docs/GUIA-TWITCH-V47.4.md           |  70 ++++--
+ docs/PRODUCAO.md                    |  21 +-
+ docs/VALIDACAO.md                   |  19 ++
+ index.html                          | 136 +++++++++--
+ js/core/config.js                   |   2 +-
+ js/pages/home/lives.js              |  19 +-
+ js/pages/home/twitch-live.js        | 184 ++++++++++++++
+ privacidade/index.html              |   8 +-
+ workers.js                          | 360 +++++++++++++++++++++++++---
+ 15 files changed, 1092 insertions(+), 100 deletions(-)
+ create mode 100644 js/pages/home/twitch-live.js
+
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 5ae5aa3..38205e2 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -46,6 +46,7 @@ REQUIRED_FILES = (
+     "js/pages/home/content.js",
+     "js/pages/home/carousel.js",
+     "js/pages/home/lives.js",
++    "js/pages/home/twitch-live.js",
+     "js/pages/home/home-interactions.js",
+     "js/pages/blog/blog.js",
+     "js/pages/doacoes/doacoes.js",
+@@ -744,6 +745,7 @@ def validate_architecture() -> None:
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+     lives_js = read_text("js/pages/home/lives.js")
++    twitch_live_js = read_text("js/pages/home/twitch-live.js")
+     carousel_js = read_text("js/pages/home/carousel.js")
+     interactions = read_text("js/pages/home/home-interactions.js")
+     navbar = read_text("js/core/navbar.js")
+@@ -943,7 +945,8 @@ def validate_architecture() -> None:
+ 
+     for asset in (
+         "js/pages/home/content.js?v=47",
+-        "js/pages/home/lives.js?v=47.4",
++        "js/pages/home/lives.js?v=47.4.3",
++        "js/pages/home/twitch-live.js?v=47.4.3",
+         "js/pages/home/home-interactions.js?v=47",
+         "css/components/home-interactions.css?v=47",
+     ):
+@@ -1056,6 +1059,39 @@ def validate_architecture() -> None:
+         if needle not in worker_js:
+             error(f"workers.js: contrato Twitch V47.4 ausente: {needle}")
+ 
++
++    # V47.4.3: status ao vivo da Twitch isolado do snapshot diário de VODs.
++    for element_id in (
++        'id="heroViewTabs"',
++        'id="heroTabAbout"',
++        'id="heroTabLive"',
++        'id="heroLivePanel"',
++        'id="heroAvatarFrame"',
++    ):
++        if element_id not in index:
++            error(f"index.html: Hero ao vivo V47.4.3 ausente: {element_id}")
++
++    for needle in (
++        '"/twitch/live"',
++        'heroAvatarFrame',
++        'heroLivePanel',
++        'setSelectedView("live")',
++    ):
++        if needle not in twitch_live_js:
++            error(f"js/pages/home/twitch-live.js: contrato V47.4.3 ausente: {needle}")
++
++    for needle in (
++        "TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000",
++        "'/twitch/live'",
++        "'/debug/twitch-live-sync'",
++        "syncTwitchLiveIfDue(env)",
++        "`${TWITCH_API}/streams`",
++        "twitch:live",
++        "caches.default",
++    ):
++        if needle not in worker_js:
++            error(f"workers.js: contrato Twitch Live V47.4.3 ausente: {needle}")
++
+     for route in ('"home"', '"doacoes"', '"blog"'):
+         if route not in page_transitions:
+             error(
+diff --git a/AGENTS.md b/AGENTS.md
+index 1c00503..5f86ffa 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -9,7 +9,7 @@ regra atual.
+ 1. Manter o projeto sem framework, bundler ou etapa de build.
+ 2. Preferir HTML/CSS/JavaScript vanilla e conteúdo editorial em JSON.
+ 3. Alterações devem ser localizadas: não ampliar escopo sem necessidade.
+-4. Home deve continuar funcional mesmo se Worker/Streamlabs/Twitch estiverem fora; falha da API pode afetar a aba Twitch, mas não deve bloquear a página nem a aba YouTube.
++4. Home deve continuar funcional mesmo se Worker/Streamlabs/Twitch estiverem fora; falha da API pode afetar a aba Twitch e o status ao vivo, mas deve manter o Hero padrão e não bloquear a página nem a aba YouTube.
+ 5. Não duplicar navbar/footer manualmente nas páginas.
+ 6. Preservar acessibilidade, responsividade e preferências de performance.
+ 
+@@ -26,8 +26,9 @@ A Home carrega conteúdo local e inclui:
+ - Créditos;
+ - CTA de apoio.
+ 
+-A Home carrega `js/core/api.js` somente para a aba Twitch de Lives. Não deve
+-carregar `ranking.js`, e nenhuma outra seção da Home pode depender do Worker.
++A Home carrega `js/core/api.js` somente para as integrações públicas da Twitch:
++a aba Twitch de Lives e o status ao vivo do Hero. Não deve carregar `ranking.js`;
++falha do Worker deve manter o Hero padrão e as demais seções locais funcionando.
+ 
+ ### Blog
+ 
+@@ -77,13 +78,17 @@ e também declara `defaultPlatform: "twitch"` e `twitchCanalUrl`.
+ 
+ A integração Twitch deve obedecer estes invariantes:
+ 
+-- o navegador consulta somente `/twitch/videos`;
+-- `/twitch/videos` lê KV e nunca chama diretamente `api.twitch.tv`;
++- VODs: o navegador consulta `/twitch/videos`;
++- status ao vivo: o navegador consulta `/twitch/live`;
++- `/twitch/videos` e `/twitch/live` leem cache/KV e nunca chamam diretamente `api.twitch.tv` durante uma visita;
+ - `syncTwitchVideosIfDue()` deve respeitar no mínimo 24 h entre atualizações;
++- `syncTwitchLiveIfDue()` deve respeitar no mínimo 10 min entre consultas a `helix/streams`;
++- `twitch:live` usa TTL de 30 min e não pode ser servido como válido após 20 min sem atualização;
++- o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
+ - o snapshot e `updated_at` ficam no binding KV `RANKINGS`;
+ - `TWITCH_CLIENT_SECRET` nunca entra no frontend/Git;
+ - App Access Token e `user_id` devem ser reutilizados quando válidos;
+-- falha de Twitch não apaga o último snapshot válido;
++- falha de VOD não apaga o último snapshot válido; status ao vivo vencido não deve manter indicação visual de live;
+ - YouTube continua sem iframe/player, `YT.Player`, `iframe_api`, playlists
+ automáticas, YouTube Data API ou chave Google.
+ 
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a8aae6a..85c0856 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,22 @@
+ # Changelog
+ 
++## V47.4.3 — Status ao vivo da Twitch e Hero dinâmico
++
++- adiciona `GET /twitch/live`, que lê somente um snapshot no KV e nunca consulta a Twitch durante a visita do usuário;
++- adiciona `/debug/twitch-live-sync`, protegido por `OAUTH_SETUP_TOKEN`, com `?force=1` opcional para diagnóstico manual;
++- consulta `helix/streams` no máximo uma vez a cada 10 minutos e reutiliza o mesmo App Access Token e `user_id` já usados pela integração de VODs;
++- grava o status ao vivo em um único snapshot `twitch:live` com TTL de 30 minutos e considera o dado indisponível após 20 minutos sem atualização válida;
++- usa `caches.default` por 60 segundos em `/twitch/live`, reduzindo leituras repetidas do KV no mesmo data center sem transformar visitas em chamadas à Twitch;
++- otimiza `syncDonations()`: snapshots idênticos deixam de ser regravados, e o marcador legado `ranking:updated_at` deixa de gerar writes sem consumidor; isso preserva a cota de KV Free com Cron a cada 10 minutos;
++- corrige a virada mensal do ranking para persistir `totals:monthly` vazio mesmo quando o novo mês começa sem doações;
++- quando o canal está ao vivo, o Hero exibe as abas acessíveis `Sobre | Ao vivo`, abre `Ao vivo` por padrão e mostra thumbnail, título, categoria e espectadores;
++- quando o canal está offline ou o status está indisponível, o Hero permanece exatamente no modo `Sobre` atual e as abas ficam ocultas;
++- adiciona um anel visual de status ao vivo ao redor do avatar com o selo `AO VIVO` acoplado à borda, respeitando `prefers-reduced-motion`;
++- as thumbnails da Twitch recebem uma revisão baseada em `updatedAt`/`checkedAt`, evitando reutilização de imagem antiga após uma nova sincronização sem aumentar consultas à API Helix;
++- atualiza `home.css`, `lives.js` e o novo `twitch-live.js` para cache-buster `?v=47.4.3`.
++
++**Cloudflare:** configurar o Cron Trigger como `*/10 * * * *` para que o status possa ser atualizado a cada 10 minutos. A trava interna impede consulta mais frequente ao endpoint `helix/streams`. As variáveis `TWITCH_*` e o binding `RANKINGS` permanecem os mesmos da V47.4.
++
+ ## V47.4.2 — Políticas institucionais simplificadas
+ 
+ - simplifica `/privacidade/` para concentrar a página nas informações tratadas, finalidades, integrações, armazenamento, controle e segurança do visitante;
+diff --git a/README.md b/README.md
+index ee28df1..b84c9fd 100644
+--- a/README.md
++++ b/README.md
+@@ -6,10 +6,10 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
+ 
+ - **Frontend:** HTML, CSS e JavaScript vanilla.
+ - **Conteúdo editorial:** JSON versionado em `data/`.
+-- **Home:** majoritariamente local; somente a aba Twitch em Lives lê um snapshot público do Worker e possui fallback independente para o YouTube.
++- **Home:** majoritariamente local; a aba Twitch de Lives e o status ao vivo do Hero leem snapshots públicos do Worker, com fallback local/visual quando a API está indisponível.
+ - **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
+ - **Doações:** página independente em `/doacoes/`.
+-- **Backend público:** ranking de doações e snapshot diário das últimas lives da Twitch.
++- **Backend público:** ranking de doações, snapshot diário das VODs da Twitch e status ao vivo atualizado em janelas de 10 minutos.
+ - **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
+ - **Fallback da API:** `workers.dev` mantido temporariamente para contingência.
+ - **Produção:** GitHub Pages pela branch `main`.
+@@ -30,6 +30,12 @@ O Worker atualiza esse snapshot no máximo uma vez a cada 24 horas e o guarda no
+ A aba YouTube continua editorial/local em `data/content/lives.json`, com `videoId`,
+ `title` e `date`, sem YouTube Data API, iframe ou chave Google.
+ 
++Desde a V47.4.3, o Hero também consulta `GET /twitch/live`. O endpoint lê apenas
++o snapshot `twitch:live` do KV; a consulta real ao `helix/streams` ocorre no Worker
++no máximo uma vez a cada 10 minutos. Se o canal estiver online, o Hero mostra
++`Sobre | Ao vivo`, mantendo o avatar visível com anel de status. Offline ou sem
++snapshot válido, o Hero continua no layout padrão.
++
+ ## Estrutura principal
+ 
+ ```text
+@@ -51,7 +57,7 @@ workers.js               backend do ranking
+ 
+ ## API de produção
+ 
+-O frontend de `/doacoes/` e a aba Twitch da seção Lives usam
++O frontend de `/doacoes/` e as integrações Twitch da Home usam
+ `https://api.kamylisumire.com` como endpoint primário.
+ 
+ Durante a estabilização da V44.4, `workers.dev` permanece como fallback.
+diff --git a/css/pages/home.css b/css/pages/home.css
+index c34cfb7..0e32658 100644
+--- a/css/pages/home.css
++++ b/css/pages/home.css
+@@ -65,7 +65,9 @@
+     display: grid;
+     place-items: center;
+ 
+-    overflow: hidden;
++    position: relative;
++
++    overflow: visible;
+ 
+     background-color: var(--notice-bg);
+     border: 3px solid var(--primary-color);
+@@ -79,6 +81,10 @@
+ 
+     width: 100%;
+     height: 100%;
++
++    overflow: hidden;
++
++    border-radius: inherit;
+ }
+ 
+ .hero-avatar {
+@@ -839,3 +845,271 @@
+         flex-direction: column;
+     }
+ }
++
++/* =========================================================
++   V47.4.3 — HERO / STATUS AO VIVO DA TWITCH
++   ========================================================= */
++
++.hero {
++    --hero-live-color: #e9195e;
++    --hero-live-soft: rgba(233, 25, 94, .16);
++}
++
++.hero-view-tabs {
++    display: inline-flex;
++    align-items: center;
++
++    gap: 4px;
++    margin-bottom: 16px;
++    padding: 4px;
++
++    background-color: var(--notice-bg);
++    border: 1px solid var(--card-border);
++    border-radius: 999px;
++}
++
++.hero-view-tabs[hidden],
++.hero-view-panel[hidden] {
++    display: none;
++}
++
++.hero-view-tab {
++    min-height: 36px;
++    padding: 7px 13px;
++
++    color: var(--subtitle-color);
++    background: transparent;
++
++    border: 0;
++    border-radius: 999px;
++
++    font: inherit;
++    font-size: .78rem;
++    font-weight: 850;
++
++    cursor: pointer;
++
++    transition:
++        color .18s ease,
++        background-color .18s ease,
++        transform .18s ease;
++}
++
++.hero-view-tab[aria-selected="true"] {
++    color: #fff;
++    background-color: var(--primary-color);
++}
++
++.hero-view-tab:hover,
++.hero-view-tab:focus-visible {
++    color: var(--primary-color);
++    background-color: var(--primary-soft);
++    outline: none;
++}
++
++.hero-view-tab[aria-selected="true"]:hover,
++.hero-view-tab[aria-selected="true"]:focus-visible {
++    color: #fff;
++    background-color: var(--primary-hover);
++}
++
++.hero-live-eyebrow {
++    color: var(--hero-live-color);
++}
++
++.hero-live-preview {
++    display: grid;
++
++    gap: 13px;
++    max-width: 690px;
++
++    color: var(--text-color);
++    text-decoration: none;
++}
++
++.hero-live-media {
++    position: relative;
++
++    width: 100%;
++    aspect-ratio: 16 / 9;
++
++    display: block;
++    overflow: hidden;
++
++    background: #000;
++    border: 2px solid var(--hero-live-color);
++    border-radius: var(--radius-small);
++
++    box-shadow: 0 8px 24px var(--hero-live-soft);
++}
++
++.hero-live-thumbnail {
++    width: 100%;
++    height: 100%;
++
++    display: block;
++
++    object-fit: cover;
++    background: #000;
++}
++
++.hero-live-badge {
++    position: absolute;
++    top: 10px;
++    left: 10px;
++
++    display: inline-flex;
++    align-items: center;
++
++    min-height: 28px;
++    padding: 5px 9px;
++
++    color: #fff;
++    background-color: var(--hero-live-color);
++
++    border-radius: 999px;
++
++    font-size: .7rem;
++    font-weight: 900;
++    letter-spacing: .04em;
++
++    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
++}
++
++.hero-live-copy {
++    min-width: 0;
++
++    display: grid;
++
++    gap: 7px;
++}
++
++.hero-live-title {
++    display: -webkit-box;
++    overflow: hidden;
++
++    color: var(--text-color);
++
++    font-size: clamp(1.2rem, 2.6vw, 1.65rem);
++    font-weight: 900;
++    line-height: 1.25;
++
++    -webkit-box-orient: vertical;
++    -webkit-line-clamp: 2;
++}
++
++.hero-live-meta {
++    display: flex;
++    align-items: center;
++    flex-wrap: wrap;
++
++    gap: 7px 12px;
++
++    color: var(--subtitle-color);
++
++    font-size: .84rem;
++    font-weight: 750;
++}
++
++.hero-live-meta > span:not([hidden]) + span::before {
++    content: "•";
++    margin-right: 12px;
++
++    color: var(--hero-live-color);
++}
++
++.hero-live-actions {
++    margin-top: 18px;
++}
++
++.hero-avatar-frame.is-live {
++    border-color: var(--hero-live-color);
++
++    box-shadow:
++        0 0 0 4px var(--card-bg),
++        0 0 0 8px var(--hero-live-color),
++        0 9px 28px var(--hero-live-soft);
++
++    animation: hero-live-ring 2.2s ease-in-out infinite;
++}
++
++.hero-avatar-frame.is-live::after {
++    content: "AO VIVO";
++
++    position: absolute;
++    left: 50%;
++    bottom: -15px;
++    z-index: 2;
++
++    min-height: 25px;
++    padding: 4px 10px;
++
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++
++    color: #fff;
++    background-color: var(--hero-live-color);
++
++    border: 3px solid var(--card-bg);
++    border-radius: 999px;
++
++    font-size: .66rem;
++    font-weight: 1000;
++    line-height: 1;
++    letter-spacing: .07em;
++    white-space: nowrap;
++
++    box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
++
++    transform: translateX(-50%);
++}
++
++@keyframes hero-live-ring {
++    0%, 100% {
++        box-shadow:
++            0 0 0 4px var(--card-bg),
++            0 0 0 8px var(--hero-live-color),
++            0 9px 28px var(--hero-live-soft);
++    }
++
++    50% {
++        box-shadow:
++            0 0 0 4px var(--card-bg),
++            0 0 0 10px rgba(233, 25, 94, .72),
++            0 10px 32px rgba(233, 25, 94, .26);
++    }
++}
++
++@media (max-width: 720px) {
++    .hero-view-tabs {
++        margin-inline: auto;
++    }
++
++    .hero-live-preview {
++        max-width: 100%;
++        text-align: left;
++    }
++
++    .hero-live-actions {
++        justify-content: center;
++    }
++}
++
++@media (prefers-reduced-motion: reduce) {
++    .hero-avatar-frame.is-live {
++        animation: none;
++    }
++}
++
++.hero-live-preview:hover .hero-live-media,
++.hero-live-preview:focus-visible .hero-live-media {
++    border-color: var(--hero-live-color);
++    box-shadow:
++        0 10px 28px var(--hero-live-soft),
++        0 0 0 2px rgba(233, 25, 94, .18);
++}
++
++.hero-live-preview:focus-visible {
++    outline: none;
++}
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index 78d1683..e7b7053 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -67,9 +67,16 @@ O mesmo componente visual possui duas abas:
+ 2. **YouTube:** lista manual/local de `data/content/lives.json`.
+ 
+ O endpoint público `/twitch/videos` nunca chama a Twitch durante uma visita.
+-A sincronização agendada respeita uma janela mínima de 24 horas. Não existe
++A sincronização de VODs respeita uma janela mínima de 24 horas. Não existe
+ player incorporado, iframe ou YouTube Data API.
+ 
++Desde a V47.4.3, o Hero consulta também `/twitch/live`. A rota pública lê um
++snapshot `twitch:live` do KV e usa Cache API por 60 segundos para reduzir
++leituras repetidas. A consulta real a `helix/streams` ocorre somente no
++`scheduled()`/debug, no máximo uma vez a cada 10 minutos. Online, o Hero mostra
++`Sobre | Ao vivo`, um anel no avatar e o selo `AO VIVO` acoplado à borda; offline, erro ou snapshot vencido mantém
++o Hero padrão.
++
+ ## Backend
+ 
+ `workers.js` é isolado da Home e funciona como origem de
+@@ -83,7 +90,9 @@ Rotas relevantes:
+ - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
+ - `/debug/sync` — sincronização manual protegida do ranking;
+ - `/twitch/videos` — snapshot público das últimas VODs da Twitch;
+-- `/debug/twitch-sync` — inicialização/sincronização protegida da Twitch, respeitando a janela de 24 h.
++- `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, respeitando a janela de 24 h;
++- `/twitch/live` — status público ao vivo, servido de cache/KV;
++- `/debug/twitch-live-sync` — sincronização protegida do status ao vivo, com `?force=1` opcional.
+ 
+ Configuração de produção:
+ 
+diff --git a/docs/GUIA-TWITCH-V47.4.md b/docs/GUIA-TWITCH-V47.4.md
+index cbff728..9ba5004 100644
+--- a/docs/GUIA-TWITCH-V47.4.md
++++ b/docs/GUIA-TWITCH-V47.4.md
+@@ -276,15 +276,15 @@ lastError
+ 
+ Nenhuma dessas verificações chama a Twitch.
+ 
+-## 8. Cron Trigger
++## 8. Cron Trigger — V47.4.3
+ 
+-O `workers.js` já possuía `scheduled()` para o ranking de doações. A V47.4 reaproveita o mesmo evento e chama `syncTwitchVideosIfDue()`.
++A V47.4.3 adiciona o status ao vivo do Hero. Para que o site perceba o início
++ou fim de uma transmissão com atraso de aproximadamente 10 minutos, configure
++o Cron Trigger do Worker como:
+ 
+-### Se já existe Cron Trigger
+-
+-Não crie outro apenas para Twitch se o Worker já executa pelo menos uma vez por dia. Pode manter a frequência necessária para Streamlabs: a trava de 24 horas impede a Twitch de ser consultada em todas as execuções.
+-
+-### Se não existe Cron Trigger
++```text
++*/10 * * * *
++```
+ 
+ No Cloudflare Dashboard:
+ 
+@@ -296,19 +296,49 @@ Workers & Pages
+ → Cron Triggers
+ ```
+ 
+-Adicione uma execução ao menos diária.
++O `scheduled()` executa três rotinas, cada uma com seu próprio comportamento:
+ 
+-Exemplo de uma vez por dia:
++- **status ao vivo:** `syncTwitchLiveIfDue()` consulta `helix/streams` no máximo
++  uma vez a cada 10 minutos;
++- **VODs:** `syncTwitchVideosIfDue()` continua consultando `helix/videos` no
++  máximo uma vez a cada 24 horas;
++- **ranking Streamlabs:** continua verificando novas doações, mas snapshots
++  idênticos deixam de ser regravados no KV quando nada mudou.
+ 
+-```text
+-0 9 * * *
++Isso é importante no Workers KV Free: o status ao vivo usa um único write por
++sincronização bem-sucedida (cerca de 144/dia), enquanto o ranking deixa de
++gastar writes quando nada mudou e não regrava o marcador legado
++`ranking:updated_at`.
++
++O endpoint público `/twitch/live` usa `caches.default` por 60 segundos. Assim,
++visitas repetidas atendidas pelo mesmo data center não precisam executar uma
++leitura KV a cada acesso. O cache é apenas de leitura pública; ele não aumenta
++a frequência de chamadas à Twitch.
++
++Cron Triggers do Cloudflare usam UTC, mas `*/10 * * * *` independe de fuso.
++
++### Inicializar/testar o status ao vivo
++
++Depois de publicar o Worker V47.4.3, execute uma vez:
++
++```powershell
++Invoke-RestMethod `
++  -Uri "https://api.kamylisumire.com/debug/twitch-live-sync?force=1" `
++  -Headers @{ Authorization = "Bearer SEU_OAUTH_SETUP_TOKEN" }
+ ```
+ 
+-Cron Triggers do Cloudflare usam **UTC**. `09:00 UTC` corresponde a `06:00` em America/Fortaleza (UTC-3).
++Depois confira:
++
++```text
++https://api.kamylisumire.com/twitch/live
++```
+ 
+-A escolha do horário não muda a proteção de 24 horas implementada no código.
++Offline, a resposta válida possui `live: false`. Online, possui `live: true` e
++inclui título, categoria, espectadores, horário de início, thumbnail e URL.
++Se o snapshot não for atualizado por 20 minutos, a rota retorna `503` e a Home
++mostra o Hero padrão, evitando manter um falso estado de live.
+ 
+-## 9. Publicar o frontend V47.4
++## 9. Publicar o frontend V47.4.3
+ 
+ Somente depois de o endpoint público da Twitch estar funcionando, publique o patch do site.
+ 
+@@ -317,12 +347,14 @@ A ordem segura é:
+ ```text
+ 1. Criar app Twitch
+ 2. Configurar TWITCH_* no Cloudflare
+-3. Publicar workers.js V47.4
++3. Publicar workers.js V47.4.3
+ 4. Rodar /debug/twitch-sync
+-5. Testar /twitch/videos
+-6. Testar /debug/status
+-7. Publicar frontend V47.4
+-8. Abrir a Home e testar as duas abas
++5. Rodar /debug/twitch-live-sync?force=1
++6. Testar /twitch/videos e /twitch/live
++7. Testar /debug/status
++8. Configurar Cron */10 * * * *
++9. Publicar frontend V47.4.3
++10. Abrir a Home e testar Hero + abas de Lives
+ ```
+ 
+ Isso evita publicar uma aba Twitch que ainda não possui snapshot no KV.
+diff --git a/docs/PRODUCAO.md b/docs/PRODUCAO.md
+index 7d1ea83..591c101 100644
+--- a/docs/PRODUCAO.md
++++ b/docs/PRODUCAO.md
+@@ -33,7 +33,7 @@ Na V44.4:
+ 
+ - `api.kamylisumire.com` é a origem primária;
+ - `workers.dev` permanece como fallback temporário;
+-- a Home usa a API somente para o snapshot diário da aba Twitch; o restante continua independente.
++- a Home usa a API somente para VODs da aba Twitch e status ao vivo do Hero; o restante continua independente e mantém fallback local/visual.
+ 
+ No Cloudflare Worker, configure:
+ 
+@@ -107,8 +107,9 @@ Smoke test:
+ 
+ ## Twitch V47.4
+ 
+-A aba Twitch da Home consulta somente `GET /twitch/videos`. Esse endpoint lê o
+-snapshot `twitch:videos` do binding KV `RANKINGS` e **não consulta a Twitch**.
++A aba Twitch da Home consulta `GET /twitch/videos`. O Hero consulta
++`GET /twitch/live`. Ambos os endpoints públicos leem somente cache/KV e
++**não consultam a Twitch durante a visita**.
+ 
+ Configure no Worker:
+ 
+@@ -124,6 +125,14 @@ a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passa
+ 24 horas desde `twitch:updated_at`. O App Access Token e o `user_id` resolvido
+ também são reutilizados no KV.
+ 
+-O Cron já usado pelo Worker pode permanecer com sua frequência atual: não é
+-necessário criar um Cron de 24 h exclusivo para a Twitch, desde que exista ao
+-menos uma execução agendada por dia.
++Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
++
++```text
++*/10 * * * *
++```
++
++`syncTwitchLiveIfDue()` impede chamadas a `helix/streams` antes de completar
++a janela de 10 minutos. `syncTwitchVideosIfDue()` continua impondo 24 horas
++para VODs. O ranking de doações também roda no mesmo `scheduled()`, mas a
++V47.4.3 deixa de regravar snapshots idênticos no KV quando não há doação nova
++nem virada de mês, evitando consumir a cota diária de writes do plano Free.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 1f6eba6..a34b772 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -100,3 +100,22 @@ Além da validação estática, confirmar em produção:
+ 
+ A CI valida a presença da trava de 24 horas, das rotas Twitch e dos elementos do
+ seletor, mas o comportamento temporal real deve ser confirmado pelo smoke test.
++
++## V47.4.3 — status ao vivo e Hero dinâmico
++
++Além da validação V47.4, confirmar em produção:
++
++1. configurar o Cron como `*/10 * * * *`;
++2. executar `/debug/twitch-live-sync?force=1` com Bearer e confirmar `status: ok`;
++3. offline: `/twitch/live` responde `200` com `live: false` e a Home mantém o Hero padrão;
++4. online: `/twitch/live` responde `200` com `live: true`, título, categoria, espectadores e thumbnail;
++5. online: o avatar recebe o anel de live e o Hero exibe `Sobre | Ao vivo`, iniciando em `Ao vivo`;
++6. a aba `Sobre` restaura o conteúdo normal do Hero sem ocultar avatar/redes;
++7. uma segunda sincronização antes de 10 min retorna `cache_fresh` e não chama novamente `helix/streams`;
++8. após 20 min sem snapshot válido, `/twitch/live` responde `503` e o Hero volta ao padrão;
++9. requisições repetidas a `/twitch/live` no mesmo data center podem ser atendidas por `caches.default`, reduzindo leituras KV;
++10. uma sincronização do ranking sem novas doações não deve regravar snapshots idênticos no KV.
++
++O smoke test deve confirmar também que a thumbnail da live/VOD recebe uma nova
++revisão quando `checkedAt`/`updatedAt` muda, sem aumentar a quantidade de
++consultas aos endpoints Helix.
+diff --git a/index.html b/index.html
+index 7a56107..fb214ca 100644
+--- a/index.html
++++ b/index.html
+@@ -254,7 +254,7 @@
+     <link rel="stylesheet" href="css/core/variables.css">
+     <link rel="stylesheet" href="css/core/global.css?v=47.1">
+     <link rel="stylesheet" href="css/core/navbar.css?v=47">
+-    <link rel="stylesheet" href="css/pages/home.css?v=46.2">
++    <link rel="stylesheet" href="css/pages/home.css?v=47.4.3">
+     <link rel="stylesheet" href="css/components/lives.css?v=47.4">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
+@@ -324,39 +324,130 @@
+     <main class="site-shell">
+         <section class="hero glass-panel" id="inicio">
+             <div class="hero-copy">
+-                <span class="eyebrow" id="heroEyebrow">PNGtuber • Lives • Comunidade</span>
++                <div
++                    class="hero-view-tabs"
++                    id="heroViewTabs"
++                    role="tablist"
++                    aria-label="Conteúdo em destaque"
++                    hidden
++                >
++                    <button
++                        class="hero-view-tab"
++                        id="heroTabAbout"
++                        type="button"
++                        role="tab"
++                        aria-selected="false"
++                        aria-controls="heroAboutPanel"
++                        tabindex="-1"
++                    >
++                        Sobre
++                    </button>
++
++                    <button
++                        class="hero-view-tab"
++                        id="heroTabLive"
++                        type="button"
++                        role="tab"
++                        aria-selected="true"
++                        aria-controls="heroLivePanel"
++                    >
++                        Ao vivo
++                    </button>
++                </div>
+ 
+-                <h1>
+-                    <span id="heroTitlePrefix">Oiê! Eu sou a </span><span id="heroTitleHighlight">Kamyli</span><span id="heroTitleSuffix"> ✨</span>
+-                </h1>
++                <div
++                    class="hero-view-panel hero-about-panel"
++                    id="heroAboutPanel"
++                    role="tabpanel"
++                    aria-labelledby="heroTabAbout"
++                >
++                    <span class="eyebrow" id="heroEyebrow">PNGtuber • Lives • Comunidade</span>
+ 
+-                <p class="hero-text" id="heroDescription">
+-                    Faço lives de joguinhos enquanto troco uma ideia com você.
+-                    Por aqui você encontra minha agenda, minhas redes e todas as
+-                    formas de acompanhar o conteúdo.
+-                </p>
++                    <h1>
++                        <span id="heroTitlePrefix">Oiê! Eu sou a </span><span id="heroTitleHighlight">Kamyli</span><span id="heroTitleSuffix"> ✨</span>
++                    </h1>
+ 
+-                <div class="hero-actions">
+-                    <a class="button button-primary" id="heroSupportButton" data-button-key="heroSupport" href="doacoes/">
+-                        <span data-button-icon aria-hidden="true"></span>
+-                        <span data-button-label>Apoiar</span>
+-                    </a>
++                    <p class="hero-text" id="heroDescription">
++                        Faço lives de joguinhos enquanto troco uma ideia com você.
++                        Por aqui você encontra minha agenda, minhas redes e todas as
++                        formas de acompanhar o conteúdo.
++                    </p>
++
++                    <div class="hero-actions">
++                        <a class="button button-primary" id="heroSupportButton" data-button-key="heroSupport" href="doacoes/">
++                            <span data-button-icon aria-hidden="true"></span>
++                            <span data-button-label>Apoiar</span>
++                        </a>
++
++                        <a
++                            class="button button-outline"
++                            id="heroLiveAnchor"
++                            data-button-key="heroLive"
++                            href="https://youtube.com/kamyli/live"
++                            target="_blank"
++                            rel="noopener noreferrer"
++                        >
++                            <span data-button-icon aria-hidden="true"></span>
++                            <span id="heroLiveButton" data-button-label>Abrir live</span>
++                        </a>
++                    </div>
++                </div>
++
++                <div
++                    class="hero-view-panel hero-live-panel"
++                    id="heroLivePanel"
++                    role="tabpanel"
++                    aria-labelledby="heroTabLive"
++                    hidden
++                >
++                    <span class="eyebrow hero-live-eyebrow">Ao vivo na Twitch</span>
+ 
+                     <a
+-                        class="button button-outline"
+-                        data-button-key="heroLive"
+-                        href="https://youtube.com/kamyli/live"
++                        class="hero-live-preview"
++                        id="heroLivePreview"
++                        href="https://www.twitch.tv/kamyli"
+                         target="_blank"
+                         rel="noopener noreferrer"
++                        aria-label="Assistir à transmissão ao vivo na Twitch"
+                     >
+-                        <span data-button-icon aria-hidden="true"></span>
+-                        <span id="heroLiveButton" data-button-label>Abrir live</span>
++                        <span class="hero-live-media">
++                            <img
++                                class="hero-live-thumbnail"
++                                id="heroLiveThumbnail"
++                                alt="Preview da transmissão ao vivo na Twitch"
++                                width="640"
++                                height="360"
++                                loading="eager"
++                                decoding="async"
++                            >
++                            <span class="hero-live-badge">● AO VIVO</span>
++                        </span>
++
++                        <span class="hero-live-copy">
++                            <strong class="hero-live-title" id="heroLiveTitle">Live ao vivo</strong>
++                            <span class="hero-live-meta">
++                                <span id="heroLiveGame"></span>
++                                <span id="heroLiveViewers"></span>
++                            </span>
++                        </span>
+                     </a>
++
++                    <div class="hero-actions hero-live-actions">
++                        <a
++                            class="button button-primary"
++                            id="heroLiveWatchButton"
++                            href="https://www.twitch.tv/kamyli"
++                            target="_blank"
++                            rel="noopener noreferrer"
++                        >
++                            Assistir na Twitch
++                        </a>
++                    </div>
+                 </div>
+             </div>
+ 
+             <div class="hero-profile">
+-                <div class="hero-avatar-frame">
++                <div class="hero-avatar-frame" id="heroAvatarFrame">
+                     <picture>
+                         <source
+                             srcset="https://assets.kamylisumire.com/avatar-192.webp 192w, https://assets.kamylisumire.com/avatar-384.webp 384w"
+@@ -722,7 +813,8 @@
+     <script src="js/pages/home/home.js?v=46.2"></script>
+     <script src="js/pages/home/content.js?v=47"></script>
+     <script src="js/core/api.js?v=47.3"></script>
+-    <script src="js/pages/home/lives.js?v=47.4"></script>
++    <script src="js/pages/home/lives.js?v=47.4.3"></script>
++    <script src="js/pages/home/twitch-live.js?v=47.4.3"></script>
+     <script src="js/pages/home/home-interactions.js?v=47"></script>
+     <script src="js/core/loader.js?v=46.3"></script>
+ </body>
+diff --git a/js/core/config.js b/js/core/config.js
+index c394e1f..e8d832a 100644
+--- a/js/core/config.js
++++ b/js/core/config.js
+@@ -2,7 +2,7 @@
+  * CONFIGURAÇÃO CENTRAL DO SITE / APLICAÇÕES
+  *
+  * A Home permanece majoritariamente local.
+- * Desde a V47.4, somente a aba Twitch de Lives e /doacoes/ consomem a API.
++ * Desde a V47.4.3, a aba Twitch de Lives, o status ao vivo do Hero e /doacoes/ consomem a API.
+  *
+  * V44.4:
+  * - api.kamylisumire.com é o endpoint primário de produção;
+diff --git a/js/pages/home/lives.js b/js/pages/home/lives.js
+index affe2e9..4938fce 100644
+--- a/js/pages/home/lives.js
++++ b/js/pages/home/lives.js
+@@ -87,7 +87,19 @@
+         };
+     }
+ 
+-    function normalizeTwitchVideo(item) {
++    function withCacheRevision(url, revision) {
++        const source = String(url || "").trim();
++        const cacheRevision = String(revision || "").trim();
++
++        if (!source || !cacheRevision) {
++            return source;
++        }
++
++        const separator = source.includes("?") ? "&" : "?";
++        return `${source}${separator}v=${encodeURIComponent(cacheRevision)}`;
++    }
++
++    function normalizeTwitchVideo(item, revision) {
+         if (!item || typeof item !== "object" || Array.isArray(item)) {
+             return null;
+         }
+@@ -114,7 +126,7 @@
+             title,
+             date,
+             url,
+-            thumbnail
++            thumbnail: withCacheRevision(thumbnail, revision)
+         };
+     }
+ 
+@@ -278,9 +290,10 @@
+                 .getJSON(TWITCH_ENDPOINT, { timeoutMs: 8000 })
+                 .then(data => {
+                     const maxItems = getMaxItems();
++                    const revision = String(data?.updatedAt || "").trim();
+                     const videos = Array.isArray(data?.videos)
+                         ? data.videos
+-                            .map(normalizeTwitchVideo)
++                            .map(item => normalizeTwitchVideo(item, revision))
+                             .filter(Boolean)
+                             .slice(0, maxItems)
+                         : [];
+diff --git a/js/pages/home/twitch-live.js b/js/pages/home/twitch-live.js
+new file mode 100644
+index 0000000..eee877f
+--- /dev/null
++++ b/js/pages/home/twitch-live.js
+@@ -0,0 +1,184 @@
++(() => {
++    "use strict";
++
++    const api = window.KamyliAPI;
++
++    const hero = document.getElementById("inicio");
++    const tabs = document.getElementById("heroViewTabs");
++    const aboutTab = document.getElementById("heroTabAbout");
++    const liveTab = document.getElementById("heroTabLive");
++    const aboutPanel = document.getElementById("heroAboutPanel");
++    const livePanel = document.getElementById("heroLivePanel");
++    const avatarFrame = document.getElementById("heroAvatarFrame");
++    const livePreview = document.getElementById("heroLivePreview");
++    const liveThumbnail = document.getElementById("heroLiveThumbnail");
++    const liveTitle = document.getElementById("heroLiveTitle");
++    const liveGame = document.getElementById("heroLiveGame");
++    const liveViewers = document.getElementById("heroLiveViewers");
++    const liveWatchButton = document.getElementById("heroLiveWatchButton");
++    const heroLiveAnchor = document.getElementById("heroLiveAnchor");
++
++    if (
++        !api?.getJSON ||
++        !hero ||
++        !tabs ||
++        !aboutTab ||
++        !liveTab ||
++        !aboutPanel ||
++        !livePanel ||
++        !avatarFrame
++    ) {
++        return;
++    }
++
++    const TWITCH_LIVE_ENDPOINT = "/twitch/live";
++    const DEFAULT_TWITCH_URL = "https://www.twitch.tv/kamyli";
++    const defaultHeroLiveUrl = heroLiveAnchor?.href || "";
++
++    function withCacheRevision(url, revision) {
++        const source = String(url || "").trim();
++        const cacheRevision = String(revision || "").trim();
++
++        if (!source || !cacheRevision) {
++            return source;
++        }
++
++        const separator = source.includes("?") ? "&" : "?";
++        return `${source}${separator}v=${encodeURIComponent(cacheRevision)}`;
++    }
++
++    function formatViewerCount(value) {
++        const count = Math.max(0, Number(value) || 0);
++
++        return `${new Intl.NumberFormat("pt-BR").format(count)} ${
++            count === 1 ? "espectador" : "espectadores"
++        }`;
++    }
++
++    function setSelectedView(view, options = {}) {
++        const showLive = view === "live";
++
++        aboutTab.setAttribute("aria-selected", String(!showLive));
++        aboutTab.tabIndex = showLive ? -1 : 0;
++
++        liveTab.setAttribute("aria-selected", String(showLive));
++        liveTab.tabIndex = showLive ? 0 : -1;
++
++        aboutPanel.hidden = showLive;
++        livePanel.hidden = !showLive;
++
++        if (options.focus) {
++            (showLive ? liveTab : aboutTab).focus();
++        }
++    }
++
++    function setOfflineState() {
++        hero.classList.remove("is-twitch-live");
++        avatarFrame.classList.remove("is-live");
++        avatarFrame.removeAttribute("aria-label");
++
++        tabs.hidden = true;
++        setSelectedView("about");
++
++        if (heroLiveAnchor && defaultHeroLiveUrl) {
++            heroLiveAnchor.href = defaultHeroLiveUrl;
++        }
++    }
++
++    function setLiveState(data) {
++        const twitchUrl = String(data?.url || DEFAULT_TWITCH_URL).trim();
++        const checkedAt = String(data?.checkedAt || "").trim();
++        const thumbnail = withCacheRevision(data?.thumbnail, checkedAt);
++        const title = String(data?.title || "Kamyli está ao vivo!").trim();
++        const gameName = String(data?.gameName || "").trim();
++
++        hero.classList.add("is-twitch-live");
++        avatarFrame.classList.add("is-live");
++        avatarFrame.setAttribute("aria-label", "Kamyli está ao vivo na Twitch");
++
++        tabs.hidden = false;
++
++        if (livePreview) {
++            livePreview.href = twitchUrl;
++            livePreview.setAttribute(
++                "aria-label",
++                `Assistir ${title} ao vivo na Twitch`
++            );
++        }
++
++        if (liveWatchButton) {
++            liveWatchButton.href = twitchUrl;
++        }
++
++        if (heroLiveAnchor) {
++            heroLiveAnchor.href = twitchUrl;
++        }
++
++        if (liveThumbnail && thumbnail) {
++            liveThumbnail.src = thumbnail;
++        }
++
++        if (liveTitle) {
++            liveTitle.textContent = title;
++        }
++
++        if (liveGame) {
++            liveGame.textContent = gameName;
++            liveGame.hidden = !gameName;
++        }
++
++        if (liveViewers) {
++            liveViewers.textContent = formatViewerCount(data?.viewerCount);
++        }
++
++        setSelectedView("live");
++    }
++
++    function bindTabs() {
++        aboutTab.addEventListener("click", () => {
++            setSelectedView("about");
++        });
++
++        liveTab.addEventListener("click", () => {
++            setSelectedView("live");
++        });
++
++        [aboutTab, liveTab].forEach((tab, index, tabList) => {
++            tab.addEventListener("keydown", event => {
++                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
++                    return;
++                }
++
++                event.preventDefault();
++                const direction = event.key === "ArrowRight" ? 1 : -1;
++                const nextIndex = (index + direction + tabList.length) % tabList.length;
++                const nextTab = tabList[nextIndex];
++
++                setSelectedView(nextTab === liveTab ? "live" : "about", {
++                    focus: true
++                });
++            });
++        });
++    }
++
++    async function loadLiveStatus() {
++        try {
++            const data = await api.getJSON(TWITCH_LIVE_ENDPOINT, {
++                timeoutMs: 5000
++            });
++
++            if (data?.available === true && data?.live === true) {
++                setLiveState(data);
++                return;
++            }
++        } catch (error) {
++            console.warn("Status ao vivo da Twitch indisponível:", error);
++        }
++
++        setOfflineState();
++    }
++
++    bindTabs();
++    setOfflineState();
++    loadLiveStatus();
++})();
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 6a26011..f3c2920 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -274,7 +274,7 @@
+                     participam desse funcionamento.
+                 </p>
+                 <time class="privacy-updated" datetime="2026-09-09">
+-                    Última atualização: 9 de setembro de 2026 · V47.4.2
++                    Última atualização: 9 de setembro de 2026 · V47.4.3
+                 </time>
+             </header>
+ 
+@@ -305,9 +305,9 @@
+                 <p>
+                     O ranking de apoio utiliza dados recebidos da Streamlabs. Quando um
+                     nome é configurado como privado, a API do site aplica a anonimização
+-                    antes da resposta pública. As últimas transmissões da Twitch são
+-                    consultadas pelo servidor e mantidas temporariamente em cache; o
+-                    visitante não precisa autenticar sua conta Twitch.
++                    antes da resposta pública. As informações públicas da Twitch usadas nas últimas transmissões e no
++                    status ao vivo são consultadas pelo servidor e mantidas temporariamente
++                    em cache; o visitante não precisa autenticar sua conta Twitch.
+                 </p>
+                 <p>
+                     Cloudflare é utilizada na infraestrutura do site e da API. Links ou
+diff --git a/workers.js b/workers.js
+index ab6bb26..cae46d4 100644
+--- a/workers.js
++++ b/workers.js
+@@ -3,6 +3,10 @@ const TWITCH_API = 'https://api.twitch.tv/helix';
+ const TWITCH_OAUTH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
+ const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
+ const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
++const TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
++const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
++const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
++const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
+ const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
+ 
+ function clientId(env) {
+@@ -26,7 +30,9 @@ export default {
+     if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
+     if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
+     if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
++    if (url.pathname === '/debug/twitch-live-sync') return handleDebugTwitchLiveSync(request, url, env);
+     if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env);
++    if (url.pathname === '/twitch/live') return handleTwitchLive(request, env, ctx);
+ 
+     return handleRanking(request, env);
+   },
+@@ -46,6 +52,13 @@ export default {
+         env.RANKINGS.put('twitch:last_error', String(err.message))
+       )
+     );
++
++    // O status ao vivo possui janela própria de 10 minutos. Mesmo que o
++    // Cron rode com frequência maior, a Twitch só é consultada quando o
++    // snapshot estiver vencido. Uma execução a cada 10 minutos é recomendada.
++    ctx.waitUntil(
++      syncTwitchLiveIfDue(env).catch(() => {})
++    );
+   }
+ };
+ 
+@@ -241,12 +254,12 @@ async function syncDonations(env) {
+   const now = new Date();
+   const currentMonthKey = monthKey(now);
+   const storedMonthKey = await env.RANKINGS.get('state:current_month');
++  const monthChanged = storedMonthKey !== currentMonthKey;
+ 
+   let globalTotals = await getJSON(env, 'totals:global', {});
+-  let monthlyTotals =
+-    storedMonthKey === currentMonthKey
+-      ? await getJSON(env, 'totals:monthly', {})
+-      : {};
++  let monthlyTotals = monthChanged
++    ? {}
++    : await getJSON(env, 'totals:monthly', {});
+ 
+   const newDonations = [];
+   let before = null;
+@@ -294,9 +307,10 @@ async function syncDonations(env) {
+     }
+   }
+ 
+-  if (newDonations.length > 0) {
+-    let highestId = lastId;
++  const hasNewDonations = newDonations.length > 0;
++  let highestId = lastId;
+ 
++  if (hasNewDonations) {
+     for (const donation of newDonations) {
+       const name = (donation.name || 'Anônimo').trim();
+       const amount = Number(donation.amount) || 0;
+@@ -320,41 +334,47 @@ async function syncDonations(env) {
+       JSON.stringify(globalTotals)
+     );
+ 
+-    await env.RANKINGS.put(
+-      'totals:monthly',
+-      JSON.stringify(monthlyTotals)
+-    );
+-
+     await env.RANKINGS.put(
+       'state:last_donation_id',
+       String(highestId)
+     );
+   }
+ 
+-  await env.RANKINGS.put(
+-    'state:current_month',
+-    currentMonthKey
+-  );
++  // Com Cron a cada 10 minutos, regravar snapshots idênticos consumiria
++  // desnecessariamente a cota diária de writes do KV Free. Só persistimos
++  // dados do ranking quando houve doação nova ou virada de mês.
++  if (hasNewDonations || monthChanged) {
++    await env.RANKINGS.put(
++      'totals:monthly',
++      JSON.stringify(monthlyTotals)
++    );
+ 
+-  await env.RANKINGS.put(
+-    'ranking:monthly',
+-    JSON.stringify(getTopFive(monthlyTotals))
+-  );
++    if (monthChanged) {
++      await env.RANKINGS.put(
++        'state:current_month',
++        currentMonthKey
++      );
++    }
+ 
+-  await env.RANKINGS.put(
+-    'ranking:allTime',
+-    JSON.stringify(getTopFive(globalTotals))
+-  );
++    await env.RANKINGS.put(
++      'ranking:monthly',
++      JSON.stringify(getTopFive(monthlyTotals))
++    );
+ 
+-  await env.RANKINGS.put(
+-    'ranking:updated_at',
+-    String(Date.now())
+-  );
++    if (hasNewDonations) {
++      await env.RANKINGS.put(
++        'ranking:allTime',
++        JSON.stringify(getTopFive(globalTotals))
++      );
++    }
++  }
+ 
+-  await env.RANKINGS.put(
+-    'ranking:last_error',
+-    ''
+-  );
++  // Limpa um erro anterior somente quando ele realmente existe. Assim uma
++  // sincronização sem novidades não gera um write extra a cada execução.
++  const previousError = await env.RANKINGS.get('ranking:last_error');
++  if (previousError) {
++    await env.RANKINGS.put('ranking:last_error', '');
++  }
+ }
+ 
+ // ---------------------------------------------------------------------
+@@ -739,6 +759,268 @@ async function handleDebugTwitchSync(request, url, env) {
+   }
+ }
+ 
++
++// ---------------------------------------------------------------------
++// Twitch — status ao vivo
++//
++// Política V47.4.3:
++// - consulta Helix /streams no máximo uma vez a cada 10 minutos;
++// - grava um único snapshot no KV, com TTL de 30 minutos;
++// - /twitch/live nunca consulta a Twitch e usa Cache API por 60 s para
++//   reduzir leituras KV repetidas no mesmo data center;
++// - se o snapshot ficar com mais de 20 minutos, a API pública retorna 503
++//   e a Home mantém o Hero padrão em vez de exibir um estado possivelmente
++//   incorreto.
++// ---------------------------------------------------------------------
++function twitchLiveThumbnailUrl(value) {
++  return String(value || '')
++    .replace(/\{width\}/g, '640')
++    .replace(/\{height\}/g, '360')
++    .trim();
++}
++
++function normalizeTwitchLiveStream(stream, checkedAt) {
++  if (!stream || typeof stream !== 'object') {
++    return {
++      live: false,
++      checkedAt
++    };
++  }
++
++  return {
++    live: true,
++    checkedAt,
++    id: String(stream.id || '').trim(),
++    userId: String(stream.user_id || '').trim(),
++    userLogin: String(stream.user_login || '').trim(),
++    userName: String(stream.user_name || '').trim(),
++    title: String(stream.title || '').trim(),
++    gameName: String(stream.game_name || '').trim(),
++    viewerCount: Math.max(0, Number(stream.viewer_count) || 0),
++    startedAt: String(stream.started_at || '').trim(),
++    thumbnail: twitchLiveThumbnailUrl(stream.thumbnail_url),
++    url: ''
++  };
++}
++
++async function fetchTwitchLiveStatus(env) {
++  assertTwitchConfigured(env);
++
++  const accessToken = await getTwitchAppAccessToken(env);
++  const userId = await getTwitchUserId(env, accessToken);
++  const url = new URL(`${TWITCH_API}/streams`);
++
++  url.searchParams.set('user_id', userId);
++
++  const response = await fetch(url.toString(), {
++    headers: {
++      Authorization: `Bearer ${accessToken}`,
++      'Client-Id': twitchClientId(env)
++    }
++  });
++
++  if (!response.ok) {
++    throw new Error(`Falha ao consultar status da Twitch (${response.status}).`);
++  }
++
++  const data = await response.json();
++  const stream = Array.isArray(data?.data) ? data.data[0] : null;
++  const checkedAt = Date.now();
++  const normalized = normalizeTwitchLiveStream(stream, checkedAt);
++
++  if (normalized.live) {
++    normalized.url = `https://www.twitch.tv/${twitchChannelLogin(env)}`;
++  }
++
++  return normalized;
++}
++
++async function getTwitchLiveSnapshot(env) {
++  return getJSON(env, 'twitch:live', null);
++}
++
++function twitchLiveSnapshotCheckedAt(snapshot) {
++  return Math.max(0, Number(snapshot?.checkedAt) || 0);
++}
++
++async function syncTwitchLiveIfDue(env, options = {}) {
++  assertTwitchConfigured(env);
++
++  const current = await getTwitchLiveSnapshot(env);
++  const checkedAt = twitchLiveSnapshotCheckedAt(current);
++  const now = Date.now();
++  const force = options.force === true;
++
++  if (!force && checkedAt && now - checkedAt < TWITCH_LIVE_REFRESH_INTERVAL_MS) {
++    return {
++      updated: false,
++      reason: 'cache_fresh',
++      live: Boolean(current?.live),
++      checkedAt,
++      nextRefreshAt: checkedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS
++    };
++  }
++
++  try {
++    const snapshot = await fetchTwitchLiveStatus(env);
++
++    await env.RANKINGS.put(
++      'twitch:live',
++      JSON.stringify(snapshot),
++      { expirationTtl: TWITCH_LIVE_CACHE_TTL_SECONDS }
++    );
++
++    const previousError = await env.RANKINGS.get('twitch:live_last_error');
++    if (previousError) {
++      await env.RANKINGS.put('twitch:live_last_error', '');
++    }
++
++    return {
++      updated: true,
++      live: Boolean(snapshot.live),
++      checkedAt: snapshot.checkedAt,
++      nextRefreshAt: snapshot.checkedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS
++    };
++  } catch (error) {
++    await env.RANKINGS.put('twitch:live_last_error', String(error.message));
++    throw error;
++  }
++}
++
++function buildTwitchLivePublicPayload(snapshot) {
++  if (!snapshot?.live) {
++    return {
++      platform: 'twitch',
++      live: false,
++      checkedAt: new Date(twitchLiveSnapshotCheckedAt(snapshot)).toISOString()
++    };
++  }
++
++  return {
++    platform: 'twitch',
++    live: true,
++    checkedAt: new Date(twitchLiveSnapshotCheckedAt(snapshot)).toISOString(),
++    title: String(snapshot.title || '').trim(),
++    gameName: String(snapshot.gameName || '').trim(),
++    viewerCount: Math.max(0, Number(snapshot.viewerCount) || 0),
++    startedAt: String(snapshot.startedAt || '').trim(),
++    thumbnail: String(snapshot.thumbnail || '').trim(),
++    url: String(snapshot.url || '').trim()
++  };
++}
++
++async function handleTwitchLive(request, env, ctx) {
++  const cache = caches.default;
++  const cacheUrl = new URL(request.url);
++  cacheUrl.search = '';
++  const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' });
++  const cached = await cache.match(cacheKey);
++
++  if (cached) {
++    return cors(request, env, cached);
++  }
++
++  const snapshot = await getTwitchLiveSnapshot(env);
++  const checkedAt = twitchLiveSnapshotCheckedAt(snapshot);
++  const age = checkedAt ? Date.now() - checkedAt : Number.POSITIVE_INFINITY;
++
++  if (!snapshot || !checkedAt || age >= TWITCH_LIVE_STALE_AFTER_MS) {
++    return cors(
++      request,
++      env,
++      new Response(
++        JSON.stringify({
++          platform: 'twitch',
++          live: false,
++          available: false,
++          checkedAt: checkedAt ? new Date(checkedAt).toISOString() : null
++        }),
++        {
++          status: 503,
++          headers: {
++            'Content-Type': 'application/json; charset=utf-8',
++            'Cache-Control': 'no-store'
++          }
++        }
++      )
++    );
++  }
++
++  const response = new Response(
++    JSON.stringify({
++      ...buildTwitchLivePublicPayload(snapshot),
++      available: true
++    }),
++    {
++      headers: {
++        'Content-Type': 'application/json; charset=utf-8',
++        'Cache-Control': `public, max-age=${TWITCH_LIVE_EDGE_CACHE_SECONDS}`
++      }
++    }
++  );
++
++  ctx?.waitUntil(cache.put(cacheKey, response.clone()));
++
++  return cors(request, env, response);
++}
++
++async function handleDebugTwitchLiveSync(request, url, env) {
++  if (!isAdminAuthorized(request, url, env)) {
++    return cors(request, env, new Response('Não autorizado', { status: 403 }));
++  }
++
++  try {
++    const force = url.searchParams.get('force') === '1';
++    const result = await syncTwitchLiveIfDue(env, { force });
++
++    // Remove o cache local do data center usado pelo comando administrativo,
++    // permitindo validar imediatamente o novo estado nesse mesmo ponto de presença.
++    const publicUrl = new URL('/twitch/live', request.url);
++    await caches.default.delete(new Request(publicUrl.toString(), { method: 'GET' }));
++
++    return cors(
++      request,
++      env,
++      new Response(
++        JSON.stringify({
++          status: 'ok',
++          ...result,
++          checkedAt: result.checkedAt
++            ? new Date(result.checkedAt).toISOString()
++            : null,
++          nextRefreshAt: result.nextRefreshAt
++            ? new Date(result.nextRefreshAt).toISOString()
++            : null
++        }),
++        {
++          headers: {
++            'Content-Type': 'application/json; charset=utf-8',
++            'Cache-Control': 'no-store'
++          }
++        }
++      )
++    );
++  } catch (error) {
++    return cors(
++      request,
++      env,
++      new Response(
++        JSON.stringify({
++          status: 'error',
++          message: error.message
++        }),
++        {
++          status: 500,
++          headers: {
++            'Content-Type': 'application/json; charset=utf-8',
++            'Cache-Control': 'no-store'
++          }
++        }
++      )
++    );
++  }
++}
++
+ // ---------------------------------------------------------------------
+ // Diagnóstico
+ // ---------------------------------------------------------------------
+@@ -750,6 +1032,9 @@ async function handleDebugStatus(request, url, env) {
+   const twitchState = await getTwitchRefreshState(env);
+   const twitchVideos = await getJSON(env, 'twitch:videos', []);
+   const twitchLastError = await env.RANKINGS.get('twitch:last_error');
++  const twitchLive = await getTwitchLiveSnapshot(env);
++  const twitchLiveCheckedAt = twitchLiveSnapshotCheckedAt(twitchLive);
++  const twitchLiveLastError = await env.RANKINGS.get('twitch:live_last_error');
+ 
+   return cors(request, env, new Response(
+     JSON.stringify({
+@@ -768,7 +1053,18 @@ async function handleDebugStatus(request, url, env) {
+           ? new Date(twitchState.nextRefreshAt).toISOString()
+           : null,
+         refreshDue: twitchState.due,
+-        lastError: twitchLastError || null
++        lastError: twitchLastError || null,
++        liveStatus: {
++          live: Boolean(twitchLive?.live),
++          checkedAt: twitchLiveCheckedAt
++            ? new Date(twitchLiveCheckedAt).toISOString()
++            : null,
++          nextRefreshAt: twitchLiveCheckedAt
++            ? new Date(twitchLiveCheckedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS).toISOString()
++            : null,
++          stale: !twitchLiveCheckedAt || Date.now() - twitchLiveCheckedAt >= TWITCH_LIVE_STALE_AFTER_MS,
++          lastError: twitchLiveLastError || null
++        }
+       }
+     }),
+     {
+-- 
+2.47.3
+

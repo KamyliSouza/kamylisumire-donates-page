@@ -254,7 +254,7 @@
     <link rel="stylesheet" href="css/core/variables.css">
     <link rel="stylesheet" href="css/core/global.css?v=47.1">
     <link rel="stylesheet" href="css/core/navbar.css?v=47">
-    <link rel="stylesheet" href="css/pages/home.css?v=46.2">
+    <link rel="stylesheet" href="css/pages/home.css?v=47.4.3">
     <link rel="stylesheet" href="css/components/lives.css?v=47.4">
     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
@@ -324,39 +324,130 @@
     <main class="site-shell">
         <section class="hero glass-panel" id="inicio">
             <div class="hero-copy">
-                <span class="eyebrow" id="heroEyebrow">PNGtuber • Lives • Comunidade</span>
+                <div
+                    class="hero-view-tabs"
+                    id="heroViewTabs"
+                    role="tablist"
+                    aria-label="Conteúdo em destaque"
+                    hidden
+                >
+                    <button
+                        class="hero-view-tab"
+                        id="heroTabAbout"
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="heroAboutPanel"
+                        tabindex="-1"
+                    >
+                        Sobre
+                    </button>
 
-                <h1>
-                    <span id="heroTitlePrefix">Oiê! Eu sou a </span><span id="heroTitleHighlight">Kamyli</span><span id="heroTitleSuffix"> ✨</span>
-                </h1>
+                    <button
+                        class="hero-view-tab"
+                        id="heroTabLive"
+                        type="button"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="heroLivePanel"
+                    >
+                        Ao vivo
+                    </button>
+                </div>
 
-                <p class="hero-text" id="heroDescription">
-                    Faço lives de joguinhos enquanto troco uma ideia com você.
-                    Por aqui você encontra minha agenda, minhas redes e todas as
-                    formas de acompanhar o conteúdo.
-                </p>
+                <div
+                    class="hero-view-panel hero-about-panel"
+                    id="heroAboutPanel"
+                    role="tabpanel"
+                    aria-labelledby="heroTabAbout"
+                >
+                    <span class="eyebrow" id="heroEyebrow">PNGtuber • Lives • Comunidade</span>
 
-                <div class="hero-actions">
-                    <a class="button button-primary" id="heroSupportButton" data-button-key="heroSupport" href="doacoes/">
-                        <span data-button-icon aria-hidden="true"></span>
-                        <span data-button-label>Apoiar</span>
-                    </a>
+                    <h1>
+                        <span id="heroTitlePrefix">Oiê! Eu sou a </span><span id="heroTitleHighlight">Kamyli</span><span id="heroTitleSuffix"> ✨</span>
+                    </h1>
+
+                    <p class="hero-text" id="heroDescription">
+                        Faço lives de joguinhos enquanto troco uma ideia com você.
+                        Por aqui você encontra minha agenda, minhas redes e todas as
+                        formas de acompanhar o conteúdo.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a class="button button-primary" id="heroSupportButton" data-button-key="heroSupport" href="doacoes/">
+                            <span data-button-icon aria-hidden="true"></span>
+                            <span data-button-label>Apoiar</span>
+                        </a>
+
+                        <a
+                            class="button button-outline"
+                            id="heroLiveAnchor"
+                            data-button-key="heroLive"
+                            href="https://youtube.com/kamyli/live"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <span data-button-icon aria-hidden="true"></span>
+                            <span id="heroLiveButton" data-button-label>Abrir live</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div
+                    class="hero-view-panel hero-live-panel"
+                    id="heroLivePanel"
+                    role="tabpanel"
+                    aria-labelledby="heroTabLive"
+                    hidden
+                >
+                    <span class="eyebrow hero-live-eyebrow">Ao vivo na Twitch</span>
 
                     <a
-                        class="button button-outline"
-                        data-button-key="heroLive"
-                        href="https://youtube.com/kamyli/live"
+                        class="hero-live-preview"
+                        id="heroLivePreview"
+                        href="https://www.twitch.tv/kamyli"
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="Assistir à transmissão ao vivo na Twitch"
                     >
-                        <span data-button-icon aria-hidden="true"></span>
-                        <span id="heroLiveButton" data-button-label>Abrir live</span>
+                        <span class="hero-live-media">
+                            <img
+                                class="hero-live-thumbnail"
+                                id="heroLiveThumbnail"
+                                alt="Preview da transmissão ao vivo na Twitch"
+                                width="640"
+                                height="360"
+                                loading="eager"
+                                decoding="async"
+                            >
+                            <span class="hero-live-badge">● AO VIVO</span>
+                        </span>
+
+                        <span class="hero-live-copy">
+                            <strong class="hero-live-title" id="heroLiveTitle">Live ao vivo</strong>
+                            <span class="hero-live-meta">
+                                <span id="heroLiveGame"></span>
+                                <span id="heroLiveViewers"></span>
+                            </span>
+                        </span>
                     </a>
+
+                    <div class="hero-actions hero-live-actions">
+                        <a
+                            class="button button-primary"
+                            id="heroLiveWatchButton"
+                            href="https://www.twitch.tv/kamyli"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Assistir na Twitch
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div class="hero-profile">
-                <div class="hero-avatar-frame">
+                <div class="hero-avatar-frame" id="heroAvatarFrame">
                     <picture>
                         <source
                             srcset="https://assets.kamylisumire.com/avatar-192.webp 192w, https://assets.kamylisumire.com/avatar-384.webp 384w"
@@ -722,7 +813,8 @@
     <script src="js/pages/home/home.js?v=46.2"></script>
     <script src="js/pages/home/content.js?v=47"></script>
     <script src="js/core/api.js?v=47.3"></script>
-    <script src="js/pages/home/lives.js?v=47.4"></script>
+    <script src="js/pages/home/lives.js?v=47.4.3"></script>
+    <script src="js/pages/home/twitch-live.js?v=47.4.3"></script>
     <script src="js/pages/home/home-interactions.js?v=47"></script>
     <script src="js/core/loader.js?v=46.3"></script>
 </body>
