@@ -1,23 +1,92 @@
 {
-  "navbarSupport": {"text": "Apoiar", "icon": "heart", "ariaLabel": "Apoiar a Kamyli"},
-  "heroSupport": {"text": "Apoiar", "icon": "heart"},
-  "heroLive": {"text": "Abrir live", "icon": "youtube"},
-  "livesChannel": {"text": "Abrir no YouTube", "icon": "youtube"},
-  "homeBlogAll": {"text": "Ver todas", "icon": "arrow-right"},
-  "homeDonation": {"text": "Apoiar", "icon": "heart"},
-  "notFoundHome": {"text": "Voltar para o início", "icon": "home"},
-  "donationLivepix": {"text": "Apoiar com PIX (LivePix)", "icon": "pix"},
-  "donationPixie": {"text": "Moeda Estrangeira (Pixie)", "icon": "globe"},
-  "rankingMonthly": {"text": "Este mês", "icon": "calendar"},
-  "rankingAllTime": {"text": "Todos os tempos", "icon": "trophy"},
-  "blogFilterAll": {"text": "Todos", "icon": "tag"},
-  "blogArticleBack": {"text": "Voltar ao Blog", "icon": "arrow-left"},
-  "externalCancel": {"text": "Cancelar", "icon": "x"},
-  "externalContinue": {"text": "Continuar", "icon": "external-link"},
-  "settingsOpen": {"text": "Configurações", "icon": "settings"},
-  "settingsClose": {"text": "", "icon": "x", "ariaLabel": "Fechar configurações"},
-  "livesPrev": {"text": "", "icon": "chevron-left", "ariaLabel": "Mostrar live anterior"},
-  "livesNext": {"text": "", "icon": "chevron-right", "ariaLabel": "Mostrar próxima live"},
-  "agendaPrev": {"text": "", "icon": "chevron-left", "ariaLabel": "Mostrar dia anterior"},
-  "agendaNext": {"text": "", "icon": "chevron-right", "ariaLabel": "Mostrar próximo dia"}
+  "navbarSupport": {
+    "text": "Apoiar",
+    "icon": "heart",
+    "ariaLabel": "Apoiar a Kamyli"
+  },
+  "heroSupport": {
+    "text": "Apoiar",
+    "icon": "heart"
+  },
+  "heroLive": {
+    "text": "Abrir live",
+    "icon": "none"
+  },
+  "livesChannel": {
+    "text": "Abrir no YouTube",
+    "icon": "youtube"
+  },
+  "homeBlogAll": {
+    "text": "Ver todas",
+    "icon": "arrow-right"
+  },
+  "homeDonation": {
+    "text": "Apoiar",
+    "icon": "heart"
+  },
+  "livesPrev": {
+    "text": "",
+    "icon": "chevron-left",
+    "ariaLabel": "Mostrar live anterior"
+  },
+  "livesNext": {
+    "text": "",
+    "icon": "chevron-right",
+    "ariaLabel": "Mostrar próxima live"
+  },
+  "agendaPrev": {
+    "text": "",
+    "icon": "chevron-left",
+    "ariaLabel": "Mostrar dia anterior"
+  },
+  "agendaNext": {
+    "text": "",
+    "icon": "chevron-right",
+    "ariaLabel": "Mostrar próximo dia"
+  },
+  "donationLivepix": {
+    "text": "Apoiar com PIX (LivePix)",
+    "icon": "pix"
+  },
+  "donationPixie": {
+    "text": "Moeda Estrangeira (Pixie)",
+    "icon": "globe"
+  },
+  "rankingMonthly": {
+    "text": "Este mês",
+    "icon": "none"
+  },
+  "rankingAllTime": {
+    "text": "Todos os tempos",
+    "icon": "none"
+  },
+  "blogFilterAll": {
+    "text": "Todos",
+    "icon": "tag"
+  },
+  "blogArticleBack": {
+    "text": "Voltar ao Blog",
+    "icon": "arrow-left"
+  },
+  "externalCancel": {
+    "text": "Cancelar",
+    "icon": "x"
+  },
+  "externalContinue": {
+    "text": "Continuar",
+    "icon": "external-link"
+  },
+  "settingsOpen": {
+    "text": "Configurações",
+    "icon": "settings"
+  },
+  "settingsClose": {
+    "text": "",
+    "icon": "x",
+    "ariaLabel": "Fechar configurações"
+  },
+  "notFoundHome": {
+    "text": "Voltar para o início",
+    "icon": "home"
+  }
 }
