@@ -912,8 +912,8 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=47" not in html or "js/core/buttons.js?v=47" not in html:
-            error(f"{rel}: módulos de botões V47 não carregados.")
+        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=47" not in html:
+            error(f"{rel}: módulos de botões V47/V47.2 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
@@ -947,6 +947,13 @@ def validate_architecture() -> None:
         error("js/core/buttons.js: configuração central de botões não carregada.")
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+
+    # V47.2: o ícone de configurações usa engrenagem geométrica simétrica.
+    legacy_settings_path = "M19.4 15a1.7 1.7 0 0 0 .34 1.88"
+    if legacy_settings_path in button_icons_js:
+        error("js/core/button-icons.js: glyph legado/descentrado de settings ainda presente.")
+    if '["polygon", { points: "9.17,5.16 10.34,4.79' not in button_icons_js:
+        error("js/core/button-icons.js: engrenagem simétrica V47.2 de settings ausente.")
 
     # V47.1: geometria interna dos botões configuráveis.
     for needle in (
