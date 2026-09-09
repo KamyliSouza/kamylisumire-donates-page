@@ -172,6 +172,25 @@ explicitamente necessárias.
 `STREAMLABS_CLIENT_SECRET`, `OAUTH_SETUP_TOKEN`, tokens OAuth e demais
 credenciais continuam fora do Git.
 
+Desde a V47.3, `/oauth/authorize`, `/debug/status` e `/debug/sync`
+aceitam o token de administração via `Authorization: Bearer <token>`
+(preferido, não fica em logs/histórico) além do fallback `?key=` na URL
+(mantido só porque `/oauth/authorize` precisa continuar sendo um link
+clicável no navegador). As três rotas administrativas e o `/oauth/callback`
+agora respondem com os mesmos cabeçalhos de CORS de `handleRanking`, em vez
+de um subconjunto inconsistente.
+
+A anonimização de nomes no ranking público passou do frontend (lista
+fixa em `js/pages/doacoes/ranking.js`) para o Worker, via a variável de
+ambiente `RANKING_PRIVATE_NAMES` (nomes separados por vírgula, comparação
+sem diferenciar maiúsculas/minúsculas e ignorando espaços nas extremidades,
+fora do Git) e, opcionalmente, `RANKING_PRIVACY_LABEL` (padrão
+`"Anônimo"`). A regra deve ser aplicada em `handleRanking()` antes da resposta
+pública; os snapshots no KV preservam os nomes originais. O frontend usa uma
+chave de cache versionada (`kamyli-ranking-cache-v3`) para não reutilizar dados
+crus gravados antes dessa migração. Configurar essas variáveis é uma etapa manual
+no painel/CLI da Cloudflare — não há `wrangler.toml` neste repositório.
+
 ## Navbar/footer e links externos
 
 Navbar e footer são componentes compartilhados em `js/core/`.
@@ -204,6 +223,22 @@ Preservar:
 - `sitemap.xml`;
 - `CNAME`;
 - `noindex` de preview Cloudflare Pages.
+
+## Cache-busting de scripts
+
+Sem bundler (ver Princípios), cada `<script src="...">` carrega o
+cache-buster `?v=` manualmente. Convenção:
+
+- todo arquivo em `js/core/` e os `js/pages/**` carregados por cada
+  página devem ter `?v=`;
+- ao editar um arquivo, incrementar o `?v=` dele em **todas** as páginas
+  que o carregam, para não depender de cache expirar sozinho;
+- não é necessário sincronizar o número entre arquivos que não mudaram
+  juntos — versões podem divergir entre arquivos por design.
+
+Estado atual (a corrigir apenas quando esses arquivos forem tocados de
+novo, não em PRs não relacionados): `js/core/preferences.js` e
+`js/core/config.js` ainda não têm `?v=`.
 
 ## Validação
 

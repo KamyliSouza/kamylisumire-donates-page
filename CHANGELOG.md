@@ -1,5 +1,48 @@
 # Changelog
 
+## V47.3 — Auditoria consolidada: conteúdo global, Worker, CORS e privacidade do ranking
+
+Consolida as duas auditorias preparadas após a V47.2 em uma única atualização,
+sem alterar a arquitetura do site ou o contrato público do ranking.
+
+- `data/content/interface.json` e o fallback de `js/core/content.js` ganham
+  `configuracoes.fecharAriaLabel`, completando o hook editorial usado em
+  `applyFooter()`;
+- `js/core/content.js` passa a clonar `defaults` antes do `merge`, evitando
+  mutação do objeto de fallback em tempo de execução;
+- remove `README-45.2.3.txt`, guia de hotfix obsoleto cujo histórico permanece
+  no Git e neste changelog;
+- `/oauth/authorize`, `/debug/status` e `/debug/sync` passam a aceitar
+  `Authorization: Bearer <token>` como autenticação administrativa preferida,
+  mantendo `?key=` como fallback compatível para navegação direta no OAuth;
+- uniformiza CORS nas rotas públicas, administrativas e callback OAuth e inclui
+  `Authorization` em `Access-Control-Allow-Headers`, permitindo que clientes
+  cross-origin usem Bearer após o preflight;
+- corrige a detecção de segundos/milissegundos em `created_at`, com guarda para
+  datas inválidas;
+- move a anonimização do ranking do frontend para a fronteira pública do Worker,
+  via `RANKING_PRIVATE_NAMES` e, opcionalmente, `RANKING_PRIVACY_LABEL`; o KV
+  preserva os nomes originais e `handleRanking()` sanitiza todo snapshot antes de
+  responder, inclusive dados gravados por versões anteriores; a comparação é sem
+  diferenciação de maiúsculas/minúsculas e ignora espaços nas extremidades;
+- invalida o cache local legado do ranking ao trocar `kamyli-ranking-cache-v2` por
+  `kamyli-ranking-cache-v3`, impedindo que nomes crus armazenados antes da migração
+  sejam reutilizados pelo frontend novo;
+- `created_at` presente porém inválido deixa de ser tratado silenciosamente como
+  a data atual; a doação continua entrando no total global, mas não é atribuída ao
+  mês corrente sem uma data válida;
+- remove o `console.info` de sucesso em `js/core/api.js`;
+- documenta no `AGENTS.md` a autenticação administrativa, as variáveis de
+  privacidade e a convenção de cache-busting;
+- atualiza para `?v=47.3` os scripts modificados por esta atualização:
+  `js/core/content.js`, `js/core/api.js` e `js/pages/doacoes/ranking.js`.
+  `js/core/button-icons.js?v=47.2` permanece em V47.2 porque não foi alterado.
+
+**Ação manual necessária no Cloudflare antes de publicar o frontend:** definir
+`RANKING_PRIVATE_NAMES` com os nomes privados separados por vírgula e, se
+desejado, `RANKING_PRIVACY_LABEL`. `ALLOWED_ORIGINS`, `REDIRECT_URI`, bindings
+KV e credenciais existentes permanecem compatíveis.
+
 ## V46 — Blog estático condicional
 
 - adiciona `/blog/` com listagem textual simples, busca e filtros por tag;

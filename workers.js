@@ -16,10 +16,10 @@ export default {
       return cors(request, env, new Response(null, { status: 204 }));
     }
 
-    if (url.pathname === '/oauth/authorize') return handleAuthorize(url, env);
-    if (url.pathname === '/oauth/callback') return handleCallback(url, env);
-    if (url.pathname === '/debug/status') return handleDebugStatus(url, env);
-    if (url.pathname === '/debug/sync') return handleDebugSync(url, env);
+    if (url.pathname === '/oauth/authorize') return handleAuthorize(request, url, env);
+    if (url.pathname === '/oauth/callback') return handleCallback(request, url, env);
+    if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
+    if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
 
     return handleRanking(request, env);
   },
@@ -67,7 +67,7 @@ function cors(request, env, response) {
   }
 
   headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   return new Response(response.body, {
     status: response.status,
@@ -77,11 +77,37 @@ function cors(request, env, response) {
 }
 
 // ---------------------------------------------------------------------
+// Autenticação administrativa (OAuth/Debug)
+//
+// Preferir 'Authorization: Bearer <token>': ele não fica registrado em
+// logs de acesso, histórico do navegador ou cabeçalho Referer da forma
+// como '?key=' na URL fica. O parâmetro de query é mantido apenas como
+// fallback, porque /oauth/authorize precisa continuar sendo um link
+// clicável/colável diretamente no navegador (não dá para anexar um
+// header a uma navegação simples de GET).
+// ---------------------------------------------------------------------
+function extractAdminToken(request, url) {
+  const header = request.headers.get('Authorization') || '';
+  const bearerMatch = /^Bearer\s+(.+)$/i.exec(header.trim());
+
+  if (bearerMatch) return bearerMatch[1].trim();
+
+  return (url.searchParams.get('key') || '').trim();
+}
+
+function isAdminAuthorized(request, url, env) {
+  const expected = (env.OAUTH_SETUP_TOKEN || '').trim();
+  if (!expected) return false;
+
+  return extractAdminToken(request, url) === expected;
+}
+
+// ---------------------------------------------------------------------
 // OAuth
 // ---------------------------------------------------------------------
-async function handleAuthorize(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
-    return new Response('Não autorizado', { status: 403 });
+async function handleAuthorize(request, url, env) {
+  if (!isAdminAuthorized(request, url, env)) {
+    return cors(request, env, new Response('Não autorizado', { status: 403 }));
   }
 
   const authUrl = new URL(`${STREAMLABS_API}/authorize`);
@@ -90,14 +116,14 @@ async function handleAuthorize(url, env) {
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('scope', 'donations.read');
 
-  return Response.redirect(authUrl.toString(), 302);
+  return cors(request, env, Response.redirect(authUrl.toString(), 302));
 }
 
-async function handleCallback(url, env) {
+async function handleCallback(request, url, env) {
   const code = url.searchParams.get('code');
 
   if (!code) {
-    return new Response('Código ausente na URL', { status: 400 });
+    return cors(request, env, new Response('Código ausente na URL', { status: 400 }));
   }
 
   const tokenRes = await fetch(`${STREAMLABS_API}/token`, {
@@ -118,7 +144,7 @@ async function handleCallback(url, env) {
   const text = await tokenRes.text();
 
   if (!tokenRes.ok) {
-    return new Response('Falha:\n' + text, { status: 500 });
+    return cors(request, env, new Response('Falha:\n' + text, { status: 500 }));
   }
 
   await saveTokens(env, JSON.parse(text));
@@ -132,10 +158,10 @@ async function handleCallback(url, env) {
     await env.RANKINGS.put('ranking:last_error', String(err.message));
   }
 
-  return new Response(
+  return cors(request, env, new Response(
     'Conectado!\n\n' + syncMessage,
     { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
-  );
+  ));
 }
 
 async function saveTokens(env, tokenData) {
@@ -259,21 +285,11 @@ async function syncDonations(env) {
       const name = (donation.name || 'Anônimo').trim();
       const amount = Number(donation.amount) || 0;
 
-      let donationDate = new Date();
-
-      if (donation.created_at) {
-        const isUnix =
-          typeof donation.created_at === 'number' ||
-          /^\d{10}$/.test(String(donation.created_at));
-
-        donationDate = isUnix
-          ? new Date(Number(donation.created_at) * 1000)
-          : new Date(donation.created_at);
-      }
+      const donationDate = parseDonationDate(donation.created_at);
 
       globalTotals[name] = (globalTotals[name] || 0) + amount;
 
-      if (monthKey(donationDate) === currentMonthKey) {
+      if (donationDate && monthKey(donationDate) === currentMonthKey) {
         monthlyTotals[name] =
           (monthlyTotals[name] || 0) + amount;
       }
@@ -328,39 +344,60 @@ async function syncDonations(env) {
 // ---------------------------------------------------------------------
 // Diagnóstico
 // ---------------------------------------------------------------------
-async function handleDebugStatus(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
-    return new Response('Não autorizado', { status: 403 });
+async function handleDebugStatus(request, url, env) {
+  if (!isAdminAuthorized(request, url, env)) {
+    return cors(request, env, new Response('Não autorizado', { status: 403 }));
   }
 
-  return new Response(
+  return cors(request, env, new Response(
     JSON.stringify({ status: 'ok' }),
     { headers: { 'Content-Type': 'application/json' } }
-  );
+  ));
 }
 
-async function handleDebugSync(url, env) {
-  if (url.searchParams.get('key') !== env.OAUTH_SETUP_TOKEN) {
-    return new Response('Não autorizado', { status: 403 });
+async function handleDebugSync(request, url, env) {
+  if (!isAdminAuthorized(request, url, env)) {
+    return cors(request, env, new Response('Não autorizado', { status: 403 }));
   }
 
   try {
     await syncDonations(env);
-    return new Response(
+    return cors(request, env, new Response(
       'Sincronização rodou com sucesso.',
       { status: 200 }
-    );
+    ));
   } catch (err) {
-    return new Response(
+    return cors(request, env, new Response(
       'Erro:\n' + err.message,
       { status: 500 }
-    );
+    ));
   }
 }
 
 // ---------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------
+// RANKING_PRIVATE_NAMES: variável de ambiente do Worker (fora do Git),
+// lista separada por vírgula de nomes que devem aparecer como anônimos
+// no ranking público. Ex.: "Fulano,Ciclano". A comparação ignora caixa
+// e espaços nas extremidades; acentos continuam significativos.
+function getPrivateNames(env) {
+  return (env.RANKING_PRIVATE_NAMES || '')
+    .split(',')
+    .map(name => name.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function applyRankingPrivacy(name, env) {
+  const normalized = String(name || '').trim().toLowerCase();
+
+  if (getPrivateNames(env).includes(normalized)) {
+    return env.RANKING_PRIVACY_LABEL || 'Anônimo';
+  }
+
+  return name;
+}
+
 function getTopFive(totals) {
   return Object.entries(totals)
     .sort((a, b) => b[1] - a[1])
@@ -372,6 +409,37 @@ function getTopFive(totals) {
         maximumFractionDigits: 2
       })
     }));
+}
+
+function sanitizeRanking(items, env) {
+  if (!Array.isArray(items)) return [];
+
+  return items.map(item => ({
+    ...item,
+    name: applyRankingPrivacy(item && item.name, env)
+  }));
+}
+
+// Aceita created_at como número ou string, em segundos ou milissegundos,
+// sem depender de contagem de dígitos (que falha para 'number' em ms).
+// 1e12 ms corresponde ao ano 2001, bem abaixo de qualquer valor realista
+// de epoch em segundos hoje (~1,7e9), então o limiar separa as duas
+// unidades com segurança.
+function parseDonationDate(createdAt) {
+  if (createdAt === undefined || createdAt === null || createdAt === '') {
+    return new Date();
+  }
+
+  const numeric = Number(createdAt);
+
+  if (Number.isFinite(numeric)) {
+    const ms = numeric < 1e12 ? numeric * 1000 : numeric;
+    const fromNumber = new Date(ms);
+    if (!Number.isNaN(fromNumber.getTime())) return fromNumber;
+  }
+
+  const parsed = new Date(createdAt);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function monthKey(date) {
@@ -398,11 +466,17 @@ async function handleRanking(request, env) {
     []
   );
 
+  const publicMonthly = sanitizeRanking(monthly, env);
+  const publicAllTime = sanitizeRanking(allTime, env);
+
   return cors(
     request,
     env,
     new Response(
-      JSON.stringify({ monthly, allTime }),
+      JSON.stringify({
+        monthly: publicMonthly,
+        allTime: publicAllTime
+      }),
       {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

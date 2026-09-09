@@ -74,7 +74,6 @@ window.KamyliAPI = (() => {
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-                console.info(`API atendida por: ${baseUrl}`);
                 return response;
             } catch (error) {
                 clearTimeout(timer);

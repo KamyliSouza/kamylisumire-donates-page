@@ -1,5 +1,5 @@
 // Evita novas consultas ao Worker por 30 minutos no mesmo navegador.
-const RANKING_CACHE_KEY = "kamyli-ranking-cache-v2";
+const RANKING_CACHE_KEY = "kamyli-ranking-cache-v3";
 const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
 
 function readRankingCache({ allowExpired = false } = {}) {
@@ -31,18 +31,6 @@ function writeRankingCache(data) {
     }
 }
 
-/* =========================================
-   CONFIGURAÇÃO DE PRIVACIDADE DO RANKING
-========================================= */
-const RANKING_PRIVACY = {
-    replacement: "Anônimo",
-    names: [
-        "Wedrex"
-        // "NomeDoUsuario",
-        // "OutroUsuario"
-    ]
-};
-
 function parseAmount(value) {
     if (typeof value === "number") return value;
     if (typeof value !== "string") return 0;
@@ -62,16 +50,11 @@ function parseAmount(value) {
     return Number.isFinite(amount) ? amount : 0;
 }
 
+// A troca por "Anônimo" para nomes marcados como privados já acontece no
+// Worker (RANKING_PRIVATE_NAMES), então esta função só cobre nomes
+// ausentes/vazios que eventualmente cheguem da API.
 function getDisplayName(name) {
-    if (!name) return RANKING_PRIVACY.replacement;
-
-    const normalizedName = String(name).trim().toLowerCase();
-    const isPrivate = RANKING_PRIVACY.names.some(
-        privateName =>
-            String(privateName).trim().toLowerCase() === normalizedName
-    );
-
-    return isPrivate ? RANKING_PRIVACY.replacement : name;
+    return name && String(name).trim() ? name : "Anônimo";
 }
 
 function formatAmount(value) {

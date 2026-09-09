@@ -13,6 +13,7 @@
   },
   "configuracoes": {
     "titulo": "Configurações",
+    "fecharAriaLabel": "Fechar configurações",
     "aparencia": "Aparência",
     "temaAutomatico": "Automático",
     "temaClaro": "Claro",
