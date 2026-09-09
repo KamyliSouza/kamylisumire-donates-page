@@ -1,5 +1,5 @@
 /* =========================================================
-   POLÍTICA DE PRIVACIDADE — V47.4.1
+   POLÍTICAS INSTITUCIONAIS — V47.4.2
    Reutiliza a identidade visual global sem criar um layout paralelo.
    ========================================================= */
 
@@ -75,7 +75,7 @@
     margin-top: 8px;
 }
 
-.privacy-section a {
+.privacy-section a:not(.button) {
     color: var(--primary-color);
     font-weight: 800;
     text-underline-offset: 3px;

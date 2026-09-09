@@ -1,5 +1,13 @@
 # Changelog
 
+## V47.4.2 — Políticas institucionais simplificadas
+
+- simplifica `/privacidade/` para concentrar a página nas informações tratadas, finalidades, integrações, armazenamento, controle e segurança do visitante;
+- simplifica `/uso-de-ia/` preservando a proibição expressa de uso dos conteúdos e assets próprios para treinamento, fine-tuning, desenvolvimento ou aprimoramento de IA;
+- mantém a distinção entre assets próprios, conteúdos de terceiros e código sujeito a licença própria;
+- corrige a cor do botão primário `Voltar ao início`: a regra editorial de links passa a ignorar elementos `.button`, permitindo que `button-primary` mantenha texto branco sobre o fundo da marca;
+- atualiza o cache-buster de `css/pages/privacidade.css` para `?v=47.4.2` nas duas páginas.
+
 ## V47.4.1 — Conformidade, Privacidade e Uso de IA
 
 **Twitch e conformidade:** o snapshot público de VODs passa a expirar automaticamente no KV após 24 horas (`expirationTtl: 86400`). A rota `/twitch/videos` não serve conteúdo vencido; se não houver snapshot válido, responde `503` com `Cache-Control: no-store`, preservando a aba YouTube como alternativa independente.
