@@ -85,3 +85,18 @@ A página não deve aparecer por trás do loader.
 
 A pequena diferença de composição do blur dos cards após o reveal permanece
 como limitação conhecida e aceita.
+
+## V47.4 — Twitch em Lives
+
+Além da validação estática, confirmar em produção:
+
+1. `/debug/status` protegido mostra `twitch.configured: true`;
+2. primeira chamada protegida a `/debug/twitch-sync` cria o snapshot;
+3. `/twitch/videos` responde sem autenticação e sem expor credenciais;
+4. nova chamada a `/debug/twitch-sync` antes de 24 h retorna `cache_fresh`;
+5. Twitch é a aba primária da Home;
+6. YouTube continua funcionando se `/twitch/videos` falhar;
+7. o endpoint público não dispara consultas a `api.twitch.tv`.
+
+A CI valida a presença da trava de 24 horas, das rotas Twitch e dos elementos do
+seletor, mas o comportamento temporal real deve ser confirmado pelo smoke test.

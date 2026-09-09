@@ -255,7 +255,7 @@
     <link rel="stylesheet" href="css/core/global.css?v=47.1">
     <link rel="stylesheet" href="css/core/navbar.css?v=47">
     <link rel="stylesheet" href="css/pages/home.css?v=46.2">
-    <link rel="stylesheet" href="css/components/lives.css?v=46.2">
+    <link rel="stylesheet" href="css/components/lives.css?v=47.4">
     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
     <link rel="stylesheet" href="css/components/blog.css">
@@ -470,7 +470,7 @@
                         class="eyebrow"
                         id="livesEyebrow"
                     >
-                        YouTube
+                        Lives
                     </span>
 
                     <h2 id="livesTitle">
@@ -479,16 +479,15 @@
                 </div>
 
                 <a
-                    class="lives-youtube-link"
-                    id="livesYoutubeLink"
-                    data-button-key="livesChannel"
-                    href="https://youtube.com/kamyli"
+                    class="lives-channel-link"
+                    id="livesChannelLink"
+                    href="https://www.twitch.tv/kamyli"
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Abrir canal na Twitch"
                 >
-                    <span data-button-icon aria-hidden="true"></span>
-                    <span id="livesYoutubeLinkText" data-button-label>
-                        Abrir no YouTube
+                    <span id="livesChannelLinkText">
+                        Abrir na Twitch
                     </span>
                 </a>
             </div>
@@ -497,8 +496,37 @@
                 class="body-copy lives-description"
                 id="livesDescription"
             >
-                Confira algumas lives recentes e abra a escolhida no YouTube.
+                Escolha entre Twitch e YouTube para assistir às lives recentes.
             </p>
+
+            <div
+                class="lives-platform-tabs"
+                role="tablist"
+                aria-label="Selecionar plataforma das lives"
+            >
+                <button
+                    class="lives-platform-tab"
+                    id="livesTabTwitch"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="livesTrack"
+                >
+                    Twitch
+                </button>
+
+                <button
+                    class="lives-platform-tab"
+                    id="livesTabYoutube"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="livesTrack"
+                    tabindex="-1"
+                >
+                    YouTube
+                </button>
+            </div>
 
             <div class="lives-carousel">
                 <button
@@ -516,7 +544,7 @@
                     class="lives-carousel-track"
                     id="livesTrack"
                     aria-live="polite"
-                    aria-label="Lives recentes no YouTube"
+                    aria-label="Lives recentes na Twitch"
                     tabindex="0"
                 >
                     <p
@@ -689,11 +717,12 @@
     <script src="js/core/navbar.js?v=47"></script>
     <script src="js/core/external-links.js?v=47"></script>
     <script src="js/core/page-transitions.js?v=46.3"></script>
-    <script src="js/core/footer.js?v=47"></script>
+    <script src="js/core/footer.js?v=47.4.1"></script>
     <script src="js/pages/home/carousel.js?v=46.2"></script>
     <script src="js/pages/home/home.js?v=46.2"></script>
     <script src="js/pages/home/content.js?v=47"></script>
-    <script src="js/pages/home/lives.js?v=47"></script>
+    <script src="js/core/api.js?v=47.3"></script>
+    <script src="js/pages/home/lives.js?v=47.4"></script>
     <script src="js/pages/home/home-interactions.js?v=47"></script>
     <script src="js/core/loader.js?v=46.3"></script>
 </body>

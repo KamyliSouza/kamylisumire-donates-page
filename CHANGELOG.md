@@ -1,5 +1,38 @@
 # Changelog
 
+## V47.4.1 — Conformidade, Privacidade e Uso de IA
+
+**Twitch e conformidade:** o snapshot público de VODs passa a expirar automaticamente no KV após 24 horas (`expirationTtl: 86400`). A rota `/twitch/videos` não serve conteúdo vencido; se não houver snapshot válido, responde `503` com `Cache-Control: no-store`, preservando a aba YouTube como alternativa independente.
+
+**Política de Privacidade:** adicionada a rota pública `/privacidade/`, acessível pelo footer global. O documento é centrado nas informações relacionadas ao usuário e explica quais dados podem ser tratados, finalidades, armazenamento no navegador, doações/ranking via Streamlabs, infraestrutura Cloudflare, Lives/Twitch/YouTube, serviços externos, retenção, segurança, escolhas e solicitações.
+
+**Uso de IA:** adicionada a rota pública `/uso-de-ia/`, também acessível pelo footer, com proibição expressa do uso de conteúdos e assets próprios do site para treinamento, fine-tuning, desenvolvimento, avaliação ou aprimoramento de modelos de inteligência artificial, aprendizado de máquina e sistemas generativos. A política distingue assets próprios de conteúdos de terceiros e de código sujeito a licença própria, sem oferecer exceção de autorização para treinamento de IA.
+
+**Sinalização técnica e SEO:** `robots.txt` passa a incluir diretivas complementares para crawlers de IA conhecidos, sem tratar o protocolo como barreira técnica absoluta. `sitemap.xml` inclui `/privacidade/` e `/uso-de-ia/`.
+
+**Footer:** o conteúdo global passa a incluir `Política de Privacidade` e `Uso de IA`. `footer.js` também corrige a leitura de `creditos.codigoFonte` e recebe cache-buster `?v=47.4.1` nas páginas públicas.
+
+## V47.4 — Twitch automática em Lives com cache de 24 horas
+
+- mantém o design atual de Lives e adiciona o seletor acessível `Twitch | YouTube`;
+- torna **Twitch** a aba primária ao abrir a Home;
+- preserva a aba YouTube como lista editorial/local, sem YouTube Data API;
+- adiciona `GET /twitch/videos` ao Worker para servir somente o snapshot salvo no KV;
+- adiciona `/debug/twitch-sync`, protegido pelo mesmo `OAUTH_SETUP_TOKEN`, para inicializar/testar a integração;
+- a consulta pública nunca chama `api.twitch.tv`; somente a sincronização agendada/admin pode atualizar o snapshot;
+- `syncTwitchVideosIfDue()` impõe intervalo mínimo de 24 horas entre atualizações bem-sucedidas;
+- reutiliza App Access Token da Twitch e `user_id` do canal no KV para reduzir chamadas auxiliares;
+- consulta `helix/videos` com `type=archive`, `sort=time` e limite configurável de 1 a 20 itens;
+- mantém o último snapshot válido em caso de falha da Twitch;
+- a resposta pública usa cache HTTP até a próxima janela de atualização para reduzir novas invocações no mesmo navegador;
+- adiciona diagnóstico Twitch em `/debug/status`;
+- atualiza `lives.js` e `lives.css` para `?v=47.4`;
+- atualiza documentação e validador para a nova exceção controlada: a Home usa `api.js` apenas na aba Twitch.
+
+**Cloudflare:** configurar `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`,
+`TWITCH_CHANNEL_LOGIN=kamyli` e, opcionalmente, `TWITCH_MAX_VIDEOS=10` antes
+do deploy do Worker. O binding KV continua sendo `RANKINGS`.
+
 ## V47.3 — Auditoria consolidada: conteúdo global, Worker, CORS e privacidade do ranking
 
 Consolida as duas auditorias preparadas após a V47.2 em uma única atualização,

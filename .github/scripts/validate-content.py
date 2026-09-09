@@ -65,6 +65,7 @@ REQUIRED_FILES = (
     "docs/ARQUITETURA.md",
     "docs/SANEAMENTO-V44.md",
     "docs/VALIDACAO.md",
+    "docs/GUIA-TWITCH-V47.4.md",
 )
 
 FORBIDDEN_PATHS = (
@@ -125,6 +126,7 @@ ALLOWED_DOCS = {
     "PRODUCAO.md",
     "SANEAMENTO-V44.md",
     "VALIDACAO.md",
+    "GUIA-TWITCH-V47.4.md",
 }
 
 EXPECTED_DAYS = (
@@ -261,6 +263,8 @@ def validate_lives() -> None:
         "eyebrow",
         "titulo",
         "descricao",
+        "defaultPlatform",
+        "twitchCanalUrl",
         "canalUrl",
         "maxItems",
         "videos",
@@ -271,6 +275,13 @@ def validate_lives() -> None:
 
     if not isinstance(content.get("maxItems"), int) or not 1 <= content["maxItems"] <= 20:
         error("data/content/lives.json: maxItems deve ser inteiro entre 1 e 20.")
+
+    if content.get("defaultPlatform") != "twitch":
+        error("data/content/lives.json: defaultPlatform deve permanecer 'twitch' na V47.4.")
+
+    twitch_channel = content.get("twitchCanalUrl")
+    if not isinstance(twitch_channel, str) or not twitch_channel.startswith("https://www.twitch.tv/"):
+        error("data/content/lives.json: twitchCanalUrl deve apontar para HTTPS da Twitch.")
 
     channel = content.get("canalUrl")
     if not isinstance(channel, str) or not channel.startswith("https://"):
@@ -739,6 +750,7 @@ def validate_architecture() -> None:
     page_transitions = read_text("js/core/page-transitions.js")
     buttons_js = read_text("js/core/buttons.js")
     button_icons_js = read_text("js/core/button-icons.js")
+    worker_js = read_text("workers.js")
 
     for element_id in (
         'id="inicio"',
@@ -768,8 +780,11 @@ def validate_architecture() -> None:
     ):
         error('index.html: fallback do CTA "Gostou das lives?" ainda é antigo.')
 
-    if "js/core/api.js" in index or "ranking.js" in index:
-        error("index.html: Home não deve carregar API/ranking.")
+    if "ranking.js" in index:
+        error("index.html: Home não deve carregar ranking.js.")
+
+    if "js/core/api.js?v=47.3" not in index:
+        error("index.html: Home V47.4 deve carregar api.js para a aba Twitch de Lives.")
 
     if "js/core/api.js" in blog_index or "ranking.js" in blog_index:
         error("blog/index.html: Blog não deve carregar API/ranking.")
@@ -928,7 +943,7 @@ def validate_architecture() -> None:
 
     for asset in (
         "js/pages/home/content.js?v=47",
-        "js/pages/home/lives.js?v=47",
+        "js/pages/home/lives.js?v=47.4",
         "js/pages/home/home-interactions.js?v=47",
         "css/components/home-interactions.css?v=47",
     ):
@@ -1014,9 +1029,32 @@ def validate_architecture() -> None:
     if "window.KamyliCarousel" not in lives_js:
         error("js/pages/home/lives.js: controlador compartilhado ausente.")
 
+    if "css/components/lives.css?v=47.4" not in index:
+        error("index.html: cache-buster V47.4 ausente para css/components/lives.css.")
+
+    for element_id in ('id="livesTabTwitch"', 'id="livesTabYoutube"'):
+        if element_id not in index:
+            error(f"index.html: seletor de plataforma V47.4 ausente: {element_id}")
+
+    for needle in ("window.KamyliAPI", '"/twitch/videos"', 'defaultPlatform'):
+        if needle not in lives_js:
+            error(f"js/pages/home/lives.js: contrato Twitch V47.4 ausente: {needle}")
+
     home_js = read_text("js/pages/home/home.js")
     if "window.KamyliCarousel" not in home_js:
         error("js/pages/home/home.js: controlador compartilhado ausente.")
+
+    for needle in (
+        "TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000",
+        "'/twitch/videos'",
+        "'/debug/twitch-sync'",
+        "syncTwitchVideosIfDue(env)",
+        "type', 'archive'",
+        "twitch:videos",
+        "TWITCH_CLIENT_SECRET",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: contrato Twitch V47.4 ausente: {needle}")
 
     for route in ('"home"', '"doacoes"', '"blog"'):
         if route not in page_transitions:

@@ -1,5 +1,5 @@
 /* =========================================================
-   V43.6.1 — LIVES MANUAIS / LINKS PARA O YOUTUBE
+   V47.4 — LIVES TWITCH + YOUTUBE / LINKS DIRETOS
 
    Não cria player, iframe ou YouTube IFrame API.
    Os cards mostram thumbnail original + título + data.
@@ -11,7 +11,7 @@
     margin-bottom: var(--card-title-description-gap);
 }
 
-.lives-youtube-link {
+.lives-channel-link {
     display: inline-flex;
     align-items: center;
 
@@ -30,8 +30,8 @@
         transform .18s ease;
 }
 
-.lives-youtube-link:hover,
-.lives-youtube-link:focus-visible {
+.lives-channel-link:hover,
+.lives-channel-link:focus-visible {
     opacity: .82;
 
     transform: translateY(-1px);
@@ -236,7 +236,7 @@
         align-items: flex-start;
     }
 
-    .lives-youtube-link {
+    .lives-channel-link {
         margin-top: 2px;
     }
 
@@ -248,7 +248,7 @@
 
 
 @media (prefers-reduced-motion: reduce) {
-    .lives-youtube-link,
+    .lives-channel-link,
     .live-card {
         transition: none;
     }
@@ -259,7 +259,7 @@
     }
 }
 
-:root[data-performance="reduced"] .lives-youtube-link,
+:root[data-performance="reduced"] .lives-channel-link,
 :root[data-performance="reduced"] .live-card {
     transition: none;
 }
@@ -267,4 +267,75 @@
 :root[data-performance="reduced"] .live-card:hover,
 :root[data-performance="reduced"] .live-card:focus-visible {
     transform: none;
+}
+
+/* =========================================================
+   V47.4 — SELETOR TWITCH / YOUTUBE
+   Twitch é a plataforma primária; o desenho dos cards permanece o mesmo.
+   ========================================================= */
+
+.lives-platform-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-top: 14px;
+    padding: 4px;
+
+    background: var(--card-bg);
+    border: 1px solid var(--card-border-strong);
+    border-radius: 999px;
+}
+
+.lives-platform-tab {
+    min-height: 34px;
+
+    padding: 7px 14px;
+
+    color: var(--subtitle-color);
+    background: transparent;
+
+    border: 0;
+    border-radius: 999px;
+
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 850;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        transform .18s ease;
+}
+
+.lives-platform-tab[aria-selected="true"] {
+    color: var(--text-color);
+    background: var(--primary-soft);
+}
+
+.lives-platform-tab:hover,
+.lives-platform-tab:focus-visible {
+    color: var(--primary-color);
+    outline: none;
+}
+
+.lives-platform-tab:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.lives-platform-tab:active {
+    transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lives-platform-tab {
+        transition: none;
+    }
+}
+
+:root[data-performance="reduced"] .lives-platform-tab {
+    transition: none;
 }

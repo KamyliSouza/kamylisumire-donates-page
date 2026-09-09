@@ -30,6 +30,14 @@
         codigoFonte: {
             texto: "Ver código fonte",
             url: "https://github.com/KamyliSouza/kamylisumire-donates-page"
+        },
+        privacidade: {
+            texto: "Política de Privacidade",
+            url: "/privacidade/"
+        },
+        usoIA: {
+            texto: "Uso de IA",
+            url: "/uso-de-ia/"
         }
     };
 
@@ -371,7 +379,17 @@
 
         const codigoFonte = {
             ...fallback.codigoFonte,
-            ...(data?.codigoFonte || {})
+            ...(data?.creditos?.codigoFonte || data?.codigoFonte || {})
+        };
+
+        const privacidade = {
+            ...fallback.privacidade,
+            ...(data?.privacidade || {})
+        };
+
+        const usoIA = {
+            ...fallback.usoIA,
+            ...(data?.usoIA || {})
         };
 
         const fundoUrl = safeUrl(
@@ -387,6 +405,16 @@
         const sourceUrl = safeUrl(
             codigoFonte.url,
             fallback.codigoFonte.url
+        );
+
+        const privacyUrl = safeUrl(
+            privacidade.url,
+            fallback.privacidade.url
+        );
+
+        const aiUseUrl = safeUrl(
+            usoIA.url,
+            fallback.usoIA.url
         );
 
         mount.innerHTML = `
@@ -411,6 +439,28 @@
                         rel="noopener noreferrer"
                     >
                         ${escapeHtml(codigoFonte.texto)}
+                    </a>
+
+                    <span
+                        class="site-footer-separator"
+                        aria-hidden="true"
+                    >
+                        ·
+                    </span>
+
+                    <a href="${escapeHtml(privacyUrl)}">
+                        ${escapeHtml(privacidade.texto)}
+                    </a>
+
+                    <span
+                        class="site-footer-separator"
+                        aria-hidden="true"
+                    >
+                        ·
+                    </span>
+
+                    <a href="${escapeHtml(aiUseUrl)}">
+                        ${escapeHtml(usoIA.texto)}
                     </a>
                 </p>
 

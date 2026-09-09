@@ -18,5 +18,13 @@
       "texto": "Ver código fonte",
       "url": "https://github.com/KamyliSouza/kamylisumire-donates-page"
     }
+  },
+  "privacidade": {
+    "texto": "Política de Privacidade",
+    "url": "/privacidade/"
+  },
+  "usoIA": {
+    "texto": "Uso de IA",
+    "url": "/uso-de-ia/"
   }
 }

@@ -1,4 +1,9 @@
 const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
+const TWITCH_API = 'https://api.twitch.tv/helix';
+const TWITCH_OAUTH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
+const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
+const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
 
 function clientId(env) {
   return (env.STREAMLABS_CLIENT_ID || '').trim();
@@ -20,6 +25,8 @@ export default {
     if (url.pathname === '/oauth/callback') return handleCallback(request, url, env);
     if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
     if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
+    if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
+    if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env);
 
     return handleRanking(request, env);
   },
@@ -28,6 +35,15 @@ export default {
     ctx.waitUntil(
       syncDonations(env).catch((err) =>
         env.RANKINGS.put('ranking:last_error', String(err.message))
+      )
+    );
+
+    // A rotina agendada pode executar com qualquer frequência necessária
+    // para o ranking. A própria função abaixo impede consultas à Twitch
+    // antes de completar 24 horas desde a última atualização bem-sucedida.
+    ctx.waitUntil(
+      syncTwitchVideosIfDue(env).catch((err) =>
+        env.RANKINGS.put('twitch:last_error', String(err.message))
       )
     );
   }
@@ -342,6 +358,388 @@ async function syncDonations(env) {
 }
 
 // ---------------------------------------------------------------------
+// Twitch — últimas lives (VODs)
+//
+// Política V47.4.1:
+// - o endpoint público /twitch/videos NUNCA chama a API da Twitch;
+// - o snapshot fica no KV RANKINGS por no máximo 24 h (expirationTtl);
+// - conteúdo vencido nunca é devolvido pelo endpoint público;
+// - a atualização automática passa por syncTwitchVideosIfDue(), que só
+//   consulta os vídeos após 24 h da última atualização bem-sucedida;
+// - a primeira sincronização resolve o user_id pelo login e o mantém no KV;
+// - o App Access Token também é reutilizado enquanto estiver válido.
+// ---------------------------------------------------------------------
+function twitchClientId(env) {
+  return (env.TWITCH_CLIENT_ID || '').trim();
+}
+
+function twitchClientSecret(env) {
+  return (env.TWITCH_CLIENT_SECRET || '').trim();
+}
+
+function twitchChannelLogin(env) {
+  return (env.TWITCH_CHANNEL_LOGIN || '').trim().toLowerCase();
+}
+
+function twitchVideoLimit(env) {
+  const configured = Number(env.TWITCH_MAX_VIDEOS || 10);
+
+  if (!Number.isInteger(configured)) return 10;
+  return Math.max(1, Math.min(20, configured));
+}
+
+function assertTwitchConfigured(env) {
+  if (!twitchClientId(env)) {
+    throw new Error('TWITCH_CLIENT_ID não configurado.');
+  }
+
+  if (!twitchClientSecret(env)) {
+    throw new Error('TWITCH_CLIENT_SECRET não configurado.');
+  }
+
+  if (!twitchChannelLogin(env)) {
+    throw new Error('TWITCH_CHANNEL_LOGIN não configurado.');
+  }
+}
+
+async function getTwitchAppAccessToken(env) {
+  const storedToken = await env.RANKINGS.get('twitch:app_access_token');
+  const expiresAt = Number(
+    (await env.RANKINGS.get('twitch:app_access_token_expires_at')) || 0
+  );
+
+  if (
+    storedToken &&
+    expiresAt &&
+    Date.now() < expiresAt - TWITCH_TOKEN_SAFETY_MS
+  ) {
+    return storedToken;
+  }
+
+  const body = new URLSearchParams();
+  body.set('client_id', twitchClientId(env));
+  body.set('client_secret', twitchClientSecret(env));
+  body.set('grant_type', 'client_credentials');
+
+  const response = await fetch(TWITCH_OAUTH_TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body.toString()
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      `Falha ao obter App Access Token da Twitch (${response.status}): ${detail}`
+    );
+  }
+
+  const data = await response.json();
+  const token = String(data.access_token || '').trim();
+  const expiresIn = Math.max(60, Number(data.expires_in) || 3600);
+
+  if (!token) {
+    throw new Error('Twitch não retornou access_token.');
+  }
+
+  await env.RANKINGS.put('twitch:app_access_token', token);
+  await env.RANKINGS.put(
+    'twitch:app_access_token_expires_at',
+    String(Date.now() + expiresIn * 1000)
+  );
+
+  return token;
+}
+
+async function getTwitchUserId(env, accessToken) {
+  const login = twitchChannelLogin(env);
+  const cachedLogin = (
+    (await env.RANKINGS.get('twitch:user_login')) || ''
+  ).trim().toLowerCase();
+  const cachedId = (
+    (await env.RANKINGS.get('twitch:user_id')) || ''
+  ).trim();
+
+  if (cachedId && cachedLogin === login) {
+    return cachedId;
+  }
+
+  const url = new URL(`${TWITCH_API}/users`);
+  url.searchParams.set('login', login);
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Client-Id': twitchClientId(env)
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao resolver canal da Twitch (${response.status}).`);
+  }
+
+  const data = await response.json();
+  const userId = String(data?.data?.[0]?.id || '').trim();
+
+  if (!userId) {
+    throw new Error(`Canal da Twitch não encontrado: ${login}.`);
+  }
+
+  await env.RANKINGS.put('twitch:user_login', login);
+  await env.RANKINGS.put('twitch:user_id', userId);
+
+  return userId;
+}
+
+function twitchThumbnailUrl(value) {
+  return String(value || '')
+    .replace(/%\{width\}/g, '320')
+    .replace(/%\{height\}/g, '180')
+    .trim();
+}
+
+function twitchVideoDate(createdAt) {
+  const parsed = new Date(createdAt);
+
+  if (Number.isNaN(parsed.getTime())) return '';
+
+  return parsed.toISOString().slice(0, 10);
+}
+
+async function fetchTwitchVideos(env) {
+  assertTwitchConfigured(env);
+
+  const accessToken = await getTwitchAppAccessToken(env);
+  const userId = await getTwitchUserId(env, accessToken);
+  const url = new URL(`${TWITCH_API}/videos`);
+
+  url.searchParams.set('user_id', userId);
+  url.searchParams.set('type', 'archive');
+  url.searchParams.set('sort', 'time');
+  url.searchParams.set('first', String(twitchVideoLimit(env)));
+
+  // Esta é a única consulta Helix de vídeos feita pela integração durante
+  // cada janela de 24 horas. Em caso de falha, o endpoint público não serve
+  // conteúdo vencido; o snapshot também expira automaticamente no KV.
+  const response = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Client-Id': twitchClientId(env)
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao consultar vídeos da Twitch (${response.status}).`);
+  }
+
+  const data = await response.json();
+  const videos = Array.isArray(data?.data) ? data.data : [];
+
+  return videos
+    .map(video => ({
+      id: String(video?.id || '').trim(),
+      title: String(video?.title || '').trim(),
+      url: String(video?.url || '').trim(),
+      thumbnail: twitchThumbnailUrl(video?.thumbnail_url),
+      date: twitchVideoDate(video?.created_at),
+      duration: String(video?.duration || '').trim()
+    }))
+    .filter(video => (
+      video.id &&
+      video.title &&
+      video.url.startsWith('https://') &&
+      video.thumbnail.startsWith('https://') &&
+      video.date
+    ));
+}
+
+async function getTwitchRefreshState(env) {
+  const updatedAt = Number(
+    (await env.RANKINGS.get('twitch:updated_at')) || 0
+  );
+  const now = Date.now();
+  const due = !updatedAt || now - updatedAt >= TWITCH_REFRESH_INTERVAL_MS;
+
+  return {
+    updatedAt,
+    due,
+    nextRefreshAt: updatedAt
+      ? updatedAt + TWITCH_REFRESH_INTERVAL_MS
+      : now
+  };
+}
+
+async function syncTwitchVideosIfDue(env) {
+  assertTwitchConfigured(env);
+
+  const state = await getTwitchRefreshState(env);
+
+  if (!state.due) {
+    return {
+      updated: false,
+      reason: 'cache_fresh',
+      updatedAt: state.updatedAt,
+      nextRefreshAt: state.nextRefreshAt
+    };
+  }
+
+  try {
+    const videos = await fetchTwitchVideos(env);
+    const updatedAt = Date.now();
+
+    await env.RANKINGS.put(
+      'twitch:videos',
+      JSON.stringify(videos),
+      { expirationTtl: TWITCH_VIDEO_CACHE_TTL_SECONDS }
+    );
+    await env.RANKINGS.put('twitch:updated_at', String(updatedAt));
+    await env.RANKINGS.put('twitch:last_error', '');
+
+    return {
+      updated: true,
+      videoCount: videos.length,
+      updatedAt,
+      nextRefreshAt: updatedAt + TWITCH_REFRESH_INTERVAL_MS
+    };
+  } catch (error) {
+    await env.RANKINGS.put('twitch:last_error', String(error.message));
+    throw error;
+  }
+}
+
+async function handleTwitchVideos(request, env) {
+  const videos = await getJSON(env, 'twitch:videos', []);
+  const state = await getTwitchRefreshState(env);
+
+  if (!state.updatedAt) {
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          platform: 'twitch',
+          videos: [],
+          updatedAt: null,
+          stale: true,
+          message: 'Cache da Twitch ainda não foi inicializado.'
+        }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  }
+
+  if (state.due || !Array.isArray(videos) || videos.length === 0) {
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          platform: 'twitch',
+          videos: [],
+          updatedAt: new Date(state.updatedAt).toISOString(),
+          stale: true,
+          message: 'Cache da Twitch expirado. Aguarde a próxima sincronização.'
+        }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  }
+
+  const now = Date.now();
+  const freshSeconds = Math.max(
+    0,
+    Math.floor((state.nextRefreshAt - now) / 1000)
+  );
+  const browserMaxAge = Math.max(60, freshSeconds);
+
+  return cors(
+    request,
+    env,
+    new Response(
+      JSON.stringify({
+        platform: 'twitch',
+        channelUrl: `https://www.twitch.tv/${twitchChannelLogin(env)}`,
+        videos,
+        updatedAt: new Date(state.updatedAt).toISOString(),
+        refreshAfter: new Date(state.nextRefreshAt).toISOString(),
+        stale: false
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': `public, max-age=${browserMaxAge}`
+        }
+      }
+    )
+  );
+}
+
+async function handleDebugTwitchSync(request, url, env) {
+  if (!isAdminAuthorized(request, url, env)) {
+    return cors(request, env, new Response('Não autorizado', { status: 403 }));
+  }
+
+  try {
+    const result = await syncTwitchVideosIfDue(env);
+
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          status: 'ok',
+          ...result,
+          updatedAt: result.updatedAt
+            ? new Date(result.updatedAt).toISOString()
+            : null,
+          nextRefreshAt: result.nextRefreshAt
+            ? new Date(result.nextRefreshAt).toISOString()
+            : null
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  } catch (error) {
+    return cors(
+      request,
+      env,
+      new Response(
+        JSON.stringify({
+          status: 'error',
+          error: String(error.message)
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store'
+          }
+        }
+      )
+    );
+  }
+}
+
+// ---------------------------------------------------------------------
 // Diagnóstico
 // ---------------------------------------------------------------------
 async function handleDebugStatus(request, url, env) {
@@ -349,9 +747,36 @@ async function handleDebugStatus(request, url, env) {
     return cors(request, env, new Response('Não autorizado', { status: 403 }));
   }
 
+  const twitchState = await getTwitchRefreshState(env);
+  const twitchVideos = await getJSON(env, 'twitch:videos', []);
+  const twitchLastError = await env.RANKINGS.get('twitch:last_error');
+
   return cors(request, env, new Response(
-    JSON.stringify({ status: 'ok' }),
-    { headers: { 'Content-Type': 'application/json' } }
+    JSON.stringify({
+      status: 'ok',
+      twitch: {
+        configured: Boolean(
+          twitchClientId(env) &&
+          twitchClientSecret(env) &&
+          twitchChannelLogin(env)
+        ),
+        videoCount: Array.isArray(twitchVideos) ? twitchVideos.length : 0,
+        updatedAt: twitchState.updatedAt
+          ? new Date(twitchState.updatedAt).toISOString()
+          : null,
+        nextRefreshAt: twitchState.updatedAt
+          ? new Date(twitchState.nextRefreshAt).toISOString()
+          : null,
+        refreshDue: twitchState.due,
+        lastError: twitchLastError || null
+      }
+    }),
+    {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store'
+      }
+    }
   ));
 }
 

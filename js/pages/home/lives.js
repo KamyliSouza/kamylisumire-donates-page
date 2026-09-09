@@ -1,77 +1,51 @@
 (() => {
+    "use strict";
+
     const content = window.KamyliContent;
+    const api = window.KamyliAPI;
 
-    const section =
-        document.getElementById("lives");
+    const section = document.getElementById("lives");
+    const track = document.getElementById("livesTrack");
+    const prev = document.getElementById("livesPrev");
+    const next = document.getElementById("livesNext");
+    const channelLink = document.getElementById("livesChannelLink");
+    const channelLinkText = document.getElementById("livesChannelLinkText");
+    const twitchTab = document.getElementById("livesTabTwitch");
+    const youtubeTab = document.getElementById("livesTabYoutube");
 
-    const track =
-        document.getElementById("livesTrack");
-
-    const prev =
-        document.getElementById("livesPrev");
-
-    const next =
-        document.getElementById("livesNext");
-
-    const youtubeLink =
-        document.getElementById("livesYoutubeLink");
-
-    const youtubeLinkText =
-        document.getElementById("livesYoutubeLinkText");
-
-    if (
-        !content ||
-        !section ||
-        !track
-    ) {
+    if (!content || !section || !track) {
         return;
     }
 
-    const VIDEO_ID_PATTERN =
-        /^[A-Za-z0-9_-]{11}$/;
-
-    const ISO_DATE_PATTERN =
-        /^\d{4}-\d{2}-\d{2}$/;
-
+    const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
+    const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+    const TWITCH_ENDPOINT = "/twitch/videos";
     const DEFAULT_STEP = 320;
 
     let carouselController = null;
+    let pageData = null;
+    let youtubeVideos = [];
+    let twitchVideos = null;
+    let twitchRequest = null;
+    let activePlatform = "twitch";
 
-    function normalizeVideoId(value) {
-        const candidate =
-            String(value || "").trim();
+    function normalizeYoutubeVideoId(value) {
+        const candidate = String(value || "").trim();
 
-        return VIDEO_ID_PATTERN.test(
-            candidate
-        )
+        return VIDEO_ID_PATTERN.test(candidate)
             ? candidate
             : "";
     }
 
     function normalizeDate(value) {
-        const candidate =
-            String(value || "").trim();
+        const candidate = String(value || "").trim();
 
-        if (
-            !ISO_DATE_PATTERN.test(
-                candidate
-            )
-        ) {
+        if (!ISO_DATE_PATTERN.test(candidate)) {
             return "";
         }
 
-        const [year, month, day] =
-            candidate
-                .split("-")
-                .map(Number);
-
-        const date = new Date(
-            Date.UTC(
-                year,
-                month - 1,
-                day
-            )
-        );
+        const [year, month, day] = candidate.split("-").map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
 
         if (
             date.getUTCFullYear() !== year ||
@@ -84,275 +58,166 @@
         return candidate;
     }
 
-    function normalizeVideo(item) {
-        if (
-            !item ||
-            typeof item !== "object" ||
-            Array.isArray(item)
-        ) {
+    function normalizeYoutubeVideo(item) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) {
             return null;
         }
 
-        const videoId =
-            normalizeVideoId(
-                item.videoId
-            );
+        const videoId = normalizeYoutubeVideoId(item.videoId);
+        const title = String(item.title || "").trim();
+        const date = normalizeDate(item.date);
 
-        const title =
-            String(
-                item.title || ""
-            ).trim();
+        if (!videoId || !title || !date) {
+            return null;
+        }
 
-        const date =
-            normalizeDate(
-                item.date
-            );
+        const url = new URL("https://www.youtube.com/watch");
+        url.searchParams.set("v", videoId);
+
+        return {
+            id: videoId,
+            platform: "youtube",
+            title,
+            date,
+            url: url.toString(),
+            thumbnail:
+                "https://i.ytimg.com/vi/" +
+                encodeURIComponent(videoId) +
+                "/mqdefault.jpg"
+        };
+    }
+
+    function normalizeTwitchVideo(item) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) {
+            return null;
+        }
+
+        const id = String(item.id || "").trim();
+        const title = String(item.title || "").trim();
+        const date = normalizeDate(item.date);
+        const url = String(item.url || "").trim();
+        const thumbnail = String(item.thumbnail || "").trim();
 
         if (
-            !videoId ||
+            !id ||
             !title ||
-            !date
+            !date ||
+            !url.startsWith("https://") ||
+            !thumbnail.startsWith("https://")
         ) {
             return null;
         }
 
         return {
-            videoId,
+            id,
+            platform: "twitch",
             title,
-            date
+            date,
+            url,
+            thumbnail
         };
     }
 
-    function buildVideoUrl(videoId) {
-        const url = new URL(
-            "https://www.youtube.com/watch"
-        );
-
-        url.searchParams.set(
-            "v",
-            videoId
-        );
-
-        return url.toString();
-    }
-
-    function thumbnailUrl(videoId) {
-        return (
-            "https://i.ytimg.com/vi/" +
-            encodeURIComponent(videoId) +
-            "/mqdefault.jpg"
-        );
-    }
-
     function formatDate(value) {
-        const [year, month, day] =
-            value
-                .split("-")
-                .map(Number);
+        const [year, month, day] = value.split("-").map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
 
-        const date = new Date(
-            Date.UTC(
-                year,
-                month - 1,
-                day
-            )
-        );
+        return new Intl.DateTimeFormat("pt-BR", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "UTC"
+        }).format(date);
+    }
 
-        return new Intl.DateTimeFormat(
-            "pt-BR",
-            {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-                timeZone: "UTC"
-            }
-        ).format(date);
+    function platformLabel(platform) {
+        return platform === "twitch" ? "Twitch" : "YouTube";
     }
 
     function setMessage(message) {
-        const element =
-            document.createElement(
-                "p"
-            );
+        const element = document.createElement("p");
+        element.className = "lives-message";
+        element.textContent = String(message);
 
-        element.className =
-            "lives-message";
+        track.replaceChildren(element);
 
-        element.textContent =
-            String(message);
-
-        track.replaceChildren(
-            element
-        );
-
-        if (prev) {
-            prev.disabled = true;
-        }
-
-        if (next) {
-            next.disabled = true;
-        }
+        if (prev) prev.disabled = true;
+        if (next) next.disabled = true;
     }
 
     function createVideoCard(video) {
-        const card =
-            document.createElement(
-                "a"
-            );
+        const card = document.createElement("a");
+        const sourceLabel = platformLabel(video.platform);
 
-        card.className =
-            "live-card";
-
-        card.href =
-            buildVideoUrl(
-                video.videoId
-            );
-
+        card.className = "live-card";
+        card.href = video.url;
         card.target = "_blank";
         card.rel = "noopener noreferrer";
-
         card.setAttribute(
             "aria-label",
-            `Abrir ${video.title} no YouTube`
+            `Abrir ${video.title} na ${sourceLabel}`
         );
 
-        const imageWrap =
-            document.createElement(
-                "span"
-            );
+        const imageWrap = document.createElement("span");
+        imageWrap.className = "live-card-media";
 
-        imageWrap.className =
-            "live-card-media";
-
-        const image =
-            document.createElement(
-                "img"
-            );
-
-        image.className =
-            "live-card-thumbnail";
-
-        image.src =
-            thumbnailUrl(
-                video.videoId
-            );
-
-        /*
-         * V43.6.1: thumbnails ficam disponíveis já no carregamento
-         * da página. Nenhum player/iframe é criado por este módulo.
-         */
+        const image = document.createElement("img");
+        image.className = "live-card-thumbnail";
+        image.src = video.thumbnail;
         image.loading = "eager";
         image.decoding = "async";
         image.width = 320;
         image.height = 180;
         image.alt = "";
 
-        imageWrap.appendChild(
-            image
-        );
+        imageWrap.appendChild(image);
 
-        const body =
-            document.createElement(
-                "span"
-            );
+        const body = document.createElement("span");
+        body.className = "live-card-body";
 
-        body.className =
-            "live-card-body";
+        const title = document.createElement("strong");
+        title.className = "live-card-title";
+        title.textContent = video.title;
 
-        const title =
-            document.createElement(
-                "strong"
-            );
+        const meta = document.createElement("span");
+        meta.className = "live-card-meta";
 
-        title.className =
-            "live-card-title";
+        const date = document.createElement("time");
+        date.dateTime = video.date;
+        date.textContent = formatDate(video.date);
 
-        title.textContent =
-            video.title;
+        const source = document.createElement("span");
+        source.className = "live-card-source";
+        source.textContent = `${sourceLabel} ↗`;
 
-        const meta =
-            document.createElement(
-                "span"
-            );
-
-        meta.className =
-            "live-card-meta";
-
-        const date =
-            document.createElement(
-                "time"
-            );
-
-        date.dateTime =
-            video.date;
-
-        date.textContent =
-            formatDate(
-                video.date
-            );
-
-        const source =
-            document.createElement(
-                "span"
-            );
-
-        source.className =
-            "live-card-source";
-
-        source.textContent =
-            "YouTube ↗";
-
-        meta.append(
-            date,
-            source
-        );
-
-        body.append(
-            title,
-            meta
-        );
-
-        card.append(
-            imageWrap,
-            body
-        );
+        meta.append(date, source);
+        body.append(title, meta);
+        card.append(imageWrap, body);
 
         return card;
     }
 
-    function renderCards(videos) {
+    function renderCards(videos, emptyMessage) {
         if (!videos.length) {
-            setMessage(
-                "As lives serão adicionadas aqui em breve."
-            );
-
+            setMessage(emptyMessage || "As lives serão adicionadas aqui em breve.");
             return;
         }
 
-        const fragment =
-            document.createDocumentFragment();
+        const fragment = document.createDocumentFragment();
 
         videos.forEach(video => {
-            fragment.appendChild(
-                createVideoCard(video)
-            );
+            fragment.appendChild(createVideoCard(video));
         });
 
-        track.replaceChildren(
-            fragment
-        );
-
+        track.replaceChildren(fragment);
         carouselController?.refresh();
     }
 
     function setupCarousel() {
-        const carousel =
-            window.KamyliCarousel;
+        const carousel = window.KamyliCarousel;
 
         if (!carousel?.create) {
-            console.error(
-                "KamyliCarousel não foi carregado antes das Lives."
-            );
+            console.error("KamyliCarousel não foi carregado antes das Lives.");
             return;
         }
 
@@ -365,93 +230,194 @@
         });
     }
 
+    function setSelectedTab(platform) {
+        const isTwitch = platform === "twitch";
+
+        if (twitchTab) {
+            twitchTab.setAttribute("aria-selected", String(isTwitch));
+            twitchTab.tabIndex = isTwitch ? 0 : -1;
+        }
+
+        if (youtubeTab) {
+            youtubeTab.setAttribute("aria-selected", String(!isTwitch));
+            youtubeTab.tabIndex = isTwitch ? -1 : 0;
+        }
+    }
+
+    function updateChannelLink(platform) {
+        if (!pageData || !channelLink || !channelLinkText) {
+            return;
+        }
+
+        const isTwitch = platform === "twitch";
+        const targetUrl = isTwitch
+            ? String(pageData.twitchCanalUrl || "").trim()
+            : String(pageData.canalUrl || "").trim();
+
+        channelLink.href = targetUrl || "#";
+        channelLinkText.textContent = isTwitch
+            ? "Abrir na Twitch"
+            : "Abrir no YouTube";
+        channelLink.setAttribute(
+            "aria-label",
+            isTwitch ? "Abrir canal na Twitch" : "Abrir canal no YouTube"
+        );
+    }
+
+    async function loadTwitchVideos() {
+        if (Array.isArray(twitchVideos)) {
+            return twitchVideos;
+        }
+
+        if (!api?.getJSON) {
+            throw new Error("Cliente de API indisponível na Home.");
+        }
+
+        if (!twitchRequest) {
+            twitchRequest = api
+                .getJSON(TWITCH_ENDPOINT, { timeoutMs: 8000 })
+                .then(data => {
+                    const maxItems = getMaxItems();
+                    const videos = Array.isArray(data?.videos)
+                        ? data.videos
+                            .map(normalizeTwitchVideo)
+                            .filter(Boolean)
+                            .slice(0, maxItems)
+                        : [];
+
+                    twitchVideos = videos;
+                    return videos;
+                })
+                .finally(() => {
+                    twitchRequest = null;
+                });
+        }
+
+        return twitchRequest;
+    }
+
+    function getMaxItems() {
+        const value = pageData?.maxItems;
+
+        return Number.isInteger(value)
+            ? Math.max(1, Math.min(20, value))
+            : 10;
+    }
+
+    async function selectPlatform(platform, options = {}) {
+        const normalized = platform === "youtube" ? "youtube" : "twitch";
+        activePlatform = normalized;
+
+        setSelectedTab(normalized);
+        updateChannelLink(normalized);
+        track.setAttribute(
+            "aria-label",
+            `Lives recentes na ${platformLabel(normalized)}`
+        );
+
+        if (normalized === "youtube") {
+            renderCards(
+                youtubeVideos,
+                "As lives do YouTube serão adicionadas aqui em breve."
+            );
+            return;
+        }
+
+        setMessage("Carregando últimas lives da Twitch...");
+
+        try {
+            const videos = await loadTwitchVideos();
+
+            if (activePlatform !== "twitch") {
+                return;
+            }
+
+            renderCards(
+                videos,
+                "Nenhuma live gravada da Twitch foi encontrada."
+            );
+        } catch (error) {
+            console.error("Erro ao carregar lives da Twitch:", error);
+
+            if (activePlatform !== "twitch") {
+                return;
+            }
+
+            setMessage(
+                "Não foi possível atualizar a Twitch agora. O YouTube continua disponível na outra aba."
+            );
+        }
+
+        if (options.focus && twitchTab) {
+            twitchTab.focus();
+        }
+    }
+
+    function bindTabs() {
+        twitchTab?.addEventListener("click", () => {
+            selectPlatform("twitch");
+        });
+
+        youtubeTab?.addEventListener("click", () => {
+            selectPlatform("youtube");
+        });
+
+        const tabs = [twitchTab, youtubeTab].filter(Boolean);
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener("keydown", event => {
+                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                    return;
+                }
+
+                event.preventDefault();
+                const direction = event.key === "ArrowRight" ? 1 : -1;
+                const nextIndex = (index + direction + tabs.length) % tabs.length;
+                const nextTab = tabs[nextIndex];
+                const platform = nextTab === twitchTab ? "twitch" : "youtube";
+
+                selectPlatform(platform, { focus: true });
+                nextTab.focus();
+            });
+        });
+    }
+
     function applySectionContent(data) {
-        content.setText(
-            "livesEyebrow",
-            data.eyebrow
-        );
+        content.setText("livesEyebrow", data.eyebrow);
+        content.setText("livesTitle", data.titulo);
 
-        content.setText(
-            "livesTitle",
-            data.titulo
-        );
-
-        const description =
-            String(
-                data.descricao || ""
-            ).trim();
+        const description = String(data.descricao || "").trim();
 
         content.setText(
             "livesDescription",
-            description ||
-            "Confira algumas lives recentes e abra a escolhida no YouTube."
+            description || "Escolha entre Twitch e YouTube para assistir às lives recentes."
         );
-
-        if (
-            youtubeLink &&
-            typeof data.canalUrl ===
-                "string" &&
-            data.canalUrl.trim()
-        ) {
-            youtubeLink.href =
-                data.canalUrl.trim();
-        }
-
     }
 
     async function init() {
         setupCarousel();
+        bindTabs();
 
         try {
-            const data =
-                await content.getJSON(
-                    "data/content/lives.json"
-                );
+            pageData = await content.getJSON("data/content/lives.json");
+            applySectionContent(pageData);
 
-            applySectionContent(
-                data
-            );
+            youtubeVideos = Array.isArray(pageData.videos)
+                ? pageData.videos
+                    .map(normalizeYoutubeVideo)
+                    .filter(Boolean)
+                    .slice(0, getMaxItems())
+                : [];
 
-            const maxItems =
-                Number.isInteger(
-                    data.maxItems
-                )
-                    ? Math.max(
-                        1,
-                        Math.min(
-                            20,
-                            data.maxItems
-                        )
-                    )
-                    : 10;
+            const configuredDefault =
+                String(pageData.defaultPlatform || "twitch").toLowerCase();
 
-            const videos =
-                Array.isArray(
-                    data.videos
-                )
-                    ? data.videos
-                        .map(
-                            normalizeVideo
-                        )
-                        .filter(Boolean)
-                        .slice(
-                            0,
-                            maxItems
-                        )
-                    : [];
-
-            renderCards(
-                videos
+            await selectPlatform(
+                configuredDefault === "youtube" ? "youtube" : "twitch"
             );
         } catch (error) {
-            console.error(
-                "Erro ao carregar lives:",
-                error
-            );
-
-            setMessage(
-                "Não foi possível carregar as lives agora."
-            );
+            console.error("Erro ao carregar configuração de lives:", error);
+            setMessage("Não foi possível carregar as lives agora.");
         }
     }
 

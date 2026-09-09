@@ -1,7 +1,9 @@
 {
-  "eyebrow": "YouTube",
+  "eyebrow": "Lives",
   "titulo": "Últimas lives",
-  "descricao": "Confira algumas lives recentes e abra a escolhida no YouTube.",
+  "descricao": "Escolha entre Twitch e YouTube para assistir às lives recentes.",
+  "defaultPlatform": "twitch",
+  "twitchCanalUrl": "https://www.twitch.tv/kamyli",
   "canalUrl": "https://youtube.com/kamyli",
   "maxItems": 10,
   "videos": [

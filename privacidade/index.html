@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <link rel="preconnect" href="https://assets.kamylisumire.com">
+
+    <title>Política de Privacidade · Kamyli Sumire</title>
+    <meta name="description" content="Política de Privacidade do site Kamyli Sumire: quais informações relacionadas aos visitantes são tratadas, para quais finalidades e quais são suas escolhas.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kamylisumire.com/privacidade/">
+    <meta name="theme-color" content="#B35EAF">
+
+    <script>
+        (() => {
+            const isGitHubProjectPage =
+                window.location.hostname === "kamylisouza.github.io";
+
+            const root = isGitHubProjectPage
+                ? "/kamylisumire-donates-page/"
+                : "/";
+
+            const base = document.createElement("base");
+            base.href = root;
+            document.head.appendChild(base);
+        })();
+    </script>
+
+    <link rel="icon" type="image/webp" href="https://assets.kamylisumire.com/favicon.webp">
+    <link rel="icon" type="image/png" href="https://assets.kamylisumire.com/favicon.png">
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const THEME_KEY = "kamyli:ui-theme";
+            const BLUR_KEY = "kamyli:ui-blur";
+            const LOW_MEMORY_GB = 2;
+            const LOW_CPU_THREADS = 2;
+
+            const read = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            };
+
+            const media = (query) => {
+                try {
+                    return window.matchMedia(query).matches;
+                } catch {
+                    return false;
+                }
+            };
+
+            const connection =
+                navigator.connection ||
+                navigator.mozConnection ||
+                navigator.webkitConnection ||
+                null;
+
+            const supportsBlur = Boolean(
+                window.CSS &&
+                typeof window.CSS.supports === "function" &&
+                (
+                    window.CSS.supports("backdrop-filter", "blur(8px)") ||
+                    window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+                )
+            );
+
+            const savedTheme = read(THEME_KEY);
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
+                    ? savedTheme
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
+
+            const savedBlur = read(BLUR_KEY);
+            const blurPreference =
+                savedBlur === "on" || savedBlur === "off"
+                    ? savedBlur
+                    : "auto";
+
+            let performanceProfile = "normal";
+            let performanceReason = "standard";
+
+            if (connection?.saveData) {
+                performanceProfile = "reduced";
+                performanceReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-cpu";
+            }
+
+            let blur = "on";
+            let blurReason = "supported";
+
+            if (!supportsBlur) {
+                blur = "off";
+                blurReason = "unsupported";
+            } else if (blurPreference !== "auto") {
+                blur = blurPreference;
+                blurReason = "manual";
+            } else if (media("(prefers-reduced-transparency: reduce)")) {
+                blur = "off";
+                blurReason = "reduced-transparency";
+            } else if (connection?.saveData) {
+                blur = "off";
+                blurReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                blur = "off";
+                blurReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                blur = "off";
+                blurReason = "low-cpu";
+            }
+
+            root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
+            root.dataset.blur = blur;
+            root.dataset.blurMode =
+                blurPreference === "auto" ? "auto" : "manual";
+            root.dataset.blurPreference = blurPreference;
+            root.dataset.blurReason = blurReason;
+            root.dataset.performance = performanceProfile;
+            root.dataset.performanceReason = performanceReason;
+            root.style.colorScheme = theme;
+
+            window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
+                theme,
+                themePreference,
+                blur,
+                blurPreference,
+                blurReason,
+                blurSupported: supportsBlur,
+                performance: performanceProfile,
+                performanceReason
+            });
+
+            /*
+             * V45.2 — fundo crítico para backdrop-filter.
+             *
+             * O CSS dos painéis borra a arte de fundo. Se a imagem ainda não
+             * estiver disponível quando o loader sai, o navegador recompõe o
+             * backdrop depois e isso parece um "blur atrasado".
+             *
+             * Só antecipamos a imagem quando blur está ligado, o perfil de
+             * performance é normal e Save-Data não está ativo.
+             */
+            if (
+                blur === "on" &&
+                performanceProfile === "normal" &&
+                !connection?.saveData
+            ) {
+                const isMobile =
+                    media("(max-width: 760px)");
+
+                const backdropUrl =
+                    isMobile
+                        ? "https://assets.kamylisumire.com/fundo-mobile.avif"
+                        : "https://assets.kamylisumire.com/fundo.avif";
+
+                const backdropPreload =
+                    document.createElement("link");
+
+                backdropPreload.rel = "preload";
+                backdropPreload.as = "image";
+                backdropPreload.type = "image/avif";
+                backdropPreload.href = backdropUrl;
+                backdropPreload.fetchPriority = "high";
+
+                window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                window.KAMYLI_BACKDROP_PRELOAD_READY =
+                    new Promise(resolve => {
+                        backdropPreload.addEventListener(
+                            "load",
+                            () => resolve("loaded"),
+                            { once: true }
+                        );
+                        backdropPreload.addEventListener(
+                            "error",
+                            () => resolve("error"),
+                            { once: true }
+                        );
+                    });
+
+                document.head.appendChild(backdropPreload);
+            }
+        })();
+    </script>
+
+    <script>
+        window.KAMYLI_LOADER_STARTED_AT = performance.now();
+        document.documentElement.classList.add("site-loading-pending");
+    </script>
+
+    <link
+        rel="preload"
+        href="assets/fonts/nunito-variable.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    >
+
+    <link rel="stylesheet" href="css/core/variables.css">
+    <link rel="stylesheet" href="css/core/global.css?v=47.1">
+    <link rel="stylesheet" href="css/core/navbar.css?v=47">
+    <link rel="stylesheet" href="css/pages/privacidade.css?v=47.4.1">
+</head>
+
+<body>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span
+                class="site-loader-logo"
+                aria-hidden="true"
+            ></span>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+
+    <header id="site-navbar"></header>
+
+    <main class="privacy-page">
+        <article class="glass-panel privacy-card">
+            <header class="privacy-header">
+                <span class="eyebrow">Privacidade e transparência</span>
+                <h1>Política de Privacidade</h1>
+                <p class="privacy-lead">
+                    Esta política explica quais informações relacionadas a você podem
+                    ser tratadas ao usar o site Kamyli Sumire, por que isso acontece,
+                    onde essas informações ficam e quais escolhas estão disponíveis.
+                </p>
+                <time class="privacy-updated" datetime="2026-09-09">
+                    Última atualização: 9 de setembro de 2026 · V47.4.1
+                </time>
+            </header>
+
+            <section class="privacy-section" id="sobre">
+                <h2>1. Sobre esta política</h2>
+                <p>
+                    O site Kamyli Sumire é uma página pública de conteúdo, agenda,
+                    lives, blog e apoio à criadora. Na configuração atual, você não
+                    precisa criar conta nem fazer login para navegar pelo site.
+                </p>
+                <p>
+                    Esta política é centrada nas informações relacionadas aos visitantes
+                    e apoiadores que podem ser tratadas durante o uso do site. Serviços
+                    de terceiros são mencionados quando participam desse tratamento.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="informacoes">
+                <h2>2. Quais informações podem ser tratadas</h2>
+                <p>Dependendo da funcionalidade utilizada, podem ser tratadas:</p>
+                <ul>
+                    <li>informações técnicas necessárias para entregar e proteger o site e a API, como endereço IP, características da requisição, navegador, dispositivo e dados de rede;</li>
+                    <li>preferências salvas no seu navegador, como tema e efeito de blur;</li>
+                    <li>dados temporários de cache e estado de navegação;</li>
+                    <li>quando você realiza uma contribuição por um serviço externo, informações disponibilizadas pela Streamlabs para compor o ranking, como nome de exibição, valor, data/hora e identificador da doação.</li>
+                </ul>
+                <p>
+                    O site não possui, na configuração atual, cadastro de usuários,
+                    formulário próprio de perfil, comentários próprios ou ferramenta
+                    própria de publicidade comportamental.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="finalidades">
+                <h2>3. Como essas informações são usadas</h2>
+                <p>As informações tratadas pelo site são utilizadas para:</p>
+                <ul>
+                    <li>entregar as páginas e funcionalidades solicitadas;</li>
+                    <li>manter suas preferências de interface no navegador;</li>
+                    <li>reduzir requisições repetidas por meio de caches técnicos;</li>
+                    <li>proteger, diagnosticar e operar a infraestrutura do site e da API;</li>
+                    <li>calcular e apresentar o ranking de apoiadores;</li>
+                    <li>aplicar anonimização aos nomes configurados para permanecer privados.</li>
+                </ul>
+                <p>
+                    As informações não são utilizadas pelo site para criar perfis
+                    próprios de publicidade comportamental.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="navegador">
+                <h2>4. Informações armazenadas no seu navegador</h2>
+                <p>
+                    O site utiliza <code>localStorage</code> e <code>sessionStorage</code>
+                    para preferências e funcionamento. Atualmente isso pode incluir a
+                    preferência de tema, a preferência de blur, cache temporário do
+                    ranking de doações e estado temporário de navegação/transições.
+                </p>
+                <p>
+                    Esses dados permanecem no seu dispositivo até expirarem, serem
+                    substituídos pela aplicação ou serem removidos por você nas
+                    configurações do navegador. O site não instala cookies próprios de
+                    publicidade ou analytics na configuração atual.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="doacoes">
+                <h2>5. Doações, Streamlabs e ranking</h2>
+                <p>
+                    Quando uma contribuição é registrada nos serviços conectados à
+                    Streamlabs, o site pode receber da Streamlabs os dados necessários
+                    para calcular o ranking, como identificador da doação, nome de
+                    exibição, valor e data/hora. Esses dados não são coletados pelo site
+                    por um formulário próprio durante a sua navegação.
+                </p>
+                <p>
+                    O ranking público exibe somente as informações necessárias à
+                    funcionalidade. Quando um nome está configurado para privacidade,
+                    ele é substituído pelo rótulo de anonimização no Cloudflare Worker
+                    antes de a resposta pública ser enviada ao navegador.
+                </p>
+                <p>
+                    Dados agregados necessários ao ranking mensal e histórico podem ser
+                    mantidos na infraestrutura do site para preservar esses totais.
+                    Solicitações relacionadas à exibição ou anonimização de um nome no
+                    ranking podem ser feitas pelos canais oficiais da Kamyli disponíveis
+                    no site.
+                </p>
+                <p>
+                    Pagamentos e doações são concluídos nos serviços externos indicados
+                    pela página de apoio. O site não recebe diretamente dados de cartão
+                    ou credenciais de pagamento. O tratamento realizado por Streamlabs,
+                    LivePix, Pixie ou outro provedor utilizado na transação também está
+                    sujeito às políticas do respectivo serviço.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="infraestrutura">
+                <h2>6. Infraestrutura e informações técnicas</h2>
+                <p>
+                    O site utiliza serviços da Cloudflare para executar a API/Worker e
+                    armazenar dados necessários a algumas funcionalidades. Ao acessar o
+                    site ou a API, a infraestrutura pode processar informações técnicas
+                    necessárias à entrega, segurança e operação, como endereço IP, dados
+                    de rede, roteamento e características da solicitação.
+                </p>
+                <p>
+                    Essas informações técnicas são usadas para permitir a comunicação,
+                    funcionamento e proteção da infraestrutura. O tratamento realizado
+                    diretamente pela Cloudflare também segue a política de privacidade
+                    desse provedor.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="lives">
+                <h2>7. Twitch, YouTube e conteúdo de Lives</h2>
+                <p>
+                    A seção Lives utiliza informações públicas de transmissões, como
+                    título, thumbnail, URL, data e duração. A lista da Twitch é obtida
+                    pelo servidor e mantida em cache por no máximo 24 horas; você não
+                    precisa autenticar uma conta Twitch para visualizá-la.
+                </p>
+                <p>
+                    Thumbnails e outros recursos públicos da Twitch ou do YouTube podem
+                    ser carregados dos domínios/CDNs dessas plataformas. Quando isso
+                    ocorre, o seu navegador realiza uma solicitação ao respectivo
+                    provedor, que pode receber informações técnicas associadas à conexão.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="terceiros">
+                <h2>8. Serviços e links de terceiros</h2>
+                <p>
+                    O site contém links para Twitch, YouTube, redes sociais, GitHub,
+                    Trello, páginas de apoio e outros serviços externos. Ao abrir um
+                    desses links ou utilizar uma funcionalidade hospedada por terceiro,
+                    você passa a interagir diretamente com esse provedor.
+                </p>
+                <p>
+                    O tratamento realizado nesses ambientes não é controlado por esta
+                    política e segue os termos e políticas do respectivo serviço.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="retencao">
+                <h2>9. Retenção e minimização</h2>
+                <p>
+                    O projeto procura manter apenas as informações necessárias às suas
+                    funcionalidades. Preferências locais permanecem no navegador até
+                    serem removidas ou substituídas. O snapshot público de VODs da
+                    Twitch expira automaticamente em 24 horas. Dados necessários aos
+                    totais mensal e histórico do ranking podem permanecer no KV enquanto
+                    forem necessários à manutenção dessa funcionalidade.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="escolhas">
+                <h2>10. Suas escolhas e solicitações</h2>
+                <p>
+                    Você pode apagar preferências e caches locais pelas configurações do
+                    seu navegador e pode optar por não acessar links ou serviços externos.
+                    Se você for um apoiador e tiver uma solicitação relacionada ao nome
+                    exibido no ranking, inclusive anonimização, pode utilizar os canais
+                    oficiais da Kamyli indicados no site.
+                </p>
+                <p>
+                    Dúvidas ou solicitações relacionadas às informações tratadas pelo
+                    próprio site também podem ser encaminhadas por esses canais. Quando
+                    a informação estiver sob responsabilidade direta de um serviço de
+                    terceiro, poderá ser necessário utilizar os mecanismos oferecidos
+                    pelo respectivo provedor.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="seguranca">
+                <h2>11. Segurança</h2>
+                <p>
+                    Credenciais privadas das integrações são mantidas no lado do servidor
+                    e não são incorporadas ao JavaScript público. Rotas administrativas
+                    da API possuem autenticação. Essas medidas reduzem exposição
+                    desnecessária, embora nenhum serviço conectado à internet possa
+                    garantir segurança absoluta.
+                </p>
+            </section>
+
+            <section class="privacy-section" id="alteracoes">
+                <h2>12. Alterações desta política</h2>
+                <p>
+                    Esta política pode ser atualizada quando mudarem as funcionalidades,
+                    os serviços utilizados ou a forma como informações relacionadas aos
+                    visitantes são tratadas. A data e a versão exibidas no topo indicam
+                    a revisão vigente.
+                </p>
+                <div class="privacy-note">
+                    Esta política descreve as práticas do site em sua configuração atual.
+                    As práticas realizadas diretamente por serviços externos continuam
+                    sujeitas aos documentos dos respectivos provedores.
+                </div>
+
+                <div class="privacy-actions">
+                    <a class="button button-primary" href="/">Voltar ao início</a>
+                    <a class="button button-outline" href="/doacoes/">Ver página de apoio</a>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
+
+    <script src="js/core/preferences.js"></script>
+    <script src="js/core/config.js"></script>
+    <script src="js/core/content.js?v=47.3"></script>
+    <script src="js/core/button-icons.js?v=47.2"></script>
+    <script src="js/core/buttons.js?v=47"></script>
+    <script src="js/core/navbar.js?v=47"></script>
+    <script src="js/core/external-links.js?v=47"></script>
+    <script src="js/core/footer.js?v=47.4.1"></script>
+    <script>
+        window.KAMYLI_PAGE_CONTENT_READY = true;
+    </script>
+    <script src="js/core/loader.js?v=46.3"></script>
+</body>
+</html>

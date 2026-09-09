@@ -33,13 +33,15 @@ Na V44.4:
 
 - `api.kamylisumire.com` é a origem primária;
 - `workers.dev` permanece como fallback temporário;
-- a Home continua sem carregar a API.
+- a Home usa a API somente para o snapshot diário da aba Twitch; o restante continua independente.
 
 No Cloudflare Worker, configure:
 
 ```text
 REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
 ALLOWED_ORIGINS=https://kamylisumire.com
+TWITCH_CHANNEL_LOGIN=kamyli
+TWITCH_MAX_VIDEOS=10
 ```
 
 `REDIRECT_URI` e `ALLOWED_ORIGINS` não são segredos.
@@ -47,6 +49,7 @@ ALLOWED_ORIGINS=https://kamylisumire.com
 Continuam sensíveis e fora do Git:
 
 - `STREAMLABS_CLIENT_SECRET`;
+- `TWITCH_CLIENT_SECRET`;
 - `OAUTH_SETUP_TOKEN`;
 - tokens OAuth armazenados no KV;
 - demais credenciais privadas.
@@ -101,3 +104,26 @@ Smoke test:
 5. Console registra `API atendida por: https://api.kamylisumire.com`.
 6. ranking mensal/geral permanece funcional.
 7. fallback/cache continua seguro em falha remota.
+
+## Twitch V47.4
+
+A aba Twitch da Home consulta somente `GET /twitch/videos`. Esse endpoint lê o
+snapshot `twitch:videos` do binding KV `RANKINGS` e **não consulta a Twitch**.
+
+Configure no Worker:
+
+```text
+TWITCH_CLIENT_ID=<Client ID da aplicação Twitch>
+TWITCH_CLIENT_SECRET=<Secret da aplicação Twitch>
+TWITCH_CHANNEL_LOGIN=kamyli
+TWITCH_MAX_VIDEOS=10
+```
+
+O primeiro preenchimento é feito por `/debug/twitch-sync`. Chamadas posteriores
+a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passado
+24 horas desde `twitch:updated_at`. O App Access Token e o `user_id` resolvido
+também são reutilizados no KV.
+
+O Cron já usado pelo Worker pode permanecer com sua frequência atual: não é
+necessário criar um Cron de 24 h exclusivo para a Twitch, desde que exista ao
+menos uma execução agendada por dia.

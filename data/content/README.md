@@ -4,20 +4,31 @@ Arquivos desta pasta alimentam textos/listas do frontend sem necessidade de
 alterar HTML.
 
 - `hero.json` — Hero.
-- `lives.json` — bloco de Lives e lista manual de vídeos.
+- `lives.json` — configuração de Lives, Twitch primária e lista manual do YouTube.
 - `regras.json` — regras.
 - `creditos.json` — créditos.
 - `home-doacoes.json` — CTA de apoio na Home.
 - `doacoes.json` — textos da página de Doações.
 - `ranking.json` — textos do ranking.
-- `footer.json` — conteúdo do footer.
+- `footer.json` — conteúdo do footer, incluindo o link interno para a Política de Privacidade.
 - `blog.json` — textos do Blog e índice de publicações.
 
 A agenda semanal fica em `../agenda.json`.
 
 ## Lives
 
-Cada item em `videos` contém:
+A V47.4 mantém a lista manual do YouTube em `videos` e usa a Twitch como aba
+primária automática. Os campos de plataforma são:
+
+```json
+{
+  "defaultPlatform": "twitch",
+  "twitchCanalUrl": "https://www.twitch.tv/kamyli",
+  "canalUrl": "https://youtube.com/kamyli"
+}
+```
+
+Cada item manual de YouTube em `videos` contém:
 
 ```json
 {
@@ -27,7 +38,8 @@ Cada item em `videos` contém:
 }
 ```
 
-Não adicionar campos de playlist/player/API.
+Não copiar VODs da Twitch para este JSON e não adicionar player/iframe/API key.
+A lista automática da Twitch vem de `/twitch/videos` e é normalizada pelo Worker.
 
 
 ## Blog

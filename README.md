@@ -6,10 +6,10 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 
 - **Frontend:** HTML, CSS e JavaScript vanilla.
 - **Conteúdo editorial:** JSON versionado em `data/`.
-- **Home:** totalmente estática/local; não depende do Worker.
+- **Home:** majoritariamente local; somente a aba Twitch em Lives lê um snapshot público do Worker e possui fallback independente para o YouTube.
 - **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
 - **Doações:** página independente em `/doacoes/`.
-- **Ranking:** única funcionalidade pública que consome backend.
+- **Backend público:** ranking de doações e snapshot diário das últimas lives da Twitch.
 - **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
 - **Fallback da API:** `workers.dev` mantido temporariamente para contingência.
 - **Produção:** GitHub Pages pela branch `main`.
@@ -24,10 +24,11 @@ Não há React, Vue, bundler, npm, geração estática ou compilação.
 Os textos e listas ficam em `data/content/*.json`.
 A agenda semanal fica em `data/agenda.json`.
 
-As Lives são cadastradas manualmente em `data/content/lives.json` com
-`videoId`, `title` e `date`. A Home monta thumbnail oficial e link direto
-para o YouTube. Não existe iframe, player incorporado, playlist automática,
-YouTube Data API ou chave Google.
+As Lives usam duas abas no mesmo componente visual. **Twitch é a aba padrão** e
+recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twitch/videos`.
+O Worker atualiza esse snapshot no máximo uma vez a cada 24 horas e o guarda no KV.
+A aba YouTube continua editorial/local em `data/content/lives.json`, com `videoId`,
+`title` e `date`, sem YouTube Data API, iframe ou chave Google.
 
 ## Estrutura principal
 
@@ -50,11 +51,11 @@ workers.js               backend do ranking
 
 ## API de produção
 
-O frontend de `/doacoes/` usa `https://api.kamylisumire.com` como endpoint
-primário.
+O frontend de `/doacoes/` e a aba Twitch da seção Lives usam
+`https://api.kamylisumire.com` como endpoint primário.
 
 Durante a estabilização da V44.4, `workers.dev` permanece como fallback.
-A Home continua totalmente independente dessa camada.
+Falhas do Worker não impedem o restante da Home nem a aba local do YouTube.
 
 OAuth, client secret, tokens e credenciais não pertencem ao repositório
 público. A configuração sensível permanece no Cloudflare Worker.
@@ -80,6 +81,13 @@ find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 - `DESIGN-SYSTEM.md` — sistema visual.
 - `docs/ARQUITETURA.md` — componentes e fluxos.
 - `docs/PRODUCAO.md` — publicação, preview e backend.
+- `docs/GUIA-TWITCH-V47.4.md` — implantação da integração Twitch e cache de 24 horas.
 - `docs/VALIDACAO.md` — matriz de validação.
 - `docs/SANEAMENTO-V44.md` — histórico consolidado do saneamento.
 - `CHANGELOG.md` — histórico resumido.
+
+### Privacidade e Uso de IA
+
+Desde a V47.4.1, a Política de Privacidade está publicada em `/privacidade/` com foco nas informações relacionadas ao usuário, incluindo armazenamento local, Streamlabs/ranking, Twitch, Cloudflare, retenção e escolhas. A mesma versão faz os snapshots públicos de VODs da Twitch expirarem no KV em no máximo 24 horas e impede que conteúdo vencido seja servido pela API pública.
+
+A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de conteúdos e assets próprios do site para treinamento, fine-tuning, desenvolvimento, avaliação ou aprimoramento de sistemas de IA. O `robots.txt` adiciona sinalização complementar para crawlers de IA conhecidos.

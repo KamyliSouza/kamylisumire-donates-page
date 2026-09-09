@@ -10,7 +10,9 @@ Navegador
 │  ├─ HTML/CSS/JS vanilla
 │  ├─ data/content/*.json
 │  ├─ data/agenda.json
-│  └─ YouTube: thumbnails + links diretos
+│  └─ Lives
+│     ├─ Twitch → /twitch/videos → snapshot KV (24 h)
+│     └─ YouTube → thumbnails + links diretos locais
 └─ /doacoes/
    ├─ HTML/CSS/JS vanilla
    ├─ conteúdo local
@@ -21,7 +23,7 @@ Navegador
             └─ KV
 ```
 
-A disponibilidade do backend não deve determinar a disponibilidade da Home.
+A disponibilidade do backend não deve determinar a disponibilidade geral da Home: se a API falhar, apenas a aba Twitch pode ficar indisponível e o YouTube local continua acessível.
 
 Durante a estabilização da V44.4, `workers.dev` continua disponível como
 fallback de contingência.
@@ -37,13 +39,15 @@ fallback de contingência.
 - `external-links.js` — confirmação de navegação externa;
 - `page-transitions.js` — transição de página;
 - `loader.js` — loader local;
-- `api.js` — cliente de API usado em Doações.
+- `api.js` — cliente compartilhado usado pelo ranking de Doações e pela aba Twitch em Lives.
 
 `config.js` não deve carregar módulos de páginas.
 
 ## Home
 
-A Home permanece totalmente estática/local e não importa `api.js`.
+A Home continua majoritariamente local. Desde a V47.4, ela importa `api.js`
+apenas para consultar o snapshot público de `/twitch/videos`. Essa consulta não
+é requisito para Hero, Agenda, Regras, Créditos, Blog ou a aba YouTube.
 
 ## Doações
 
@@ -57,9 +61,14 @@ Na V44.4, a ordem dos endpoints é:
 
 ## Lives
 
-Lives permanecem manuais, usando thumbnails oficiais e links diretos do
-YouTube. Não existe player incorporado, iframe, playlist automática, YouTube
-Data API ou chave Google.
+O mesmo componente visual possui duas abas:
+
+1. **Twitch (padrão):** últimas VODs obtidas pelo Worker e servidas a partir do KV;
+2. **YouTube:** lista manual/local de `data/content/lives.json`.
+
+O endpoint público `/twitch/videos` nunca chama a Twitch durante uma visita.
+A sincronização agendada respeita uma janela mínima de 24 horas. Não existe
+player incorporado, iframe ou YouTube Data API.
 
 ## Backend
 
@@ -72,17 +81,21 @@ Rotas relevantes:
 - `/oauth/authorize` — início controlado do OAuth;
 - `/oauth/callback` — callback OAuth do Streamlabs;
 - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
-- `/debug/sync` — sincronização manual protegida.
+- `/debug/sync` — sincronização manual protegida do ranking;
+- `/twitch/videos` — snapshot público das últimas VODs da Twitch;
+- `/debug/twitch-sync` — inicialização/sincronização protegida da Twitch, respeitando a janela de 24 h.
 
 Configuração de produção:
 
 ```text
 REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
 ALLOWED_ORIGINS=https://kamylisumire.com
+TWITCH_CHANNEL_LOGIN=kamyli
+TWITCH_MAX_VIDEOS=10
 ```
 
 O binding KV continua sendo `RANKINGS`.
-Credenciais sensíveis continuam como Secrets/bindings do Worker.
+Credenciais sensíveis continuam como Secrets/bindings do Worker. `TWITCH_CLIENT_SECRET` deve ser Secret; `TWITCH_CLIENT_ID` pode ser variável e também permanece fora do conteúdo editorial.
 
 ## Publicação
 

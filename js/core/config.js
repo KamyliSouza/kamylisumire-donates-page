@@ -1,8 +1,8 @@
 /*
  * CONFIGURAÇÃO CENTRAL DO SITE / APLICAÇÕES
  *
- * A Home permanece totalmente estática.
- * Somente /doacoes/ consome a API do ranking.
+ * A Home permanece majoritariamente local.
+ * Desde a V47.4, somente a aba Twitch de Lives e /doacoes/ consomem a API.
  *
  * V44.4:
  * - api.kamylisumire.com é o endpoint primário de produção;
