@@ -82,11 +82,11 @@
     }
 
     const defaults = {
-        navbar: {"ariaLabel": "Navegação principal", "brandAriaLabel": "Ir para a página inicial", "links": {"inicio": "Início", "lives": "Lives", "agenda": "Agenda", "blog": "Blog", "jogos": {"texto": "Jogos", "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"}, "regras": "Regras", "creditos": "Créditos"}, "apoio": {"texto": "Apoiar", "ariaLabel": "Apoiar a Kamyli"}},
-        blogConfig: {"page": {"eyebrow": "Blog", "titulo": "Publicações", "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.", "buscaPlaceholder": "Buscar por título, resumo ou tag...", "todos": "Todos", "vazio": "Nenhuma publicação disponível no momento.", "minutosLeitura": "{minutos} min de leitura"}, "home": {"eyebrow": "Blog", "titulo": "Últimas publicações", "descricao": "Textos recentes publicados por aqui.", "botao": "Ver todas", "maxItems": 3}, "article": {"eyebrow": "Blog", "voltar": "Voltar ao Blog"}},
+        navbar: {"ariaLabel": "Navegação principal", "brandAriaLabel": "Ir para a página inicial", "links": {"inicio": "Início", "lives": "Lives", "agenda": "Agenda", "blog": "Blog", "jogos": {"texto": "Jogos", "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"}, "regras": "Regras", "creditos": "Créditos"}},
+        blogConfig: {"page": {"eyebrow": "Blog", "titulo": "Publicações", "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.", "buscaPlaceholder": "Buscar por título, resumo ou tag...", "vazio": "Nenhuma publicação disponível no momento.", "minutosLeitura": "{minutos} min de leitura"}, "home": {"eyebrow": "Blog", "titulo": "Últimas publicações", "descricao": "Textos recentes publicados por aqui.", "maxItems": 3}, "article": {"eyebrow": "Blog"}},
         blogPosts: {"version": 1, "posts": []},
-        interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": ".", "cancelar": "Cancelar", "continuar": "Continuar"}, "configuracoes": {"abrir": "Configurações", "titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
-        notFound: {"eyebrow": "Página não encontrada", "codigo": "404", "titulo": "Essa página não existe.", "descricao": "Talvez o link tenha mudado ou você tenha chegado aqui por engano.", "botao": "Voltar para o início", "documentTitle": "Página não encontrada · Kamyli Sumire", "metaDescription": "A página solicitada não foi encontrada."},
+        interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": "."}, "configuracoes": {"titulo": "Configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
+        notFound: {"eyebrow": "Página não encontrada", "codigo": "404", "titulo": "Essa página não existe.", "descricao": "Talvez o link tenha mudado ou você tenha chegado aqui por engano.", "documentTitle": "Página não encontrada · Kamyli Sumire", "metaDescription": "A página solicitada não foi encontrada."},
         seo: {"compartilhado": {"siteName": "Kamyli Sumire", "imagem": "https://assets.kamylisumire.com/preview.png"}, "home": {"documentTitle": "Kamyli Sumire | Lives, agenda e comunidade", "description": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "ogTitle": "Oiê! Eu sou a Kamyli ✨", "ogDescription": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "imageAlt": "Kamyli Sumire"}, "doacoes": {"documentTitle": "Doações | Kamyli Sumire — LivePix e Pixie", "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.", "ogTitle": "Apoie a Kamyli Sumire ✨", "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!", "imageAlt": "Apoie a Kamyli Sumire"}, "blog": {"documentTitle": "Blog | Kamyli Sumire", "description": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "ogTitle": "Blog da Kamyli Sumire", "ogDescription": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "imageAlt": "Blog da Kamyli Sumire"}}
     };
 
@@ -248,10 +248,6 @@
             );
         }
 
-        const support = nav.querySelector('[data-nav-page="doacoes"]');
-        setText(support?.querySelector("span"), data.apoio?.texto);
-        setAttribute(support, "aria-label", data.apoio?.ariaLabel);
-
         return true;
     }
 
@@ -286,9 +282,6 @@
                 host.after(document.createTextNode(copy.depoisHost));
             }
         }
-
-        setText(dialog.querySelector(".site-external-cancel"), copy.cancelar);
-        setText(dialog.querySelector(".site-external-continue"), copy.continuar);
 
         return true;
     }
@@ -365,7 +358,6 @@
         );
 
         const toggle = footer.querySelector("#footerSettingsToggle");
-        setText(toggle?.querySelector("span"), copy.abrir);
         setText(footer.querySelector("#footerSettingsTitle"), copy.titulo);
         setAttribute(
             footer.querySelector("#footerSettingsClose"),
@@ -475,7 +467,6 @@
         setText(card.querySelector("h1"), data.codigo);
         setText(card.querySelector("h2"), data.titulo);
         setText(card.querySelector("p"), data.descricao);
-        setText(card.querySelector("a.button"), data.botao);
 
         if (data.documentTitle) document.title = data.documentTitle;
 

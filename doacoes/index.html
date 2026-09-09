@@ -243,8 +243,8 @@
     >
 
     <link rel="stylesheet" href="../css/core/variables.css">
-    <link rel="stylesheet" href="../css/core/global.css?v=46.3">
-    <link rel="stylesheet" href="../css/core/navbar.css">
+    <link rel="stylesheet" href="../css/core/global.css?v=47">
+    <link rel="stylesheet" href="../css/core/navbar.css?v=47">
     <link rel="stylesheet" href="../css/pages/doacoes.css">
     <link rel="stylesheet" href="../css/components/ranking.css">
 
@@ -325,11 +325,12 @@
             <div class="donation-buttons">
                 <a
                     href="https://livepix.gg/kamyli"
+                    data-button-key="donationLivepix"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="donation-btn donation-btn-primary"
                 >
-                    <span class="donation-btn-icon" aria-hidden="true">
+                    <span class="donation-btn-icon" data-button-icon aria-hidden="true">
                         <svg
                             class="donation-service-icon donation-service-icon-livepix"
                             viewBox="0 0 24 24"
@@ -340,18 +341,19 @@
                         </svg>
                     </span>
                     <span class="donation-btn-text">
-                        <span class="donation-btn-title" id="livepixTitle">Apoiar com PIX (LivePix)</span>
+                        <span class="donation-btn-title" id="livepixTitle" data-button-label>Apoiar com PIX (LivePix)</span>
                         <span class="donation-btn-sub" id="livepixDescription">Doações a partir de R$ 1,00</span>
                     </span>
                 </a>
 
                 <a
                     href="https://pixie.gg/kamyli"
+                    data-button-key="donationPixie"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="donation-btn donation-btn-secondary"
                 >
-                    <span class="donation-btn-icon" aria-hidden="true">
+                    <span class="donation-btn-icon" data-button-icon aria-hidden="true">
                         <svg
                             class="donation-service-icon donation-service-icon-pixie"
                             viewBox="0 0 24 24"
@@ -364,7 +366,7 @@
                         </svg>
                     </span>
                     <span class="donation-btn-text">
-                        <span class="donation-btn-title" id="pixieTitle">Moeda Estrangeira (Pixie)</span>
+                        <span class="donation-btn-title" id="pixieTitle" data-button-label>Moeda Estrangeira (Pixie)</span>
                         <span class="donation-btn-sub" id="pixieDescription">Doações a partir de R$ 6,00</span>
                     </span>
                 </a>
@@ -404,26 +406,28 @@
                     class="tab-btn active"
                     type="button"
                     id="rankingTabMonthly"
+                    data-button-key="rankingMonthly"
                     data-tab="monthly"
                     role="tab"
                     aria-selected="true"
                     aria-controls="rankingList"
                     tabindex="0"
                 >
-                    <span id="rankingMonthlyTab">Este mês</span>
+                    <span data-button-icon aria-hidden="true"></span><span id="rankingMonthlyTab" data-button-label>Este mês</span>
                 </button>
 
                 <button
                     class="tab-btn"
                     type="button"
                     id="rankingTabAllTime"
+                    data-button-key="rankingAllTime"
                     data-tab="allTime"
                     role="tab"
                     aria-selected="false"
                     aria-controls="rankingList"
                     tabindex="-1"
                 >
-                    <span id="rankingAllTimeTab">Todos os tempos</span>
+                    <span data-button-icon aria-hidden="true"></span><span id="rankingAllTimeTab" data-button-label>Todos os tempos</span>
                 </button>
             </div>
 
@@ -448,14 +452,16 @@
 
     <script src="../js/core/preferences.js"></script>
     <script src="../js/core/config.js"></script>
-    <script src="../js/core/content.js"></script>
+    <script src="../js/core/content.js?v=47"></script>
+    <script src="../js/core/button-icons.js?v=47"></script>
+    <script src="../js/core/buttons.js?v=47"></script>
     <script src="../js/core/api.js"></script>
-    <script src="../js/core/navbar.js?v=46.2"></script>
-    <script src="../js/core/external-links.js"></script>
+    <script src="../js/core/navbar.js?v=47"></script>
+    <script src="../js/core/external-links.js?v=47"></script>
     <script src="../js/core/page-transitions.js?v=46.3"></script>
-    <script src="../js/core/footer.js"></script>
+    <script src="../js/core/footer.js?v=47"></script>
     <script src="../js/pages/doacoes/doacoes.js"></script>
-    <script src="../js/pages/doacoes/content.js"></script>
+    <script src="../js/pages/doacoes/content.js?v=47"></script>
     <script src="../js/pages/doacoes/ranking.js"></script>
     <script src="../js/core/loader.js?v=46.3"></script>
 </body>

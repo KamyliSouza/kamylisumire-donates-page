@@ -397,11 +397,6 @@
                 data.canalUrl.trim();
         }
 
-        content.setText(
-            youtubeLinkText,
-            data.botaoCanal ||
-            "Abrir no YouTube"
-        );
     }
 
     async function init() {

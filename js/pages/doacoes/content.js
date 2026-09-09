@@ -25,18 +25,8 @@
         );
 
         content.setText(
-            "livepixTitle",
-            data.livepix?.titulo
-        );
-
-        content.setText(
             "livepixDescription",
             data.livepix?.descricao
-        );
-
-        content.setText(
-            "pixieTitle",
-            data.pixie?.titulo
         );
 
         content.setText(
@@ -71,15 +61,6 @@
             data.descricao
         );
 
-        content.setText(
-            "rankingMonthlyTab",
-            data.abas?.mensal
-        );
-
-        content.setText(
-            "rankingAllTimeTab",
-            data.abas?.todosTempos
-        );
     }
 
     async function loadDonationContent() {

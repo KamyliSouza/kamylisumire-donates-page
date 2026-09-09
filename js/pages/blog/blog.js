@@ -114,8 +114,18 @@
         const all = document.createElement("button");
         all.type = "button";
         all.className = "blog-filter is-active";
-        all.textContent = data.page?.todos || "Todos";
+        all.dataset.buttonKey = "blogFilterAll";
         all.dataset.tag = "";
+
+        const allIcon = document.createElement("span");
+        allIcon.dataset.buttonIcon = "";
+        allIcon.setAttribute("aria-hidden", "true");
+
+        const allLabel = document.createElement("span");
+        allLabel.dataset.buttonLabel = "";
+        allLabel.textContent = data.page?.todos || "Todos";
+
+        all.append(allIcon, allLabel);
         elements.filters.appendChild(all);
 
         const tags = [...new Set(posts.flatMap(post => post.tags))]

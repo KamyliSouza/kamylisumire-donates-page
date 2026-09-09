@@ -85,15 +85,6 @@
             data.descricao
         );
 
-        content.setText(
-            "heroSupportButton",
-            data.botoes?.apoio
-        );
-
-        content.setText(
-            "heroLiveButton",
-            data.botoes?.live
-        );
     }
 
     function renderHomeDonation(data) {
@@ -112,10 +103,6 @@
             data.descricao
         );
 
-        content.setText(
-            "homeDonationButton",
-            data.botao
-        );
     }
 
     function renderHomeBlog(config, index) {
@@ -137,7 +124,6 @@
         content.setText(blogElements.eyebrow, config.home?.eyebrow);
         content.setText(blogElements.title, config.home?.titulo);
         content.setText(blogElements.description, config.home?.descricao);
-        content.setText(blogElements.allLink, config.home?.botao);
 
         if (blogElements.allLink) {
             blogElements.allLink.href =

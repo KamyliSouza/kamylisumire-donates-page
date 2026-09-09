@@ -83,16 +83,11 @@
                     <a
                         class="site-nav-link site-nav-donate site-nav-support"
                         data-nav-page="doacoes"
+                        data-button-key="navbarSupport"
                         href="${sitePath("/doacoes/")}"
                     >
-                        <svg
-                            class="site-nav-support-icon"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path d="M12 21s-7.2-4.35-9.6-8.35C.65 9.95 1.5 6.4 4.6 5.1c2-.85 4.25-.3 5.65 1.35L12 8.5l1.75-2.05c1.4-1.65 3.65-2.2 5.65-1.35 3.1 1.3 3.95 4.85 2.2 7.55C19.2 16.65 12 21 12 21Z"></path>
-                        </svg>
-                        <span>Apoiar</span>
+                        <span class="site-nav-support-icon" data-button-icon aria-hidden="true"></span>
+                        <span data-button-label>Apoiar</span>
                     </a>
                 </div>
             </div>

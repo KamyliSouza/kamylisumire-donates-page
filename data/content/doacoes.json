@@ -3,11 +3,9 @@
   "titulo": "Apoie a Kamyli! ✨",
   "subtitulo": "Escolha a opção ideal para você!",
   "livepix": {
-    "titulo": "Apoiar com PIX (LivePix)",
     "descricao": "Doações a partir de R$ 1,00"
   },
   "pixie": {
-    "titulo": "Moeda Estrangeira (Pixie)",
     "descricao": "Doações a partir de R$ 6,00"
   },
   "aviso": {

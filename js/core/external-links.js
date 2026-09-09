@@ -48,16 +48,20 @@
             <div class="site-external-dialog-actions">
                 <button
                     class="button button-outline site-external-cancel"
+                    data-button-key="externalCancel"
                     type="button"
                 >
-                    Cancelar
+                    <span data-button-icon aria-hidden="true"></span>
+                    <span data-button-label>Cancelar</span>
                 </button>
 
                 <button
                     class="button button-primary site-external-continue"
+                    data-button-key="externalContinue"
                     type="button"
                 >
-                    Continuar
+                    <span data-button-icon aria-hidden="true"></span>
+                    <span data-button-label>Continuar</span>
                 </button>
             </div>
         </div>

@@ -4,7 +4,6 @@
     "titulo": "Publicações",
     "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.",
     "buscaPlaceholder": "Buscar por título, resumo ou tag...",
-    "todos": "Todos",
     "vazio": "Nenhuma publicação disponível no momento.",
     "minutosLeitura": "{minutos} min de leitura"
   },
@@ -12,11 +11,9 @@
     "eyebrow": "Blog",
     "titulo": "Últimas publicações",
     "descricao": "Textos recentes publicados por aqui.",
-    "botao": "Ver todas",
     "maxItems": 3
   },
   "article": {
-    "eyebrow": "Blog",
-    "voltar": "Voltar ao Blog"
+    "eyebrow": "Blog"
   }
 }

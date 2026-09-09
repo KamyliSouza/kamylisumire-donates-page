@@ -449,19 +449,14 @@
                     <button
                         class="site-footer-settings-toggle"
                         id="footerSettingsToggle"
+                        data-button-key="settingsOpen"
                         type="button"
                         aria-expanded="false"
                         aria-controls="footerSettingsPopover"
                         aria-haspopup="dialog"
                     >
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.55V20.3h-3v-.09a1.7 1.7 0 0 0-1.04-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.55-1.04H5.3v-3h.15A1.7 1.7 0 0 0 7 9.92a1.7 1.7 0 0 0-.34-1.88L6.6 7.98l2.12-2.12.06.06A1.7 1.7 0 0 0 10.66 6.26 1.7 1.7 0 0 0 11.7 4.7V4.6h3v.1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.12 2.12-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.55 1.04h.15v3h-.15A1.7 1.7 0 0 0 19.4 15Z"></path>
-                        </svg>
-                        <span>Configurações</span>
+                        <span data-button-icon aria-hidden="true"></span>
+                        <span data-button-label>Configurações</span>
                     </button>
 
                     <div
@@ -478,10 +473,12 @@
                             <button
                                 class="site-settings-close"
                                 id="footerSettingsClose"
+                                data-button-key="settingsClose"
                                 type="button"
                                 aria-label="Fechar configurações"
                             >
-                                ×
+                                <span data-button-icon aria-hidden="true">×</span>
+                                <span data-button-label hidden></span>
                             </button>
                         </div>
 

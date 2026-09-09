@@ -3,13 +3,6 @@
  * coração dos CTAs e estado visual do click + arrasta.
  */
 
-.home-support-icon {
-    width: 16px;
-    height: 16px;
-    flex: 0 0 auto;
-    fill: currentColor;
-}
-
 .carousel-click-drag.is-click-dragging,
 .carousel-click-drag.is-click-dragging * {
     user-select: none;
@@ -28,12 +21,5 @@
 
     .carousel-click-drag.is-click-dragging {
         cursor: grabbing;
-    }
-}
-
-@media (max-width: 760px) {
-    .home-support-icon {
-        width: 14px;
-        height: 14px;
     }
 }

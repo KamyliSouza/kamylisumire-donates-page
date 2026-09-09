@@ -9,14 +9,10 @@
     "titulo": "Abrir link externo?",
     "antesHost": "Você está saindo deste site e será direcionado para ",
     "hostFallback": "outro site",
-    "depoisHost": ".",
-    "cancelar": "Cancelar",
-    "continuar": "Continuar"
+    "depoisHost": "."
   },
   "configuracoes": {
-    "abrir": "Configurações",
     "titulo": "Configurações",
-    "fecharAriaLabel": "Fechar configurações",
     "aparencia": "Aparência",
     "temaAutomatico": "Automático",
     "temaClaro": "Claro",

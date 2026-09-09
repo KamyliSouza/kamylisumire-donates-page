@@ -3,7 +3,6 @@
   "titulo": "Últimas lives",
   "descricao": "Confira algumas lives recentes e abra a escolhida no YouTube.",
   "canalUrl": "https://youtube.com/kamyli",
-  "botaoCanal": "Abrir no YouTube",
   "maxItems": 10,
   "videos": [
     {

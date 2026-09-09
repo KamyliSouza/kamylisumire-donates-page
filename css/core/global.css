@@ -1020,3 +1020,39 @@ html[data-performance="reduced"] .site-loader-logo {
     opacity: 1;
     transform: none;
 }
+
+
+/* =========================================================
+   BOTÕES CONFIGURÁVEIS — V47
+   ========================================================= */
+[data-button-key] {
+    gap: 7px;
+}
+
+.button-config-icon,
+[data-button-icon] {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+}
+
+.button-config-icon-svg,
+[data-button-icon] > .button-config-icon-svg {
+    width: 1em;
+    height: 1em;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+}
+
+.site-settings-close {
+    width: auto;
+    min-width: 32px;
+    padding-inline: 7px;
+    gap: 5px;
+}
+
+.blog-filter [data-button-icon],
+.tab-btn [data-button-icon] {
+    margin-right: 5px;
+}

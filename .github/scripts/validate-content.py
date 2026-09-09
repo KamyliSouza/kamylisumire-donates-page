@@ -31,6 +31,9 @@ REQUIRED_FILES = (
     "blog/index.html",
     "data/blog/config.json",
     "data/blog/posts.json",
+    "data/content/buttons.json",
+    "js/core/button-icons.js",
+    "js/core/buttons.js",
     "404.html",
     "CNAME",
     ".nojekyll",
@@ -95,6 +98,28 @@ LEGACY_LIVES_KEYS = {
     "modalTitulo",
 }
 
+BUTTON_ICON_NAMES = {
+    "none", "heart", "youtube", "arrow-right", "arrow-left",
+    "chevron-left", "chevron-right", "home", "pix", "globe",
+    "calendar", "trophy", "tag", "x", "external-link", "settings",
+}
+
+REQUIRED_BUTTON_KEYS = {
+    "navbarSupport", "heroSupport", "heroLive", "livesChannel",
+    "homeBlogAll", "homeDonation", "notFoundHome", "donationLivepix",
+    "donationPixie", "rankingMonthly", "rankingAllTime", "blogFilterAll",
+    "blogArticleBack", "externalCancel", "externalContinue", "settingsOpen",
+    "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
+}
+
+BUTTON_KEYS_ALLOW_EMPTY_TEXT = {
+    "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
+}
+
+BLOG_METADATA_KEYS = (
+    "slug", "title", "date", "summary", "tags", "readMinutes", "published",
+)
+
 ALLOWED_DOCS = {
     "ARQUITETURA.md",
     "PRODUCAO.md",
@@ -110,12 +135,6 @@ EXPECTED_DAYS = (
     "quinta",
     "sexta",
     "sabado",
-)
-
-HEART_PATH = (
-    "M12 21s-7.2-4.35-9.6-8.35C.65 9.95 1.5 6.4 4.6 5.1c2-.85 "
-    "4.25-.3 5.65 1.35L12 8.5l1.75-2.05c1.4-1.65 3.65-2.2 "
-    "5.65-1.35 3.1 1.3 3.95 4.85 2.2 7.55C19.2 16.65 12 21 12 21Z"
 )
 
 
@@ -197,7 +216,7 @@ def validate_all_json() -> None:
 def validate_home_content() -> None:
     hero = load_json("data/content/hero.json")
     if isinstance(hero, dict):
-        for key in ("eyebrow", "titulo", "descricao", "botoes"):
+        for key in ("eyebrow", "titulo", "descricao"):
             if key not in hero:
                 error(f"data/content/hero.json: campo obrigatório ausente: {key}")
 
@@ -211,29 +230,13 @@ def validate_home_content() -> None:
                         f"data/content/hero.json: titulo.{key} deve ser texto."
                     )
 
-        buttons = hero.get("botoes")
-        if not isinstance(buttons, dict):
-            error("data/content/hero.json: botoes deve ser objeto.")
-        else:
-            if buttons.get("apoio") != "Apoiar":
-                error(
-                    'data/content/hero.json: botoes.apoio deve ser "Apoiar".'
-                )
-            if not isinstance(buttons.get("live"), str) or not buttons["live"].strip():
-                error(
-                    "data/content/hero.json: botoes.live deve ser texto não vazio."
-                )
-
     donation = load_json("data/content/home-doacoes.json")
     if not isinstance(donation, dict):
         return
 
-    for key in ("eyebrow", "titulo", "descricao", "botao"):
+    for key in ("eyebrow", "titulo", "descricao"):
         if not isinstance(donation.get(key), str) or not donation[key].strip():
             error(f"data/content/home-doacoes.json: {key} deve ser texto não vazio.")
-
-    if donation.get("botao") != "Apoiar":
-        error('data/content/home-doacoes.json: "botao" deve ser "Apoiar".')
 
 
 def validate_lives() -> None:
@@ -259,7 +262,6 @@ def validate_lives() -> None:
         "titulo",
         "descricao",
         "canalUrl",
-        "botaoCanal",
         "maxItems",
         "videos",
     )
@@ -319,7 +321,145 @@ def validate_lives() -> None:
             warn(f"{label}.title contém marcador de citação incomum; revisar editorialmente.")
 
 
+def parse_blog_markdown(rel: str):
+    text = read_text(rel)
+    if not text:
+        return None
+
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    lines = normalized.split("\n")
+    if not lines or lines[0].strip() != "---":
+        error(f"{rel}: front matter deve começar com ---.")
+        return None
+
+    try:
+        end = next(i for i in range(1, len(lines)) if lines[i].strip() == "---")
+    except StopIteration:
+        error(f"{rel}: front matter sem fechamento ---.")
+        return None
+
+    meta = {}
+    for line_number, raw in enumerate(lines[1:end], start=2):
+        if not raw.strip():
+            continue
+        match = re.fullmatch(r"([A-Za-z][A-Za-z0-9]*):\s*(.+)", raw)
+        if not match:
+            error(f"{rel}:{line_number}: front matter inválido.")
+            continue
+        key, value = match.groups()
+        if key in meta:
+            error(f"{rel}:{line_number}: chave duplicada no front matter: {key}.")
+            continue
+        try:
+            meta[key] = json.loads(value)
+        except json.JSONDecodeError:
+            error(
+                f"{rel}:{line_number}: valor de {key} deve ser literal JSON "
+                "(texto entre aspas, array, número ou booleano)."
+            )
+
+    unknown = set(meta) - set(BLOG_METADATA_KEYS)
+    if unknown:
+        error(f"{rel}: chaves desconhecidas no front matter: {', '.join(sorted(unknown))}.")
+
+    body = "\n".join(lines[end + 1:]).strip()
+    if not body:
+        error(f"{rel}: corpo Markdown está vazio.")
+
+    return meta, body
+
+
+def markdown_word_count(body: str) -> int:
+    text = re.sub(r"```.*?```", " ", body, flags=re.S)
+    text = re.sub(r"!?\[([^\]]*)\]\([^\)]*\)", r" \1 ", text)
+    text = re.sub(r"[`*_>#~-]", " ", text)
+    return len(re.findall(r"\b[\wÀ-ÖØ-öø-ÿ]+\b", text, flags=re.UNICODE))
+
+
+def validate_markdown_body(rel: str, body: str) -> None:
+    if re.search(r"<\/?[A-Za-z][^>]*>", body):
+        error(f"{rel}: HTML bruto não é permitido no Markdown.")
+
+    image_pattern = re.compile(
+        r'!\[([^\]]*)\]\(([^\s\)]+)(?:\s+"([^"]*)")?\)'
+    )
+    for alt, image_url, _caption in image_pattern.findall(body):
+        if not alt.strip():
+            error(f"{rel}: toda imagem Markdown deve possuir texto alternativo.")
+        parsed = urlparse(image_url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            error(f"{rel}: imagem externa deve usar URL https:// válida: {image_url}")
+
+    linked_image_pattern = re.compile(
+        r'\[!\[[^\]]+\]\([^\)]+\)\]\(([^\s\)]+)\)'
+    )
+    for target in linked_image_pattern.findall(body):
+        parsed = urlparse(target)
+        if parsed.scheme != "https" or not parsed.netloc:
+            error(f"{rel}: link de imagem deve usar https:// válido: {target}")
+
+    unsafe_link = re.compile(r'(?<!!)\[[^\]]+\]\((javascript:|data:|vbscript:)', re.I)
+    if unsafe_link.search(body):
+        error(f"{rel}: protocolo inseguro encontrado em link Markdown.")
+
+
+def validate_buttons() -> None:
+    data = load_json("data/content/buttons.json")
+    if not isinstance(data, dict):
+        return
+
+    missing = REQUIRED_BUTTON_KEYS - set(data)
+    if missing:
+        error(
+            "data/content/buttons.json: botões obrigatórios ausentes: "
+            + ", ".join(sorted(missing))
+        )
+
+    unknown = set(data) - REQUIRED_BUTTON_KEYS
+    if unknown:
+        warn(
+            "data/content/buttons.json: chaves extras não reconhecidas: "
+            + ", ".join(sorted(unknown))
+        )
+
+    for key in sorted(REQUIRED_BUTTON_KEYS & set(data)):
+        entry = data[key]
+        label = f"data/content/buttons.json: {key}"
+        if not isinstance(entry, dict):
+            error(f"{label} deve ser objeto.")
+            continue
+
+        text = entry.get("text")
+        if not isinstance(text, str):
+            error(f"{label}.text deve ser texto.")
+        elif key not in BUTTON_KEYS_ALLOW_EMPTY_TEXT and not text.strip():
+            error(f"{label}.text não pode ficar vazio.")
+
+        icon = entry.get("icon")
+        if icon not in BUTTON_ICON_NAMES:
+            error(f"{label}.icon inválido: {icon!r}.")
+
+        aria = entry.get("ariaLabel")
+        if aria is not None and not isinstance(aria, str):
+            error(f"{label}.ariaLabel deve ser texto quando informado.")
+        if key in BUTTON_KEYS_ALLOW_EMPTY_TEXT and not isinstance(aria, str):
+            error(f"{label}.ariaLabel é obrigatório para botão sem texto padrão.")
+        elif key in BUTTON_KEYS_ALLOW_EMPTY_TEXT and not aria.strip():
+            error(f"{label}.ariaLabel não pode ficar vazio para botão sem texto padrão.")
+
+        serialized = json.dumps(entry, ensure_ascii=False)
+        if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
+            error(f"{label}: HTML/SVG bruto não é permitido.")
+
+
 def validate_blog() -> None:
+    legacy_sources = sorted((ROOT / "data/blog/posts").glob("*.json"))
+    for source in legacy_sources:
+        error(
+            f"{source.relative_to(ROOT).as_posix()}: fonte JSON legada; "
+            "V47 exige Markdown (.md)."
+        )
+
     config = load_json("data/blog/config.json")
     index_data = load_json("data/blog/posts.json")
 
@@ -336,7 +476,7 @@ def validate_blog() -> None:
     else:
         for key in (
             "eyebrow", "titulo", "descricao", "buscaPlaceholder",
-            "todos", "vazio", "minutosLeitura",
+            "vazio", "minutosLeitura",
         ):
             if not isinstance(page.get(key), str) or not page[key].strip():
                 error(f"data/blog/config.json: page.{key} deve ser texto não vazio.")
@@ -350,7 +490,7 @@ def validate_blog() -> None:
     if not isinstance(home, dict):
         error("data/blog/config.json: home deve ser objeto.")
     else:
-        for key in ("eyebrow", "titulo", "descricao", "botao"):
+        for key in ("eyebrow", "titulo", "descricao"):
             if not isinstance(home.get(key), str) or not home[key].strip():
                 error(f"data/blog/config.json: home.{key} deve ser texto não vazio.")
         max_items = home.get("maxItems")
@@ -361,7 +501,7 @@ def validate_blog() -> None:
     if not isinstance(article, dict):
         error("data/blog/config.json: article deve ser objeto.")
     else:
-        for key in ("eyebrow", "voltar"):
+        for key in ("eyebrow",):
             if not isinstance(article.get(key), str) or not article[key].strip():
                 error(f"data/blog/config.json: article.{key} deve ser texto não vazio.")
 
@@ -429,49 +569,31 @@ def validate_blog() -> None:
         else:
             slugs.add(slug)
 
-        source_rel = f"data/blog/posts/{slug}.json"
+        source_rel = f"data/blog/posts/{slug}.md"
         source_path = ROOT / source_rel
         if not source_path.is_file():
-            error(f"{label}: fonte individual ausente: {source_rel}")
+            error(f"{label}: fonte Markdown ausente: {source_rel}")
             continue
 
-        source = load_json(source_rel)
-        if not isinstance(source, dict):
+        parsed_source = parse_blog_markdown(source_rel)
+        if not parsed_source:
             continue
 
+        source, body = parsed_source
         validate_metadata(source, source_rel)
 
         for key in metadata_keys:
             if source.get(key) != post.get(key):
                 error(f"{source_rel}: {key} diverge de data/blog/posts.json.")
 
-        body = source.get("body")
-        if not isinstance(body, list) or not body:
-            error(f"{source_rel}: body deve conter ao menos um bloco.")
-        else:
-            for block_index, block in enumerate(body):
-                block_label = f"{source_rel}: body[{block_index}]"
-                if not isinstance(block, dict):
-                    error(f"{block_label} deve ser objeto.")
-                    continue
+        validate_markdown_body(source_rel, body)
 
-                block_type = block.get("type")
-                if block_type in ("paragraph", "heading", "quote"):
-                    text = block.get("text")
-                    if not isinstance(text, str) or not text.strip():
-                        error(f"{block_label}.text deve ser texto não vazio.")
-                elif block_type == "list":
-                    items = block.get("items")
-                    if (
-                        not isinstance(items, list)
-                        or not items
-                        or not all(
-                            isinstance(item, str) and item.strip() for item in items
-                        )
-                    ):
-                        error(f"{block_label}.items deve ser lista de textos não vazios.")
-                else:
-                    error(f"{block_label}.type inválido: {block_type!r}.")
+        expected_minutes = max(1, (markdown_word_count(body) + 219) // 220)
+        if source.get("readMinutes") != expected_minutes:
+            error(
+                f"{source_rel}: readMinutes deve ser {expected_minutes} "
+                "para o corpo Markdown atual (220 palavras/min)."
+            )
 
         article_rel = f"blog/{slug}/index.html"
         article_path = ROOT / article_rel
@@ -615,6 +737,8 @@ def validate_architecture() -> None:
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
     page_transitions = read_text("js/core/page-transitions.js")
+    buttons_js = read_text("js/core/buttons.js")
+    button_icons_js = read_text("js/core/button-icons.js")
 
     for element_id in (
         'id="inicio"',
@@ -772,13 +896,13 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=46.3" not in html:
             error(f"{rel}: cache-buster do loader V46.3 ausente.")
-        if "global.css?v=46.3" not in html:
-            error(f"{rel}: cache-buster do CSS global V46.3 ausente.")
+        if "global.css?v=47" not in html:
+            error(f"{rel}: cache-buster do CSS global V47 ausente.")
 
     if "loader.js?v=46.3" not in not_found:
         error("404.html: cache-buster do loader V46.3 ausente.")
-    if "global.css?v=46.3" not in not_found:
-        error("404.html: cache-buster do CSS global V46.3 ausente.")
+    if "global.css?v=47" not in not_found:
+        error("404.html: cache-buster do CSS global V47 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
@@ -786,6 +910,43 @@ def validate_architecture() -> None:
             "js/core/config.js: domínio principal api.kamylisumire.com "
             "não reconhecido."
         )
+
+    for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+        if "js/core/button-icons.js?v=47" not in html or "js/core/buttons.js?v=47" not in html:
+            error(f"{rel}: módulos de botões V47 não carregados.")
+
+    for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+        for asset in (
+            "js/core/content.js?v=47",
+            "js/core/navbar.js?v=47",
+            "js/core/external-links.js?v=47",
+            "js/core/footer.js?v=47",
+            "css/core/navbar.css?v=47",
+        ):
+            if asset not in html:
+                error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
+
+    for asset in (
+        "js/pages/home/content.js?v=47",
+        "js/pages/home/lives.js?v=47",
+        "js/pages/home/home-interactions.js?v=47",
+        "css/components/home-interactions.css?v=47",
+    ):
+        if asset not in index:
+            error(f"index.html: cache-buster V47 ausente para {asset.split('?')[0]}.")
+
+    if "js/pages/doacoes/content.js?v=47" not in donations:
+        error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
+
+    if "js/pages/blog/blog.js?v=47" not in blog_index:
+        error("blog/index.html: cache-buster V47 ausente para js/pages/blog/blog.js.")
+    if "css/pages/blog.css?v=47" not in blog_index:
+        error("blog/index.html: cache-buster V47 ausente para css/pages/blog.css.")
+
+    if "data/content/buttons.json" not in buttons_js:
+        error("js/core/buttons.js: configuração central de botões não carregada.")
+    if "KamyliButtonIcons" not in button_icons_js:
+        error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
 
     if "useCustomDomain: true" not in config:
         error(
@@ -879,8 +1040,6 @@ def validate_architecture() -> None:
         )
 
     for element_id in (
-        "heroSupportButton",
-        "homeDonationButton",
         "livesTrack",
         "agendaGrid",
     ):
@@ -890,15 +1049,6 @@ def validate_architecture() -> None:
     for event_name in ("pointerdown", "pointermove", "pointerup"):
         if event_name not in interactions:
             error(f"home-interactions.js: evento de arraste ausente: {event_name}")
-
-    if HEART_PATH not in interactions:
-        error("home-interactions.js: path do coração esperado não encontrado.")
-
-    if navbar and HEART_PATH not in navbar:
-        warn(
-            "navbar.js: não foi possível confirmar por texto o mesmo path SVG do coração; "
-            "revisar se a navbar foi redesenhada deliberadamente."
-        )
 
 
 def validate_seo_and_deployment() -> None:
@@ -975,6 +1125,7 @@ def validate_seo_and_deployment() -> None:
 def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
+    validate_buttons()
     validate_home_content()
     validate_lives()
     validate_blog()
