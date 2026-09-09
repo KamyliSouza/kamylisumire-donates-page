@@ -896,13 +896,13 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=46.3" not in html:
             error(f"{rel}: cache-buster do loader V46.3 ausente.")
-        if "global.css?v=47" not in html:
-            error(f"{rel}: cache-buster do CSS global V47 ausente.")
+        if "global.css?v=47.1" not in html:
+            error(f"{rel}: cache-buster do CSS global V47.1 ausente.")
 
     if "loader.js?v=46.3" not in not_found:
         error("404.html: cache-buster do loader V46.3 ausente.")
-    if "global.css?v=47" not in not_found:
-        error("404.html: cache-buster do CSS global V47 ausente.")
+    if "global.css?v=47.1" not in not_found:
+        error("404.html: cache-buster do CSS global V47.1 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
@@ -947,6 +947,28 @@ def validate_architecture() -> None:
         error("js/core/buttons.js: configuração central de botões não carregada.")
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+
+    # V47.1: geometria interna dos botões configuráveis.
+    for needle in (
+        "--button-config-icon-size",
+        ".button[data-button-key]",
+        ".donation-btn[data-button-key]",
+        ".blog-filter[data-button-key]",
+        ".ranking-tabs .tab-btn[data-button-key]",
+        ".site-settings-close[data-button-key]",
+        ".lives-carousel-button[data-button-key]",
+    ):
+        if needle not in global_css:
+            error(
+                "css/core/global.css: contrato de alinhamento V47.1 ausente: "
+                f"{needle}"
+            )
+
+    if "margin-right: 5px" in global_css and ".blog-filter [data-button-icon]" in global_css:
+        error(
+            "css/core/global.css: espaçamento legado de ícones em filtros/abas "
+            "não deve voltar na V47.1."
+        )
 
     if "useCustomDomain: true" not in config:
         error(

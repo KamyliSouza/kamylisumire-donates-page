@@ -1023,10 +1023,20 @@ html[data-performance="reduced"] .site-loader-logo {
 
 
 /* =========================================================
-   BOTÕES CONFIGURÁVEIS — V47
+   BOTÕES CONFIGURÁVEIS — V47.1
+
+   O slot e o SVG são tratados separadamente. Alguns componentes
+   (como doações e navbar) usam um contêiner de ícone maior; o
+   desenho interno mantém tamanho próprio sem deformar a geometria
+   original do botão.
    ========================================================= */
 [data-button-key] {
-    gap: 7px;
+    gap: var(--button-config-gap, 7px);
+}
+
+[data-button-label] {
+    min-width: 0;
+    line-height: inherit;
 }
 
 .button-config-icon,
@@ -1034,25 +1044,114 @@ html[data-performance="reduced"] .site-loader-logo {
     flex: 0 0 auto;
     display: inline-grid;
     place-items: center;
+
+    line-height: 0;
+    vertical-align: middle;
 }
 
 .button-config-icon-svg,
 [data-button-icon] > .button-config-icon-svg {
-    width: 1em;
-    height: 1em;
+    width: var(--button-config-icon-size, 1em);
+    height: var(--button-config-icon-size, 1em);
+
     display: block;
+
     fill: none;
     stroke: currentColor;
 }
 
-.site-settings-close {
-    width: auto;
-    min-width: 32px;
-    padding-inline: 7px;
-    gap: 5px;
+[data-button-icon][hidden],
+[data-button-label][hidden] {
+    display: none !important;
+}
+
+/* CTAs globais: mesma proporção entre texto e ícone. */
+.button[data-button-key] {
+    --button-config-gap: 8px;
+    --button-config-icon-size: 17px;
+}
+
+/* Apoiar da navbar. */
+.site-nav-support[data-button-key] {
+    --button-config-gap: 7px;
+    --button-config-icon-size: 16px;
+}
+
+/* Links compactos da Home. */
+.lives-youtube-link[data-button-key] {
+    --button-config-gap: 5px;
+    --button-config-icon-size: 14px;
+}
+
+.home-blog-all-link[data-button-key] {
+    --button-config-gap: 6px;
+    --button-config-icon-size: 14px;
+}
+
+/* Serviços de doação preservam o slot de 40px e ampliam só o SVG. */
+.donation-btn[data-button-key] {
+    --button-config-icon-size: 24px;
+}
+
+/* Controles compactos não somam margin + gap. */
+.blog-filter[data-button-key] {
+    --button-config-gap: 5px;
+    --button-config-icon-size: 13px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-tabs .tab-btn[data-button-key] {
+    --button-config-gap: 6px;
+    --button-config-icon-size: 15px;
 }
 
 .blog-filter [data-button-icon],
 .tab-btn [data-button-icon] {
-    margin-right: 5px;
+    margin: 0;
+}
+
+/* Configurações do rodapé. */
+.site-footer-settings-toggle[data-button-key] {
+    --button-config-gap: 7px;
+    --button-config-icon-size: 16px;
+}
+
+.site-settings-close[data-button-key] {
+    --button-config-gap: 0;
+    --button-config-icon-size: 16px;
+}
+
+/* As setas permanecem perfeitamente centradas dentro do círculo. */
+.lives-carousel-button[data-button-key],
+.agenda-carousel-button[data-button-key] {
+    --button-config-gap: 0;
+    --button-config-icon-size: 21px;
+}
+
+[data-button-key].lives-carousel-button [data-button-icon],
+[data-button-key].agenda-carousel-button [data-button-icon] {
+    margin-top: 0;
+}
+
+@media (max-width: 760px) {
+    .site-nav-support[data-button-key] {
+        --button-config-icon-size: 14px;
+    }
+}
+
+@media (max-width: 700px) {
+    .lives-carousel-button[data-button-key],
+    .agenda-carousel-button[data-button-key] {
+        --button-config-icon-size: 19px;
+    }
+}
+
+@media (max-width: 520px) {
+    .lives-carousel-button[data-button-key],
+    .agenda-carousel-button[data-button-key] {
+        --button-config-icon-size: 18px;
+    }
 }
