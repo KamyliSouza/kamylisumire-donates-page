@@ -24,7 +24,9 @@ A galeria é estática: o navegador lê este JSON localmente e busca cada imagem
 diretamente da URL HTTPS informada. Não usar Worker/KV/API como hospedagem de
 imagem.
 
-Desde a V48.0.1, a grade usa `preview` e o lightbox carrega `imagem` em alta qualidade apenas quando aberto. Ambas devem ser URLs HTTPS.\n\nEstrutura de uma obra:
+Desde a V48.0.1, a grade usa `preview` e o lightbox carrega `imagem` em alta qualidade apenas quando aberto. Ambas devem ser URLs HTTPS.
+
+Estrutura de uma obra:
 
 ```json
 {

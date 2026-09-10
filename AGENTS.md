@@ -361,3 +361,8 @@ migração/hotfix.
 - A estabilização pós-scroll em `navbar.js` existe para absorver mudanças de altura de conteúdo assíncrono; não substituí-la por um `setTimeout` fixo sem observar o layout.
 - Qualquer estabilização automática deve ser cancelada assim que o usuário iniciar interação de rolagem.
 - Mudanças em `js/core/navbar.js` exigem atualização do `?v=` em todas as páginas públicas que carregam a navbar.
+
+
+## CSP V48.0.2
+
+Toda página HTML pública versionada deve manter a CSP mínima validada por `.github/scripts/validate-content.py`. Ao adicionar um novo host usado por `fetch`, imagens, fontes ou outros recursos, atualizar a política deliberadamente e validar o repositório. Não adicionar `frame-ancestors` à CSP via `<meta>`; esse diretivo exige cabeçalho HTTP. Também não adicionar `upgrade-insecure-requests` à meta CSP: o repositório deve continuar testável por servidor HTTP local, enquanto produção já opera em HTTPS. Páginas que carregam `js/core/footer.js` devem carregar `js/core/sanitize.js` antes dele.

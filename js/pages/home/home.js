@@ -4,13 +4,10 @@ const agendaObservacao = document.getElementById("agendaObservacao");
 const agendaPrev = document.getElementById("agendaPrev");
 const agendaNext = document.getElementById("agendaNext");
 
-function escapeHtml(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+const escapeHtml = window.KamyliSanitize?.escapeHtml;
+
+if (typeof escapeHtml !== "function") {
+    throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
 }
 
 function formatDate(dateString) {

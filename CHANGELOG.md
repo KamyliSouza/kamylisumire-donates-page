@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.0.2 — Hardening de segurança (sem mudança funcional esperada)
+
+- adiciona `Content-Security-Policy` via `<meta http-equiv>` às páginas HTML públicas atuais, restringindo fontes de script/estilo/conexão, bloqueando objetos e frames carregados pela página e preservando apenas os hosts já usados pelo frontend; `frame-ancestors` não é declarado porque exige cabeçalho HTTP, e `upgrade-insecure-requests` é deliberadamente omitido para preservar desenvolvimento/testes locais via HTTP sem reduzir a segurança do deploy HTTPS atual;
+- `workers.js`: `isAdminAuthorized` passa a usar `crypto.subtle.timingSafeEqual`, disponível no runtime Cloudflare Workers, sem retorno antecipado apenas por diferença de comprimento; rotas, payloads e forma de fornecer o token permanecem inalterados;
+- extrai `escapeHtml` para `js/core/sanitize.js` (`window.KamyliSanitize.escapeHtml`) e mantém consumidores com falha explícita caso a dependência não tenha sido carregada;
+- amplia `.github/scripts/validate-content.py` para exigir CSP nas páginas HTML versionadas, impedir `frame-ancestors` e `upgrade-insecure-requests` em meta CSP, garantir `sanitize.js` antes de `footer.js`, impedir o retorno de implementações duplicadas de `escapeHtml` e verificar o hardening timing-safe do Worker;
+- não modifica `data/content/artes.json`, o contrato `preview`/`imagem`, conteúdo editorial, endpoints, payloads, OAuth, KV, CORS ou frequências de sincronização;
+- o patch V48.0.2 é independente e não adiciona/remove patches históricos ou outros artefatos de processo do repositório.
+
 ## V48.0.1 — Preview otimizada da Galeria
 
 - evolui `data/content/artes.json` para `version: 2`, separando `preview` (imagem leve usada na grade) de `imagem` (arquivo em alta qualidade usado no lightbox);

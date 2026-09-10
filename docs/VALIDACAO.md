@@ -151,3 +151,8 @@ Smoke test manual recomendado:
 5. confirmar busca/filtros e abertura do dialog;
 6. confirmar que erro de uma imagem não bloqueia as demais;
 7. confirmar que a página funciona com Worker/API indisponíveis.
+
+
+## CSP V48.0.2 e sanitização compartilhada
+
+`validate-content.py` também verifica que toda página HTML versionada contém a CSP mínima da V48.0.2; que `frame-ancestors` e `upgrade-insecure-requests` não são declarados via meta CSP; que qualquer página com `footer.js` carrega `js/core/sanitize.js` antes dele; e que os consumidores conhecidos usam o `escapeHtml` compartilhado em vez de reintroduzir cópias locais. A ausência de `upgrade-insecure-requests` é intencional para manter o site testável via servidor HTTP local; produção continua servida em HTTPS. O validador também confirma a presença do caminho timing-safe usado na autenticação administrativa do Worker.

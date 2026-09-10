@@ -177,11 +177,32 @@ function extractAdminToken(request, url) {
   return (url.searchParams.get('key') || '').trim();
 }
 
+// Comparação em tempo constante para o token administrativo. O runtime do
+// Cloudflare Workers expõe crypto.subtle.timingSafeEqual. Quando os tamanhos
+// diferem, ainda executamos uma comparação constante antes de retornar false,
+// evitando um retorno antecipado baseado apenas no comprimento fornecido.
+function timingSafeEqual(a, b) {
+  const encoder = new TextEncoder();
+  const bufA = encoder.encode(a);
+  const bufB = encoder.encode(b);
+
+  if (bufA.byteLength === bufB.byteLength) {
+    return crypto.subtle.timingSafeEqual(bufA, bufB);
+  }
+
+  // Mantém o caminho de comparação mesmo quando os comprimentos diferem.
+  crypto.subtle.timingSafeEqual(bufA, bufA);
+  return false;
+}
+
 function isAdminAuthorized(request, url, env) {
   const expected = (env.OAUTH_SETUP_TOKEN || '').trim();
   if (!expected) return false;
 
-  return extractAdminToken(request, url) === expected;
+  const provided = extractAdminToken(request, url);
+  if (!provided) return false;
+
+  return timingSafeEqual(provided, expected);
 }
 
 // ---------------------------------------------------------------------

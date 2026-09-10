@@ -43,7 +43,8 @@ fallback de contingência.
 - `external-links.js` — confirmação de navegação externa;
 - `page-transitions.js` — transição de página;
 - `loader.js` — loader local;
-- `api.js` — cliente compartilhado usado pelo ranking de Doações e pela aba Twitch em Lives.
+- `api.js` — cliente compartilhado usado pelo ranking de Doações e pela aba Twitch em Lives;
+- `sanitize.js` — `escapeHtml` compartilhado por módulos que montam HTML a partir de conteúdo editorial; páginas que carregam `footer.js` devem carregar `sanitize.js` antes dele.
 
 `config.js` não deve carregar módulos de páginas.
 
@@ -151,3 +152,10 @@ Avatar, favicon, fundo e preview social são servidos por
 `assets.kamylisumire.com`.
 
 Nunito permanece no próprio repositório.
+
+
+### Segurança V48.0.2
+
+As páginas HTML versionadas usam uma CSP mínima via `<meta http-equiv="Content-Security-Policy">`, compatível com a hospedagem estática atual. O contrato restringe scripts, estilos, conexões, objetos, formulários e frames carregados pela própria página. `frame-ancestors` não faz parte dessa CSP porque só é efetivo quando enviado como cabeçalho HTTP; eventual proteção de embedding/clickjacking deve ser configurada no host que controlar os response headers. `upgrade-insecure-requests` também é omitido deliberadamente: produção já usa HTTPS e o repositório preserva compatibilidade com servidores HTTP locais usados em desenvolvimento e validação manual.
+
+A autenticação administrativa do Worker mantém o mesmo token e as mesmas rotas, mas compara o segredo com `crypto.subtle.timingSafeEqual`.

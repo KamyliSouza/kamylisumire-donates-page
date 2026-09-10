@@ -37,6 +37,7 @@ REQUIRED_FILES = (
     "data/content/artes.json",
     "data/content/buttons.json",
     "js/core/button-icons.js",
+    "js/core/sanitize.js",
     "js/core/buttons.js",
     "404.html",
     "CNAME",
@@ -105,6 +106,21 @@ LEGACY_LIVES_KEYS = {
     "mensagemErro",
     "modalTitulo",
 }
+
+
+
+SECURITY_CSP_REQUIRED_DIRECTIVES = (
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' https:",
+    "font-src 'self'",
+    "connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-src 'none'",
+)
 
 BUTTON_ICON_NAMES = {
     "none", "heart", "youtube", "arrow-right", "arrow-left",
@@ -1330,6 +1346,58 @@ def validate_seo_and_deployment() -> None:
         error("sitemap.xml: URLs públicas obrigatórias estão ausentes.")
 
 
+
+def validate_security_contracts() -> None:
+    sanitize_rel = "js/core/sanitize.js"
+    sanitize_js = read_text(sanitize_rel)
+    if "window.KamyliSanitize" not in sanitize_js or "escapeHtml" not in sanitize_js:
+        error(f"{sanitize_rel}: namespace compartilhado KamyliSanitize.escapeHtml ausente.")
+
+    # CSP via <meta> protege as páginas estáticas nos hosts atuais.
+    # frame-ancestors não é válido nesse modo e, portanto, não faz parte do contrato.
+    for path in sorted(ROOT.rglob("*.html")):
+        rel = path.relative_to(ROOT).as_posix()
+        text = path.read_text(encoding="utf-8")
+        match = re.search(
+            r'<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]+)"',
+            text,
+            re.I,
+        )
+        if not match:
+            error(f"{rel}: Content-Security-Policy via meta ausente.")
+            continue
+        csp = match.group(1)
+        for directive in SECURITY_CSP_REQUIRED_DIRECTIVES:
+            if directive not in csp:
+                error(f"{rel}: CSP obrigatória ausente/incompleta: {directive}")
+        if "frame-ancestors" in csp:
+            error(f"{rel}: frame-ancestors não deve ser declarado via meta CSP; use header HTTP quando disponível.")
+        if "upgrade-insecure-requests" in csp:
+            error(f"{rel}: upgrade-insecure-requests não deve ser usado na meta CSP; o repositório preserva teste/desenvolvimento local por HTTP.")
+
+        # Qualquer página que use footer.js deve carregar sanitize.js antes dele.
+        footer_match = re.search(r'<script[^>]+src=["\']([^"\']*js/core/footer\.js[^"\']*)["\']', text, re.I)
+        if footer_match:
+            sanitize_pos = text.find("js/core/sanitize.js")
+            footer_pos = text.find("js/core/footer.js")
+            if sanitize_pos < 0:
+                error(f"{rel}: sanitize.js deve ser carregado antes de footer.js.")
+            elif sanitize_pos > footer_pos:
+                error(f"{rel}: sanitize.js está após footer.js; a ordem deve ser invertida.")
+
+    # Os consumidores conhecidos não devem voltar a manter cópias locais do escape.
+    for rel in ("js/core/footer.js", "js/pages/home/home.js", "js/pages/home/content.js"):
+        text = read_text(rel)
+        if "window.KamyliSanitize?.escapeHtml" not in text:
+            error(f"{rel}: deve consumir window.KamyliSanitize.escapeHtml.")
+        if re.search(r"function\s+escapeHtml\s*\(", text):
+            error(f"{rel}: não deve duplicar implementação local de escapeHtml.")
+
+    worker = read_text("workers.js")
+    for needle in ("function timingSafeEqual", "crypto.subtle.timingSafeEqual", "timingSafeEqual(provided, expected)"):
+        if needle not in worker:
+            error(f"workers.js: hardening timing-safe ausente: {needle}")
+
 def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
@@ -1339,6 +1407,7 @@ def main() -> int:
     validate_lives()
     validate_blog()
     validate_agenda()
+    validate_security_contracts()
 
     # Valide referências locais de toda página HTML versionada. Isso cobre
     # páginas institucionais aninhadas e futuros artigos estáticos sem depender
