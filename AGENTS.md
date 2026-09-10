@@ -41,6 +41,26 @@ A configuração editorial fica em `data/blog/config.json`; o índice/metadados 
 post publicado deve ter uma página estática correspondente em
 `blog/<slug>/index.html`. Não carregar API/Worker no Blog.
 
+### Galeria de Artes
+
+`/artes/` é uma página pública estática/editorial. A estrutura vigente é:
+
+- shell em `artes/index.html`;
+- estilos exclusivos em `css/pages/artes.css`;
+- runtime em `js/pages/artes/artes.js`;
+- conteúdo em `data/content/artes.json`;
+- Navbar e Footer continuam compartilhados por `js/core/navbar.js` e `js/core/footer.js`.
+
+A galeria não deve depender do Worker/KV. URLs de imagem devem ser HTTPS e podem
+apontar para armazenamento externo. A grade preserva proporções variadas, usa
+`loading=lazy` e o estado de carregamento de cada imagem reutiliza o símbolo
+`.site-loader-logo` do loader global. Título/artista/categoria/data ficam
+sobrepostos na base da imagem com gradiente para contraste.
+
+Cada item editorial usa `id`, `titulo`, `artista`, `imagem`, `alt`, `data`,
+`categoria`, `tags` e opcionalmente `creditoUrl`, `largura` e `altura`. IDs são
+únicos em kebab-case e `imagem`/`creditoUrl` usam HTTPS.
+
 ### Doações
 
 `/doacoes/` contém LivePix, Pixie e ranking.
@@ -128,6 +148,7 @@ campo já for editorial.
 Arquivos principais:
 
 - `data/content/hero.json`;
+- `data/content/artes.json`;
 - `data/content/lives.json`;
 - `data/content/regras.json`;
 - `data/content/creditos.json`;

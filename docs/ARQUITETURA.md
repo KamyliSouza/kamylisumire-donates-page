@@ -13,6 +13,10 @@ Navegador
 │  └─ Lives
 │     ├─ Twitch → /twitch/videos → snapshot KV (24 h)
 │     └─ YouTube → thumbnails + links diretos locais
+├─ /artes/
+│  ├─ HTML/CSS/JS vanilla
+│  ├─ data/content/artes.json
+│  └─ imagens HTTPS externas, sem Worker/KV
 └─ /doacoes/
    ├─ HTML/CSS/JS vanilla
    ├─ conteúdo local
@@ -48,6 +52,19 @@ fallback de contingência.
 A Home continua majoritariamente local. Desde a V47.4, ela importa `api.js`
 apenas para consultar o snapshot público de `/twitch/videos`. Essa consulta não
 é requisito para Hero, Agenda, Regras, Créditos, Blog ou a aba YouTube.
+
+
+## Galeria de Artes
+
+`/artes/` usa `data/content/artes.json` e renderiza uma grade fluida de imagens
+com proporções variadas. A imagem continua em sua proporção original; título,
+artista, categoria e data aparecem sobre a base com gradiente de contraste.
+Durante o carregamento individual, o card reutiliza `.site-loader-logo`, o mesmo
+símbolo animado do loader global. Imagens usam `loading=lazy`.
+
+A galeria é completamente estática do ponto de vista de backend: o navegador
+carrega o JSON local e as URLs HTTPS de imagem diretamente do host configurado.
+Nenhuma visita à galeria executa `workers.js` ou lê KV.
 
 ## Doações
 

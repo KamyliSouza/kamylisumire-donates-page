@@ -1,5 +1,18 @@
 # Changelog
 
+## V48.0 — Galeria de Artes
+
+- adiciona a nova página pública `/artes/`, integrada ao design system atual, com Navbar e Footer compartilhados e sem duplicação manual de componentes;
+- adiciona `data/content/artes.json` como fonte editorial da galeria, com metadados da página e lista de obras contendo ID, título, artista, crédito opcional, URL HTTPS da imagem, texto alternativo, data, categoria, tags e dimensões opcionais;
+- organiza imagens de proporções variadas em grade fluida estilo masonry, preservando a proporção original e exibindo informações sobrepostas na base com gradiente/sombra para contraste;
+- reutiliza o mesmo símbolo visual do loader global (`.site-loader-logo`) durante o carregamento individual das imagens, com tratamento de erro e `loading=lazy`;
+- adiciona filtros por categoria, busca textual e visualização ampliada em dialog nativo, mantendo créditos externos sujeitos ao aviso global de links externos;
+- adiciona `Artes` à Navbar compartilhada e ao conteúdo editorial de `navbar.json`, sem alterar o conteúdo das demais páginas;
+- adiciona SEO/canonical/Open Graph/JSON-LD próprios para `/artes/` e inclui a rota no `sitemap.xml`;
+- amplia `validate-content.py` para validar o contrato de `artes.json`, URLs HTTPS, IDs únicos, datas, tags, dimensões e arquivos obrigatórios da nova página;
+- a galeria permanece 100% estática no frontend: imagens externas não usam Worker, KV, Twitch ou Streamlabs.
+- sincroniza `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md`, `docs/ARQUITETURA.md`, `docs/PRODUCAO.md`, `docs/VALIDACAO.md` e `data/content/README.md` com a arquitetura e o contrato editorial da Galeria V48.0.
+
 ## V47.4.8 — Correções estruturais e cobertura de validação
 
 - corrige os caminhos locais de assets em `/privacidade/` e `/uso-de-ia/`, que agora resolvem `../assets`, `../css` e `../js` corretamente a partir das páginas aninhadas;

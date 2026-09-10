@@ -8,6 +8,7 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 - **Conteúdo editorial:** JSON versionado em `data/`.
 - **Home:** majoritariamente local; a aba Twitch de Lives e o status ao vivo do Hero leem snapshots públicos do Worker, com fallback local/visual quando a API está indisponível.
 - **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
+- **Galeria de Artes:** página estática em `/artes/`, alimentada por `data/content/artes.json` e imagens HTTPS externas.
 - **Doações:** página independente em `/doacoes/`.
 - **Backend público:** ranking de doações, snapshot diário das VODs da Twitch e status ao vivo atualizado em janelas de 10 minutos.
 - **Backend:** Cloudflare Worker em `workers.js`, exposto em `https://api.kamylisumire.com`.
@@ -59,6 +60,8 @@ OAuth/cache são consolidados com migração transparente das chaves V47.4.6.
 Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
 (24 h) mantêm o comportamento operacional anterior.
 
+Desde a V48.0, `/artes/` integra uma galeria editorial em masonry, com imagens externas HTTPS, créditos, filtros, busca e o mesmo símbolo de loader do site em cada imagem. A página não consome Worker/KV e reutiliza Navbar/Footer compartilhados.
+
 Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
 de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
 Blog e a sintaxe do próprio `workers.js`, evitando regressões silenciosas.
@@ -74,12 +77,14 @@ css/pages/               estilos por página
 data/                    conteúdo editorial
 docs/                    documentação atual
 blog/                    índice e páginas estáticas do Blog
+artes/                   Galeria de Artes
 privacidade/             Política de Privacidade
 uso-de-ia/               política de Uso de IA
 doacoes/                 página de apoio/ranking
 js/core/                 infraestrutura compartilhada
 js/pages/home/           lógica da Home
 js/pages/blog/           lógica da listagem do Blog
+js/pages/artes/          lógica da Galeria de Artes
 js/pages/doacoes/        lógica de Doações
 workers.js               backend do ranking
 ```

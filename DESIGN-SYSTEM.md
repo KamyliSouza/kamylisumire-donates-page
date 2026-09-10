@@ -47,6 +47,24 @@ substituir o rótulo textual.
 Os CTAs de apoio da Home reutilizam o desenho de coração do botão Apoiar da
 navbar por meio de `home-interactions.js`.
 
+## Galeria de Artes
+
+A V48.0 oficializa um padrão visual específico para conteúdo artístico em
+`css/pages/artes.css`:
+
+- masonry responsivo com CSS Columns, preservando a proporção original de cada imagem;
+- cards com borda/radius/sombra derivados dos tokens existentes;
+- metadados sobrepostos somente na base da imagem, apoiados por gradiente escuro e `text-shadow` para contraste;
+- `loading="lazy"` e `decoding="async"` nas imagens;
+- `.site-loader-logo` reutilizado durante o carregamento individual, sem criar um segundo desenho de loader;
+- estado de erro por card, sem bloquear o restante da grade;
+- dialog nativo para ampliação, com foco/fechamento acessíveis;
+- `alt` editorial obrigatório; crédito externo opcional e sempre HTTPS quando informado.
+
+Esse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
+Lives, Agenda ou Blog. Não duplicar o CSS do loader global: a Galeria reutiliza
+a classe compartilhada e altera apenas dimensões/posicionamento local.
+
 ## Carrosséis
 
 Lives e Agenda mantêm:

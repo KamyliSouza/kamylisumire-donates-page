@@ -1,0 +1,329 @@
+/* =========================================================
+   GALERIA DE ARTES — V48.0
+   Página estática/editorial; imagens externas, sem Worker.
+   ========================================================= */
+
+.artes-shell {
+    width: min(1120px, calc(100% - 32px));
+    margin: 28px auto 56px;
+}
+
+.artes-intro {
+    padding: clamp(24px, 4vw, 38px);
+    margin-bottom: 18px;
+}
+
+.artes-intro .eyebrow {
+    margin-bottom: 8px;
+}
+
+.artes-intro h1 {
+    margin: 0 0 10px;
+    color: var(--primary-color);
+    font-size: clamp(2rem, 4.2vw, 3.45rem);
+    line-height: 1.02;
+    letter-spacing: -.035em;
+}
+
+.artes-intro p {
+    max-width: 760px;
+    margin: 0;
+    color: var(--subtitle-color);
+    font-weight: 600;
+    line-height: 1.65;
+}
+
+.artes-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px;
+    margin-bottom: 18px;
+}
+
+.artes-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.artes-filter {
+    min-height: 44px;
+    padding: 9px 14px;
+    color: var(--text-color);
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.artes-filter:hover,
+.artes-filter:focus-visible,
+.artes-filter.is-active {
+    color: #fff;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.artes-filter:hover { transform: translateY(-1px); }
+
+.artes-search {
+    width: min(300px, 100%);
+    min-height: 44px;
+    padding: 10px 14px;
+    color: var(--text-color);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    outline: none;
+}
+
+.artes-search:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.artes-grid {
+    columns: 3 280px;
+    column-gap: 16px;
+}
+
+.arte-item {
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 16px;
+    break-inside: avoid;
+}
+
+.arte-item[hidden] { display: none; }
+
+.arte-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+    cursor: zoom-in;
+    text-align: left;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.arte-card:hover,
+.arte-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--primary-color);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .20);
+    outline: none;
+}
+
+.arte-media {
+    position: relative;
+    min-height: 180px;
+    background: var(--notice-bg);
+}
+
+.arte-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity .24s ease, transform .34s ease;
+}
+
+.arte-card:hover .arte-media img { transform: scale(1.018); }
+.arte-media.is-loaded img { opacity: 1; }
+
+.arte-image-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    place-items: center;
+    min-height: 180px;
+    background: var(--card-bg);
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.arte-image-loader .site-loader-logo {
+    width: 58px;
+    height: 58px;
+}
+
+.arte-media.is-loaded .arte-image-loader,
+.arte-media.is-error .arte-image-loader {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.arte-error {
+    display: none;
+    min-height: 220px;
+    padding: 24px;
+    place-items: center;
+    text-align: center;
+    color: var(--subtitle-color);
+    font-weight: 800;
+}
+
+.arte-media.is-error .arte-error { display: grid; }
+.arte-media.is-error img { display: none; }
+
+.arte-shade {
+    position: absolute;
+    inset: 34% 0 0;
+    z-index: 1;
+    background: linear-gradient(to bottom, transparent 0%, rgba(12, 7, 14, .13) 24%, rgba(12, 7, 14, .64) 68%, rgba(12, 7, 14, .9) 100%);
+    pointer-events: none;
+}
+
+.arte-info {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 42px 16px 15px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .82);
+    pointer-events: none;
+}
+
+.arte-meta {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: rgba(255, 255, 255, .9);
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.arte-category {
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, .27);
+    border-radius: 999px;
+    background: rgba(18, 9, 21, .36);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.arte-title {
+    font-size: clamp(1.05rem, 2vw, 1.28rem);
+    font-weight: 900;
+    line-height: 1.16;
+    letter-spacing: -.015em;
+}
+
+.arte-artist {
+    margin-top: 3px;
+    color: rgba(255, 255, 255, .9);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.artes-state {
+    padding: 28px 22px;
+    color: var(--subtitle-color);
+    text-align: center;
+    font-weight: 700;
+}
+
+.artes-state[hidden] { display: none; }
+
+.arte-dialog {
+    width: min(1020px, calc(100% - 24px));
+    max-width: 1020px;
+    max-height: 92vh;
+    padding: 0;
+    overflow: hidden;
+    color: #fff;
+    background: #100b12;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 24px;
+    box-shadow: 0 24px 90px rgba(0, 0, 0, .55);
+}
+
+.arte-dialog::backdrop {
+    background: rgba(8, 4, 9, .8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.arte-dialog-media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+}
+
+.arte-dialog-image {
+    display: block;
+    max-width: 100%;
+    max-height: 82vh;
+    object-fit: contain;
+}
+
+.arte-dialog-info {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 56px 18px 17px;
+    background: linear-gradient(transparent, rgba(9, 5, 10, .92));
+}
+
+.arte-dialog-info strong { display: block; font-size: 1.16rem; }
+.arte-dialog-info a { color: #fff; font-weight: 800; }
+.arte-dialog-info span { font-size: .86rem; opacity: .88; }
+
+.arte-dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: #fff;
+    background: rgba(12, 7, 14, .62);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 50%;
+    font-size: 1.35rem;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+}
+
+@media (max-width: 760px) {
+    .artes-shell { width: min(100% - 24px, 1120px); margin-top: 20px; margin-bottom: 40px; }
+    .artes-intro { padding: 24px 20px; }
+    .artes-tools { align-items: stretch; }
+    .artes-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .artes-filters::-webkit-scrollbar { display: none; }
+    .artes-filter { flex: 0 0 auto; }
+    .artes-search { width: 100%; min-width: 100%; font-size: 16px; }
+    .artes-grid { columns: 2 150px; column-gap: 10px; }
+    .arte-item { margin-bottom: 10px; }
+    .arte-card { border-width: 1px; border-radius: 16px; }
+    .arte-info { padding: 36px 11px 10px; }
+}
+
+@media (max-width: 430px) {
+    .artes-grid { columns: 1; }
+    .arte-info { padding: 42px 14px 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arte-card, .arte-media img, .arte-image-loader { transition-duration: .01ms !important; }
+}

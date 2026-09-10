@@ -11,9 +11,46 @@ alterar HTML.
 - `doacoes.json` — textos da página de Doações.
 - `ranking.json` — textos do ranking.
 - `footer.json` — conteúdo do footer, incluindo o link interno para a Política de Privacidade.
-- `blog.json` — textos do Blog e índice de publicações.
+- `artes.json` — textos e entradas da Galeria de Artes.
+
+A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
 
 A agenda semanal fica em `../agenda.json`.
+
+## Galeria de Artes
+
+`artes.json` controla os textos da página `/artes/` e a lista editorial de obras.
+A galeria é estática: o navegador lê este JSON localmente e busca cada imagem
+diretamente da URL HTTPS informada. Não usar Worker/KV/API como hospedagem de
+imagem.
+
+Estrutura de uma obra:
+
+```json
+{
+  "id": "exemplo-de-arte",
+  "titulo": "Título da arte",
+  "artista": "Nome ou @ da pessoa artista",
+  "creditoUrl": "https://exemplo.com/original",
+  "imagem": "https://media.exemplo.com/artes/exemplo.webp",
+  "alt": "Descrição objetiva do conteúdo visual.",
+  "data": "2026-09-10",
+  "categoria": "Fanart",
+  "tags": ["fanart", "comunidade"],
+  "largura": 1200,
+  "altura": 1600
+}
+```
+
+`creditoUrl`, `largura` e `altura` são opcionais. `imagem` deve ser URL HTTPS
+absoluta; `creditoUrl`, quando preenchido, também. `id` usa kebab-case e deve ser
+único. `alt` é obrigatório. Dimensões conhecidas são recomendadas para reduzir
+mudanças de layout enquanto a imagem carrega.
+
+As imagens preservam a proporção original em masonry e os metadados aparecem
+sobre a base da imagem com gradiente/sombra. Enquanto uma imagem carrega, o card
+reutiliza `.site-loader-logo`, o mesmo símbolo visual do loader global.
+
 
 ## Lives
 
@@ -44,32 +81,18 @@ A lista automática da Twitch vem de `/twitch/videos` e é normalizada pelo Work
 
 ## Blog
 
-`blog.json` controla a visibilidade e a listagem do Blog.
-
-A Navbar e a seção de Blog da Home só aparecem quando existe pelo menos um
-item com `"published": true` e metadados válidos.
-
-Cada item usa:
-
-```json
-{
-  "slug": "meu-primeiro-post",
-  "title": "Título do post",
-  "date": "2026-09-08",
-  "summary": "Resumo curto usado na listagem.",
-  "tags": ["Reflexões", "Vida"],
-  "readMinutes": 4,
-  "published": true
-}
-```
-
-Antes de marcar `published: true`, crie a página estática correspondente em:
+O Blog não usa `data/content/blog.json`. A arquitetura vigente é:
 
 ```text
+data/blog/config.json
+data/blog/posts.json
+data/blog/posts/<slug>.md
 blog/<slug>/index.html
+sitemap.xml
 ```
 
-O corpo do post deve permanecer HTML estático para que título, description,
-canonical e Open Graph possam ser lidos sem depender de JavaScript.
-
-Não usar imagens de capa como requisito do Blog; a listagem é textual.
+`data/blog/config.json` controla os textos/visibilidade editorial da listagem.
+`data/blog/posts/<slug>.md` é a fonte de cada publicação e
+`data/blog/posts.json` é o índice derivado. Um post publicado também precisa da
+página estática correspondente em `blog/<slug>/index.html`, com canonical/SEO
+próprios. Consulte `../blog/README.md` para o contrato completo.

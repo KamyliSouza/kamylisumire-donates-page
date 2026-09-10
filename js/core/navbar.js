@@ -4,6 +4,7 @@
 
     const path = window.location.pathname;
     const onDonations = path.includes("/doacoes");
+    const onArts = /\/artes(?:\/|$)/.test(path);
     const onHome = Boolean(document.getElementById("inicio"));
     const sitePath = window.KAMYLI_SITE_PATH || (value => value);
 
@@ -46,6 +47,14 @@
                         href="${sitePath("/#agenda")}"
                     >
                         Agenda
+                    </a>
+
+                    <a
+                        class="site-nav-link"
+                        data-nav-page="artes"
+                        href="${sitePath("/artes/")}"
+                    >
+                        Artes
                     </a>
 
                     <a
@@ -101,6 +110,9 @@
     const donationsLink = mount.querySelector(
         '[data-nav-page="doacoes"]'
     );
+    const artsLink = mount.querySelector(
+        '[data-nav-page="artes"]'
+    );
 
     function keepActiveLinkVisible(link, behavior = "smooth") {
         if (
@@ -135,7 +147,8 @@
             if (active) {
                 item.setAttribute(
                     "aria-current",
-                    onDonations && item === donationsLink
+                    (onDonations && item === donationsLink) ||
+                    (onArts && item === artsLink)
                         ? "page"
                         : "location"
                 );
@@ -525,7 +538,9 @@
         }
     });
 
-    if (onDonations) {
+    if (onArts) {
+        setActiveLink(artsLink, "auto");
+    } else if (onDonations) {
         setActiveLink(donationsLink, "auto");
 
         /*

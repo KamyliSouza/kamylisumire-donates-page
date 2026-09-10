@@ -23,7 +23,24 @@ explicitamente a `ALLOWED_ORIGINS`.
 
 ## Assets
 
-Gráficos públicos usam `https://assets.kamylisumire.com`.
+Gráficos públicos compartilhados do site usam `https://assets.kamylisumire.com`.
+
+### Galeria de Artes V48.0
+
+`/artes/` é uma página editorial estática. Seus metadados ficam em
+`data/content/artes.json`, enquanto cada obra aponta diretamente para uma URL
+HTTPS externa informada no campo `imagem`. A galeria não usa o Worker, KV,
+Streamlabs ou Twitch para servir imagens.
+
+Para produção, prefira um host de mídia estático controlado pelo projeto e,
+quando disponível, um domínio próprio como `media.kamylisumire.com`. O site não
+depende de um provedor específico: o contrato exige apenas URL HTTPS absoluta.
+Não usar `workers.dev`, a API pública ou rotas do Worker como origem das imagens.
+
+As dimensões `largura` e `altura` são opcionais, mas recomendadas quando
+conhecidas para reduzir mudanças de layout durante o carregamento. O frontend
+usa `loading="lazy"`, preserva a proporção original e exibe o mesmo símbolo
+`.site-loader-logo` do loader global enquanto cada imagem está pendente.
 
 ## Backend do ranking
 
@@ -109,11 +126,13 @@ Smoke test:
 
 1. Home abre normalmente.
 2. `/doacoes/` abre LivePix/Pixie.
-3. `https://api.kamylisumire.com/` retorna JSON.
-4. DevTools mostra a requisição para `api.kamylisumire.com`.
-5. Console registra `API atendida por: https://api.kamylisumire.com`.
-6. ranking mensal/geral permanece funcional.
-7. fallback/cache continua seguro em falha remota.
+3. `/artes/` abre com Navbar/Footer compartilhados e sem depender da API.
+4. com uma entrada editorial válida, a imagem mantém sua proporção e exibe o loader visual enquanto carrega.
+5. `https://api.kamylisumire.com/` retorna JSON.
+6. DevTools mostra a requisição para `api.kamylisumire.com` nas áreas que usam backend.
+7. Console registra `API atendida por: https://api.kamylisumire.com` quando aplicável.
+8. ranking mensal/geral permanece funcional.
+9. fallback/cache continua seguro em falha remota.
 
 ## Twitch V47.4
 

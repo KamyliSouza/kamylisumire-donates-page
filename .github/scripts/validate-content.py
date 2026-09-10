@@ -29,10 +29,12 @@ REQUIRED_FILES = (
     "index.html",
     "doacoes/index.html",
     "blog/index.html",
+    "artes/index.html",
     "privacidade/index.html",
     "uso-de-ia/index.html",
     "data/blog/config.json",
     "data/blog/posts.json",
+    "data/content/artes.json",
     "data/content/buttons.json",
     "js/core/button-icons.js",
     "js/core/buttons.js",
@@ -51,11 +53,13 @@ REQUIRED_FILES = (
     "js/pages/home/twitch-live.js",
     "js/pages/home/home-interactions.js",
     "js/pages/blog/blog.js",
+    "js/pages/artes/artes.js",
     "js/pages/doacoes/doacoes.js",
     "js/pages/doacoes/content.js",
     "js/pages/doacoes/ranking.js",
     "css/pages/home.css",
     "css/pages/blog.css",
+    "css/pages/artes.css",
     "css/pages/doacoes.css",
     "css/components/blog.css",
     "css/components/carousels.css",
@@ -242,6 +246,69 @@ def validate_home_content() -> None:
     for key in ("eyebrow", "titulo", "descricao"):
         if not isinstance(donation.get(key), str) or not donation[key].strip():
             error(f"data/content/home-doacoes.json: {key} deve ser texto não vazio.")
+
+
+def validate_artes() -> None:
+    data = load_json("data/content/artes.json")
+    if not isinstance(data, dict):
+        return
+
+    if data.get("version") != 1:
+        error("data/content/artes.json: version deve permanecer 1.")
+
+    page = data.get("page")
+    if not isinstance(page, dict):
+        error("data/content/artes.json: page deve ser objeto.")
+    else:
+        for key in ("eyebrow", "titulo", "descricao", "buscaPlaceholder", "vazio", "erro"):
+            if not isinstance(page.get(key), str) or not page[key].strip():
+                error(f"data/content/artes.json: page.{key} deve ser texto não vazio.")
+
+    items = data.get("itens")
+    if not isinstance(items, list):
+        error("data/content/artes.json: itens deve ser lista.")
+        return
+
+    seen_ids = set()
+    for index, item in enumerate(items):
+        label = f"data/content/artes.json: itens[{index}]"
+        if not isinstance(item, dict):
+            error(f"{label} deve ser objeto.")
+            continue
+        allowed = {"id", "titulo", "artista", "creditoUrl", "imagem", "alt", "data", "categoria", "tags", "largura", "altura"}
+        unknown = set(item) - allowed
+        if unknown:
+            error(f"{label}: chaves não reconhecidas: {', '.join(sorted(unknown))}.")
+        for key in ("id", "titulo", "artista", "imagem", "alt", "data", "categoria"):
+            if not isinstance(item.get(key), str) or not item[key].strip():
+                error(f"{label}.{key} deve ser texto não vazio.")
+        item_id = item.get("id")
+        if isinstance(item_id, str):
+            if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", item_id):
+                error(f"{label}.id deve usar minúsculas, números e hífens.")
+            elif item_id in seen_ids:
+                error(f"{label}.id duplicado: {item_id}.")
+            else:
+                seen_ids.add(item_id)
+        imagem = item.get("imagem")
+        if isinstance(imagem, str):
+            parsed = urlparse(imagem)
+            if parsed.scheme != "https" or not parsed.netloc:
+                error(f"{label}.imagem deve usar URL HTTPS absoluta.")
+        credito = item.get("creditoUrl", "")
+        if credito not in (None, ""):
+            parsed = urlparse(str(credito))
+            if parsed.scheme != "https" or not parsed.netloc:
+                error(f"{label}.creditoUrl deve usar URL HTTPS absoluta ou ficar vazio.")
+        if not is_iso_date(item.get("data")):
+            error(f"{label}.data deve usar YYYY-MM-DD válido.")
+        tags = item.get("tags", [])
+        if not isinstance(tags, list) or not all(isinstance(tag, str) and tag.strip() for tag in tags):
+            error(f"{label}.tags deve ser lista de textos não vazios.")
+        for key in ("largura", "altura"):
+            value = item.get(key)
+            if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value <= 0):
+                error(f"{label}.{key} deve ser inteiro positivo quando informado.")
 
 
 def validate_lives() -> None:
@@ -1234,6 +1301,7 @@ def validate_seo_and_deployment() -> None:
     expected = {
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
+        "https://kamylisumire.com/artes/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
@@ -1262,6 +1330,7 @@ def main() -> int:
     validate_all_json()
     validate_buttons()
     validate_home_content()
+    validate_artes()
     validate_lives()
     validate_blog()
     validate_agenda()

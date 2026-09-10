@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "page": {
+    "eyebrow": "Galeria de Artes",
+    "titulo": "Artes da comunidade ✨",
+    "descricao": "Um cantinho para reunir artes feitas com carinho pela comunidade, sempre mantendo os devidos créditos.",
+    "buscaPlaceholder": "Buscar por título, artista ou categoria...",
+    "vazio": "Nenhuma arte disponível no momento.",
+    "erro": "Não foi possível carregar a galeria agora. Tente novamente mais tarde."
+  },
+  "itens": []
+}

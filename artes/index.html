@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Galeria de Artes | Kamyli Sumire</title>
+    <meta name="description" content="Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.">
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    >
+    <meta name="theme-color" content="#B35EAF">
+
+    <link rel="canonical" href="https://kamylisumire.com/artes/">
+
+    <link rel="preconnect" href="https://assets.kamylisumire.com">
+
+    <link rel="icon" type="image/webp" href="https://assets.kamylisumire.com/favicon.webp">
+    <link rel="icon" type="image/png" href="https://assets.kamylisumire.com/favicon.png">
+    <link rel="preload" as="image" href="https://assets.kamylisumire.com/favicon.webp" type="image/webp">
+
+    <!-- Preview social — mantém os textos históricos da branch main -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Kamyli Sumire">
+    <meta property="og:title" content="Galeria de Artes da Kamyli Sumire">
+    <meta property="og:description" content="Um espaço para reunir fanarts, ilustrações e artes da comunidade da Kamyli Sumire.">
+    <meta property="og:url" content="https://kamylisumire.com/artes/">
+    <meta property="og:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:secure_url" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Galeria de Artes da Kamyli Sumire">
+
+    <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Galeria de Artes da Kamyli Sumire">
+    <meta name="twitter:description" content="Um espaço para reunir fanarts, ilustrações e artes da comunidade da Kamyli Sumire.">
+    <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta name="twitter:image:alt" content="Galeria de Artes da Kamyli Sumire">
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const THEME_KEY = "kamyli:ui-theme";
+            const BLUR_KEY = "kamyli:ui-blur";
+            const LOW_MEMORY_GB = 2;
+            const LOW_CPU_THREADS = 2;
+
+            const read = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            };
+
+            const media = (query) => {
+                try {
+                    return window.matchMedia(query).matches;
+                } catch {
+                    return false;
+                }
+            };
+
+            const connection =
+                navigator.connection ||
+                navigator.mozConnection ||
+                navigator.webkitConnection ||
+                null;
+
+            const supportsBlur = Boolean(
+                window.CSS &&
+                typeof window.CSS.supports === "function" &&
+                (
+                    window.CSS.supports("backdrop-filter", "blur(8px)") ||
+                    window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+                )
+            );
+
+            const savedTheme = read(THEME_KEY);
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
+                    ? savedTheme
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
+
+            const savedBlur = read(BLUR_KEY);
+            const blurPreference =
+                savedBlur === "on" || savedBlur === "off"
+                    ? savedBlur
+                    : "auto";
+
+            let performanceProfile = "normal";
+            let performanceReason = "standard";
+
+            if (connection?.saveData) {
+                performanceProfile = "reduced";
+                performanceReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-cpu";
+            }
+
+            let blur = "on";
+            let blurReason = "supported";
+
+            if (!supportsBlur) {
+                blur = "off";
+                blurReason = "unsupported";
+            } else if (blurPreference !== "auto") {
+                blur = blurPreference;
+                blurReason = "manual";
+            } else if (media("(prefers-reduced-transparency: reduce)")) {
+                blur = "off";
+                blurReason = "reduced-transparency";
+            } else if (connection?.saveData) {
+                blur = "off";
+                blurReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                blur = "off";
+                blurReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                blur = "off";
+                blurReason = "low-cpu";
+            }
+
+            root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
+            root.dataset.blur = blur;
+            root.dataset.blurMode =
+                blurPreference === "auto" ? "auto" : "manual";
+            root.dataset.blurPreference = blurPreference;
+            root.dataset.blurReason = blurReason;
+            root.dataset.performance = performanceProfile;
+            root.dataset.performanceReason = performanceReason;
+            root.style.colorScheme = theme;
+
+            window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
+                theme,
+                themePreference,
+                blur,
+                blurPreference,
+                blurReason,
+                blurSupported: supportsBlur,
+                performance: performanceProfile,
+                performanceReason
+            });
+
+            /*
+             * V45.2 — fundo crítico para backdrop-filter.
+             *
+             * O CSS dos painéis borra a arte de fundo. Se a imagem ainda não
+             * estiver disponível quando o loader sai, o navegador recompõe o
+             * backdrop depois e isso parece um "blur atrasado".
+             *
+             * Só antecipamos a imagem quando blur está ligado, o perfil de
+             * performance é normal e Save-Data não está ativo.
+             */
+            if (
+                blur === "on" &&
+                performanceProfile === "normal" &&
+                !connection?.saveData
+            ) {
+                const isMobile =
+                    media("(max-width: 760px)");
+
+                const backdropUrl =
+                    isMobile
+                        ? "https://assets.kamylisumire.com/fundo-mobile.avif"
+                        : "https://assets.kamylisumire.com/fundo.avif";
+
+                const backdropPreload =
+                    document.createElement("link");
+
+                backdropPreload.rel = "preload";
+                backdropPreload.as = "image";
+                backdropPreload.type = "image/avif";
+                backdropPreload.href = backdropUrl;
+                backdropPreload.fetchPriority = "high";
+
+                window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                window.KAMYLI_BACKDROP_PRELOAD_READY =
+                    new Promise(resolve => {
+                        backdropPreload.addEventListener(
+                            "load",
+                            () => resolve("loaded"),
+                            { once: true }
+                        );
+                        backdropPreload.addEventListener(
+                            "error",
+                            () => resolve("error"),
+                            { once: true }
+                        );
+                    });
+
+                document.head.appendChild(backdropPreload);
+            }
+        })();
+    </script>
+
+    <script>
+        window.KAMYLI_LOADER_STARTED_AT = performance.now();
+        document.documentElement.classList.add("site-loading-pending");
+    </script>
+
+    <link
+        rel="preload"
+        href="../assets/fonts/nunito-variable.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    >
+
+    <link rel="stylesheet" href="../css/core/variables.css">
+    <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+    <link rel="stylesheet" href="../css/core/navbar.css?v=47">
+    <link rel="stylesheet" href="../css/pages/artes.css?v=48.0">
+
+    <!-- Dados estruturados para mecanismos de busca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "@id": "https://kamylisumire.com/artes/#galeria",
+      "url": "https://kamylisumire.com/artes/",
+      "name": "Galeria de Artes | Kamyli Sumire",
+      "description": "Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.",
+      "inLanguage": "pt-BR",
+      "isPartOf": { "@id": "https://kamylisumire.com/#website" }
+    }
+    </script>
+</head>
+<body>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span class="site-loader-logo" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader { display: none !important; }
+        </style>
+    </noscript>
+
+    <header id="site-navbar"></header>
+
+    <main class="artes-shell" id="artesPage">
+        <header class="glass-panel artes-intro">
+            <span class="eyebrow" id="artesEyebrow">Galeria de Artes</span>
+            <h1 id="artesTitle">Artes da comunidade ✨</h1>
+            <p id="artesDescription">Um cantinho para reunir artes feitas com carinho pela comunidade, sempre mantendo os devidos créditos.</p>
+        </header>
+
+        <section class="glass-panel artes-tools" id="artesTools" aria-label="Busca e filtros da galeria" hidden>
+            <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
+            <input
+                class="artes-search"
+                id="artesSearch"
+                type="search"
+                placeholder="Buscar por título, artista ou categoria..."
+                aria-label="Buscar na galeria"
+            >
+        </section>
+
+        <section class="artes-grid" id="artesGrid" aria-live="polite" aria-label="Galeria de artes"></section>
+        <p class="glass-panel artes-state" id="artesState">Carregando galeria...</p>
+    </main>
+
+    <dialog class="arte-dialog" id="arteDialog" aria-label="Visualização da arte">
+        <div class="arte-dialog-media">
+            <button class="arte-dialog-close" id="arteDialogClose" type="button" aria-label="Fechar">×</button>
+            <img class="arte-dialog-image" id="arteDialogImage" alt="">
+            <div class="arte-dialog-info">
+                <strong id="arteDialogTitle"></strong>
+                <span id="arteDialogArtist"></span>
+                <a id="arteDialogCredit" href="#" target="_blank" rel="noopener noreferrer" hidden></a>
+            </div>
+        </div>
+    </dialog>
+
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
+
+    <script src="../js/core/preferences.js"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js?v=48.0"></script>
+    <script src="../js/core/button-icons.js?v=47.2"></script>
+    <script src="../js/core/buttons.js?v=47"></script>
+    <script src="../js/core/navbar.js?v=48.0"></script>
+    <script src="../js/core/external-links.js?v=47"></script>
+    <script src="../js/core/page-transitions.js?v=46.3"></script>
+    <script src="../js/core/footer.js?v=47.4.1"></script>
+    <script src="../js/pages/artes/artes.js?v=48.0"></script>
+    <script src="../js/core/loader.js?v=46.3"></script>
+</body>
+</html>
