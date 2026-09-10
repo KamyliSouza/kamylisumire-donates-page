@@ -27,6 +27,7 @@ Execute:
 ```bash
 python .github/scripts/validate-content.py
 find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+node --check workers.js
 git diff --check
 ```
 
@@ -119,3 +120,17 @@ Além da validação V47.4, confirmar em produção:
 O smoke test deve confirmar também que a thumbnail da live/VOD recebe uma nova
 revisão quando `checkedAt`/`updatedAt` muda, sem aumentar a quantidade de
 consultas aos endpoints Helix.
+
+## V47.4.8 — referências locais e cobertura da CI
+
+O validador percorre toda página HTML versionada e resolve `src`/`href` locais a
+partir do diretório real de cada documento. Isso impede regressões como uma
+página em `/privacidade/` tentar carregar `privacidade/css/...` por engano.
+
+A CI deve disparar para qualquer `*.html`, `data/**/*.md` e `workers.js`, além
+dos arquivos já cobertos. A sintaxe do Worker é verificada separadamente com
+`node --check workers.js`.
+
+O status ao vivo da Twitch mantém a janela nominal de 10 minutos com tolerância
+intencional de até 2 minutos. Essa tolerância faz parte do comportamento atual e
+não deve ser reduzida apenas para coincidir com documentação histórica.

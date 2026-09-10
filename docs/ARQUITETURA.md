@@ -73,9 +73,10 @@ player incorporado, iframe ou YouTube Data API.
 Desde a V47.4.3, o Hero consulta também `/twitch/live`. A rota pública lê um
 snapshot `twitch:live` do KV e usa Cache API por 60 segundos para reduzir
 leituras repetidas. A consulta real a `helix/streams` ocorre somente no
-`scheduled()`/debug, no máximo uma vez a cada 10 minutos. Online, o Hero mostra
-`Sobre | Ao vivo`, um anel no avatar e o selo `AO VIVO` acoplado à borda; offline, erro ou snapshot vencido mantém
-o Hero padrão.
+`scheduled()`/debug, em janela nominal de 10 minutos com tolerância intencional
+de até 2 minutos para absorver latência/alinhamento do Cron. Online, o Hero
+mostra `Sobre | Ao vivo`, um anel no avatar e o selo `AO VIVO` acoplado à borda;
+offline, erro ou snapshot vencido mantém o Hero padrão.
 
 ## Backend
 

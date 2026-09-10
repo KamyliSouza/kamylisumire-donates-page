@@ -29,6 +29,8 @@ REQUIRED_FILES = (
     "index.html",
     "doacoes/index.html",
     "blog/index.html",
+    "privacidade/index.html",
+    "uso-de-ia/index.html",
     "data/blog/config.json",
     "data/blog/posts.json",
     "data/content/buttons.json",
@@ -1232,6 +1234,8 @@ def validate_seo_and_deployment() -> None:
     expected = {
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
+        "https://kamylisumire.com/privacidade/",
+        "https://kamylisumire.com/uso-de-ia/",
     }
 
     blog = load_json("data/blog/posts.json")
@@ -1262,16 +1266,11 @@ def main() -> int:
     validate_blog()
     validate_agenda()
 
-    for rel in ("index.html", "doacoes/index.html", "blog/index.html", "404.html"):
-        validate_html_local_refs(rel)
-
-    blog = load_json("data/blog/posts.json")
-    if isinstance(blog, dict) and isinstance(blog.get("posts"), list):
-        for post in blog["posts"]:
-            if isinstance(post, dict) and post.get("published") is True:
-                slug = post.get("slug")
-                if isinstance(slug, str):
-                    validate_html_local_refs(f"blog/{slug}/index.html")
+    # Valide referências locais de toda página HTML versionada. Isso cobre
+    # páginas institucionais aninhadas e futuros artigos estáticos sem depender
+    # de uma lista manual que possa ficar desatualizada.
+    for path in sorted(ROOT.rglob("*.html")):
+        validate_html_local_refs(path.relative_to(ROOT).as_posix())
 
     validate_css_local_refs()
     validate_architecture()

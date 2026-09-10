@@ -33,10 +33,12 @@ falha do Worker deve manter o Hero padrão e as demais seções locais funcionan
 ### Blog
 
 `/blog/` é estático e textual. A Navbar e a seção de últimas publicações da
-Home só aparecem quando `data/content/blog.json` possui ao menos um post com
+Home só aparecem quando `data/blog/posts.json` possui ao menos um post com
 `published: true`.
 
-Cada post publicado deve ter uma página estática correspondente em
+A configuração editorial fica em `data/blog/config.json`; o índice/metadados em
+`data/blog/posts.json`; e o conteúdo-fonte em `data/blog/posts/<slug>.md`. Cada
+post publicado deve ter uma página estática correspondente em
 `blog/<slug>/index.html`. Não carregar API/Worker no Blog.
 
 ### Doações
@@ -82,7 +84,7 @@ A integração Twitch deve obedecer estes invariantes:
 - status ao vivo: o navegador consulta `/twitch/live`;
 - `/twitch/videos` e `/twitch/live` leem cache/KV e nunca chamam diretamente `api.twitch.tv` durante uma visita;
 - `syncTwitchVideosIfDue()` deve respeitar no mínimo 24 h entre atualizações;
-- `syncTwitchLiveIfDue()` usa janela nominal de 10 min entre consultas a `helix/streams`, com tolerância máxima de 30 s apenas para compensar latência/alinhamento do Cron;
+- `syncTwitchLiveIfDue()` usa janela nominal de 10 min entre consultas a `helix/streams`, com tolerância intencional de até 2 min para compensar latência/alinhamento do Cron;
 - `twitch:live` usa TTL de 30 min e não pode ser servido como válido após 20 min sem atualização;
 - o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
 - o snapshot e `updated_at` ficam no binding KV `RANKINGS`;
@@ -133,7 +135,9 @@ Arquivos principais:
 - `data/content/doacoes.json`;
 - `data/content/ranking.json`;
 - `data/content/footer.json`;
-- `data/content/blog.json`;
+- `data/blog/config.json`;
+- `data/blog/posts.json`;
+- `data/blog/posts/<slug>.md`;
 - `data/agenda.json`.
 
 Helpers de edição são privados e não pertencem ao site público.
@@ -242,6 +246,18 @@ Mensagens de erro recorrentes devem evitar writes idênticos no KV quando uma
 leitura de comparação for suficiente. Não sacrificar correção de ranking,
 renovação OAuth ou snapshot Twitch necessário apenas para economizar quota.
 
+## Validação estrutural — V47.4.8
+
+Páginas HTML aninhadas devem resolver assets locais a partir da localização real
+do documento (`../assets`, `../css`, `../js`) ou por caminho absoluto do domínio.
+O validador percorre toda página `*.html` versionada e deve falhar quando uma
+referência local não existir. Não limitar essa checagem a uma lista manual de
+páginas.
+
+A CI deve ser disparada também por Markdown do Blog, qualquer HTML público e
+`workers.js`; além dos scripts em `js/**`, a sintaxe de `workers.js` deve ser
+validada explicitamente com `node --check workers.js`.
+
 ## Navbar/footer e links externos
 
 Navbar e footer são componentes compartilhados em `js/core/`.
@@ -298,6 +314,8 @@ Todo PR relevante deve passar:
 ```bash
 python .github/scripts/validate-content.py
 find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+node --check workers.js
+git diff --check
 ```
 
 Não versionar `__pycache__`, `.pyc`, `.pyo` ou resíduos temporários de

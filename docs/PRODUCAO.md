@@ -150,7 +150,7 @@ Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
 ```
 
 `syncTwitchLiveIfDue()` impede chamadas a `helix/streams` antes de completar
-a janela de 10 minutos. `syncTwitchVideosIfDue()` continua impondo 24 horas
-para VODs. O ranking de doações também roda no mesmo `scheduled()`, mas a
+a janela nominal de 10 minutos, com tolerância intencional de até 2 minutos.
+`syncTwitchVideosIfDue()` continua impondo 24 horas para VODs. O ranking de doações também roda no mesmo `scheduled()`, mas a
 V47.4.3 deixa de regravar snapshots idênticos no KV quando não há doação nova
 nem virada de mês, evitando consumir a cota diária de writes do plano Free.

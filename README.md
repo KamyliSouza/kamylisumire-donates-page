@@ -47,9 +47,9 @@ validado periodicamente no endpoint oficial `/oauth2/validate`; `twitch:user_id`
 e `twitch:user_login` expiram em 24 horas; e o CORS de produção deixa de cair
 implicitamente em `*` quando nenhuma origem é configurada.
 
-Desde a V47.4.6, a rotina de status ao vivo usa uma tolerância de 30 segundos
-sobre a janela nominal de 10 minutos para não perder um ciclo do Cron por causa
-da latência da chamada anterior. Respostas `401` do Helix também provocam uma
+Desde a V47.4.6, a rotina de status ao vivo usa uma tolerância intencional de
+até 2 minutos sobre a janela nominal de 10 minutos para não perder um ciclo do
+Cron por causa da latência da chamada anterior. Respostas `401` do Helix também provocam uma
 única renovação imediata do App Access Token e repetição da chamada afetada.
 
 Desde a V47.4.7, o Worker reduz consumo de quota sem alterar as frequências das
@@ -58,6 +58,10 @@ usam Cache API antes do KV, erros repetidos evitam writes idênticos e estados
 OAuth/cache são consolidados com migração transparente das chaves V47.4.6.
 Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
 (24 h) mantêm o comportamento operacional anterior.
+
+Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
+de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
+Blog e a sintaxe do próprio `workers.js`, evitando regressões silenciosas.
 
 ## Estrutura principal
 
@@ -69,7 +73,9 @@ css/components/          componentes reutilizáveis/isolados
 css/pages/               estilos por página
 data/                    conteúdo editorial
 docs/                    documentação atual
-blog/                    índice estático do Blog
+blog/                    índice e páginas estáticas do Blog
+privacidade/             Política de Privacidade
+uso-de-ia/               política de Uso de IA
 doacoes/                 página de apoio/ranking
 js/core/                 infraestrutura compartilhada
 js/pages/home/           lógica da Home
@@ -102,6 +108,8 @@ Antes de publicar:
 ```bash
 python .github/scripts/validate-content.py
 find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+node --check workers.js
+git diff --check
 ```
 
 ## Documentação atual

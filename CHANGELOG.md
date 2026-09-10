@@ -1,5 +1,16 @@
 # Changelog
 
+## V47.4.8 — Correções estruturais e cobertura de validação
+
+- corrige os caminhos locais de assets em `/privacidade/` e `/uso-de-ia/`, que agora resolvem `../assets`, `../css` e `../js` corretamente a partir das páginas aninhadas;
+- amplia `validate-content.py` para validar referências locais de toda página HTML versionada, incluindo páginas institucionais e futuros artigos estáticos, e passa a exigir as rotas institucionais como arquivos públicos;
+- inclui `/privacidade/` e `/uso-de-ia/` no conjunto obrigatório do `sitemap.xml`;
+- amplia os gatilhos do GitHub Actions para qualquer HTML, Markdown editorial do Blog e `workers.js`;
+- adiciona `node --check workers.js` à CI, cobrindo explicitamente a sintaxe do backend além dos scripts em `js/**`;
+- sincroniza `AGENTS.md`, `README.md` e documentação operacional com a arquitetura vigente de Blog em `data/blog/*`;
+- documenta a tolerância intencional de até 2 minutos do Twitch Live, mantendo o código V47.4.7 como fonte de verdade e sem regredir o código para o valor documental anterior;
+- não altera endpoints, payloads, OAuth, KV, cache, frequências de sincronização, frontend funcional ou Helpers.
+
 ## V47.4.7 — Otimização de quota sem alteração funcional
 
 - mantém as frequências operacionais existentes: Streamlabs e status ao vivo da Twitch continuam na janela de aproximadamente 10 minutos, a validação do App Access Token da Twitch permanece em intervalos menores que 1 hora (50 min) e os VODs continuam com atualização mínima de 24 horas;
@@ -16,7 +27,7 @@
 
 ## V47.4.6 — Robustez do status ao vivo da Twitch
 
-- corrige a janela de atualização do status ao vivo: o Cron continua em 10 minutos, mas `syncTwitchLiveIfDue()` passa a aceitar uma tolerância de 30 segundos para compensar a latência entre o disparo agendado e a gravação de `checkedAt`, evitando que um ciclo seja pulado e a consulta real caia para aproximadamente 20 minutos;
+- corrige a janela de atualização do status ao vivo: o Cron continua em 10 minutos, mas `syncTwitchLiveIfDue()` passa a aceitar uma tolerância de até 2 minutos para compensar a latência entre o disparo agendado e a gravação de `checkedAt`, evitando que um ciclo seja pulado e a consulta real caia para aproximadamente 20 minutos;
 - centraliza chamadas Helix em um helper com retry único: se `/users`, `/videos` ou `/streams` responder `401`, o Worker invalida o App Access Token, obtém e valida um token novo e repete a mesma chamada uma única vez; um segundo `401` limpa novamente o token e a operação falha normalmente;
 - mantém inalterados os TTLs, o cache público, o Hero, o frontend e a frequência recomendada do Cron (`*/10 * * * *`);
 - não adiciona variáveis de ambiente nem exige nova autorização da Streamlabs.
@@ -153,7 +164,7 @@ KV e credenciais existentes permanecem compatíveis.
 - mantém Navbar e Footer compartilhados sem redesenho;
 - o link `Blog` na Navbar é inserido apenas quando existe post publicado;
 - a Home ganha uma seção de últimas publicações, também oculta quando não há posts;
-- `data/content/blog.json` passa a controlar metadados/listagem;
+- a arquitetura do Blog atualmente consolidada usa `data/blog/config.json`, `data/blog/posts.json` e `data/blog/posts/<slug>.md` para configuração, metadados e conteúdo-fonte (a implementação histórica foi posteriormente migrada para esse contrato);
 - posts continuam sendo páginas HTML estáticas em `blog/<slug>/index.html`;
 - não adiciona API, Worker, imagens de capa, framework ou etapa de build;
 - adiciona validação de schema, slug e existência da página de cada post publicado.
