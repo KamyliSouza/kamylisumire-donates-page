@@ -47,6 +47,11 @@ validado periodicamente no endpoint oficial `/oauth2/validate`; `twitch:user_id`
 e `twitch:user_login` expiram em 24 horas; e o CORS de produção deixa de cair
 implicitamente em `*` quando nenhuma origem é configurada.
 
+Desde a V47.4.6, a rotina de status ao vivo usa uma tolerância de 30 segundos
+sobre a janela nominal de 10 minutos para não perder um ciclo do Cron por causa
+da latência da chamada anterior. Respostas `401` do Helix também provocam uma
+única renovação imediata do App Access Token e repetição da chamada afetada.
+
 ## Estrutura principal
 
 ```text

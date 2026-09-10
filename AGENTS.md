@@ -82,12 +82,12 @@ A integração Twitch deve obedecer estes invariantes:
 - status ao vivo: o navegador consulta `/twitch/live`;
 - `/twitch/videos` e `/twitch/live` leem cache/KV e nunca chamam diretamente `api.twitch.tv` durante uma visita;
 - `syncTwitchVideosIfDue()` deve respeitar no mínimo 24 h entre atualizações;
-- `syncTwitchLiveIfDue()` deve respeitar no mínimo 10 min entre consultas a `helix/streams`;
+- `syncTwitchLiveIfDue()` usa janela nominal de 10 min entre consultas a `helix/streams`, com tolerância máxima de 30 s apenas para compensar latência/alinhamento do Cron;
 - `twitch:live` usa TTL de 30 min e não pode ser servido como válido após 20 min sem atualização;
 - o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
 - o snapshot e `updated_at` ficam no binding KV `RANKINGS`;
 - `TWITCH_CLIENT_SECRET` nunca entra no frontend/Git;
-- App Access Token deve ser reutilizado quando válido, mas revalidado em `/oauth2/validate` em intervalos menores que 1 h; qualquer `401` do Helix deve invalidar o token local imediatamente;
+- App Access Token deve ser reutilizado quando válido, mas revalidado em `/oauth2/validate` em intervalos menores que 1 h; qualquer `401` do Helix deve invalidar o token local e permitir no máximo um retry imediato com token novo;
 - `twitch:user_id` e `twitch:user_login` podem ser reutilizados por no máximo 24 h e devem usar TTL no KV;
 - falha de VOD não apaga o último snapshot válido; status ao vivo vencido não deve manter indicação visual de live;
 - YouTube continua sem iframe/player, `YT.Player`, `iframe_api`, playlists

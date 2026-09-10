@@ -5,6 +5,7 @@ const TWITCH_OAUTH_VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate';
 const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+const TWITCH_LIVE_REFRESH_TOLERANCE_MS = 30 * 1000;
 const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
 const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
 const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
@@ -653,6 +654,31 @@ async function getTwitchAppAccessToken(env) {
   return token;
 }
 
+async function fetchTwitchHelixWithRetry(env, url, accessToken) {
+  const requestWithToken = token => fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Client-Id': twitchClientId(env)
+    }
+  });
+
+  let response = await requestWithToken(accessToken);
+
+  if (response.status !== 401) return response;
+
+  // Um 401 pode significar que o token foi revogado entre a validação e a
+  // chamada Helix. Invalida o token local, emite outro e repete UMA vez.
+  await clearTwitchAppAccessToken(env);
+  const refreshedToken = await getTwitchAppAccessToken(env);
+  response = await requestWithToken(refreshedToken);
+
+  if (response.status === 401) {
+    await clearTwitchAppAccessToken(env);
+  }
+
+  return response;
+}
+
 async function getTwitchUserId(env, accessToken) {
   const login = twitchChannelLogin(env);
   const cachedLogin = (
@@ -669,17 +695,11 @@ async function getTwitchUserId(env, accessToken) {
   const url = new URL(`${TWITCH_API}/users`);
   url.searchParams.set('login', login);
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Client-Id': twitchClientId(env)
-    }
-  });
-
-  if (response.status === 401) {
-    await clearTwitchAppAccessToken(env);
-    throw new Error('App Access Token da Twitch foi invalidado durante helix/users.');
-  }
+  const response = await fetchTwitchHelixWithRetry(
+    env,
+    url.toString(),
+    accessToken
+  );
 
   if (!response.ok) {
     throw new Error(`Falha ao resolver canal da Twitch (${response.status}).`);
@@ -738,17 +758,11 @@ async function fetchTwitchVideos(env) {
   // Esta é a única consulta Helix de vídeos feita pela integração durante
   // cada janela de 24 horas. Em caso de falha, o endpoint público não serve
   // conteúdo vencido; o snapshot também expira automaticamente no KV.
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Client-Id': twitchClientId(env)
-    }
-  });
-
-  if (response.status === 401) {
-    await clearTwitchAppAccessToken(env);
-    throw new Error('App Access Token da Twitch foi invalidado durante helix/videos.');
-  }
+  const response = await fetchTwitchHelixWithRetry(
+    env,
+    url.toString(),
+    accessToken
+  );
 
   if (!response.ok) {
     throw new Error(`Falha ao consultar vídeos da Twitch (${response.status}).`);
@@ -963,8 +977,9 @@ async function handleDebugTwitchSync(request, url, env) {
 // ---------------------------------------------------------------------
 // Twitch — status ao vivo
 //
-// Política V47.4.3:
-// - consulta Helix /streams no máximo uma vez a cada 10 minutos;
+// Política V47.4.6:
+// - Cron recomendado a cada 10 min, com tolerância de 30 s para compensar
+//   latência entre o disparo e o momento em que checkedAt é gravado;
 // - grava um único snapshot no KV, com TTL de 30 minutos;
 // - /twitch/live nunca consulta a Twitch e usa Cache API por 60 s para
 //   reduzir leituras KV repetidas no mesmo data center;
@@ -1012,17 +1027,11 @@ async function fetchTwitchLiveStatus(env) {
 
   url.searchParams.set('user_id', userId);
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Client-Id': twitchClientId(env)
-    }
-  });
-
-  if (response.status === 401) {
-    await clearTwitchAppAccessToken(env);
-    throw new Error('App Access Token da Twitch foi invalidado durante helix/streams.');
-  }
+  const response = await fetchTwitchHelixWithRetry(
+    env,
+    url.toString(),
+    accessToken
+  );
 
   if (!response.ok) {
     throw new Error(`Falha ao consultar status da Twitch (${response.status}).`);
@@ -1056,7 +1065,12 @@ async function syncTwitchLiveIfDue(env, options = {}) {
   const now = Date.now();
   const force = options.force === true;
 
-  if (!force && checkedAt && now - checkedAt < TWITCH_LIVE_REFRESH_INTERVAL_MS) {
+  const refreshThreshold = Math.max(
+    0,
+    TWITCH_LIVE_REFRESH_INTERVAL_MS - TWITCH_LIVE_REFRESH_TOLERANCE_MS
+  );
+
+  if (!force && checkedAt && now - checkedAt < refreshThreshold) {
     return {
       updated: false,
       reason: 'cache_fresh',

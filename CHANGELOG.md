@@ -1,5 +1,14 @@
 # Changelog
 
+## V47.4.6 — Robustez do status ao vivo da Twitch
+
+- corrige a janela de atualização do status ao vivo: o Cron continua em 10 minutos, mas `syncTwitchLiveIfDue()` passa a aceitar uma tolerância de 30 segundos para compensar a latência entre o disparo agendado e a gravação de `checkedAt`, evitando que um ciclo seja pulado e a consulta real caia para aproximadamente 20 minutos;
+- centraliza chamadas Helix em um helper com retry único: se `/users`, `/videos` ou `/streams` responder `401`, o Worker invalida o App Access Token, obtém e valida um token novo e repete a mesma chamada uma única vez; um segundo `401` limpa novamente o token e a operação falha normalmente;
+- mantém inalterados os TTLs, o cache público, o Hero, o frontend e a frequência recomendada do Cron (`*/10 * * * *`);
+- não adiciona variáveis de ambiente nem exige nova autorização da Streamlabs.
+
+**Cloudflare:** manter somente o Cron de 10 minutos (`*/10 * * * *`). O trigger legado de 30 minutos é redundante e deve permanecer removido.
+
 ## V47.4.5 — Conformidade das APIs Twitch e Streamlabs
 
 - adiciona `state` assinado por HMAC ao OAuth da Streamlabs e valida o valor no callback, reduzindo risco de CSRF sem criar estado temporário no KV;
