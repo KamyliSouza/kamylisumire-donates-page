@@ -51,7 +51,7 @@ post publicado deve ter uma página estática correspondente em
 - conteúdo em `data/content/artes.json`;
 - Navbar e Footer continuam compartilhados por `js/core/navbar.js` e `js/core/footer.js`.
 
-A galeria não deve depender do Worker/KV. URLs de imagem devem ser HTTPS e podem
+A galeria não deve depender do Worker/KV. Desde a V48.0.1, cada obra usa `preview` e `imagem`, ambas HTTPS: `preview` alimenta a grade e `imagem` é carregada apenas no lightbox. URLs podem
 apontar para armazenamento externo. A grade preserva proporções variadas, usa
 `loading=lazy` e o estado de carregamento de cada imagem reutiliza o símbolo
 `.site-loader-logo` do loader global. Título/artista/categoria/data ficam

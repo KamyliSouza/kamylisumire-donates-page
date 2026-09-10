@@ -253,8 +253,8 @@ def validate_artes() -> None:
     if not isinstance(data, dict):
         return
 
-    if data.get("version") != 1:
-        error("data/content/artes.json: version deve permanecer 1.")
+    if data.get("version") != 2:
+        error("data/content/artes.json: version deve permanecer 2.")
 
     page = data.get("page")
     if not isinstance(page, dict):
@@ -275,11 +275,11 @@ def validate_artes() -> None:
         if not isinstance(item, dict):
             error(f"{label} deve ser objeto.")
             continue
-        allowed = {"id", "titulo", "artista", "creditoUrl", "imagem", "alt", "data", "categoria", "tags", "largura", "altura"}
+        allowed = {"id", "titulo", "artista", "creditoUrl", "preview", "imagem", "alt", "data", "categoria", "tags", "largura", "altura"}
         unknown = set(item) - allowed
         if unknown:
             error(f"{label}: chaves não reconhecidas: {', '.join(sorted(unknown))}.")
-        for key in ("id", "titulo", "artista", "imagem", "alt", "data", "categoria"):
+        for key in ("id", "titulo", "artista", "preview", "imagem", "alt", "data", "categoria"):
             if not isinstance(item.get(key), str) or not item[key].strip():
                 error(f"{label}.{key} deve ser texto não vazio.")
         item_id = item.get("id")
@@ -290,6 +290,11 @@ def validate_artes() -> None:
                 error(f"{label}.id duplicado: {item_id}.")
             else:
                 seen_ids.add(item_id)
+        preview = item.get("preview")
+        if isinstance(preview, str):
+            parsed = urlparse(preview)
+            if parsed.scheme != "https" or not parsed.netloc:
+                error(f"{label}.preview deve usar URL HTTPS absoluta.")
         imagem = item.get("imagem")
         if isinstance(imagem, str):
             parsed = urlparse(imagem)

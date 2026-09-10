@@ -1,5 +1,5 @@
 /* =========================================================
-   GALERIA DE ARTES — V48.0
+   GALERIA DE ARTES — V48.0.1
    Página estática/editorial; imagens externas, sem Worker.
    ========================================================= */
 
@@ -275,6 +275,29 @@
     max-width: 100%;
     max-height: 82vh;
     object-fit: contain;
+    transition: filter .22s ease, opacity .22s ease;
+}
+
+.arte-dialog-media.is-loading-full .arte-dialog-image {
+    filter: blur(2px);
+    opacity: .84;
+}
+
+.arte-dialog-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.arte-dialog-loader[hidden] { display: none; }
+
+.arte-dialog-loader .site-loader-logo {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 3px 12px rgba(0, 0, 0, .45));
 }
 
 .arte-dialog-info {
@@ -325,5 +348,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .arte-card, .arte-media img, .arte-image-loader { transition-duration: .01ms !important; }
+    .arte-card, .arte-media img, .arte-image-loader, .arte-dialog-image { transition-duration: .01ms !important; }
 }

@@ -52,10 +52,23 @@
         return node;
     }
 
+    function getPreviewUrl(item) {
+        return validHttpsUrl(item.preview) ? item.preview : item.imagem;
+    }
+
     function openDialog(item) {
         if (!dialog || !dialogImage) return;
-        dialogImage.src = item.imagem;
+
+        const previewUrl = getPreviewUrl(item);
+        const fullUrl = item.imagem;
+        const media = dialog.querySelector(".arte-dialog-media");
+        const fullLoader = dialog.querySelector(".arte-dialog-loader");
+
+        dialogImage.src = previewUrl;
         dialogImage.alt = item.alt;
+        dialogImage.classList.remove("is-full");
+        media?.classList.add("is-loading-full");
+        fullLoader?.removeAttribute("hidden");
         dialogTitle.textContent = item.titulo;
         dialogArtist.textContent = `por ${item.artista}`;
         if (dialogCredit) {
@@ -69,6 +82,27 @@
             }
         }
         dialog.showModal();
+
+        if (previewUrl === fullUrl) {
+            media?.classList.remove("is-loading-full");
+            fullLoader?.setAttribute("hidden", "");
+            dialogImage.classList.add("is-full");
+            return;
+        }
+
+        const fullImage = new Image();
+        fullImage.decoding = "async";
+        fullImage.addEventListener("load", () => {
+            dialogImage.src = fullUrl;
+            dialogImage.classList.add("is-full");
+            media?.classList.remove("is-loading-full");
+            fullLoader?.setAttribute("hidden", "");
+        }, { once: true });
+        fullImage.addEventListener("error", () => {
+            media?.classList.remove("is-loading-full");
+            fullLoader?.setAttribute("hidden", "");
+        }, { once: true });
+        fullImage.src = fullUrl;
     }
 
     function createCard(item) {
@@ -93,7 +127,7 @@
         loader.appendChild(loaderLogo);
 
         const image = document.createElement("img");
-        image.src = item.imagem;
+        image.src = getPreviewUrl(item);
         image.alt = item.alt;
         image.loading = "lazy";
         image.decoding = "async";
@@ -183,7 +217,11 @@
             if (search && page.buscaPlaceholder) search.placeholder = page.buscaPlaceholder;
 
             items = Array.isArray(data?.itens)
-                ? data.itens.filter(item => item && validHttpsUrl(item.imagem))
+                ? data.itens.filter(item =>
+                    item &&
+                    validHttpsUrl(item.imagem) &&
+                    (!item.preview || validHttpsUrl(item.preview))
+                )
                 : [];
 
             grid.textContent = "";

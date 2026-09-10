@@ -135,11 +135,10 @@ O status ao vivo da Twitch mantém a janela nominal de 10 minutos com tolerânci
 intencional de até 2 minutos. Essa tolerância faz parte do comportamento atual e
 não deve ser reduzida apenas para coincidir com documentação histórica.
 
-## V48.0 — Galeria de Artes
+## V48.0/V48.0.1 — Galeria de Artes
 
 A CI valida `artes/index.html`, `css/pages/artes.css`, `js/pages/artes/artes.js` e
-`data/content/artes.json`. Cada arte deve usar ID único em kebab-case, URL de
-imagem HTTPS, `alt` não vazio, data ISO `YYYY-MM-DD`, categoria e artista.
+`data/content/artes.json`. Na V48.0.1 o documento usa `version: 2`. Cada arte deve usar ID único em kebab-case, URLs HTTPS obrigatórias em `preview` e `imagem`, `alt` não vazio, data ISO `YYYY-MM-DD`, categoria e artista.
 `creditoUrl` é opcional, mas quando informado deve usar HTTPS. `largura` e
 `altura` são opcionais e precisam ser inteiros positivos.
 

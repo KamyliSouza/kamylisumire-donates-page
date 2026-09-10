@@ -28,8 +28,7 @@ Gráficos públicos compartilhados do site usam `https://assets.kamylisumire.com
 ### Galeria de Artes V48.0
 
 `/artes/` é uma página editorial estática. Seus metadados ficam em
-`data/content/artes.json`, enquanto cada obra aponta diretamente para uma URL
-HTTPS externa informada no campo `imagem`. A galeria não usa o Worker, KV,
+`data/content/artes.json`. Desde a V48.0.1, cada obra aponta para duas URLs HTTPS externas: `preview`, otimizada para a grade, e `imagem`, em alta qualidade e solicitada apenas ao abrir o lightbox. A galeria não usa o Worker, KV,
 Streamlabs ou Twitch para servir imagens.
 
 Para produção, prefira um host de mídia estático controlado pelo projeto e,

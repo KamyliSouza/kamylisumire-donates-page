@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.0.1 — Preview otimizada da Galeria
+
+- evolui `data/content/artes.json` para `version: 2`, separando `preview` (imagem leve usada na grade) de `imagem` (arquivo em alta qualidade usado no lightbox);
+- a grade passa a baixar somente `preview`, com `loading="lazy"` e o mesmo loader visual do site; a imagem em alta qualidade só é solicitada quando a obra é aberta;
+- o lightbox abre imediatamente com a preview já disponível e exibe o loader Kamyli enquanto a versão full é carregada, fazendo a troca ao concluir;
+- mantém fallback de runtime para entradas V48.0 sem `preview`, evitando quebra visual durante uma migração, embora o validador V48.0.1 exija os dois campos;
+- atualiza contrato editorial, documentação e validação sem alterar outras páginas, navbar, footer ou `workers.js`.
+- inclui `.github/scripts/migrate-artes-v2.py` para migrar instalações V48.0 sem sobrescrever obras já cadastradas; o patch incremental não modifica diretamente `data/content/artes.json`.
+
 ## V48.0 — Galeria de Artes
 
 - adiciona a nova página pública `/artes/`, integrada ao design system atual, com Navbar e Footer compartilhados e sem duplicação manual de componentes;

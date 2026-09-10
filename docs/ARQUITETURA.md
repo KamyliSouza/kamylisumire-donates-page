@@ -64,7 +64,7 @@ símbolo animado do loader global. Imagens usam `loading=lazy`.
 
 A galeria é completamente estática do ponto de vista de backend: o navegador
 carrega o JSON local e as URLs HTTPS de imagem diretamente do host configurado.
-Nenhuma visita à galeria executa `workers.js` ou lê KV.
+Nenhuma visita à galeria executa `workers.js` ou lê KV. A grade usa somente `preview`; a `imagem` full é requisitada sob demanda quando o usuário abre a obra.
 
 ## Doações
 

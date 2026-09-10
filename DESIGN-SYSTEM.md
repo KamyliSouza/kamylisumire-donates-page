@@ -61,7 +61,7 @@ A V48.0 oficializa um padrão visual específico para conteúdo artístico em
 - dialog nativo para ampliação, com foco/fechamento acessíveis;
 - `alt` editorial obrigatório; crédito externo opcional e sempre HTTPS quando informado.
 
-Esse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
+Desde a V48.0.1, cards usam a `preview` leve; o lightbox reaproveita essa preview enquanto carrega a `imagem` full e exibe o mesmo `site-loader-logo` do loader global durante a transição. A grade não deve baixar automaticamente a imagem full.\n\nEsse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
 Lives, Agenda ou Blog. Não duplicar o CSS do loader global: a Galeria reutiliza
 a classe compartilhada e altera apenas dimensões/posicionamento local.
 

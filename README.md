@@ -60,7 +60,7 @@ OAuth/cache são consolidados com migração transparente das chaves V47.4.6.
 Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
 (24 h) mantêm o comportamento operacional anterior.
 
-Desde a V48.0, `/artes/` integra uma galeria editorial em masonry, com imagens externas HTTPS, créditos, filtros, busca e o mesmo símbolo de loader do site em cada imagem. A página não consome Worker/KV e reutiliza Navbar/Footer compartilhados.
+Desde a V48.0.1, `/artes/` integra uma galeria editorial em masonry com duas imagens HTTPS por obra: `preview` leve na grade e `imagem` em alta qualidade carregada somente ao abrir o lightbox. A página mantém créditos, filtros, busca e o mesmo símbolo de loader do site, sem consumir Worker/KV e reutilizando Navbar/Footer compartilhados.
 
 Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
 de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
