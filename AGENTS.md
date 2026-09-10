@@ -206,6 +206,42 @@ chave de cache versionada (`kamyli-ranking-cache-v3`) para não reutilizar dados
 crus gravados antes dessa migração. Configurar essas variáveis é uma etapa manual
 no painel/CLI da Cloudflare — não há `wrangler.toml` neste repositório.
 
+## Worker e quota — V47.4.7
+
+A otimização de quota não pode reduzir a frequência funcional das integrações.
+Preservar:
+
+- Streamlabs na janela operacional atual do Cron (~10 min);
+- Twitch Live na janela nominal de 10 min;
+- validação de App Access Token Twitch a cada 50 min, sempre abaixo de 1 h;
+- VODs Twitch com intervalo mínimo de 24 h;
+- visitantes nunca chamam diretamente Twitch ou Streamlabs.
+
+O roteamento HTTP do Worker é explícito. Somente os caminhos documentados podem
+chegar aos respectivos handlers; caminho desconhecido deve responder `404` sem
+ler ranking/KV. Métodos diferentes de `GET`/`OPTIONS` devem responder `405`.
+
+As rotas públicas de ranking, Twitch Live e Twitch VOD podem usar
+`caches.default` com chaves canônicas sem query string para reduzir leituras KV,
+mas os payloads públicos e o comportamento de fallback devem permanecer
+compatíveis com o frontend. Cache API é otimização de leitura, não fonte
+autoritativa: snapshots persistentes continuam no KV `RANKINGS`.
+
+Estados OAuth/cache consolidados vigentes:
+
+- `tokens:streamlabs_state`;
+- `twitch:app_access_token_state`;
+- `twitch:user_state`.
+
+As chaves V47.4.6 correspondentes permanecem aceitas somente como fallback de
+migração. A migração de `twitch:user_login`/`twitch:user_id` não deve renovar o
+TTL legado; após a expiração normal, o canal é resolvido novamente e então salvo
+na chave consolidada por no máximo 24 h.
+
+Mensagens de erro recorrentes devem evitar writes idênticos no KV quando uma
+leitura de comparação for suficiente. Não sacrificar correção de ranking,
+renovação OAuth ou snapshot Twitch necessário apenas para economizar quota.
+
 ## Navbar/footer e links externos
 
 Navbar e footer são componentes compartilhados em `js/core/`.

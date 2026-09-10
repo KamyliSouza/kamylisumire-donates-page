@@ -130,6 +130,12 @@ TWITCH_CHANNEL_LOGIN=kamyli
 TWITCH_MAX_VIDEOS=10
 ```
 
+Desde a V47.4.7, o Worker usa Cache API também para o ranking e `/twitch/videos`
+antes de consultar o KV. Não é necessária configuração adicional no painel para
+essa camada. O deploy também migra automaticamente os estados OAuth/cache
+legados para chaves consolidadas; não apague o namespace `RANKINGS` e não é
+necessário reautorizar a Streamlabs apenas por causa dessa atualização.
+
 O primeiro preenchimento é feito por `/debug/twitch-sync`. Chamadas posteriores
 a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passado
 24 horas desde `twitch:updated_at`. O App Access Token é reutilizado no KV, mas

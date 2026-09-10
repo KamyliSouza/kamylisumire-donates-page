@@ -1,5 +1,19 @@
 # Changelog
 
+## V47.4.7 — Otimização de quota sem alteração funcional
+
+- mantém as frequências operacionais existentes: Streamlabs e status ao vivo da Twitch continuam na janela de aproximadamente 10 minutos, a validação do App Access Token da Twitch permanece em intervalos menores que 1 hora (50 min) e os VODs continuam com atualização mínima de 24 horas;
+- torna o roteamento do Worker explícito: somente `/` atende o ranking e caminhos desconhecidos passam a responder `404` antes de qualquer leitura do KV, impedindo scanners/bots de consumirem duas leituras de ranking por URL inválida;
+- restringe o Worker a `GET` e `OPTIONS` nas rotas HTTP existentes; outros métodos respondem `405` sem acessar integrações ou KV;
+- adiciona `caches.default` ao ranking e a `/twitch/videos`, com cache keys canônicas sem query string, preservando os payloads públicos e reduzindo leituras repetidas do KV por data center; `/twitch/live` mantém o cache de 60 s já existente;
+- preserva os mesmos cabeçalhos/contratos públicos do ranking, Twitch Live e Twitch VOD para o frontend;
+- deduplica a gravação de mensagens de erro recorrentes no KV, trocando writes repetidos por uma leitura de comparação quando a mensagem não mudou;
+- consolida o estado OAuth da Streamlabs em `tokens:streamlabs_state`, reduzindo três leituras recorrentes para uma; a primeira leitura após o deploy aceita e migra automaticamente `tokens:access`, `tokens:refresh` e `tokens:expires_at`;
+- consolida token, expiração e última validação da Twitch em `twitch:app_access_token_state`, mantendo validação oficial a cada 50 min e retry único após Helix `401`; as chaves V47.4.6 continuam aceitas para migração automática;
+- consolida login/ID do canal em `twitch:user_state`; as chaves V47.4.6 continuam aceitas até o TTL original terminar, sem renová-lo artificialmente, preservando o limite de 24 h para resolução do canal;
+- mantém KV como snapshot persistente, não move Twitch/Streamlabs para polling por visitante e não altera o Helpers;
+- deixa preparada uma arquitetura mais resistente a tráfego elevado sem adicionar R2 ou nova dependência nesta versão.
+
 ## V47.4.6 — Robustez do status ao vivo da Twitch
 
 - corrige a janela de atualização do status ao vivo: o Cron continua em 10 minutos, mas `syncTwitchLiveIfDue()` passa a aceitar uma tolerância de 30 segundos para compensar a latência entre o disparo agendado e a gravação de `checkedAt`, evitando que um ciclo seja pulado e a consulta real caia para aproximadamente 20 minutos;

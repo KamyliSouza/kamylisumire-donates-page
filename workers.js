@@ -9,6 +9,8 @@ const TWITCH_LIVE_REFRESH_TOLERANCE_MS = 2 * 60 * 1000;
 const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
 const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
 const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
+const TWITCH_VIDEOS_EDGE_CACHE_MAX_SECONDS = 60 * 60;
+const RANKING_EDGE_CACHE_SECONDS = 30 * 60;
 const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
 const TWITCH_TOKEN_VALIDATE_INTERVAL_MS = 50 * 60 * 1000;
 const TWITCH_USER_CACHE_TTL_SECONDS = 24 * 60 * 60;
@@ -34,22 +36,27 @@ export default {
       return cors(request, env, new Response(null, { status: 204 }));
     }
 
+    if (request.method !== 'GET') {
+      return methodNotAllowed(request, env);
+    }
+
     if (url.pathname === '/oauth/authorize') return handleAuthorize(request, url, env);
     if (url.pathname === '/oauth/callback') return handleCallback(request, url, env);
     if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
     if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
     if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
     if (url.pathname === '/debug/twitch-live-sync') return handleDebugTwitchLiveSync(request, url, env);
-    if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env);
+    if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env, ctx);
     if (url.pathname === '/twitch/live') return handleTwitchLive(request, env, ctx);
+    if (url.pathname === '/') return handleRanking(request, env, ctx);
 
-    return handleRanking(request, env);
+    return notFound(request, env);
   },
 
   async scheduled(event, env, ctx) {
     ctx.waitUntil(
       syncDonations(env).catch((err) =>
-        env.RANKINGS.put('ranking:last_error', String(err.message))
+        putKVIfChanged(env, 'ranking:last_error', String(err.message))
       )
     );
 
@@ -58,7 +65,7 @@ export default {
     // antes de completar 24 horas desde a última atualização bem-sucedida.
     ctx.waitUntil(
       syncTwitchVideosIfDue(env).catch((err) =>
-        env.RANKINGS.put('twitch:last_error', String(err.message))
+        putKVIfChanged(env, 'twitch:last_error', String(err.message))
       )
     );
 
@@ -116,6 +123,39 @@ function cors(request, env, response) {
     statusText: response.statusText,
     headers
   });
+}
+
+function methodNotAllowed(request, env) {
+  return cors(request, env, new Response('Método não permitido', {
+    status: 405,
+    headers: {
+      'Allow': 'GET, OPTIONS',
+      'Cache-Control': 'no-store'
+    }
+  }));
+}
+
+function notFound(request, env) {
+  return cors(request, env, new Response('Não encontrado', {
+    status: 404,
+    headers: { 'Cache-Control': 'no-store' }
+  }));
+}
+
+function publicCacheKey(request, pathname) {
+  const url = new URL(request.url);
+  url.pathname = pathname;
+  url.search = '';
+  url.hash = '';
+  return new Request(url.toString(), { method: 'GET' });
+}
+
+async function putKVIfChanged(env, key, value, options) {
+  const normalized = String(value);
+  const current = await env.RANKINGS.get(key);
+  if (current === normalized) return false;
+  await env.RANKINGS.put(key, normalized, options);
+  return true;
 }
 
 // ---------------------------------------------------------------------
@@ -301,7 +341,7 @@ async function handleCallback(request, url, env) {
     await syncDonations(env);
   } catch (err) {
     syncMessage = 'OAuth funcionou, mas a sincronização falhou: ' + err.message;
-    await env.RANKINGS.put('ranking:last_error', String(err.message));
+    await putKVIfChanged(env, 'ranking:last_error', String(err.message));
   }
 
   return cors(request, env, new Response(
@@ -311,27 +351,54 @@ async function handleCallback(request, url, env) {
 }
 
 async function saveTokens(env, tokenData) {
-  const expiresAt =
-    Date.now() + (Number(tokenData.expires_in) || 3600) * 1000;
+  const expiresAt = Date.now() + (Number(tokenData.expires_in) || 3600) * 1000;
+  const state = {
+    accessToken: String(tokenData.access_token || '').trim(),
+    refreshToken: String(tokenData.refresh_token || '').trim(),
+    expiresAt
+  };
 
-  await env.RANKINGS.put('tokens:access', tokenData.access_token);
-  await env.RANKINGS.put('tokens:refresh', tokenData.refresh_token);
-  await env.RANKINGS.put('tokens:expires_at', String(expiresAt));
+  if (!state.accessToken || !state.refreshToken) {
+    throw new Error('Streamlabs não retornou tokens OAuth válidos.');
+  }
+
+  await env.RANKINGS.put('tokens:streamlabs_state', JSON.stringify(state));
+}
+
+async function getStreamlabsTokenState(env) {
+  const consolidated = await getJSON(env, 'tokens:streamlabs_state', null);
+  if (consolidated?.accessToken && consolidated?.refreshToken) {
+    return {
+      accessToken: String(consolidated.accessToken),
+      refreshToken: String(consolidated.refreshToken),
+      expiresAt: Math.max(0, Number(consolidated.expiresAt) || 0)
+    };
+  }
+
+  const [accessToken, refreshToken, expiresAtRaw] = await Promise.all([
+    env.RANKINGS.get('tokens:access'),
+    env.RANKINGS.get('tokens:refresh'),
+    env.RANKINGS.get('tokens:expires_at')
+  ]);
+  if (!accessToken || !refreshToken) return null;
+
+  const state = {
+    accessToken,
+    refreshToken,
+    expiresAt: Math.max(0, Number(expiresAtRaw) || 0)
+  };
+  await env.RANKINGS.put('tokens:streamlabs_state', JSON.stringify(state));
+  return state;
 }
 
 async function getValidAccessToken(env) {
-  const accessToken = await env.RANKINGS.get('tokens:access');
-  const refreshToken = await env.RANKINGS.get('tokens:refresh');
-  const expiresAt = Number(
-    (await env.RANKINGS.get('tokens:expires_at')) || 0
-  );
-
-  if (!accessToken || !refreshToken) {
+  const state = await getStreamlabsTokenState(env);
+  if (!state?.accessToken || !state?.refreshToken) {
     throw new Error('Streamlabs não conectado.');
   }
 
-  if (Date.now() < expiresAt - 2 * 60 * 1000) {
-    return accessToken;
+  if (Date.now() < state.expiresAt - 2 * 60 * 1000) {
+    return state.accessToken;
   }
 
   const res = await fetch(`${STREAMLABS_API}/token`, {
@@ -345,17 +412,13 @@ async function getValidAccessToken(env) {
       client_id: clientId(env),
       client_secret: clientSecret(env),
       redirect_uri: env.REDIRECT_URI,
-      refresh_token: refreshToken
+      refresh_token: state.refreshToken
     })
   });
 
-  if (!res.ok) {
-    throw new Error('Falha ao renovar token');
-  }
-
+  if (!res.ok) throw new Error('Falha ao renovar token');
   const data = await res.json();
   await saveTokens(env, data);
-
   return data.access_token;
 }
 
@@ -539,48 +602,57 @@ function assertTwitchConfigured(env) {
   }
 }
 
+async function getTwitchTokenState(env) {
+  const consolidated = await getJSON(env, 'twitch:app_access_token_state', null);
+  if (consolidated?.token) {
+    return {
+      token: String(consolidated.token),
+      expiresAt: Math.max(0, Number(consolidated.expiresAt) || 0),
+      validatedAt: Math.max(0, Number(consolidated.validatedAt) || 0)
+    };
+  }
+
+  const [token, expiresAtRaw, validatedAtRaw] = await Promise.all([
+    env.RANKINGS.get('twitch:app_access_token'),
+    env.RANKINGS.get('twitch:app_access_token_expires_at'),
+    env.RANKINGS.get('twitch:app_access_token_validated_at')
+  ]);
+  if (!token) return null;
+
+  const state = {
+    token,
+    expiresAt: Math.max(0, Number(expiresAtRaw) || 0),
+    validatedAt: Math.max(0, Number(validatedAtRaw) || 0)
+  };
+  await env.RANKINGS.put('twitch:app_access_token_state', JSON.stringify(state));
+  return state;
+}
+
 async function validateTwitchAppAccessToken(env, token) {
   const response = await fetch(TWITCH_OAUTH_VALIDATE_URL, {
-    headers: {
-      Authorization: `OAuth ${token}`
-    }
+    headers: { Authorization: `OAuth ${token}` }
   });
-
   if (response.status === 401) return null;
-
   if (!response.ok) {
     throw new Error(`Falha ao validar App Access Token da Twitch (${response.status}).`);
   }
 
   const data = await response.json();
   const returnedClientId = String(data?.client_id || '').trim();
-
-  if (!returnedClientId || returnedClientId !== twitchClientId(env)) {
-    return null;
-  }
+  if (!returnedClientId || returnedClientId !== twitchClientId(env)) return null;
 
   const expiresIn = Math.max(0, Number(data?.expires_in) || 0);
-
-  if (expiresIn * 1000 <= TWITCH_TOKEN_SAFETY_MS) {
-    return null;
-  }
+  if (expiresIn * 1000 <= TWITCH_TOKEN_SAFETY_MS) return null;
 
   const validatedAt = Date.now();
-
-  await env.RANKINGS.put(
-    'twitch:app_access_token_validated_at',
-    String(validatedAt)
-  );
-  await env.RANKINGS.put(
-    'twitch:app_access_token_expires_at',
-    String(validatedAt + expiresIn * 1000)
-  );
-
-  return { validatedAt, expiresIn };
+  const state = { token, validatedAt, expiresAt: validatedAt + expiresIn * 1000 };
+  await env.RANKINGS.put('twitch:app_access_token_state', JSON.stringify(state));
+  return { ...state, expiresIn };
 }
 
 async function clearTwitchAppAccessToken(env) {
   await Promise.all([
+    env.RANKINGS.delete('twitch:app_access_token_state'),
     env.RANKINGS.delete('twitch:app_access_token'),
     env.RANKINGS.delete('twitch:app_access_token_expires_at'),
     env.RANKINGS.delete('twitch:app_access_token_validated_at')
@@ -588,30 +660,16 @@ async function clearTwitchAppAccessToken(env) {
 }
 
 async function getTwitchAppAccessToken(env) {
-  const storedToken = await env.RANKINGS.get('twitch:app_access_token');
-  const expiresAt = Number(
-    (await env.RANKINGS.get('twitch:app_access_token_expires_at')) || 0
-  );
-  const validatedAt = Number(
-    (await env.RANKINGS.get('twitch:app_access_token_validated_at')) || 0
-  );
+  const stored = await getTwitchTokenState(env);
   const now = Date.now();
 
-  if (
-    storedToken &&
-    expiresAt &&
-    now < expiresAt - TWITCH_TOKEN_SAFETY_MS
-  ) {
-    if (
-      validatedAt &&
-      now - validatedAt < TWITCH_TOKEN_VALIDATE_INTERVAL_MS
-    ) {
-      return storedToken;
+  if (stored?.token && stored.expiresAt && now < stored.expiresAt - TWITCH_TOKEN_SAFETY_MS) {
+    if (stored.validatedAt && now - stored.validatedAt < TWITCH_TOKEN_VALIDATE_INTERVAL_MS) {
+      return stored.token;
     }
 
-    const validation = await validateTwitchAppAccessToken(env, storedToken);
-    if (validation) return storedToken;
-
+    const validation = await validateTwitchAppAccessToken(env, stored.token);
+    if (validation) return stored.token;
     await clearTwitchAppAccessToken(env);
   }
 
@@ -622,25 +680,17 @@ async function getTwitchAppAccessToken(env) {
 
   const response = await fetch(TWITCH_OAUTH_TOKEN_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString()
   });
-
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(
-      `Falha ao obter App Access Token da Twitch (${response.status}): ${detail}`
-    );
+    throw new Error(`Falha ao obter App Access Token da Twitch (${response.status}): ${detail}`);
   }
 
   const data = await response.json();
   const token = String(data.access_token || '').trim();
-
-  if (!token) {
-    throw new Error('Twitch não retornou access_token.');
-  }
+  if (!token) throw new Error('Twitch não retornou access_token.');
 
   // Tokens novos também são validados imediatamente. Depois disso, o Cron de
   // 10 minutos garante nova validação em intervalos menores que uma hora.
@@ -648,9 +698,6 @@ async function getTwitchAppAccessToken(env) {
   if (!validation) {
     throw new Error('App Access Token recém-emitido pela Twitch não foi validado.');
   }
-
-  await env.RANKINGS.put('twitch:app_access_token', token);
-
   return token;
 }
 
@@ -663,7 +710,6 @@ async function fetchTwitchHelixWithRetry(env, url, accessToken) {
   });
 
   let response = await requestWithToken(accessToken);
-
   if (response.status !== 401) return response;
 
   // Um 401 pode significar que o token foi revogado entre a validação e a
@@ -671,60 +717,52 @@ async function fetchTwitchHelixWithRetry(env, url, accessToken) {
   await clearTwitchAppAccessToken(env);
   const refreshedToken = await getTwitchAppAccessToken(env);
   response = await requestWithToken(refreshedToken);
+  if (response.status === 401) await clearTwitchAppAccessToken(env);
+  return response;
+}
 
-  if (response.status === 401) {
-    await clearTwitchAppAccessToken(env);
+async function getTwitchUserState(env) {
+  const consolidated = await getJSON(env, 'twitch:user_state', null);
+  if (consolidated?.login && consolidated?.id) {
+    return {
+      login: String(consolidated.login).trim().toLowerCase(),
+      id: String(consolidated.id).trim()
+    };
   }
 
-  return response;
+  const [cachedLoginRaw, cachedIdRaw] = await Promise.all([
+    env.RANKINGS.get('twitch:user_login'),
+    env.RANKINGS.get('twitch:user_id')
+  ]);
+  const login = String(cachedLoginRaw || '').trim().toLowerCase();
+  const id = String(cachedIdRaw || '').trim();
+  if (!login || !id) return null;
+
+  // Não renova artificialmente o TTL das chaves V47.4.6 durante a migração.
+  // Elas continuam válidas apenas pelo TTL original; quando expirarem, a
+  // próxima resolução Helix grava o estado consolidado com um novo TTL de 24 h.
+  return { login, id };
 }
 
 async function getTwitchUserId(env, accessToken) {
   const login = twitchChannelLogin(env);
-  const cachedLogin = (
-    (await env.RANKINGS.get('twitch:user_login')) || ''
-  ).trim().toLowerCase();
-  const cachedId = (
-    (await env.RANKINGS.get('twitch:user_id')) || ''
-  ).trim();
-
-  if (cachedId && cachedLogin === login) {
-    return cachedId;
-  }
+  const cached = await getTwitchUserState(env);
+  if (cached?.id && cached.login === login) return cached.id;
 
   const url = new URL(`${TWITCH_API}/users`);
   url.searchParams.set('login', login);
-
-  const response = await fetchTwitchHelixWithRetry(
-    env,
-    url.toString(),
-    accessToken
-  );
-
+  const response = await fetchTwitchHelixWithRetry(env, url.toString(), accessToken);
   if (!response.ok) {
     throw new Error(`Falha ao resolver canal da Twitch (${response.status}).`);
   }
 
   const data = await response.json();
   const userId = String(data?.data?.[0]?.id || '').trim();
+  if (!userId) throw new Error(`Canal da Twitch não encontrado: ${login}.`);
 
-  if (!userId) {
-    throw new Error(`Canal da Twitch não encontrado: ${login}.`);
-  }
-
-  await Promise.all([
-    env.RANKINGS.put(
-      'twitch:user_login',
-      login,
-      { expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS }
-    ),
-    env.RANKINGS.put(
-      'twitch:user_id',
-      userId,
-      { expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS }
-    )
-  ]);
-
+  await env.RANKINGS.put('twitch:user_state', JSON.stringify({ login, id: userId }), {
+    expirationTtl: TWITCH_USER_CACHE_TTL_SECONDS
+  });
   return userId;
 }
 
@@ -829,7 +867,7 @@ async function syncTwitchVideosIfDue(env) {
       { expirationTtl: TWITCH_VIDEO_CACHE_TTL_SECONDS }
     );
     await env.RANKINGS.put('twitch:updated_at', String(updatedAt));
-    await env.RANKINGS.put('twitch:last_error', '');
+    await putKVIfChanged(env, 'twitch:last_error', '');
 
     return {
       updated: true,
@@ -838,88 +876,59 @@ async function syncTwitchVideosIfDue(env) {
       nextRefreshAt: updatedAt + TWITCH_REFRESH_INTERVAL_MS
     };
   } catch (error) {
-    await env.RANKINGS.put('twitch:last_error', String(error.message));
+    await putKVIfChanged(env, 'twitch:last_error', String(error.message));
     throw error;
   }
 }
 
-async function handleTwitchVideos(request, env) {
+async function handleTwitchVideos(request, env, ctx) {
+  const cache = caches.default;
+  const cacheKey = publicCacheKey(request, '/twitch/videos');
+  const cached = await cache.match(cacheKey);
+  if (cached) return cors(request, env, cached);
+
   const videos = await getJSON(env, 'twitch:videos', []);
   const state = await getTwitchRefreshState(env);
 
   if (!state.updatedAt) {
-    return cors(
-      request,
-      env,
-      new Response(
-        JSON.stringify({
-          platform: 'twitch',
-          videos: [],
-          updatedAt: null,
-          stale: true,
-          message: 'Cache da Twitch ainda não foi inicializado.'
-        }),
-        {
-          status: 503,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store'
-          }
-        }
-      )
-    );
+    return cors(request, env, new Response(JSON.stringify({
+      platform: 'twitch', videos: [], updatedAt: null, stale: true,
+      message: 'Cache da Twitch ainda não foi inicializado.'
+    }), { status: 503, headers: {
+      'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store'
+    }}));
   }
 
   if (state.due || !Array.isArray(videos) || videos.length === 0) {
-    return cors(
-      request,
-      env,
-      new Response(
-        JSON.stringify({
-          platform: 'twitch',
-          videos: [],
-          updatedAt: new Date(state.updatedAt).toISOString(),
-          stale: true,
-          message: 'Cache da Twitch expirado. Aguarde a próxima sincronização.'
-        }),
-        {
-          status: 503,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store'
-          }
-        }
-      )
-    );
+    return cors(request, env, new Response(JSON.stringify({
+      platform: 'twitch', videos: [], updatedAt: new Date(state.updatedAt).toISOString(), stale: true,
+      message: 'Cache da Twitch expirado. Aguarde a próxima sincronização.'
+    }), { status: 503, headers: {
+      'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store'
+    }}));
   }
 
-  const now = Date.now();
-  const freshSeconds = Math.max(
-    0,
-    Math.floor((state.nextRefreshAt - now) / 1000)
-  );
+  const freshSeconds = Math.max(0, Math.floor((state.nextRefreshAt - Date.now()) / 1000));
   const browserMaxAge = Math.max(60, freshSeconds);
-
-  return cors(
-    request,
-    env,
-    new Response(
-      JSON.stringify({
-        platform: 'twitch',
-        channelUrl: `https://www.twitch.tv/${twitchChannelLogin(env)}`,
-        videos,
-        updatedAt: new Date(state.updatedAt).toISOString(),
-        refreshAfter: new Date(state.nextRefreshAt).toISOString(),
-        stale: false
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Cache-Control': `public, max-age=${browserMaxAge}`
-        }
-      }
-    )
-  );
+  const edgeMaxAge = Math.max(60, Math.min(browserMaxAge, TWITCH_VIDEOS_EDGE_CACHE_MAX_SECONDS));
+  const payload = JSON.stringify({
+    platform: 'twitch',
+    channelUrl: `https://www.twitch.tv/${twitchChannelLogin(env)}`,
+    videos,
+    updatedAt: new Date(state.updatedAt).toISOString(),
+    refreshAfter: new Date(state.nextRefreshAt).toISOString(),
+    stale: false
+  });
+  const response = new Response(payload, { headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': `public, max-age=${browserMaxAge}`
+  }});
+  const edgeResponse = new Response(payload, { headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': `public, max-age=${edgeMaxAge}`
+  }});
+  ctx?.waitUntil(cache.put(cacheKey, edgeResponse));
+  return cors(request, env, response);
 }
 
 async function handleDebugTwitchSync(request, url, env) {
@@ -1101,7 +1110,7 @@ async function syncTwitchLiveIfDue(env, options = {}) {
       nextRefreshAt: snapshot.checkedAt + TWITCH_LIVE_REFRESH_INTERVAL_MS
     };
   } catch (error) {
-    await env.RANKINGS.put('twitch:live_last_error', String(error.message));
+    await putKVIfChanged(env, 'twitch:live_last_error', String(error.message));
     throw error;
   }
 }
@@ -1130,9 +1139,7 @@ function buildTwitchLivePublicPayload(snapshot) {
 
 async function handleTwitchLive(request, env, ctx) {
   const cache = caches.default;
-  const cacheUrl = new URL(request.url);
-  cacheUrl.search = '';
-  const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' });
+  const cacheKey = publicCacheKey(request, '/twitch/live');
   const cached = await cache.match(cacheKey);
 
   if (cached) {
@@ -1254,9 +1261,8 @@ async function handleDebugStatus(request, url, env) {
   const twitchLive = await getTwitchLiveSnapshot(env);
   const twitchLiveCheckedAt = twitchLiveSnapshotCheckedAt(twitchLive);
   const twitchLiveLastError = await env.RANKINGS.get('twitch:live_last_error');
-  const twitchTokenValidatedAt = Number(
-    (await env.RANKINGS.get('twitch:app_access_token_validated_at')) || 0
-  );
+  const twitchTokenState = await getTwitchTokenState(env);
+  const twitchTokenValidatedAt = Math.max(0, Number(twitchTokenState?.validatedAt) || 0);
 
   return cors(request, env, new Response(
     JSON.stringify({
@@ -1403,36 +1409,26 @@ async function getJSON(env, key, fallback) {
   return raw ? JSON.parse(raw) : fallback;
 }
 
-async function handleRanking(request, env) {
-  const monthly = await getJSON(
-    env,
-    'ranking:monthly',
-    []
-  );
+async function handleRanking(request, env, ctx) {
+  const cache = caches.default;
+  const cacheKey = publicCacheKey(request, '/');
+  const cached = await cache.match(cacheKey);
+  if (cached) return cors(request, env, cached);
 
-  const allTime = await getJSON(
-    env,
-    'ranking:allTime',
-    []
-  );
-
-  const publicMonthly = sanitizeRanking(monthly, env);
-  const publicAllTime = sanitizeRanking(allTime, env);
-
-  return cors(
-    request,
-    env,
-    new Response(
-      JSON.stringify({
-        monthly: publicMonthly,
-        allTime: publicAllTime
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Cache-Control': 'public, max-age=0, s-maxage=1800'
-        }
-      }
-    )
-  );
+  const monthly = await getJSON(env, 'ranking:monthly', []);
+  const allTime = await getJSON(env, 'ranking:allTime', []);
+  const payload = JSON.stringify({
+    monthly: sanitizeRanking(monthly, env),
+    allTime: sanitizeRanking(allTime, env)
+  });
+  const response = new Response(payload, { headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'public, max-age=0, s-maxage=1800'
+  }});
+  const edgeResponse = new Response(payload, { headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': `public, max-age=${RANKING_EDGE_CACHE_SECONDS}`
+  }});
+  ctx?.waitUntil(cache.put(cacheKey, edgeResponse));
+  return cors(request, env, response);
 }

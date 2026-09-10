@@ -89,7 +89,7 @@ Rotas relevantes:
 - `/oauth/callback` — callback OAuth do Streamlabs, que valida `state` antes de trocar o `code`;
 - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
 - `/debug/sync` — sincronização manual protegida do ranking;
-- `/twitch/videos` — snapshot público das últimas VODs da Twitch;
+- `/twitch/videos` — snapshot público das últimas VODs da Twitch, com Cache API antes do KV desde V47.4.7;
 - `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, respeitando a janela de 24 h;
 - `/twitch/live` — status público ao vivo, servido de cache/KV;
 - `/debug/twitch-live-sync` — sincronização protegida do status ao vivo, com `?force=1` opcional.
@@ -105,6 +105,17 @@ TWITCH_MAX_VIDEOS=10
 
 O binding KV continua sendo `RANKINGS`.
 Credenciais sensíveis continuam como Secrets/bindings do Worker. `TWITCH_CLIENT_SECRET` deve ser Secret; `TWITCH_CLIENT_ID` pode ser variável e também permanece fora do conteúdo editorial.
+
+Desde a V47.4.7, o roteamento é explícito: `/` é a única rota do ranking e
+caminhos desconhecidos retornam `404` antes de acessar KV. Métodos diferentes
+de `GET`/`OPTIONS` retornam `405`. Ranking, `/twitch/videos` e `/twitch/live`
+usam chaves canônicas de Cache API sem query string para reduzir leituras KV
+repetidas por data center; o KV continua sendo a fonte persistente.
+
+Os estados internos consolidados são `tokens:streamlabs_state`,
+`twitch:app_access_token_state` e `twitch:user_state`. O Worker aceita as chaves
+V47.4.6 correspondentes durante a migração automática, sem exigir nova
+autorização OAuth. A frequência funcional das integrações não muda.
 
 Na V47.4.5, o App Access Token da Twitch é validado periodicamente em `/oauth2/validate`, e o `user_id`/login resolvidos pelo Helix usam retenção máxima de 24 horas no KV.
 

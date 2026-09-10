@@ -52,6 +52,13 @@ sobre a janela nominal de 10 minutos para não perder um ciclo do Cron por causa
 da latência da chamada anterior. Respostas `401` do Helix também provocam uma
 única renovação imediata do App Access Token e repetição da chamada afetada.
 
+Desde a V47.4.7, o Worker reduz consumo de quota sem alterar as frequências das
+integrações: caminhos inválidos não leem mais o ranking, ranking e VODs Twitch
+usam Cache API antes do KV, erros repetidos evitam writes idênticos e estados
+OAuth/cache são consolidados com migração transparente das chaves V47.4.6.
+Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
+(24 h) mantêm o comportamento operacional anterior.
+
 ## Estrutura principal
 
 ```text
