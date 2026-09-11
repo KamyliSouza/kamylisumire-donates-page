@@ -67,6 +67,18 @@ A galeria é completamente estática do ponto de vista de backend: o navegador
 carrega o JSON local e as URLs HTTPS de imagem diretamente do host configurado.
 Nenhuma visita à galeria executa `workers.js` ou lê KV. A grade usa somente `preview`; a `imagem` full é requisitada sob demanda quando o usuário abre a obra.
 
+A busca da galeria é feita inteiramente no navegador e possui escopo explícito por
+campo: **Todos os campos, Artista, Título, Categoria e Tags**. O usuário também
+pode usar prefixos no próprio texto (`artista:`, `artist:`, `titulo:`,
+`categoria:`, `tag:`/`tags:`); um prefixo explícito tem precedência sobre o
+seletor visual. Isso evita colisões como um nome de artista coincidir com o
+título de outra obra.
+
+O Blog segue a mesma convenção visual e de parsing, com os campos **Todos os
+campos, Título, Resumo e Tags** e os prefixos `titulo:`, `resumo:` e
+`tag:`/`tags:`. Essa funcionalidade usa somente metadados já existentes e não
+altera os contratos JSON/Markdown editoriais.
+
 ## Doações
 
 O ranking possui cache local e fallback para o último cache disponível quando

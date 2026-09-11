@@ -3,7 +3,7 @@
     "eyebrow": "Blog",
     "titulo": "Publicações",
     "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.",
-    "buscaPlaceholder": "Buscar por título, resumo ou tag...",
+    "buscaPlaceholder": "Buscar publicações...",
     "vazio": "Nenhuma publicação disponível no momento.",
     "minutosLeitura": "{minutos} min de leitura"
   },

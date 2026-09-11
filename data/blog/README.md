@@ -36,6 +36,25 @@ Texto do artigo...
 Os valores do front matter usam literais JSON. O Helper mantém o índice
 `posts.json` sincronizado e calcula `readMinutes` automaticamente.
 
+
+## Busca da listagem
+
+A página `/blog/` permite pesquisar sem alterar o contrato editorial dos posts.
+O seletor **Buscar em** oferece `Todos os campos`, `Título`, `Resumo` e `Tags`.
+Também são aceitos prefixos diretamente no texto:
+
+```text
+titulo:meu texto
+resumo:bastidores
+tag:reflexões
+tags:novidades
+```
+
+Quando um prefixo é informado, ele tem precedência sobre o seletor visual. A
+comparação ignora diferenças de maiúsculas/minúsculas e acentos. A busca usa
+somente `title`, `summary` e `tags`; não adicionar autor ou outro campo apenas
+para suportar esta interface.
+
 ## Markdown permitido
 
 São aceitos títulos H2–H4, parágrafos, negrito, itálico, links, citações,

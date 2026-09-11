@@ -42,6 +42,46 @@
     gap: 8px;
 }
 
+
+.blog-search-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    flex: 1 1 560px;
+}
+
+.blog-search-field {
+    min-height: 42px;
+    padding: 8px 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--subtitle-color);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-small);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(var(--blur-card));
+    -webkit-backdrop-filter: blur(var(--blur-card));
+    font-size: .86rem;
+    font-weight: 800;
+}
+
+.blog-search-field select {
+    min-width: 142px;
+    color: var(--text-color);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+.blog-search-field:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
 .blog-search {
     min-width: 280px;
     min-height: 42px;
@@ -140,6 +180,7 @@
 }
 
 :root[data-blur="off"] .blog-search,
+:root[data-blur="off"] .blog-search-field,
 :root[data-blur="off"] .blog-filter {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -156,6 +197,24 @@
 
     .blog-tools {
         gap: 7px;
+    }
+
+    .blog-search-controls {
+        min-width: 100%;
+        flex-basis: 100%;
+        flex-direction: column;
+    }
+
+    .blog-search-field {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .blog-search-field select {
+        min-width: 0;
+        flex: 1 1 auto;
+        text-align: right;
+        font-size: 16px;
     }
 
     .blog-search {

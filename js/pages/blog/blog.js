@@ -16,12 +16,58 @@
         description: document.getElementById("blogDescription"),
         tools: document.getElementById("blogTools"),
         search: document.getElementById("blogSearch"),
+        searchField: document.getElementById("blogSearchField"),
         filters: document.getElementById("blogFilters"),
         list: document.getElementById("blogPostList")
     };
 
     let posts = [];
     let activeTag = "";
+
+    const SEARCH_PREFIXES = Object.freeze({
+        "titulo:": "titulo",
+        "título:": "titulo",
+        "resumo:": "resumo",
+        "tag:": "tags",
+        "tags:": "tags"
+    });
+
+    function normalize(value) {
+        return String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("pt-BR");
+    }
+
+    function parseSearch(rawValue) {
+        const raw = String(rawValue || "").trim();
+        const normalized = normalize(raw);
+
+        for (const [prefix, field] of Object.entries(SEARCH_PREFIXES)) {
+            const normalizedPrefix = normalize(prefix);
+            if (normalized.startsWith(normalizedPrefix)) {
+                return {
+                    field,
+                    query: normalized.slice(normalizedPrefix.length).trim()
+                };
+            }
+        }
+
+        return {
+            field: elements.searchField?.value || "todos",
+            query: normalized
+        };
+    }
+
+    function getPostSearchValue(post, field) {
+        switch (field) {
+            case "titulo": return normalize(post.title);
+            case "resumo": return normalize(post.summary);
+            case "tags": return normalize(post.tags.join(" "));
+            default:
+                return normalize([post.title, post.summary, ...post.tags].join(" "));
+        }
+    }
 
     function createTag(text) {
         const tag = document.createElement("span");
@@ -72,9 +118,7 @@
     }
 
     function renderList(data) {
-        const query = String(elements.search?.value || "")
-            .trim()
-            .toLocaleLowerCase("pt-BR");
+        const { field, query } = parseSearch(elements.search?.value);
 
         const visible = posts.filter(post => {
             const tagMatch =
@@ -83,15 +127,7 @@
             if (!tagMatch) return false;
             if (!query) return true;
 
-            const haystack = [
-                post.title,
-                post.summary,
-                ...post.tags
-            ]
-                .join(" ")
-                .toLocaleLowerCase("pt-BR");
-
-            return haystack.includes(query);
+            return getPostSearchValue(post, field).includes(query);
         });
 
         elements.list.replaceChildren();
@@ -164,7 +200,7 @@
         if (elements.search) {
             elements.search.placeholder =
                 config.page?.buscaPlaceholder ||
-                "Buscar por título, resumo ou tag...";
+                "Buscar publicações...";
         }
 
         posts = content.getPublishedBlogPosts(index);
@@ -182,6 +218,7 @@
         renderList(config);
 
         elements.search.addEventListener("input", () => renderList(config));
+        elements.searchField?.addEventListener("change", () => renderList(config));
     }
 
     function signalReady() {

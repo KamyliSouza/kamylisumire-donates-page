@@ -53,6 +53,11 @@ As imagens preservam a proporção original em masonry e os metadados aparecem
 sobre a base da imagem com gradiente/sombra. Enquanto uma imagem carrega, o card
 reutiliza `.site-loader-logo`, o mesmo símbolo visual do loader global.
 
+A busca não cria novos campos no JSON. O seletor da página usa diretamente
+`titulo`, `artista`, `categoria` e `tags`. Prefixos aceitos: `artista:` (ou
+`artist:`), `titulo:`, `categoria:` e `tag:`/`tags:`. O prefixo digitado tem
+precedência sobre o seletor de campo.
+
 
 ## Lives
 
@@ -97,4 +102,7 @@ sitemap.xml
 `data/blog/posts/<slug>.md` é a fonte de cada publicação e
 `data/blog/posts.json` é o índice derivado. Um post publicado também precisa da
 página estática correspondente em `blog/<slug>/index.html`, com canonical/SEO
-próprios. Consulte `../blog/README.md` para o contrato completo.
+próprios. A busca da listagem usa apenas `title`, `summary` e `tags`, com seletor
+de campo e prefixos `titulo:`, `resumo:` e `tag:`/`tags:`; não há campo editorial
+novo para essa funcionalidade. Consulte `../blog/README.md` para o contrato
+completo.

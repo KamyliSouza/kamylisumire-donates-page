@@ -142,6 +142,12 @@ A CI valida `artes/index.html`, `css/pages/artes.css`, `js/pages/artes/artes.js`
 `creditoUrl` é opcional, mas quando informado deve usar HTTPS. `largura` e
 `altura` são opcionais e precisam ser inteiros positivos.
 
+## V48.1.0 — Busca por campo na Galeria e no Blog
+
+A V48.1.0 adiciona escopo explícito de busca sem alterar os schemas editoriais.
+Na Galeria, os campos são Todos, Artista, Título, Categoria e Tags. No Blog,
+Todos, Título, Resumo e Tags. Prefixos digitados têm precedência sobre o seletor.
+
 Smoke test manual recomendado:
 
 1. abrir `/artes/` e confirmar Navbar/Footer compartilhados;
@@ -149,8 +155,15 @@ Smoke test manual recomendado:
 3. confirmar masonry com imagens verticais/horizontais sem corte;
 4. confirmar o logo pulsante do loader global enquanto uma imagem carrega;
 5. confirmar busca/filtros e abertura do dialog;
-6. confirmar que erro de uma imagem não bloqueia as demais;
-7. confirmar que a página funciona com Worker/API indisponíveis.
+6. selecionar `Artista`, pesquisar um nome que também apareça em título/tag e confirmar que somente o campo artista é considerado;
+7. testar `artista:nome`, `titulo:texto`, `categoria:fanart` e `tag:comunidade`;
+8. confirmar que erro de uma imagem não bloqueia as demais;
+9. confirmar que a página funciona com Worker/API indisponíveis.
+
+Para o Blog, confirmar também o mesmo padrão de busca por campo com `Título`,
+`Resumo` e `Tags`, além dos prefixos `titulo:`, `resumo:` e `tag:`. A busca deve
+ser insensível a maiúsculas/minúsculas e acentos. Alterações nessa UI não devem
+exigir campos novos em `data/blog/posts.json` ou no front matter.
 
 
 ## CSP V48.0.2 e sanitização compartilhada

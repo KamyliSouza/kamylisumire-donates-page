@@ -5,6 +5,7 @@
     const tools = document.getElementById("artesTools");
     const filters = document.getElementById("artesFilters");
     const search = document.getElementById("artesSearch");
+    const searchField = document.getElementById("artesSearchField");
     const state = document.getElementById("artesState");
     const dialog = document.getElementById("arteDialog");
     const dialogImage = document.getElementById("arteDialogImage");
@@ -28,6 +29,36 @@
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase();
+    }
+
+    const SEARCH_PREFIXES = Object.freeze({
+        "artista:": "artista",
+        "artist:": "artista",
+        "titulo:": "titulo",
+        "título:": "titulo",
+        "categoria:": "categoria",
+        "tag:": "tags",
+        "tags:": "tags"
+    });
+
+    function parseSearch(rawValue) {
+        const raw = String(rawValue || "").trim();
+        const normalized = normalize(raw);
+
+        for (const [prefix, field] of Object.entries(SEARCH_PREFIXES)) {
+            const normalizedPrefix = normalize(prefix);
+            if (normalized.startsWith(normalizedPrefix)) {
+                return {
+                    field,
+                    query: normalized.slice(normalizedPrefix.length).trim()
+                };
+            }
+        }
+
+        return {
+            field: searchField?.value || "todos",
+            query: normalized
+        };
     }
 
     function validHttpsUrl(value) {
@@ -109,7 +140,10 @@
         const article = document.createElement("article");
         article.className = "arte-item";
         article.dataset.category = normalize(item.categoria);
-        article.dataset.search = normalize(`${item.titulo} ${item.artista} ${item.categoria} ${(item.tags || []).join(" ")}`);
+        article.dataset.searchTitle = normalize(item.titulo);
+        article.dataset.searchArtist = normalize(item.artista);
+        article.dataset.searchCategory = normalize(item.categoria);
+        article.dataset.searchTags = normalize((item.tags || []).join(" "));
 
         const button = document.createElement("button");
         button.className = "arte-card";
@@ -184,12 +218,28 @@
         }
     }
 
+    function getSearchValue(node, field) {
+        switch (field) {
+            case "artista": return node.dataset.searchArtist || "";
+            case "titulo": return node.dataset.searchTitle || "";
+            case "categoria": return node.dataset.searchCategory || "";
+            case "tags": return node.dataset.searchTags || "";
+            default:
+                return [
+                    node.dataset.searchTitle,
+                    node.dataset.searchArtist,
+                    node.dataset.searchCategory,
+                    node.dataset.searchTags
+                ].filter(Boolean).join(" ");
+        }
+    }
+
     function applyFilters() {
-        const query = normalize(search?.value);
+        const { field, query } = parseSearch(search?.value);
         let visible = 0;
         grid.querySelectorAll(".arte-item").forEach(node => {
             const categoryOk = activeCategory === "todas" || node.dataset.category === activeCategory;
-            const searchOk = !query || node.dataset.search.includes(query);
+            const searchOk = !query || getSearchValue(node, field).includes(query);
             node.hidden = !(categoryOk && searchOk);
             if (!node.hidden) visible += 1;
         });
@@ -246,6 +296,7 @@
     }
 
     search?.addEventListener("input", applyFilters);
+    searchField?.addEventListener("change", applyFilters);
     dialogClose?.addEventListener("click", () => dialog?.close());
     dialog?.addEventListener("click", event => {
         if (event.target === dialog) dialog.close();

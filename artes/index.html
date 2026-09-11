@@ -246,7 +246,7 @@
     <link rel="stylesheet" href="../css/core/variables.css">
     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
     <link rel="stylesheet" href="../css/core/navbar.css?v=47">
-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.0.1">
+    <link rel="stylesheet" href="../css/pages/artes.css?v=48.1.0">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -292,13 +292,26 @@
 
         <section class="glass-panel artes-tools" id="artesTools" aria-label="Busca e filtros da galeria" hidden>
             <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
-            <input
-                class="artes-search"
-                id="artesSearch"
-                type="search"
-                placeholder="Buscar por título, artista ou categoria..."
-                aria-label="Buscar na galeria"
-            >
+            <div class="artes-search-controls">
+                <label class="artes-search-field">
+                    <span>Buscar em</span>
+                    <select id="artesSearchField" aria-label="Campo de busca da galeria">
+                        <option value="todos">Todos os campos</option>
+                        <option value="artista">Artista</option>
+                        <option value="titulo">Título</option>
+                        <option value="categoria">Categoria</option>
+                        <option value="tags">Tags</option>
+                    </select>
+                </label>
+                <input
+                    class="artes-search"
+                    id="artesSearch"
+                    type="search"
+                    placeholder="Buscar na galeria..."
+                    aria-label="Buscar na galeria"
+                    autocomplete="off"
+                >
+            </div>
         </section>
 
         <section class="artes-grid" id="artesGrid" aria-live="polite" aria-label="Galeria de artes"></section>
@@ -336,7 +349,7 @@
     <script src="../js/core/page-transitions.js?v=46.3"></script>
     <script src="../js/core/sanitize.js?v=1"></script>
     <script src="../js/core/footer.js?v=47.4.2"></script>
-    <script src="../js/pages/artes/artes.js?v=48.0.1"></script>
+    <script src="../js/pages/artes/artes.js?v=48.1.0"></script>
     <script src="../js/core/loader.js?v=46.3"></script>
 </body>
 </html>

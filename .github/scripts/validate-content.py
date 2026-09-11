@@ -832,6 +832,9 @@ def validate_architecture() -> None:
     index = read_text("index.html")
     donations = read_text("doacoes/index.html")
     blog_index = read_text("blog/index.html")
+    artes_index = read_text("artes/index.html")
+    blog_js = read_text("js/pages/blog/blog.js")
+    artes_js = read_text("js/pages/artes/artes.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
     lives_js = read_text("js/pages/home/lives.js")
@@ -893,6 +896,22 @@ def validate_architecture() -> None:
 
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
+
+    # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
+    for rel, html, field_id in (
+        ("artes/index.html", artes_index, "artesSearchField"),
+        ("blog/index.html", blog_index, "blogSearchField"),
+    ):
+        if f'id="{field_id}"' not in html:
+            error(f"{rel}: seletor de campo da busca ausente: {field_id}.")
+
+    for needle in ('"artista:": "artista"', '"titulo:": "titulo"', '"tag:": "tags"'):
+        if needle not in artes_js:
+            error(f"js/pages/artes/artes.js: prefixo de busca ausente: {needle}")
+
+    for needle in ('"titulo:": "titulo"', '"resumo:": "resumo"', '"tag:": "tags"'):
+        if needle not in blog_js:
+            error(f"js/pages/blog/blog.js: prefixo de busca ausente: {needle}")
 
 
     for expected in ("js/core/api.js", "js/pages/doacoes/ranking.js"):
@@ -1047,10 +1066,14 @@ def validate_architecture() -> None:
     if "js/pages/doacoes/content.js?v=47" not in donations:
         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
 
-    if "js/pages/blog/blog.js?v=47" not in blog_index:
-        error("blog/index.html: cache-buster V47 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=47" not in blog_index:
-        error("blog/index.html: cache-buster V47 ausente para css/pages/blog.css.")
+    if "js/pages/blog/blog.js?v=48.1.0" not in blog_index:
+        error("blog/index.html: cache-buster V48.1.0 ausente para js/pages/blog/blog.js.")
+    if "css/pages/blog.css?v=48.1.0" not in blog_index:
+        error("blog/index.html: cache-buster V48.1.0 ausente para css/pages/blog.css.")
+    if "js/pages/artes/artes.js?v=48.1.0" not in artes_index:
+        error("artes/index.html: cache-buster V48.1.0 ausente para js/pages/artes/artes.js.")
+    if "css/pages/artes.css?v=48.1.0" not in artes_index:
+        error("artes/index.html: cache-buster V48.1.0 ausente para css/pages/artes.css.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")
