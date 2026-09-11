@@ -180,6 +180,19 @@ Smoke test adicional:
 5. abrir uma obra e confirmar categoria, data, tags e crédito no dialog, sem provocar download da imagem full antes da abertura;
 6. confirmar que o patch não modifica arquivos sob `data/content/` ou `data/blog/`.
 
+## V48.1.2 — Hotfix de stacking do drop-down
+
+O `backdrop-filter` de `.glass-panel` cria um contexto de empilhamento. Por isso,
+`artes-tools` deve manter um `z-index` explícito acima de `artes-grid`; elevar
+apenas `artes-search-field-menu` não é suficiente.
+
+Smoke test adicional:
+
+1. abrir **Buscar em** com a primeira linha da masonry já carregada;
+2. confirmar que todas as opções do menu ficam visualmente acima das imagens/cards;
+3. repetir em viewport desktop e mobile, nos temas claro/escuro e com blur ligado/desligado;
+4. confirmar que o painel e a grade não mudaram de posição quando o menu está fechado.
+
 
 ## CSP V48.0.2 e sanitização compartilhada
 

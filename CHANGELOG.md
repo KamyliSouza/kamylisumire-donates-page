@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.1.2 — Hotfix de empilhamento do drop-down da Galeria
+
+- corrige o drop-down **Buscar em** que podia aparecer atrás dos cards/imagens da masonry;
+- eleva o `stacking context` de `.artes-tools` acima de `.artes-grid`, necessário porque o `backdrop-filter` de `.glass-panel` cria um contexto de empilhamento próprio;
+- mantém `overflow: visible` no painel de ferramentas para o menu poder ultrapassar seus limites visuais sem corte;
+- atualiza somente o cache-buster do CSS da Galeria para `v=48.1.2`; o JavaScript continua em `v=48.1.1` porque não foi alterado;
+- não modifica nenhum arquivo editorial, schema, Worker/KV ou contrato consumido pelos Helpers.
+
 ## V48.1.1 — Refinamento visual da Galeria e documentação
 
 - substitui o `<select>` nativo do escopo de busca da Galeria por um drop-down acessível próprio, desenhado apenas com HTML/CSS/JS e os tokens visuais já existentes; nenhum SVG, PNG, logo ou outro asset gráfico é adicionado;

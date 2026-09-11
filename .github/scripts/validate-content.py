@@ -833,6 +833,7 @@ def validate_architecture() -> None:
     donations = read_text("doacoes/index.html")
     blog_index = read_text("blog/index.html")
     artes_index = read_text("artes/index.html")
+    artes_css = read_text("css/pages/artes.css")
     blog_js = read_text("js/pages/blog/blog.js")
     artes_js = read_text("js/pages/artes/artes.js")
     not_found = read_text("404.html")
@@ -921,6 +922,23 @@ def validate_architecture() -> None:
             error(f"artes/index.html: drop-down V48.1.1 incompleto: {needle}")
     if '<select id="artesSearchField"' in artes_index:
         error("artes/index.html: seletor nativo antigo da Galeria não deve retornar na V48.1.1.")
+
+    # V48.1.2: o backdrop-filter do glass-panel cria stacking context; o painel
+    # de ferramentas precisa ficar explicitamente acima da masonry para o menu
+    # não ser coberto pelos cards/imagens da primeira linha.
+    stacking_rules = (
+        (r"\.artes-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "overflow: visible")),
+        (r"\.artes-grid\s*\{([^}]*)\}", ("position: relative", "z-index: 0")),
+    )
+    for pattern, required_declarations in stacking_rules:
+        match = re.search(pattern, artes_css, flags=re.S)
+        if not match:
+            error(f"css/pages/artes.css: regra de stacking V48.1.2 ausente: {pattern}")
+            continue
+        block = match.group(1)
+        for declaration in required_declarations:
+            if declaration not in block:
+                error(f"css/pages/artes.css: proteção de stacking V48.1.2 ausente: {declaration}")
 
     for needle in ('"artista:": "artista"', '"titulo:": "titulo"', '"tag:": "tags"'):
         if needle not in artes_js:
@@ -1105,8 +1123,8 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.1.0 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
         error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.1.1" not in artes_index:
-        error("artes/index.html: cache-buster V48.1.1 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.1.2" not in artes_index:
+        error("artes/index.html: cache-buster V48.1.2 ausente para css/pages/artes.css.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")
