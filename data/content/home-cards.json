@@ -25,7 +25,7 @@
     {
       "id": "blog",
       "tipo": "blog",
-      "visivel": true,
+      "visivel": false,
       "tamanho": "grande",
       "variante": "padrao"
     },
