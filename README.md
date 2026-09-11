@@ -2,12 +2,14 @@
 
 Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de build.
 
+Desde a V48.2.0, `data/content/navbar.json` usa `version: 2` e centraliza texto, ícone e URL de todos os itens da Navbar, inclusive **Apoiar**. A mesma versão adiciona `data/content/home-cards.json` para ordenar, ocultar/exibir, redimensionar e variar visualmente os cards da Home, além de permitir cards personalizados limitados pelo Design System. Ícones usam apenas nomes da biblioteca segura `js/core/button-icons.js`; não há HTML/SVG bruto ou CSS arbitrário nos JSONs. Essas alterações de contrato exigem Helpers Web/Desktop compatíveis com V48.2.0.
+
 ## Arquitetura
 
 - **Frontend:** HTML, CSS e JavaScript vanilla.
 - **Conteúdo editorial:** JSON versionado em `data/`.
 - **Home:** majoritariamente local; a aba Twitch de Lives e o status ao vivo do Hero leem snapshots públicos do Worker, com fallback local/visual quando a API está indisponível.
-- **Blog:** página estática em `/blog/`, exibida na navegação/Home somente quando há post publicado.
+- **Blog:** página estática em `/blog/`, sempre acessível pela Navbar e pela Home; quando não há posts publicados, a interface mantém o estado vazio em vez de ocultar o Blog.
 - **Galeria de Artes:** página estática em `/artes/`, alimentada por `data/content/artes.json` e imagens HTTPS externas.
 - **Doações:** página independente em `/doacoes/`.
 - **Backend público:** ranking de doações, snapshot diário das VODs da Twitch e status ao vivo atualizado em janelas de 10 minutos.
@@ -21,6 +23,13 @@ Site público de `kamylisumire.com`, desenvolvido sem framework e sem etapa de b
 Não há React, Vue, bundler, npm, geração estática ou compilação.
 
 ## Conteúdo editável
+
+### Composição da Home — V48.2.0
+
+`data/content/home-cards.json` controla a **ordem, visibilidade, tamanho e variante visual** dos sete cards nativos da Home (`hero`, `lives`, `agenda`, `blog`, `regras`, `creditos`, `apoio`). O conteúdo desses cards continua em seus arquivos editoriais próprios; este JSON não duplica textos de Hero, Agenda etc.
+
+Também podem ser adicionados cards `personalizado` com eyebrow, título, descrição, ícone da allowlist, alinhamento e CTA opcional. O contrato limita a apresentação a `compacto|grande` e `padrao|suave|destaque`, sem aceitar CSS, HTML/SVG bruto ou caminhos de assets. Em desktop, cards compactos ocupam uma das duas colunas e cards grandes ocupam a largura total; em mobile todos ocupam uma coluna.
+
 
 Os textos e listas ficam em `data/content/*.json`.
 A agenda semanal fica em `data/agenda.json`.

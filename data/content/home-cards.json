@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "id": "hero",
+      "tipo": "hero",
+      "visivel": true,
+      "tamanho": "grande",
+      "variante": "padrao"
+    },
+    {
+      "id": "lives",
+      "tipo": "lives",
+      "visivel": true,
+      "tamanho": "grande",
+      "variante": "padrao"
+    },
+    {
+      "id": "agenda",
+      "tipo": "agenda",
+      "visivel": true,
+      "tamanho": "grande",
+      "variante": "padrao"
+    },
+    {
+      "id": "blog",
+      "tipo": "blog",
+      "visivel": true,
+      "tamanho": "grande",
+      "variante": "padrao"
+    },
+    {
+      "id": "regras",
+      "tipo": "regras",
+      "visivel": true,
+      "tamanho": "compacto",
+      "variante": "padrao"
+    },
+    {
+      "id": "creditos",
+      "tipo": "creditos",
+      "visivel": true,
+      "tamanho": "compacto",
+      "variante": "padrao"
+    },
+    {
+      "id": "apoio",
+      "tipo": "apoio",
+      "visivel": true,
+      "tamanho": "grande",
+      "variante": "padrao"
+    }
+  ]
+}

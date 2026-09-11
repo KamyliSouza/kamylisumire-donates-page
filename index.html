@@ -254,8 +254,8 @@
 
     <link rel="stylesheet" href="css/core/variables.css">
     <link rel="stylesheet" href="css/core/global.css?v=47.1">
-    <link rel="stylesheet" href="css/core/navbar.css?v=47">
-    <link rel="stylesheet" href="css/pages/home.css?v=47.4.3">
+    <link rel="stylesheet" href="css/core/navbar.css?v=48.2.0">
+    <link rel="stylesheet" href="css/pages/home.css?v=48.2.0">
     <link rel="stylesheet" href="css/components/lives.css?v=47.4">
     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
@@ -323,7 +323,8 @@
     <header id="site-navbar"></header>
 
     <main class="site-shell">
-        <section class="hero glass-panel" id="inicio">
+        <div class="home-layout" id="homeLayout" aria-label="Conteúdo da página inicial">
+        <section class="hero glass-panel home-card" id="inicio" data-home-card-id="hero" data-home-card-size="grande" data-home-card-variant="padrao">
             <div class="hero-copy">
                 <div
                     class="hero-view-tabs"
@@ -552,8 +553,11 @@
         </section>
 
         <section
-            class="glass-panel section-panel lives-section"
+            class="glass-panel section-panel lives-section home-card"
             id="lives"
+            data-home-card-id="lives"
+            data-home-card-size="grande"
+            data-home-card-variant="padrao"
             aria-labelledby="livesTitle"
         >
             <div class="section-heading lives-heading">
@@ -660,7 +664,7 @@
             </div>
         </section>
 
-        <section class="glass-panel section-panel" id="agenda">
+        <section class="glass-panel section-panel home-card" id="agenda" data-home-card-id="agenda" data-home-card-size="grande" data-home-card-variant="padrao">
             <div class="section-heading agenda-heading">
                 <div>
                     <span class="eyebrow">Programação</span>
@@ -706,10 +710,12 @@
         </section>
 
         <section
-            class="glass-panel section-panel home-blog-section"
+            class="glass-panel section-panel home-blog-section home-card"
             id="homeBlogSection"
+            data-home-card-id="blog"
+            data-home-card-size="grande"
+            data-home-card-variant="padrao"
             aria-labelledby="homeBlogTitle"
-            hidden
         >
             <div class="section-heading home-blog-heading">
                 <div>
@@ -739,15 +745,19 @@
                 class="blog-post-list home-blog-list"
                 id="homeBlogList"
                 aria-label="Últimas publicações do blog"
-            ></div>
+            >
+                <p class="blog-empty">Nenhuma publicação disponível no momento.</p>
+            </div>
         </section>
 
-        <section class="two-column-section">
-            <article
-                class="glass-panel section-panel editable-section-card"
-                id="regras"
-                aria-live="polite"
-            >
+        <article
+            class="glass-panel section-panel editable-section-card home-card"
+            id="regras"
+            data-home-card-id="regras"
+            data-home-card-size="compacto"
+            data-home-card-variant="padrao"
+            aria-live="polite"
+        >
                 <span class="eyebrow" id="regrasEyebrow">Comunidade</span>
                 <h2 id="regrasTitulo">Regras</h2>
                 <p class="body-copy editable-section-description" id="regrasDescricao" hidden></p>
@@ -759,13 +769,16 @@
                 >
                     <p class="editable-loading">Carregando regras...</p>
                 </div>
-            </article>
+        </article>
 
-            <article
-                class="glass-panel section-panel editable-section-card"
-                id="creditos"
-                aria-live="polite"
-            >
+        <article
+            class="glass-panel section-panel editable-section-card home-card"
+            id="creditos"
+            data-home-card-id="creditos"
+            data-home-card-size="compacto"
+            data-home-card-variant="padrao"
+            aria-live="polite"
+        >
                 <span class="eyebrow" id="creditosEyebrow">Arte</span>
                 <h2 id="creditosTitulo">Créditos</h2>
 
@@ -778,10 +791,9 @@
                     id="creditosLista"
                     aria-label="Créditos de artistas e assets"
                 ></div>
-            </article>
-        </section>
+        </article>
 
-        <section class="glass-panel donation-cta">
+        <section class="glass-panel donation-cta home-card" id="homeDonationCard" data-home-card-id="apoio" data-home-card-size="grande" data-home-card-variant="padrao">
             <div>
                 <span class="eyebrow" id="homeDonationEyebrow">Apoie o conteúdo</span>
                 <h2 id="homeDonationTitle">Gostou das lives?</h2>
@@ -793,6 +805,7 @@
                 <span data-button-label>Apoiar</span>
             </a>
         </section>
+        </div>
     </main>
 
     <footer
@@ -803,17 +816,17 @@
 
     <script src="js/core/preferences.js"></script>
     <script src="js/core/config.js"></script>
-    <script src="js/core/content.js?v=47.3"></script>
+    <script src="js/core/content.js?v=48.2.0"></script>
     <script src="js/core/button-icons.js?v=47.2"></script>
-    <script src="js/core/buttons.js?v=47"></script>
-    <script src="js/core/navbar.js?v=47.4.4"></script>
+    <script src="js/core/buttons.js?v=48.2.0"></script>
+    <script src="js/core/navbar.js?v=48.2.0"></script>
     <script src="js/core/external-links.js?v=47"></script>
     <script src="js/core/page-transitions.js?v=46.3"></script>
     <script src="js/core/sanitize.js?v=1"></script>
     <script src="js/core/footer.js?v=47.4.2"></script>
     <script src="js/pages/home/carousel.js?v=46.2"></script>
     <script src="js/pages/home/home.js?v=46.3"></script>
-    <script src="js/pages/home/content.js?v=47.1"></script>
+    <script src="js/pages/home/content.js?v=48.2.0"></script>
     <script src="js/core/api.js?v=47.3"></script>
     <script src="js/pages/home/lives.js?v=47.4.3"></script>
     <script src="js/pages/home/twitch-live.js?v=47.4.3"></script>

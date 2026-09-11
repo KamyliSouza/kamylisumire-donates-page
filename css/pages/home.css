@@ -158,6 +158,110 @@
 }
 
 /* =========================================================
+   HOME — LAYOUT EDITORIAL DE CARDS (V48.2.0)
+   ========================================================= */
+
+.home-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.home-layout > .home-card {
+    min-width: 0;
+    margin-top: 0;
+}
+
+.home-layout > .home-card[data-home-card-size="grande"] {
+    grid-column: 1 / -1;
+}
+
+.home-layout > .home-card[data-home-card-size="compacto"] {
+    grid-column: span 1;
+}
+
+.home-card[data-home-card-visible="false"] {
+    display: none !important;
+}
+
+.home-card[data-home-card-variant="suave"] {
+    background-color: var(--notice-bg);
+}
+
+.home-card[data-home-card-variant="destaque"] {
+    border-color: var(--primary-color);
+    box-shadow: 0 9px 26px var(--primary-soft);
+}
+
+.home-card[data-home-card-size="compacto"].hero {
+    grid-template-columns: 1fr;
+    gap: 22px;
+}
+
+.home-card[data-home-card-size="compacto"].hero .hero-profile {
+    order: -1;
+}
+
+.home-card[data-home-card-size="compacto"] .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.home-card[data-home-card-size="compacto"].donation-cta {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.home-custom-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.home-custom-card[data-home-card-align="centro"] {
+    align-items: center;
+    text-align: center;
+}
+
+.home-custom-card__icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    color: var(--primary-color);
+    background-color: var(--primary-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+}
+
+.home-custom-card__icon-svg {
+    width: 23px;
+    height: 23px;
+}
+
+.home-custom-card h2 {
+    margin: 8px 0 0;
+    color: var(--primary-color);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    font-weight: 800;
+}
+
+.home-custom-card__description {
+    margin: var(--card-title-description-gap) 0 0;
+    max-width: 72ch;
+}
+
+.home-custom-card__action {
+    margin-top: 20px;
+}
+
+.home-custom-card[data-home-card-align="centro"] .home-custom-card__description {
+    margin-inline: auto;
+}
+
+/* =========================================================
    SEÇÕES
    ========================================================= */
 
@@ -446,18 +550,6 @@
    REGRAS / CRÉDITOS — CONTEÚDO EDITÁVEL VIA JSON
    ========================================================= */
 
-.two-column-section {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-
-    gap: 20px;
-}
-
-.two-column-section .section-panel {
-    min-width: 0;
-    height: calc(100% - 20px);
-}
-
 .editable-section-card {
     display: flex;
     flex-direction: column;
@@ -671,6 +763,15 @@
 }
 
 @media (max-width: 720px) {
+    .home-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .home-layout > .home-card[data-home-card-size="compacto"],
+    .home-layout > .home-card[data-home-card-size="grande"] {
+        grid-column: 1 / -1;
+    }
+
     .hero {
         grid-template-columns: 1fr;
 
@@ -704,12 +805,6 @@
 
     .agenda-card {
         flex-basis: min(78vw, 280px);
-    }
-
-    .two-column-section {
-        grid-template-columns: 1fr;
-
-        gap: 0;
     }
 
     .editable-items-list.is-scrollable {
@@ -787,8 +882,8 @@
 }
 
 /* =========================================================
-   HOME — BLOG CONDICIONAL
-   O bloco permanece hidden até existir ao menos um post publicado.
+   HOME — BLOG
+   O bloco permanece disponível mesmo quando ainda não existem posts.
    ========================================================= */
 
 .home-blog-heading {

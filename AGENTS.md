@@ -17,14 +17,17 @@ regra atual.
 
 ### Home
 
-A Home carrega conteúdo local e inclui:
+A Home carrega conteúdo local e inclui os sete cards nativos:
 
 - Hero e redes;
 - Lives recentes;
 - Agenda;
+- Blog;
 - Regras;
 - Créditos;
 - CTA de apoio.
+
+Desde V48.2.0, `data/content/home-cards.json` controla a ordem, visibilidade, tamanho e variante desses cards e pode adicionar cards `personalizado`. Os sete nativos são invariantes estruturais: devem existir exatamente uma vez no JSON, mas podem ser ocultados ou reordenados. O conteúdo nativo permanece em seus arquivos editoriais próprios. Não permitir HTML/SVG bruto, CSS arbitrário, cores livres ou assets no contrato de cards; ampliar o visual apenas por variantes documentadas no Design System.
 
 A Home carrega `js/core/api.js` somente para as integrações públicas da Twitch:
 a aba Twitch de Lives e o status ao vivo do Hero. Não deve carregar `ranking.js`;
@@ -32,9 +35,7 @@ falha do Worker deve manter o Hero padrão e as demais seções locais funcionan
 
 ### Blog
 
-`/blog/` é estático e textual. A Navbar e a seção de últimas publicações da
-Home só aparecem quando `data/blog/posts.json` possui ao menos um post com
-`published: true`.
+`/blog/` é estático e textual. Desde V48.2.0, o Blog é rota pública permanente: permanece na Navbar, no sitemap e como card da Home mesmo quando `data/blog/posts.json` não possui posts publicados. A seção da Home deve exibir seu estado vazio, salvo quando o próprio card `blog` estiver editorialmente oculto por `home-cards.json`.
 
 A configuração editorial fica em `data/blog/config.json`; o índice/metadados em
 `data/blog/posts.json`; e o conteúdo-fonte em `data/blog/posts/<slug>.md`. Cada
@@ -50,6 +51,7 @@ post publicado deve ter uma página estática correspondente em
 - runtime em `js/pages/artes/artes.js`;
 - conteúdo em `data/content/artes.json`;
 - Navbar e Footer continuam compartilhados por `js/core/navbar.js` e `js/core/footer.js`.
+- Desde V48.2.0, a Navbar usa `data/content/navbar.json` `version: 2`; preservar as nove chaves estáveis e o trio `texto`/`icone`/`url`. Blog é permanente e Apoiar não depende mais de `buttons.json`.
 
 A galeria não deve depender do Worker/KV. Desde a V48.0.1, cada obra usa `preview` e `imagem`, ambas HTTPS: `preview` alimenta a grade e `imagem` é carregada apenas no lightbox. URLs podem
 apontar para armazenamento externo. A grade preserva proporções variadas, usa
@@ -160,6 +162,7 @@ Arquivos principais:
 - `data/content/regras.json`;
 - `data/content/creditos.json`;
 - `data/content/home-doacoes.json`;
+- `data/content/home-cards.json`;
 - `data/content/doacoes.json`;
 - `data/content/ranking.json`;
 - `data/content/footer.json`;

@@ -229,3 +229,30 @@ Smoke test adicional:
 ## CSP V48.0.2 e sanitização compartilhada
 
 `validate-content.py` também verifica que toda página HTML versionada contém a CSP mínima da V48.0.2; que `frame-ancestors` e `upgrade-insecure-requests` não são declarados via meta CSP; que qualquer página com `footer.js` carrega `js/core/sanitize.js` antes dele; e que os consumidores conhecidos usam o `escapeHtml` compartilhado em vez de reintroduzir cópias locais. A ausência de `upgrade-insecure-requests` é intencional para manter o site testável via servidor HTTP local; produção continua servida em HTTPS. O validador também confirma a presença do caminho timing-safe usado na autenticação administrativa do Worker.
+## V48.2.0 — Navbar editorial e Blog permanente
+
+Confirmar que `data/content/navbar.json` está em `version: 2` e contém os nove itens obrigatórios, cada um com `texto`, `icone` e `url`. Ícones precisam pertencer à allowlist do site e URLs devem ser caminho interno iniciado por `/` ou HTTP(S).
+
+Smoke test:
+
+1. editar texto, ícone e URL de pelo menos um item interno e confirmar a atualização sem alterar HTML;
+2. editar **Jogos** para outra URL externa e confirmar nova aba + aviso global de link externo;
+3. editar **Apoiar** e confirmar que continua com o estilo primário à direita;
+4. manter `data/blog/posts.json` vazio e confirmar que **Blog** continua na Navbar, a seção do Blog permanece visível na Home com mensagem vazia e `/blog/` continua no sitemap;
+5. confirmar que links configurados para `/#lives`, `/#agenda`, `/#regras` ou `/#creditos` continuam usando a navegação suave da Home.
+
+### Cards da Home
+
+O mesmo release adiciona `data/content/home-cards.json` `version: 1`. A CI exige os sete tipos nativos exatamente uma vez, IDs únicos, no máximo 24 cards, tamanhos/variantes allowlisted e conteúdo personalizado sem HTML/SVG bruto/CSS arbitrário.
+
+Smoke test recomendado:
+
+1. reordenar Hero, Lives e Agenda e confirmar que a ordem visual/DOM acompanha o array sem quebrar IDs, scrollspy ou integrações;
+2. ocultar um card nativo e confirmar que ele deixa de aparecer sem remover seu conteúdo editorial; reexibi-lo em seguida;
+3. alternar Regras/Créditos para `grande` e Hero/Agenda para `compacto`, verificando a grade de duas colunas no desktop e uma coluna no mobile;
+4. testar `padrao`, `suave` e `destaque` e confirmar que só usam tokens do Design System;
+5. adicionar card `personalizado` compacto e grande, com alinhamento esquerdo/central, ícone e CTA interno;
+6. testar CTA HTTP(S) externo e confirmar nova aba + proteção `noopener noreferrer`/aviso global;
+7. testar card personalizado sem CTA (texto e URL vazios) e confirmar ausência do botão;
+8. tentar ID duplicado, tipo nativo ausente/duplicado, ícone inválido, URL `//host`, HTML/SVG bruto e mais de 24 cards; todos devem ser rejeitados pelo validador;
+9. manter `data/blog/posts.json` vazio e confirmar que o card Blog continua no estado vazio quando `visivel: true`, podendo ser ocultado apenas pela configuração explícita da Home.

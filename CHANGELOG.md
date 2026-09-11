@@ -1,5 +1,19 @@
 # Changelog
 
+## V48.2.0 — Navbar editorial completa e Blog sempre visível
+
+- evolui `data/content/navbar.json` para `version: 2`; cada item da navbar passa a ter `texto`, `icone` e `url` editáveis, mantendo chaves estáveis para Início, Lives, Agenda, Artes, Blog, Jogos, Regras, Créditos e Apoiar;
+- move o botão **Apoiar** para o mesmo contrato da navbar e remove a dependência de `navbarSupport` em `data/content/buttons.json`;
+- usa somente a biblioteca interna de ícones SVG construída por código (`button-icons.js`), sem adicionar assets gráficos locais; URLs editoriais aceitam caminhos internos iniciados por `/` ou HTTP(S);
+- mantém links externos em nova aba e preserva o aviso global de saída; links da Home continuam usando scroll/scrollspy quando a URL configurada aponta para uma seção da Home;
+- torna o Blog permanentemente visível: o link permanece na navbar, a seção da Home exibe o estado vazio quando não há posts e `/blog/` permanece no sitemap mesmo com zero publicações;
+- adiciona `data/content/home-cards.json` como contrato de composição da Home: os sete cards nativos podem ser reordenados, ocultados/exibidos, alternados entre `compacto` e `grande` e usar as variantes `padrao`, `suave` ou `destaque`;
+- permite adicionar até 17 cards `personalizado` além dos sete nativos (máximo de 24 cards), com eyebrow, título, descrição, ícone allowlisted, alinhamento e CTA interno/HTTP(S), sem HTML/SVG bruto, CSS arbitrário ou assets gráficos;
+- mantém os conteúdos dos cards nativos em seus JSONs existentes; `home-cards.json` controla composição/apresentação, evitando duplicar contratos de Hero, Lives, Agenda, Blog, Regras, Créditos e Apoio;
+- substitui a composição fixa da Home por uma grade editorial responsiva de duas colunas: `grande` ocupa toda a largura, `compacto` ocupa uma coluna e ambos voltam a largura total no mobile;
+- atualiza CI, documentação e cache-busters para proteger os contratos V48.2.0;
+- esta versão altera contratos editoriais e requer Helpers Web/Desktop compatíveis com `navbar.json` v2 e `home-cards.json` v1.
+
 ## V48.1.4 — Hotfix do painel externo da busca do Blog
 
 - completa a paridade visual com a Galeria aplicando `glass-panel` ao bloco `.blog-tools`, para que filtros de tags, seletor **Buscar em** e campo textual compartilhem o mesmo fundo translúcido;

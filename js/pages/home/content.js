@@ -37,6 +37,173 @@ if (typeof escapeHtml !== "function") {
     throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
 }
 
+    const homeLayout = document.getElementById("homeLayout");
+    const buttonIcons = window.KamyliButtonIcons;
+    const BUILTIN_HOME_CARDS = Object.freeze({
+        hero: "inicio",
+        lives: "lives",
+        agenda: "agenda",
+        blog: "homeBlogSection",
+        regras: "regras",
+        creditos: "creditos",
+        apoio: "homeDonationCard"
+    });
+    const HOME_CARD_SIZES = new Set(["compacto", "grande"]);
+    const HOME_CARD_VARIANTS = new Set(["padrao", "suave", "destaque"]);
+    const HOME_CARD_ALIGNMENTS = new Set(["esquerda", "centro"]);
+    const HOME_CARD_BUTTON_STYLES = new Set(["primario", "contorno"]);
+
+    function internalOrHttpUrl(value) {
+        const url = String(value || "").trim();
+        if (!url) return "";
+        if (url.startsWith("/") && !url.startsWith("//")) {
+            return (window.KAMYLI_SITE_PATH || (path => path))(url);
+        }
+        try {
+            const parsed = new URL(url);
+            return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+        } catch {
+            return "";
+        }
+    }
+
+    function setHomeCardPresentation(node, card) {
+        if (!node) return;
+        const size = HOME_CARD_SIZES.has(card?.tamanho) ? card.tamanho : "grande";
+        const variant = HOME_CARD_VARIANTS.has(card?.variante) ? card.variante : "padrao";
+        const visible = card?.visivel !== false;
+
+        node.classList.add("home-card");
+        node.dataset.homeCardSize = size;
+        node.dataset.homeCardVariant = variant;
+        node.dataset.homeCardVisible = visible ? "true" : "false";
+        node.hidden = !visible;
+    }
+
+    function appendConfiguredIcon(parent, iconName, className) {
+        if (!parent || !buttonIcons?.create) return;
+        const icon = buttonIcons.create(iconName, className);
+        if (icon) parent.appendChild(icon);
+    }
+
+    function createCustomHomeCard(card) {
+        const contentData = card?.conteudo && typeof card.conteudo === "object"
+            ? card.conteudo
+            : {};
+        const cardId = String(card?.id || "card").replace(/[^a-z0-9-]/g, "-");
+        const section = document.createElement("section");
+        section.className = "glass-panel section-panel home-card home-custom-card";
+        section.dataset.homeGenerated = "true";
+        section.dataset.homeCardId = cardId;
+        section.dataset.homeCardAlign = HOME_CARD_ALIGNMENTS.has(card?.alinhamento)
+            ? card.alinhamento
+            : "esquerda";
+        setHomeCardPresentation(section, card);
+
+        const iconName = buttonIcons?.allowed?.includes(contentData.icone)
+            ? contentData.icone
+            : "none";
+        if (iconName !== "none") {
+            const iconWrap = document.createElement("span");
+            iconWrap.className = "home-custom-card__icon";
+            iconWrap.setAttribute("aria-hidden", "true");
+            appendConfiguredIcon(iconWrap, iconName, "home-custom-card__icon-svg");
+            section.appendChild(iconWrap);
+        }
+
+        const eyebrow = String(contentData.eyebrow || "").trim();
+        if (eyebrow) {
+            const node = document.createElement("span");
+            node.className = "eyebrow";
+            node.textContent = eyebrow;
+            section.appendChild(node);
+        }
+
+        const title = document.createElement("h2");
+        title.id = `homeCustomTitle-${cardId}`;
+        title.textContent = String(contentData.titulo || "Card").trim() || "Card";
+        section.setAttribute("aria-labelledby", title.id);
+        section.appendChild(title);
+
+        const description = String(contentData.descricao || "").trim();
+        if (description) {
+            const node = document.createElement("p");
+            node.className = "body-copy home-custom-card__description";
+            node.textContent = description;
+            section.appendChild(node);
+        }
+
+        const action = contentData.acao && typeof contentData.acao === "object"
+            ? contentData.acao
+            : null;
+        const href = internalOrHttpUrl(action?.url);
+        const label = String(action?.texto || "").trim();
+        if (href && label) {
+            const link = document.createElement("a");
+            const buttonStyle = HOME_CARD_BUTTON_STYLES.has(action?.estilo)
+                ? action.estilo
+                : "contorno";
+            link.className = `button ${buttonStyle === "primario" ? "button-primary" : "button-outline"} home-custom-card__action`;
+            link.href = href;
+
+            try {
+                const parsed = new URL(href, window.location.href);
+                if (parsed.origin !== window.location.origin) {
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                }
+            } catch {
+                // O contrato editorial já limita os protocolos aceitos.
+            }
+
+            const iconNameAction = buttonIcons?.allowed?.includes(action?.icone)
+                ? action.icone
+                : "none";
+            if (iconNameAction !== "none") {
+                const slot = document.createElement("span");
+                slot.className = "button-config-icon";
+                slot.setAttribute("aria-hidden", "true");
+                appendConfiguredIcon(slot, iconNameAction, "home-custom-card__action-icon");
+                link.appendChild(slot);
+            }
+
+            const text = document.createElement("span");
+            text.textContent = label;
+            link.appendChild(text);
+            section.appendChild(link);
+        }
+
+        return section;
+    }
+
+    function applyHomeCards(data) {
+        if (!homeLayout || !data || !Array.isArray(data.cards)) return;
+
+        homeLayout.querySelectorAll('[data-home-generated="true"]').forEach(node => node.remove());
+
+        const builtinNodes = Object.fromEntries(
+            Object.entries(BUILTIN_HOME_CARDS).map(([type, id]) => [type, document.getElementById(id)])
+        );
+
+        data.cards.forEach(card => {
+            const type = String(card?.tipo || "");
+            if (Object.prototype.hasOwnProperty.call(builtinNodes, type)) {
+                const node = builtinNodes[type];
+                if (!node) return;
+                setHomeCardPresentation(node, card);
+                homeLayout.appendChild(node);
+                return;
+            }
+
+            if (type === "personalizado") {
+                const node = createCustomHomeCard(card);
+                homeLayout.appendChild(node);
+            }
+        });
+
+        homeLayout.dataset.homeLayoutReady = "true";
+    }
+
     function applyScrollableState(list, itemCount) {
         if (!list) return;
 
@@ -106,13 +273,6 @@ if (typeof escapeHtml !== "function") {
         if (!blogElements.section || !blogElements.list) return;
 
         const posts = content.getPublishedBlogPosts(index);
-
-        if (!posts.length) {
-            blogElements.section.hidden = true;
-            blogElements.list.replaceChildren();
-            return;
-        }
-
         const maxItems = Math.min(
             5,
             Math.max(1, Number(config.home?.maxItems) || 3)
@@ -125,6 +285,16 @@ if (typeof escapeHtml !== "function") {
         if (blogElements.allLink) {
             blogElements.allLink.href =
                 (window.KAMYLI_SITE_PATH || (value => value))("/blog/");
+        }
+
+        if (!posts.length) {
+            const empty = document.createElement("p");
+            empty.className = "blog-empty";
+            empty.textContent = config.page?.vazio ||
+                "Nenhuma publicação disponível no momento.";
+            blogElements.list.replaceChildren(empty);
+            blogElements.section.hidden = false;
+            return;
         }
 
         const fragment = document.createDocumentFragment();
@@ -405,6 +575,9 @@ if (typeof escapeHtml !== "function") {
                 content.getJSON(
                     "/data/blog/config.json"
                 ),
+                content.getJSON(
+                    "/data/content/home-cards.json"
+                ),
                 Promise.resolve(window.KAMYLI_GLOBAL_UI_PROMISE)
             ]);
 
@@ -414,6 +587,7 @@ if (typeof escapeHtml !== "function") {
             regrasResult,
             creditosResult,
             blogConfigResult,
+            homeCardsResult,
             globalResult
         ] = results;
 
@@ -484,8 +658,17 @@ if (typeof escapeHtml !== "function") {
                 blogConfigResult.value || {},
                 globalResult.value?.blogPosts || {}
             );
+        } else if (blogElements.section) {
+            blogElements.section.hidden = false;
+        }
+
+        if (homeCardsResult.status === "fulfilled") {
+            applyHomeCards(homeCardsResult.value);
         } else {
-            blogElements.section && (blogElements.section.hidden = true);
+            console.error(
+                "Erro ao carregar layout de cards da Home:",
+                homeCardsResult.reason
+            );
         }
     }
 

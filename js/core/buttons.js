@@ -7,7 +7,6 @@
     if (!content || !icons) return;
 
     const DEFAULTS = Object.freeze({
-        navbarSupport: { text: "Apoiar", icon: "heart", ariaLabel: "Apoiar a Kamyli" },
         heroSupport: { text: "Apoiar", icon: "heart" },
         heroLive: { text: "Abrir live", icon: "youtube" },
         livesChannel: { text: "Abrir no YouTube", icon: "youtube" },

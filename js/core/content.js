@@ -82,7 +82,7 @@
     }
 
     const defaults = {
-        navbar: {"ariaLabel": "Navegação principal", "brandAriaLabel": "Ir para a página inicial", "links": {"inicio": "Início", "lives": "Lives", "agenda": "Agenda", "artes": "Artes", "blog": "Blog", "jogos": {"texto": "Jogos", "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"}, "regras": "Regras", "creditos": "Créditos"}},
+        navbar: {"version":2,"ariaLabel":"Navegação principal","brandAriaLabel":"Ir para a página inicial","links":{"inicio":{"texto":"Início","icone":"home","url":"/"},"lives":{"texto":"Lives","icone":"youtube","url":"/#lives"},"agenda":{"texto":"Agenda","icone":"calendar","url":"/#agenda"},"artes":{"texto":"Artes","icone":"none","url":"/artes/"},"blog":{"texto":"Blog","icone":"none","url":"/blog/"},"jogos":{"texto":"Jogos","icone":"external-link","url":"https://trello.com/b/IfgV0jXS/jogos-das-lives"},"regras":{"texto":"Regras","icone":"none","url":"/#regras"},"creditos":{"texto":"Créditos","icone":"none","url":"/#creditos"},"apoio":{"texto":"Apoiar","icone":"heart","url":"/doacoes/"}}},
         blogConfig: {"page": {"eyebrow": "Blog", "titulo": "Publicações", "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.", "buscaPlaceholder": "Buscar por título, resumo ou tag...", "vazio": "Nenhuma publicação disponível no momento.", "minutosLeitura": "{minutos} min de leitura"}, "home": {"eyebrow": "Blog", "titulo": "Últimas publicações", "descricao": "Textos recentes publicados por aqui.", "maxItems": 3}, "article": {"eyebrow": "Blog"}},
         blogPosts: {"version": 1, "posts": []},
         interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": "."}, "configuracoes": {"titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
@@ -161,14 +161,76 @@
         return `${formatBlogDate(post.date)} · ${reading}`;
     }
 
-    function safeHttpUrl(value, fallback) {
+    function safeNavbarHref(value, fallback) {
+        const raw = String(value || "").trim();
+        if (!raw) return fallback;
+
+        if (raw.startsWith("/") && !raw.startsWith("//")) {
+            return resolvePath(raw);
+        }
+
         try {
-            const parsed = new URL(value, window.location.href);
+            const parsed = new URL(raw);
             if (parsed.protocol === "http:" || parsed.protocol === "https:") {
                 return parsed.href;
             }
         } catch {}
+
         return fallback;
+    }
+
+    function applyNavbarIcon(link, iconName) {
+        const slot = link?.querySelector("[data-nav-icon]");
+        if (!slot) return;
+
+        const icons = window.KamyliButtonIcons;
+        if (!icons) return;
+
+        const name = icons.allowed.includes(iconName) ? iconName : "none";
+        const svg = icons.create(name, "site-nav-item-icon-svg");
+        slot.replaceChildren();
+        slot.hidden = !svg;
+        if (svg) slot.appendChild(svg);
+    }
+
+    function configureNavbarLink(link, key, entry) {
+        if (!link || !entry || typeof entry !== "object") return;
+
+        const label = link.querySelector("[data-nav-label]");
+        setText(label || link, entry.texto);
+
+        const href = safeNavbarHref(entry.url, link.href);
+        link.href = href;
+        applyNavbarIcon(link, entry.icone);
+
+        let target;
+        try {
+            target = new URL(href, window.location.href);
+        } catch {
+            target = null;
+        }
+
+        if (target && target.origin !== window.location.origin) {
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+        } else {
+            link.removeAttribute("target");
+            link.removeAttribute("rel");
+        }
+
+        const home = new URL(resolvePath("/"), window.location.href);
+        if (
+            target &&
+            target.origin === home.origin &&
+            target.pathname === home.pathname
+        ) {
+            const sectionId = target.hash.replace(/^#/, "") ||
+                (key === "inicio" ? "inicio" : "");
+            if (sectionId) link.dataset.navSection = sectionId;
+            else delete link.dataset.navSection;
+        } else {
+            delete link.dataset.navSection;
+        }
     }
 
     function setRadioLabel(name, value, text) {
@@ -190,72 +252,43 @@
             data.brandAriaLabel
         );
 
-        const map = {
-            inicio: data.links?.inicio,
-            lives: data.links?.lives,
-            agenda: data.links?.agenda,
-            regras: data.links?.regras,
-            creditos: data.links?.creditos
-        };
+        const links = data.links && typeof data.links === "object"
+            ? data.links
+            : {};
 
-        Object.entries(map).forEach(([section, value]) => {
-            setText(
-                nav.querySelector(`[data-nav-section="${section}"]`),
-                value
+        for (const key of [
+            "inicio", "lives", "agenda", "artes", "blog",
+            "jogos", "regras", "creditos", "apoio"
+        ]) {
+            configureNavbarLink(
+                nav.querySelector(`[data-nav-key="${key}"]`),
+                key,
+                links[key]
             );
-        });
-
-        const artsLink = nav.querySelector('[data-nav-page="artes"]');
-        if (artsLink) {
-            setText(artsLink, data.links?.artes || "Artes");
-            const onArts = /\/artes(?:\/|$)/.test(window.location.pathname);
-            artsLink.classList.toggle("is-active", onArts);
-            if (onArts) artsLink.setAttribute("aria-current", "page");
-            else artsLink.removeAttribute("aria-current");
         }
 
-        const navLinks = nav.querySelector(".site-nav-links");
-        const publishedPosts = getPublishedBlogPosts(globalData.blogPosts);
-        let blogLink = nav.querySelector('[data-nav-page="blog"]');
+        if (!document.getElementById("inicio")) {
+            nav.querySelectorAll(".site-nav-link").forEach(link => {
+                let target;
+                try {
+                    target = new URL(link.href, window.location.href);
+                } catch {
+                    target = null;
+                }
 
-        if (!publishedPosts.length) {
-            blogLink?.remove();
-            blogLink = null;
-        } else if (!blogLink && navLinks) {
-            blogLink = document.createElement("a");
-            blogLink.className = "site-nav-link";
-            blogLink.dataset.navPage = "blog";
-            blogLink.href = resolvePath("/blog/");
+                const current = Boolean(
+                    target &&
+                    target.origin === window.location.origin &&
+                    target.pathname === window.location.pathname &&
+                    !target.hash
+                );
 
-            const agendaLink = nav.querySelector('[data-nav-section="agenda"]');
-            const insertionTarget = artsLink || agendaLink;
-            if (insertionTarget) {
-                insertionTarget.insertAdjacentElement("afterend", blogLink);
-            } else {
-                navLinks.appendChild(blogLink);
-            }
-        }
-
-        if (blogLink) {
-            setText(blogLink, data.links?.blog || "Blog");
-
-            const onBlog = /\/blog(?:\/|$)/.test(window.location.pathname);
-            blogLink.classList.toggle("is-active", onBlog);
-
-            if (onBlog) {
-                blogLink.setAttribute("aria-current", "page");
-            } else {
-                blogLink.removeAttribute("aria-current");
-            }
-        }
-
-        const games = nav.querySelector('.site-nav-links a[href*="trello.com"]');
-        if (games) {
-            setText(games, data.links?.jogos?.texto);
-            games.href = safeHttpUrl(
-                data.links?.jogos?.url,
-                games.href
-            );
+                link.classList.toggle("is-active", current);
+                if (current) link.setAttribute("aria-current", "page");
+                else if (link.getAttribute("aria-current") === "page") {
+                    link.removeAttribute("aria-current");
+                }
+            });
         }
 
         return true;

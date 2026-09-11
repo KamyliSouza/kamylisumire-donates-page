@@ -25,61 +25,44 @@
                 <span class="site-nav-divider" aria-hidden="true"></span>
 
                 <div class="site-nav-links">
-                    <a
-                        class="site-nav-link"
-                        data-nav-section="inicio"
-                        href="${sitePath("/")}"
-                    >
-                        Início
+                    <a class="site-nav-link" data-nav-key="inicio" data-nav-section="inicio" href="${sitePath("/")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Início</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        data-nav-section="lives"
-                        href="${sitePath("/#lives")}"
-                    >
-                        Lives
+                    <a class="site-nav-link" data-nav-key="lives" data-nav-section="lives" href="${sitePath("/#lives")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Lives</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        data-nav-section="agenda"
-                        href="${sitePath("/#agenda")}"
-                    >
-                        Agenda
+                    <a class="site-nav-link" data-nav-key="agenda" data-nav-section="agenda" href="${sitePath("/#agenda")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Agenda</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        data-nav-page="artes"
-                        href="${sitePath("/artes/")}"
-                    >
-                        Artes
+                    <a class="site-nav-link" data-nav-key="artes" data-nav-page="artes" href="${sitePath("/artes/")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Artes</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        href="https://trello.com/b/IfgV0jXS/jogos-das-lives"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Jogos
+                    <a class="site-nav-link" data-nav-key="blog" data-nav-page="blog" href="${sitePath("/blog/")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Blog</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        data-nav-section="regras"
-                        href="${sitePath("/#regras")}"
-                    >
-                        Regras
+                    <a class="site-nav-link" data-nav-key="jogos" href="https://trello.com/b/IfgV0jXS/jogos-das-lives" target="_blank" rel="noopener noreferrer">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Jogos</span>
                     </a>
 
-                    <a
-                        class="site-nav-link"
-                        data-nav-section="creditos"
-                        href="${sitePath("/#creditos")}"
-                    >
-                        Créditos
+                    <a class="site-nav-link" data-nav-key="regras" data-nav-section="regras" href="${sitePath("/#regras")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Regras</span>
+                    </a>
+
+                    <a class="site-nav-link" data-nav-key="creditos" data-nav-section="creditos" href="${sitePath("/#creditos")}">
+                        <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Créditos</span>
                     </a>
                 </div>
 
@@ -91,12 +74,12 @@
                 <div class="site-nav-support-wrap">
                     <a
                         class="site-nav-link site-nav-donate site-nav-support"
+                        data-nav-key="apoio"
                         data-nav-page="doacoes"
-                        data-button-key="navbarSupport"
                         href="${sitePath("/doacoes/")}"
                     >
-                        <span class="site-nav-support-icon" data-button-icon aria-hidden="true"></span>
-                        <span data-button-label>Apoiar</span>
+                        <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
+                        <span data-nav-label>Apoiar</span>
                     </a>
                 </div>
             </div>
@@ -104,14 +87,17 @@
     `;
 
     const navLinksContainer = mount.querySelector(".site-nav-links");
-    const navSectionLinks = [
-        ...mount.querySelectorAll("[data-nav-section]")
-    ];
+    function getNavSectionLinks() {
+        return [...mount.querySelectorAll("[data-nav-section]")];
+    }
     const donationsLink = mount.querySelector(
         '[data-nav-page="doacoes"]'
     );
     const artsLink = mount.querySelector(
         '[data-nav-page="artes"]'
+    );
+    const blogLink = mount.querySelector(
+        '[data-nav-page="blog"]'
     );
 
     function keepActiveLinkVisible(link, behavior = "smooth") {
@@ -148,7 +134,8 @@
                 item.setAttribute(
                     "aria-current",
                     (onDonations && item === donationsLink) ||
-                    (onArts && item === artsLink)
+                    (onArts && item === artsLink) ||
+                    (/\/blog(?:\/|$)/.test(path) && item === blogLink)
                         ? "page"
                         : "location"
                 );
@@ -540,6 +527,8 @@
 
     if (onArts) {
         setActiveLink(artsLink, "auto");
+    } else if (/\/blog(?:\/|$)/.test(path)) {
+        setActiveLink(blogLink, "auto");
     } else if (onDonations) {
         setActiveLink(donationsLink, "auto");
 
@@ -548,9 +537,10 @@
          * na navegação. Guardamos o destino e deixamos a Home animar
          * naturalmente depois de carregar.
          */
-        navSectionLinks.forEach(link => {
+        getNavSectionLinks().forEach(link => {
             link.addEventListener("click", () => {
                 const sectionId = link.dataset.navSection;
+                if (!sectionId) return;
 
                 try {
                     sessionStorage.setItem(
@@ -571,7 +561,7 @@
     } else if (onHome) {
         const sectionMap = new Map();
 
-        navSectionLinks.forEach(link => {
+        getNavSectionLinks().forEach(link => {
             const sectionId = link.dataset.navSection;
             const section = document.getElementById(sectionId);
 
@@ -613,9 +603,11 @@
             if (!entries.length) return;
 
             const [section] = entries[0];
-            const link = sectionMap.get(section);
+            const link = getNavSectionLinks().find(item =>
+                item.dataset.navSection === section.id
+            );
 
-            setActiveLink(link);
+            if (link) setActiveLink(link);
         }
 
         const observer = new IntersectionObserver(entries => {
@@ -654,10 +646,10 @@
             pendingSectionId || initialHash || "inicio";
 
         const initialLink =
-            navSectionLinks.find(link =>
+            getNavSectionLinks().find(link =>
                 link.dataset.navSection === targetSectionId
             ) ||
-            navSectionLinks.find(link =>
+            getNavSectionLinks().find(link =>
                 link.dataset.navSection === "inicio"
             );
 
@@ -692,7 +684,7 @@
             }
         }
 
-        navSectionLinks.forEach(link => {
+        getNavSectionLinks().forEach(link => {
             link.addEventListener("click", event => {
                 const targetUrl =
                     new URL(link.href, window.location.href);
@@ -727,7 +719,7 @@
                 window.location.hash.replace(/^#/, "") || "inicio";
 
             const section = document.getElementById(sectionId);
-            const link = navSectionLinks.find(item =>
+            const link = getNavSectionLinks().find(item =>
                 item.dataset.navSection === sectionId
             );
 

@@ -36,6 +36,7 @@ REQUIRED_FILES = (
     "data/blog/posts.json",
     "data/content/artes.json",
     "data/content/buttons.json",
+    "data/content/home-cards.json",
     "js/core/button-icons.js",
     "js/core/sanitize.js",
     "js/core/buttons.js",
@@ -129,7 +130,7 @@ BUTTON_ICON_NAMES = {
 }
 
 REQUIRED_BUTTON_KEYS = {
-    "navbarSupport", "heroSupport", "heroLive", "livesChannel",
+    "heroSupport", "heroLive", "livesChannel",
     "homeBlogAll", "homeDonation", "notFoundHome", "donationLivepix",
     "donationPixie", "rankingMonthly", "rankingAllTime", "blogFilterAll",
     "blogArticleBack", "externalCancel", "externalContinue", "settingsOpen",
@@ -139,6 +140,20 @@ REQUIRED_BUTTON_KEYS = {
 BUTTON_KEYS_ALLOW_EMPTY_TEXT = {
     "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
 }
+
+NAVBAR_LINK_KEYS = (
+    "inicio", "lives", "agenda", "artes", "blog",
+    "jogos", "regras", "creditos", "apoio",
+)
+
+HOME_CARD_BUILTIN_TYPES = (
+    "hero", "lives", "agenda", "blog", "regras", "creditos", "apoio",
+)
+HOME_CARD_TYPES = set(HOME_CARD_BUILTIN_TYPES) | {"personalizado"}
+HOME_CARD_SIZES = {"compacto", "grande"}
+HOME_CARD_VARIANTS = {"padrao", "suave", "destaque"}
+HOME_CARD_ALIGNMENTS = {"esquerda", "centro"}
+HOME_CARD_BUTTON_STYLES = {"primario", "contorno"}
 
 BLOG_METADATA_KEYS = (
     "slug", "title", "date", "summary", "tags", "readMinutes", "published",
@@ -262,6 +277,139 @@ def validate_home_content() -> None:
     for key in ("eyebrow", "titulo", "descricao"):
         if not isinstance(donation.get(key), str) or not donation[key].strip():
             error(f"data/content/home-doacoes.json: {key} deve ser texto não vazio.")
+
+
+def validate_home_cards() -> None:
+    data = load_json("data/content/home-cards.json")
+    if not isinstance(data, dict):
+        return
+
+    if data.get("version") != 1:
+        error("data/content/home-cards.json: version deve permanecer 1.")
+
+    unknown_root = set(data) - {"version", "cards"}
+    if unknown_root:
+        error(
+            "data/content/home-cards.json: chaves raiz desconhecidas: "
+            + ", ".join(sorted(unknown_root))
+        )
+
+    cards = data.get("cards")
+    if not isinstance(cards, list):
+        error("data/content/home-cards.json: cards deve ser lista.")
+        return
+    if len(cards) > 24:
+        error("data/content/home-cards.json: cards aceita no máximo 24 itens.")
+
+    ids = set()
+    builtin_seen = set()
+
+    for index, card in enumerate(cards):
+        label = f"data/content/home-cards.json: cards[{index}]"
+        if not isinstance(card, dict):
+            error(f"{label} deve ser objeto.")
+            continue
+
+        card_id = card.get("id")
+        if not isinstance(card_id, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", card_id):
+            error(f"{label}.id deve usar minúsculas, números e hífens.")
+        elif card_id in ids:
+            error(f"{label}.id duplicado: {card_id}.")
+        else:
+            ids.add(card_id)
+
+        card_type = card.get("tipo")
+        if card_type not in HOME_CARD_TYPES:
+            error(f"{label}.tipo inválido: {card_type!r}.")
+
+        if not isinstance(card.get("visivel"), bool):
+            error(f"{label}.visivel deve ser booleano.")
+        if card.get("tamanho") not in HOME_CARD_SIZES:
+            error(f"{label}.tamanho deve ser compacto ou grande.")
+        if card.get("variante") not in HOME_CARD_VARIANTS:
+            error(f"{label}.variante deve ser padrao, suave ou destaque.")
+
+        if card_type in HOME_CARD_BUILTIN_TYPES:
+            builtin_seen.add(card_type)
+            if card_id != card_type:
+                error(f"{label}.id deve permanecer igual ao tipo nativo ({card_type}).")
+            extras = set(card) - {"id", "tipo", "visivel", "tamanho", "variante"}
+            if extras:
+                error(f"{label}: card nativo possui chaves desconhecidas: {', '.join(sorted(extras))}.")
+            continue
+
+        extras = set(card) - {
+            "id", "tipo", "visivel", "tamanho", "variante", "alinhamento", "conteudo"
+        }
+        if extras:
+            error(f"{label}: chaves desconhecidas: {', '.join(sorted(extras))}.")
+
+        if card.get("alinhamento") not in HOME_CARD_ALIGNMENTS:
+            error(f"{label}.alinhamento deve ser esquerda ou centro.")
+
+        content = card.get("conteudo")
+        if not isinstance(content, dict):
+            error(f"{label}.conteudo deve ser objeto para card personalizado.")
+            continue
+        content_extras = set(content) - {"eyebrow", "titulo", "descricao", "icone", "acao"}
+        if content_extras:
+            error(f"{label}.conteudo: chaves desconhecidas: {', '.join(sorted(content_extras))}.")
+        for key in ("eyebrow", "descricao"):
+            if not isinstance(content.get(key, ""), str):
+                error(f"{label}.conteudo.{key} deve ser texto.")
+        if not isinstance(content.get("titulo"), str) or not content["titulo"].strip():
+            error(f"{label}.conteudo.titulo deve ser texto não vazio.")
+        if content.get("icone") not in BUTTON_ICON_NAMES:
+            error(f"{label}.conteudo.icone inválido: {content.get('icone')!r}.")
+
+        action = content.get("acao")
+        if not isinstance(action, dict):
+            error(f"{label}.conteudo.acao deve ser objeto.")
+            continue
+        action_extras = set(action) - {"texto", "url", "icone", "estilo"}
+        if action_extras:
+            error(f"{label}.conteudo.acao: chaves desconhecidas: {', '.join(sorted(action_extras))}.")
+        for key in ("texto", "url"):
+            if not isinstance(action.get(key, ""), str):
+                error(f"{label}.conteudo.acao.{key} deve ser texto.")
+        if action.get("icone") not in BUTTON_ICON_NAMES:
+            error(f"{label}.conteudo.acao.icone inválido: {action.get('icone')!r}.")
+        if action.get("estilo") not in HOME_CARD_BUTTON_STYLES:
+            error(f"{label}.conteudo.acao.estilo deve ser primario ou contorno.")
+
+        url = action.get("url", "")
+        text = action.get("texto", "")
+        if bool(str(url).strip()) != bool(str(text).strip()):
+            error(f"{label}.conteudo.acao exige texto e url juntos, ou ambos vazios.")
+        if isinstance(url, str) and url.strip():
+            if url.startswith("/"):
+                if url.startswith("//"):
+                    error(f"{label}.conteudo.acao.url não deve usar URL protocol-relative.")
+            else:
+                parsed = urlparse(url)
+                if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                    error(f"{label}.conteudo.acao.url deve ser caminho interno iniciado por / ou URL HTTP(S).")
+
+        serialized = json.dumps(card, ensure_ascii=False)
+        if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
+            error(f"{label}: HTML/SVG bruto não é permitido.")
+
+    missing = set(HOME_CARD_BUILTIN_TYPES) - builtin_seen
+    if missing:
+        error(
+            "data/content/home-cards.json: cards nativos obrigatórios ausentes: "
+            + ", ".join(sorted(missing))
+        )
+
+    duplicates = [
+        card_type for card_type in HOME_CARD_BUILTIN_TYPES
+        if sum(1 for card in cards if isinstance(card, dict) and card.get("tipo") == card_type) != 1
+    ]
+    if duplicates:
+        error(
+            "data/content/home-cards.json: cada tipo nativo deve aparecer exatamente uma vez: "
+            + ", ".join(duplicates)
+        )
 
 
 def validate_artes() -> None:
@@ -548,6 +696,75 @@ def validate_buttons() -> None:
             error(f"{label}.ariaLabel é obrigatório para botão sem texto padrão.")
         elif key in BUTTON_KEYS_ALLOW_EMPTY_TEXT and not aria.strip():
             error(f"{label}.ariaLabel não pode ficar vazio para botão sem texto padrão.")
+
+        serialized = json.dumps(entry, ensure_ascii=False)
+        if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
+            error(f"{label}: HTML/SVG bruto não é permitido.")
+
+
+def validate_navbar() -> None:
+    data = load_json("data/content/navbar.json")
+    if not isinstance(data, dict):
+        return
+
+    if data.get("version") != 2:
+        error("data/content/navbar.json: version deve permanecer 2.")
+
+    for key in ("ariaLabel", "brandAriaLabel"):
+        value = data.get(key)
+        if not isinstance(value, str) or not value.strip():
+            error(f"data/content/navbar.json: {key} deve ser texto não vazio.")
+
+    links = data.get("links")
+    if not isinstance(links, dict):
+        error("data/content/navbar.json: links deve ser objeto.")
+        return
+
+    missing = set(NAVBAR_LINK_KEYS) - set(links)
+    if missing:
+        error(
+            "data/content/navbar.json: links obrigatórios ausentes: "
+            + ", ".join(sorted(missing))
+        )
+
+    unknown = set(links) - set(NAVBAR_LINK_KEYS)
+    if unknown:
+        error(
+            "data/content/navbar.json: links desconhecidos: "
+            + ", ".join(sorted(unknown))
+        )
+
+    for key in NAVBAR_LINK_KEYS:
+        entry = links.get(key)
+        label = f"data/content/navbar.json: links.{key}"
+        if not isinstance(entry, dict):
+            error(f"{label} deve ser objeto.")
+            continue
+
+        extra = set(entry) - {"texto", "icone", "url"}
+        if extra:
+            error(f"{label}: chaves desconhecidas: {', '.join(sorted(extra))}.")
+
+        texto = entry.get("texto")
+        if not isinstance(texto, str) or not texto.strip():
+            error(f"{label}.texto deve ser texto não vazio.")
+
+        icone = entry.get("icone")
+        if icone not in BUTTON_ICON_NAMES:
+            error(f"{label}.icone inválido: {icone!r}.")
+
+        url = entry.get("url")
+        if not isinstance(url, str) or not url.strip():
+            error(f"{label}.url deve ser texto não vazio.")
+            continue
+
+        if url.startswith("/"):
+            if url.startswith("//"):
+                error(f"{label}.url não deve usar URL protocol-relative.")
+        else:
+            parsed = urlparse(url)
+            if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                error(f"{label}.url deve ser caminho interno iniciado por / ou URL HTTP(S).")
 
         serialized = json.dumps(entry, ensure_ascii=False)
         if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
@@ -860,6 +1077,44 @@ def validate_architecture() -> None:
         if element_id not in index:
             error(f"index.html: elemento obrigatório ausente: {element_id}")
 
+    # V48.2.0: a Home usa grade editorial para ordenar, ocultar e dimensionar cards.
+    for needle in (
+        'id="homeLayout"',
+        'data-home-card-id="hero"',
+        'data-home-card-id="lives"',
+        'data-home-card-id="agenda"',
+        'data-home-card-id="blog"',
+        'data-home-card-id="regras"',
+        'data-home-card-id="creditos"',
+        'data-home-card-id="apoio"',
+    ):
+        if needle not in index:
+            error(f"index.html: contrato de cards da Home V48.2.0 ausente: {needle}")
+    if 'class="two-column-section"' in index:
+        error("index.html: regras/créditos não devem voltar ao wrapper fixo two-column-section; a grade editorial controla o tamanho.")
+
+    home_css = read_text("css/pages/home.css")
+    home_content_js = read_text("js/pages/home/content.js")
+    for needle in (
+        '.home-layout {',
+        'grid-template-columns: repeat(2, minmax(0, 1fr))',
+        '.home-layout > .home-card[data-home-card-size="grande"]',
+        '.home-layout > .home-card[data-home-card-size="compacto"]',
+        '.home-card[data-home-card-visible="false"]',
+        '.home-custom-card {',
+    ):
+        if needle not in home_css:
+            error(f"css/pages/home.css: regra de cards da Home V48.2.0 ausente: {needle}")
+    for needle in (
+        '"/data/content/home-cards.json"',
+        'function applyHomeCards(data)',
+        'type === "personalizado"',
+        'data-home-generated',
+        'HOME_CARD_BUTTON_STYLES',
+    ):
+        if needle not in home_content_js:
+            error(f"js/pages/home/content.js: runtime de cards da Home V48.2.0 ausente: {needle}")
+
     if "css/components/home-interactions.css" not in index:
         error("index.html: home-interactions.css não está carregado.")
     if "js/pages/home/home-interactions.js" not in index:
@@ -898,6 +1153,11 @@ def validate_architecture() -> None:
 
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
+
+    if "css/pages/home.css?v=48.2.0" not in index:
+        error("index.html: cache-buster V48.2.0 ausente para css/pages/home.css.")
+    if "js/pages/home/content.js?v=48.2.0" not in index:
+        error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
     for rel, html, field_id in (
@@ -1135,22 +1395,22 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=47" not in html:
-            error(f"{rel}: módulos de botões V47/V47.2 não carregados.")
+        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.2.0" not in html:
+            error(f"{rel}: módulos de botões/navbar V48.2.0 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=47",
-            "js/core/navbar.js?v=47",
+            "js/core/content.js?v=48.2.0",
+            "js/core/navbar.js?v=48.2.0",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=47",
+            "css/core/navbar.css?v=48.2.0",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
 
     for asset in (
-        "js/pages/home/content.js?v=47",
+        "js/pages/home/content.js?v=48.2.0",
         "js/pages/home/lives.js?v=47.4.3",
         "js/pages/home/twitch-live.js?v=47.4.3",
         "js/pages/home/home-interactions.js?v=47",
@@ -1175,6 +1435,19 @@ def validate_architecture() -> None:
         error("js/core/buttons.js: configuração central de botões não carregada.")
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+
+    # V48.2.0: Navbar inteira é editorial, inclusive Blog e Apoiar.
+    for key in NAVBAR_LINK_KEYS:
+        if f'data-nav-key="{key}"' not in navbar:
+            error(f"js/core/navbar.js: link editorial da navbar ausente: {key}.")
+    if 'data-button-key="navbarSupport"' in navbar or "navbarSupport" in buttons_js:
+        error("V48.2.0: navbarSupport não deve mais depender de buttons.json.")
+    if 'data-nav-key="blog"' not in navbar:
+        error("V48.2.0: Blog deve permanecer presente na navbar mesmo sem posts.")
+    if "blogElements.section.hidden = true" in read_text("js/pages/home/content.js"):
+        error("V48.2.0: seção do Blog na Home não deve ser ocultada quando não há posts.")
+    if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
+        error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
 
     # V47.2: o ícone de configurações usa engrenagem geométrica simétrica.
     legacy_settings_path = "M19.4 15a1.7 1.7 0 0 0 .34 1.88"
@@ -1442,6 +1715,7 @@ def validate_seo_and_deployment() -> None:
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
         "https://kamylisumire.com/artes/",
+        "https://kamylisumire.com/blog/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
@@ -1454,12 +1728,10 @@ def validate_seo_and_deployment() -> None:
             if isinstance(post, dict) and post.get("published") is True
         ]
 
-    if published:
-        expected.add("https://kamylisumire.com/blog/")
-        for post in published:
-            slug = post.get("slug")
-            if isinstance(slug, str):
-                expected.add(f"https://kamylisumire.com/blog/{slug}/")
+    for post in published:
+        slug = post.get("slug")
+        if isinstance(slug, str):
+            expected.add(f"https://kamylisumire.com/blog/{slug}/")
 
     if not expected.issubset(urls):
         error("sitemap.xml: URLs públicas obrigatórias estão ausentes.")
@@ -1521,6 +1793,8 @@ def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
     validate_buttons()
+    validate_navbar()
+    validate_home_cards()
     validate_home_content()
     validate_artes()
     validate_lives()

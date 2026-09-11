@@ -47,6 +47,24 @@ substituir o rótulo textual.
 Os CTAs de apoio da Home reutilizam o desenho de coração do botão Apoiar da
 navbar por meio de `home-interactions.js`.
 
+## Cards da Home
+
+Desde a V48.2.0, a composição da Home é uma parte explícita do Design System. `data/content/home-cards.json` pode mudar ordem, visibilidade e apresentação sem autorizar estilos arbitrários.
+
+Regras visuais:
+
+- `.home-layout` usa duas colunas no desktop; `tamanho: grande` ocupa as duas colunas e `tamanho: compacto` ocupa uma; dois compactos consecutivos compartilham a linha, enquanto um compacto isolado pode deixar a segunda coluna livre para preservar a ordem DOM/editorial; abaixo do breakpoint mobile ambos ocupam a largura total;
+- os sete cards nativos mantêm sua estrutura e conteúdo próprios mesmo quando reordenados ou redimensionados; ocultar é uma decisão editorial de apresentação, não remoção do componente;
+- `variante` é limitada a `padrao`, `suave` e `destaque`; essas variantes usam exclusivamente tokens existentes (`--card-bg`, `--notice-bg`, `--card-border`, `--primary-color`, `--primary-soft` e sombras existentes);
+- não permitir cor hexadecimal/RGB, classe CSS, style inline ou CSS editorial no contrato; novas necessidades visuais recorrentes devem virar variante documentada no frontend;
+- cards `personalizado` reutilizam `glass-panel`, tipografia/eyebrow, botões `.button`, `.button-primary`/`.button-outline` e a biblioteca `button-icons.js`;
+- ícones editoriais são nomes allowlisted, nunca SVG/HTML bruto, URL de imagem ou asset local;
+- alinhamento de cards personalizados é limitado a `esquerda` ou `centro`;
+- CTAs personalizados usam apenas `primario` ou `contorno` e seguem as mesmas regras de links internos/externos do site;
+- a ordem editorial não deve alterar a ordem lógica interna de headings/controles dentro de cada card; foco e navegação continuam seguindo a ordem DOM resultante.
+
+Os tamanhos padrão são coerentes com a composição histórica: Hero, Lives, Agenda, Blog e Apoio começam como `grande`; Regras e Créditos começam como `compacto`. O editor pode mudar esses valores sem criar CSS específico por card.
+
 ## Galeria de Artes
 
 A V48.0 oficializa um padrão visual específico para conteúdo artístico em
@@ -67,6 +85,18 @@ Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da 
 
 Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
 altera apenas dimensões/posicionamento local.
+
+## Navbar
+
+Desde a V48.2.0, todos os itens clicáveis da Navbar compartilham um único contrato editorial em `data/content/navbar.json`. Cada item possui texto, ícone e URL, mas o desenho continua sendo responsabilidade do frontend.
+
+Regras visuais:
+
+- ícones são opcionais e vêm exclusivamente da biblioteca `button-icons.js`; nenhum caminho de imagem, SVG bruto ou asset editorial entra no JSON;
+- texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
+- o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
+- alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
+- no mobile, a lista central continua horizontalmente rolável e o CTA Apoiar permanece fora desse scroll.
 
 ## Blog
 

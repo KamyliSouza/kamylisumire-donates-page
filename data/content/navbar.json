@@ -1,17 +1,52 @@
 {
+  "version": 2,
   "ariaLabel": "Navegação principal",
   "brandAriaLabel": "Ir para a página inicial",
   "links": {
-    "inicio": "Início",
-    "lives": "Lives",
-    "agenda": "Agenda",
-    "blog": "Blog",
+    "inicio": {
+      "texto": "Início",
+      "icone": "home",
+      "url": "/"
+    },
+    "lives": {
+      "texto": "Lives",
+      "icone": "youtube",
+      "url": "/#lives"
+    },
+    "agenda": {
+      "texto": "Agenda",
+      "icone": "calendar",
+      "url": "/#agenda"
+    },
+    "artes": {
+      "texto": "Artes",
+      "icone": "none",
+      "url": "/artes/"
+    },
+    "blog": {
+      "texto": "Blog",
+      "icone": "none",
+      "url": "/blog/"
+    },
     "jogos": {
       "texto": "Jogos",
+      "icone": "external-link",
       "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"
     },
-    "regras": "Regras",
-    "creditos": "Créditos",
-    "artes": "Artes"
+    "regras": {
+      "texto": "Regras",
+      "icone": "none",
+      "url": "/#regras"
+    },
+    "creditos": {
+      "texto": "Créditos",
+      "icone": "none",
+      "url": "/#creditos"
+    },
+    "apoio": {
+      "texto": "Apoiar",
+      "icone": "heart",
+      "url": "/doacoes/"
+    }
   }
 }

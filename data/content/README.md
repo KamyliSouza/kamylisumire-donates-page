@@ -8,14 +8,77 @@ alterar HTML.
 - `regras.json` — regras.
 - `creditos.json` — créditos.
 - `home-doacoes.json` — CTA de apoio na Home.
+- `home-cards.json` — composição/layout da Home: ordem, visibilidade, tamanho, variante e cards personalizados.
 - `doacoes.json` — textos da página de Doações.
 - `ranking.json` — textos do ranking.
 - `footer.json` — conteúdo do footer, incluindo o link interno para a Política de Privacidade.
 - `artes.json` — textos e entradas da Galeria de Artes.
+- `navbar.json` — Navbar compartilhada (`version: 2`), com texto, ícone e URL de cada item.
+- `buttons.json` — botões globais fora da Navbar.
 
 A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
 
 A agenda semanal fica em `../agenda.json`.
+
+## Navbar
+
+Desde a V48.2.0, `navbar.json` usa `version: 2`. As chaves de `links` são estáveis e não devem ser renomeadas: `inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`. Cada entrada contém:
+
+```json
+{
+  "texto": "Blog",
+  "icone": "none",
+  "url": "/blog/"
+}
+```
+
+`icone` deve ser um nome aceito por `js/core/button-icons.js`. `url` aceita caminho interno iniciado por `/` ou URL HTTP(S). Não inserir HTML, SVG bruto ou caminhos de assets no JSON. O botão Apoiar também pertence a este arquivo; `buttons.json` não controla mais a Navbar.
+
+
+## Cards da Home
+
+Desde a V48.2.0, `home-cards.json` usa `version: 1`. A ordem de `cards` é a ordem visual da Home. Os sete tipos nativos são obrigatórios e aparecem exatamente uma vez:
+
+```text
+hero
+lives
+agenda
+blog
+regras
+creditos
+apoio
+```
+
+Nos cards nativos, `id` deve ser igual ao `tipo`. É permitido alterar somente `visivel`, `tamanho` (`compacto` ou `grande`) e `variante` (`padrao`, `suave` ou `destaque`), além da própria posição no array. Ocultar não remove o conteúdo nem o contrato original do card.
+
+O conteúdo dos nativos continua em `hero.json`, `lives.json`, `data/agenda.json`, `data/blog/*`, `regras.json`, `creditos.json` e `home-doacoes.json`. `home-cards.json` controla composição/apresentação, não substitui essas fontes.
+
+Cards adicionais usam `tipo: "personalizado"`. Exemplo:
+
+```json
+{
+  "id": "minha-chamada",
+  "tipo": "personalizado",
+  "visivel": true,
+  "tamanho": "compacto",
+  "variante": "suave",
+  "alinhamento": "esquerda",
+  "conteudo": {
+    "eyebrow": "Novidade",
+    "titulo": "Título do card",
+    "descricao": "Texto opcional seguindo a tipografia do site.",
+    "icone": "heart",
+    "acao": {
+      "texto": "Saiba mais",
+      "url": "/blog/",
+      "icone": "arrow-right",
+      "estilo": "contorno"
+    }
+  }
+}
+```
+
+`icone` e `acao.icone` usam somente nomes de `js/core/button-icons.js`. `acao.url` aceita caminho interno iniciado por `/` ou URL HTTP(S); texto e URL do CTA devem ser preenchidos juntos ou ambos ficar vazios. Não inserir HTML, SVG bruto, CSS, cores arbitrárias ou assets no JSON. O limite global é 24 cards.
 
 ## Galeria de Artes
 

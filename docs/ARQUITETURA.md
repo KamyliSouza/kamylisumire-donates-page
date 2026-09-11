@@ -50,9 +50,11 @@ fallback de contingência.
 
 ## Home
 
-A Home continua majoritariamente local. Desde a V47.4, ela importa `api.js`
-apenas para consultar o snapshot público de `/twitch/videos`. Essa consulta não
-é requisito para Hero, Agenda, Regras, Créditos, Blog ou a aba YouTube.
+A Home continua majoritariamente local. Desde a V47.4, ela importa `api.js` apenas para integrações públicas da Twitch. Essa consulta não é requisito para Hero, Agenda, Regras, Créditos, Blog ou a aba YouTube.
+
+Desde a V48.2.0, `data/content/home-cards.json` descreve a composição da Home. `js/pages/home/content.js` carrega esse contrato junto aos JSONs de conteúdo, renderiza primeiro os componentes nativos e, ao final, aplica ordem, visibilidade, tamanho e variante. Os nativos são movidos no DOM, não clonados, preservando IDs e integrações existentes. Cards `personalizado` são construídos com DOM seguro/textContent e a biblioteca allowlisted `KamyliButtonIcons`.
+
+A grade `.home-layout` possui duas colunas no desktop: `grande` ocupa a largura total e `compacto` uma coluna; no mobile ambos ocupam uma coluna. O conteúdo dos nativos permanece em seus contratos históricos, de forma que `home-cards.json` seja apenas composição/apresentação e não uma segunda fonte de verdade.
 
 
 ## Galeria de Artes
@@ -175,3 +177,14 @@ Nunito permanece no próprio repositório.
 As páginas HTML versionadas usam uma CSP mínima via `<meta http-equiv="Content-Security-Policy">`, compatível com a hospedagem estática atual. O contrato restringe scripts, estilos, conexões, objetos, formulários e frames carregados pela própria página. `frame-ancestors` não faz parte dessa CSP porque só é efetivo quando enviado como cabeçalho HTTP; eventual proteção de embedding/clickjacking deve ser configurada no host que controlar os response headers. `upgrade-insecure-requests` também é omitido deliberadamente: produção já usa HTTPS e o repositório preserva compatibilidade com servidores HTTP locais usados em desenvolvimento e validação manual.
 
 A autenticação administrativa do Worker mantém o mesmo token e as mesmas rotas, mas compara o segredo com `crypto.subtle.timingSafeEqual`.
+## Composição editorial da Home V48.2.0
+
+O contrato `data/content/home-cards.json` `version: 1` possui no máximo 24 cards. Os sete tipos nativos (`hero`, `lives`, `agenda`, `blog`, `regras`, `creditos`, `apoio`) são obrigatórios exatamente uma vez e usam ID igual ao tipo. Eles aceitam somente `visivel`, `tamanho` e `variante` além de ID/tipo.
+
+Cards adicionais usam `tipo: personalizado` e podem declarar alinhamento, textos, ícone e CTA opcional. Ícones são nomes da mesma allowlist de `button-icons.js`; links aceitam caminho interno ou HTTP(S). Não existe campo editorial para HTML, SVG, imagem, CSS ou cor. Essa restrição mantém a capacidade de composição sem romper a identidade visual.
+
+## Navbar editorial V48.2.0
+
+`data/content/navbar.json` é a fonte única dos nove itens clicáveis da Navbar. O contrato `version: 2` mantém as chaves estáveis `inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`; cada uma contém `texto`, `icone` e `url`. O frontend valida/normaliza a URL antes de aplicá-la e renderiza o ícone somente pela allowlist de `js/core/button-icons.js`.
+
+O Blog não depende mais da existência de posts para aparecer. `/blog/` permanece na Navbar e no sitemap, e a Home mantém a seção de Blog visível com estado vazio quando `posts.json` não possui publicação válida.
