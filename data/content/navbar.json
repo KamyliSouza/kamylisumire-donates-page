@@ -5,17 +5,17 @@
   "links": {
     "inicio": {
       "texto": "Início",
-      "icone": "home",
+      "icone": "none",
       "url": "/"
     },
     "lives": {
       "texto": "Lives",
-      "icone": "youtube",
+      "icone": "none",
       "url": "/#lives"
     },
     "agenda": {
       "texto": "Agenda",
-      "icone": "calendar",
+      "icone": "none",
       "url": "/#agenda"
     },
     "artes": {
