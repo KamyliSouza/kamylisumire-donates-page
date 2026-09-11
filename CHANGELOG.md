@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.1.4 — Hotfix do painel externo da busca do Blog
+
+- completa a paridade visual com a Galeria aplicando `glass-panel` ao bloco `.blog-tools`, para que filtros de tags, seletor **Buscar em** e campo textual compartilhem o mesmo fundo translúcido;
+- padroniza padding, gap, margem inferior, alinhamento e comportamento mobile do painel externo com `.artes-tools`;
+- mantém o drop-down customizado, filtros de tags, lógica de busca e campos editoriais introduzidos anteriormente;
+- atualiza somente o cache-buster de `blog.css` para `v=48.1.4`; `blog.js` permanece em `v=48.1.3`;
+- reforça Design System e validação para impedir que o Blog volte a exibir controles soltos sem o painel compartilhado;
+- não modifica `data/blog/*`, `data/content/*`, schemas editoriais, Worker/KV ou contratos consumidos pelos Helpers.
+
 ## V48.1.3 — Hotfix de paridade visual da busca do Blog
 
 - padroniza a busca por campo do Blog com o componente visual já adotado pela Galeria: mesmo desenho de superfície, borda, radius, foco, drop-down e estados de seleção;

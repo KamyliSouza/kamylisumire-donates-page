@@ -74,6 +74,12 @@ Desde a V48.1.3, a busca por campo da listagem do Blog deve seguir o mesmo padr�
 visual e de interação da busca da Galeria. Essa paridade é uma regra do design
 system, não uma coincidência de implementação.
 
+O bloco completo de ferramentas do Blog deve usar o mesmo painel externo da
+Galeria: `glass-panel` envolvendo filtros de tags, seletor **Buscar em** e campo
+textual. O fundo translúcido, borda, radius, sombra e blur pertencem ao conjunto
+inteiro, e não apenas aos controles individuais. Esse painel deve manter padding
+e espaçamento equivalentes ao `.artes-tools`.
+
 O conjunto **Buscar em + campo de texto** deve preservar:
 
 - altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;

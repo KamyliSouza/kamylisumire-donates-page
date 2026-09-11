@@ -940,8 +940,11 @@ def validate_architecture() -> None:
     if '<select id="blogSearchField"' in blog_index:
         error("blog/index.html: seletor nativo antigo do Blog não deve retornar na V48.1.3.")
 
+    if 'class="glass-panel blog-tools"' not in blog_index:
+        error("blog/index.html: V48.1.4 exige glass-panel envolvendo filtros e busca do Blog.")
+
     blog_visual_rules = (
-        (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "overflow: visible")),
+        (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "justify-content: space-between", "gap: 12px", "padding: 14px", "margin-bottom: 18px", "overflow: visible")),
         (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--card-bg)", "border-radius: 14px")),
         (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("background: var(--card-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
         (r"\.blog-search\s*\{([^}]*)\}", ("min-height: 44px", "background: var(--card-bg)", "border-radius: 14px")),
@@ -1161,8 +1164,8 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.1.3" not in blog_index:
         error("blog/index.html: cache-buster V48.1.3 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.1.3" not in blog_index:
-        error("blog/index.html: cache-buster V48.1.3 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.1.4" not in blog_index:
+        error("blog/index.html: cache-buster V48.1.4 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
         error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
     if "css/pages/artes.css?v=48.1.2" not in artes_index:

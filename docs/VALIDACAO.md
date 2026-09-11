@@ -194,6 +194,22 @@ Smoke test adicional:
 4. confirmar que o painel e a grade não mudaram de posição quando o menu está fechado.
 
 
+## V48.1.4 — Painel externo da busca do Blog
+
+Além dos controles internos, `.blog-tools` deve usar `glass-panel`, assim como
+`.artes-tools`. Filtros de tags, seletor **Buscar em** e campo textual devem ficar
+dentro da mesma superfície translúcida, com padding/gap/margem equivalentes ao
+painel da Galeria.
+
+Smoke test adicional:
+
+1. abrir `/blog/` com pelo menos um post publicado;
+2. confirmar que tags, seletor e campo de busca aparecem dentro de um único painel de fundo;
+3. comparar esse painel com `/artes/`, incluindo borda, radius, sombra, blur, padding e espaçamento;
+4. repetir em claro/escuro, blur ligado/desligado e viewport mobile;
+5. confirmar que o drop-down continua acima da lista de posts;
+6. confirmar que nenhum arquivo editorial foi alterado.
+
 ## V48.1.3 — Paridade visual da busca do Blog
 
 A busca por campo do Blog deve usar o mesmo padrão visual/interativo da Galeria:
