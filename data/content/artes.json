@@ -8,5 +8,90 @@
     "vazio": "Nenhuma arte disponível no momento.",
     "erro": "Não foi possível carregar a galeria agora. Tente novamente mais tarde."
   },
-  "itens": []
+  "itens": [
+    {
+      "id": "arte0001",
+      "titulo": "Kamyli Espacial",
+      "artista": "Howl",
+      "creditoUrl": "https://www.instagram.com/h0wl_oficial/",
+      "preview": "https://media.kamylisumire.com/artes/arte0001/preview/arte0001.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0001/full/arte0001.avif",
+      "alt": "Flutuando no Espaço",
+      "data": "2026-09-11",
+      "categoria": "Comissão ",
+      "tags": [],
+      "largura": 1920,
+      "altura": 1080
+    },
+    {
+      "id": "arte0002",
+      "titulo": "A Original",
+      "artista": "Kamyli",
+      "creditoUrl": "",
+      "preview": "https://media.kamylisumire.com/artes/arte0002/preview/arte0002.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0002/full/arte0002.avif",
+      "alt": "Descrição da arte",
+      "data": "2026-09-11",
+      "categoria": "Comissão ",
+      "tags": [],
+      "largura": 600,
+      "altura": 600
+    },
+    {
+      "id": "arte0003",
+      "titulo": "KamyD20",
+      "artista": "Mari",
+      "creditoUrl": "",
+      "preview": "https://media.kamylisumire.com/artes/arte0003/preview/arte0003.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0003/full/arte0003.avif",
+      "alt": "Só tiro 1!",
+      "data": "2026-09-11",
+      "categoria": "Fanart",
+      "tags": [],
+      "largura": 1080,
+      "altura": 1080
+    },
+    {
+      "id": "arte0004",
+      "titulo": "Kamy... Cat?",
+      "artista": "Howl",
+      "creditoUrl": "https://www.instagram.com/h0wl_oficial/",
+      "preview": "https://media.kamylisumire.com/artes/arte0004/preview/arte0004.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0004/full/arte0004.avif",
+      "alt": "Kamyli com um GATINHO!",
+      "data": "2026-09-11",
+      "categoria": "Comissão ",
+      "tags": [],
+      "largura": 810,
+      "altura": 1080
+    },
+    {
+      "id": "arte0005",
+      "titulo": "Kamyli Apaixonada ",
+      "artista": "Mari",
+      "creditoUrl": "",
+      "preview": "https://media.kamylisumire.com/artes/arte0005/preview/arte0005.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0005/full/arte0005.avif",
+      "alt": "Morrendo de Amores",
+      "data": "2026-09-11",
+      "categoria": "Comissão ",
+      "tags": [],
+      "largura": 1080,
+      "altura": 1080
+    },
+    {
+      "id": "arte0006",
+      "titulo": "Kkamyli",
+      "artista": "Kamyli",
+      "creditoUrl": "",
+      "preview": "https://media.kamylisumire.com/artes/arte0006/preview/arte0006.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0006/full/arte0006.avif",
+      "alt": "Um desenho meio feio feio com carinho.",
+      "data": "2026-09-11",
+      "categoria": "Comissão ",
+      "tags": [],
+      "largura": 1080,
+      "altura": 1080
+    }
+  ]
 }
