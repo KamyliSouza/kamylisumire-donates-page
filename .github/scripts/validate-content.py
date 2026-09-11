@@ -905,9 +905,42 @@ def validate_architecture() -> None:
         if f'id="{field_id}"' not in html:
             error(f"{rel}: seletor de campo da busca ausente: {field_id}.")
 
+    # V48.1.1: a Galeria usa drop-down próprio para manter a identidade visual.
+    for needle in (
+        'aria-haspopup="listbox"',
+        'id="artesSearchFieldMenu"',
+        'role="listbox"',
+        'class="artes-search-field-option"',
+        'data-value="todos"',
+        'data-value="artista"',
+        'data-value="titulo"',
+        'data-value="categoria"',
+        'data-value="tags"',
+    ):
+        if needle not in artes_index:
+            error(f"artes/index.html: drop-down V48.1.1 incompleto: {needle}")
+    if '<select id="artesSearchField"' in artes_index:
+        error("artes/index.html: seletor nativo antigo da Galeria não deve retornar na V48.1.1.")
+
     for needle in ('"artista:": "artista"', '"titulo:": "titulo"', '"tag:": "tags"'):
         if needle not in artes_js:
             error(f"js/pages/artes/artes.js: prefixo de busca ausente: {needle}")
+
+    # Cards mostram só título/artista; metadados completos ficam no dialog.
+    for forbidden in (
+        'meta.className = "arte-meta"',
+        'createText("span", "arte-category", item.categoria)',
+    ):
+        if forbidden in artes_js:
+            error(f"js/pages/artes/artes.js: metadado antigo voltou para a preview: {forbidden}")
+    for needle in (
+        'const dialogMeta = document.getElementById("arteDialogMeta")',
+        '["Categoria", item.categoria]',
+        '["Data", formatDate(item.data)]',
+        '["Tags", Array.isArray(item.tags)',
+    ):
+        if needle not in artes_js:
+            error(f"js/pages/artes/artes.js: detalhe do dialog V48.1.1 ausente: {needle}")
 
     for needle in ('"titulo:": "titulo"', '"resumo:": "resumo"', '"tag:": "tags"'):
         if needle not in blog_js:
@@ -1070,10 +1103,10 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.1.0 ausente para js/pages/blog/blog.js.")
     if "css/pages/blog.css?v=48.1.0" not in blog_index:
         error("blog/index.html: cache-buster V48.1.0 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.1.0" not in artes_index:
-        error("artes/index.html: cache-buster V48.1.0 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.1.0" not in artes_index:
-        error("artes/index.html: cache-buster V48.1.0 ausente para css/pages/artes.css.")
+    if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
+        error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
+    if "css/pages/artes.css?v=48.1.1" not in artes_index:
+        error("artes/index.html: cache-buster V48.1.1 ausente para css/pages/artes.css.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")

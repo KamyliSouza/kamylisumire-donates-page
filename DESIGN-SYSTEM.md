@@ -54,7 +54,7 @@ A V48.0 oficializa um padrão visual específico para conteúdo artístico em
 
 - masonry responsivo com CSS Columns, preservando a proporção original de cada imagem;
 - cards com borda/radius/sombra derivados dos tokens existentes;
-- metadados sobrepostos somente na base da imagem, apoiados por gradiente escuro e `text-shadow` para contraste;
+- preview com somente título e artista sobrepostos na base da imagem, apoiados por gradiente escuro e `text-shadow` para contraste;
 - `loading="lazy"` e `decoding="async"` nas imagens;
 - `.site-loader-logo` reutilizado durante o carregamento individual, sem criar um segundo desenho de loader;
 - estado de erro por card, sem bloquear o restante da grade;
@@ -62,6 +62,8 @@ A V48.0 oficializa um padrão visual específico para conteúdo artístico em
 - `alt` editorial obrigatório; crédito externo opcional e sempre HTTPS quando informado.
 
 Desde a V48.0.1, cards usam a `preview` leve; o lightbox reaproveita essa preview enquanto carrega a `imagem` full e exibe o mesmo `site-loader-logo` do loader global durante a transição. A grade não deve baixar automaticamente a imagem full.
+
+Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da obra. O seletor de escopo da busca da Galeria usa um drop-down customizado com `--card-bg`, `--card-border`, `--primary-color`, `--primary-soft`, `--shadow-card` e `--blur-card`; a seta e a marca de seleção são desenhadas em CSS, sem arquivos de imagem. O componente deve manter `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e navegação por teclado.
 
 Esse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
 Lives, Agenda ou Blog. Não duplicar o CSS do loader global: a Galeria reutiliza

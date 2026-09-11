@@ -41,6 +41,13 @@ conhecidas para reduzir mudanças de layout durante o carregamento. O frontend
 usa `loading="lazy"`, preserva a proporção original e exibe o mesmo símbolo
 `.site-loader-logo` do loader global enquanto cada imagem está pendente.
 
+Na V48.1.1, a grade mostra somente título e artista; categoria, data, tags e crédito
+ficam no dialog. O drop-down de escopo da busca é implementado localmente com
+HTML/CSS/JS e não exige arquivos de imagem. Não publicar nem duplicar previews,
+fulls, logos, avatares ou outros gráficos dentro deste repositório: a mídia da
+Galeria continua referenciada por URL HTTPS externa e os gráficos compartilhados
+permanecem em `assets.kamylisumire.com`.
+
 ## Backend do ranking
 
 A configuração do frontend está em `js/core/config.js`.

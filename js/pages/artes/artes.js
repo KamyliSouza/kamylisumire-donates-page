@@ -5,12 +5,17 @@
     const tools = document.getElementById("artesTools");
     const filters = document.getElementById("artesFilters");
     const search = document.getElementById("artesSearch");
+    const searchFieldRoot = document.querySelector("[data-artes-search-field]");
     const searchField = document.getElementById("artesSearchField");
+    const searchFieldValue = document.getElementById("artesSearchFieldValue");
+    const searchFieldMenu = document.getElementById("artesSearchFieldMenu");
+    const searchFieldOptions = [...document.querySelectorAll(".artes-search-field-option")];
     const state = document.getElementById("artesState");
     const dialog = document.getElementById("arteDialog");
     const dialogImage = document.getElementById("arteDialogImage");
     const dialogTitle = document.getElementById("arteDialogTitle");
     const dialogArtist = document.getElementById("arteDialogArtist");
+    const dialogMeta = document.getElementById("arteDialogMeta");
     const dialogCredit = document.getElementById("arteDialogCredit");
     const dialogClose = document.getElementById("arteDialogClose");
 
@@ -18,6 +23,7 @@
 
     let items = [];
     let activeCategory = "todas";
+    let activeSearchField = "todos";
 
     function ready(detail = {}) {
         window.KAMYLI_PAGE_CONTENT_READY = true;
@@ -56,7 +62,7 @@
         }
 
         return {
-            field: searchField?.value || "todos",
+            field: activeSearchField,
             query: normalized
         };
     }
@@ -87,6 +93,30 @@
         return validHttpsUrl(item.preview) ? item.preview : item.imagem;
     }
 
+    function renderDialogMeta(item) {
+        if (!dialogMeta) return;
+        dialogMeta.replaceChildren();
+
+        const details = [
+            ["Categoria", item.categoria],
+            ["Data", formatDate(item.data)],
+            ["Tags", Array.isArray(item.tags) ? item.tags.filter(Boolean).join(", ") : ""]
+        ];
+
+        for (const [label, value] of details) {
+            if (!value) continue;
+            const detail = document.createElement("span");
+            detail.className = "arte-dialog-detail";
+            detail.append(
+                createText("span", "arte-dialog-detail-label", `${label}:`),
+                createText("span", "", value)
+            );
+            dialogMeta.appendChild(detail);
+        }
+
+        dialogMeta.hidden = dialogMeta.childElementCount === 0;
+    }
+
     function openDialog(item) {
         if (!dialog || !dialogImage) return;
 
@@ -100,8 +130,9 @@
         dialogImage.classList.remove("is-full");
         media?.classList.add("is-loading-full");
         fullLoader?.removeAttribute("hidden");
-        dialogTitle.textContent = item.titulo;
-        dialogArtist.textContent = `por ${item.artista}`;
+        if (dialogTitle) dialogTitle.textContent = item.titulo;
+        if (dialogArtist) dialogArtist.textContent = `por ${item.artista}`;
+        renderDialogMeta(item);
         if (dialogCredit) {
             if (validHttpsUrl(item.creditoUrl)) {
                 dialogCredit.hidden = false;
@@ -177,14 +208,7 @@
 
         const info = document.createElement("span");
         info.className = "arte-info";
-        const meta = document.createElement("span");
-        meta.className = "arte-meta";
-        meta.append(
-            createText("span", "arte-category", item.categoria),
-            createText("span", "", formatDate(item.data))
-        );
         info.append(
-            meta,
             createText("strong", "arte-title", item.titulo),
             createText("span", "arte-artist", `por ${item.artista}`)
         );
@@ -251,6 +275,92 @@
         }
     }
 
+    function closeSearchFieldMenu({ restoreFocus = false } = {}) {
+        if (!searchField || !searchFieldMenu || searchFieldMenu.hidden) return;
+        searchFieldMenu.hidden = true;
+        searchField.setAttribute("aria-expanded", "false");
+        if (restoreFocus) searchField.focus();
+    }
+
+    function focusSearchFieldOption(index) {
+        if (!searchFieldOptions.length) return;
+        const normalizedIndex = (index + searchFieldOptions.length) % searchFieldOptions.length;
+        searchFieldOptions[normalizedIndex]?.focus();
+    }
+
+    function openSearchFieldMenu(focusIndex = null) {
+        if (!searchField || !searchFieldMenu) return;
+        searchFieldMenu.hidden = false;
+        searchField.setAttribute("aria-expanded", "true");
+
+        const selectedIndex = searchFieldOptions.findIndex(option => option.dataset.value === activeSearchField);
+        const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
+        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
+    }
+
+    function selectSearchField(option, { restoreFocus = true } = {}) {
+        const value = option?.dataset.value;
+        if (!value) return;
+
+        activeSearchField = value;
+        if (searchFieldValue) searchFieldValue.textContent = option.textContent.trim();
+        searchFieldOptions.forEach(node => {
+            node.setAttribute("aria-selected", String(node === option));
+        });
+        closeSearchFieldMenu({ restoreFocus });
+        applyFilters();
+    }
+
+    function setupSearchFieldMenu() {
+        if (!searchField || !searchFieldMenu || !searchFieldOptions.length) return;
+
+        searchField.addEventListener("click", () => {
+            if (searchFieldMenu.hidden) openSearchFieldMenu();
+            else closeSearchFieldMenu();
+        });
+
+        searchField.addEventListener("keydown", event => {
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                openSearchFieldMenu();
+            } else if (event.key === "ArrowUp") {
+                event.preventDefault();
+                openSearchFieldMenu(searchFieldOptions.length - 1);
+            } else if (event.key === "Escape") {
+                closeSearchFieldMenu();
+            }
+        });
+
+        searchFieldOptions.forEach((option, index) => {
+            option.tabIndex = -1;
+            option.addEventListener("click", () => selectSearchField(option));
+            option.addEventListener("keydown", event => {
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    focusSearchFieldOption(index + 1);
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    focusSearchFieldOption(index - 1);
+                } else if (event.key === "Home") {
+                    event.preventDefault();
+                    focusSearchFieldOption(0);
+                } else if (event.key === "End") {
+                    event.preventDefault();
+                    focusSearchFieldOption(searchFieldOptions.length - 1);
+                } else if (event.key === "Escape") {
+                    event.preventDefault();
+                    closeSearchFieldMenu({ restoreFocus: true });
+                } else if (event.key === "Tab") {
+                    closeSearchFieldMenu();
+                }
+            });
+        });
+
+        document.addEventListener("pointerdown", event => {
+            if (!searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
+        });
+    }
+
     async function load() {
         try {
             const response = await fetch("../data/content/artes.json", { cache: "no-cache" });
@@ -296,7 +406,7 @@
     }
 
     search?.addEventListener("input", applyFilters);
-    searchField?.addEventListener("change", applyFilters);
+    setupSearchFieldMenu();
     dialogClose?.addEventListener("click", () => dialog?.close());
     dialog?.addEventListener("click", event => {
         if (event.target === dialog) dialog.close();

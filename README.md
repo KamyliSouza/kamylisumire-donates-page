@@ -62,6 +62,8 @@ Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
 
 Desde a V48.0.1, `/artes/` integra uma galeria editorial em masonry com duas imagens HTTPS por obra: `preview` leve na grade e `imagem` em alta qualidade carregada somente ao abrir o lightbox. A página mantém créditos, filtros, busca e o mesmo símbolo de loader do site, sem consumir Worker/KV e reutilizando Navbar/Footer compartilhados.
 
+Desde a V48.1.1, o seletor de escopo da busca da Galeria usa um drop-down próprio alinhado ao design system, sem assets gráficos locais. Os cards da grade exibem somente título e artista; categoria, data, tags e crédito ficam reservados ao dialog da obra. Essa alteração é exclusivamente de frontend e não modifica `data/content/artes.json`, schemas editoriais ou contratos consumidos pelos Helpers.
+
 Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
 de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
 Blog e a sintaxe do próprio `workers.js`, evitando regressões silenciosas.

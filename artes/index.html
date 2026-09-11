@@ -246,7 +246,7 @@
     <link rel="stylesheet" href="../css/core/variables.css">
     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
     <link rel="stylesheet" href="../css/core/navbar.css?v=47">
-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.1.0">
+    <link rel="stylesheet" href="../css/pages/artes.css?v=48.1.1">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -293,16 +293,34 @@
         <section class="glass-panel artes-tools" id="artesTools" aria-label="Busca e filtros da galeria" hidden>
             <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
             <div class="artes-search-controls">
-                <label class="artes-search-field">
-                    <span>Buscar em</span>
-                    <select id="artesSearchField" aria-label="Campo de busca da galeria">
-                        <option value="todos">Todos os campos</option>
-                        <option value="artista">Artista</option>
-                        <option value="titulo">Título</option>
-                        <option value="categoria">Categoria</option>
-                        <option value="tags">Tags</option>
-                    </select>
-                </label>
+                <div class="artes-search-field" data-artes-search-field>
+                    <span class="artes-search-field-label" id="artesSearchFieldLabel">Buscar em</span>
+                    <button
+                        class="artes-search-field-toggle"
+                        id="artesSearchField"
+                        type="button"
+                        aria-labelledby="artesSearchFieldLabel artesSearchFieldValue"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="artesSearchFieldMenu"
+                    >
+                        <span id="artesSearchFieldValue">Todos os campos</span>
+                        <span class="artes-search-field-chevron" aria-hidden="true"></span>
+                    </button>
+                    <div
+                        class="artes-search-field-menu"
+                        id="artesSearchFieldMenu"
+                        role="listbox"
+                        aria-labelledby="artesSearchFieldLabel"
+                        hidden
+                    >
+                        <button class="artes-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
+                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="artista">Artista</button>
+                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
+                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="categoria">Categoria</button>
+                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
+                    </div>
+                </div>
                 <input
                     class="artes-search"
                     id="artesSearch"
@@ -328,6 +346,7 @@
             <div class="arte-dialog-info">
                 <strong id="arteDialogTitle"></strong>
                 <span id="arteDialogArtist"></span>
+                <div class="arte-dialog-meta" id="arteDialogMeta" aria-label="Detalhes da arte"></div>
                 <a id="arteDialogCredit" href="#" target="_blank" rel="noopener noreferrer" hidden></a>
             </div>
         </div>
@@ -349,7 +368,7 @@
     <script src="../js/core/page-transitions.js?v=46.3"></script>
     <script src="../js/core/sanitize.js?v=1"></script>
     <script src="../js/core/footer.js?v=47.4.2"></script>
-    <script src="../js/pages/artes/artes.js?v=48.1.0"></script>
+    <script src="../js/pages/artes/artes.js?v=48.1.1"></script>
     <script src="../js/core/loader.js?v=46.3"></script>
 </body>
 </html>

@@ -54,12 +54,19 @@ post publicado deve ter uma página estática correspondente em
 A galeria não deve depender do Worker/KV. Desde a V48.0.1, cada obra usa `preview` e `imagem`, ambas HTTPS: `preview` alimenta a grade e `imagem` é carregada apenas no lightbox. URLs podem
 apontar para armazenamento externo. A grade preserva proporções variadas, usa
 `loading=lazy` e o estado de carregamento de cada imagem reutiliza o símbolo
-`.site-loader-logo` do loader global. Título/artista/categoria/data ficam
-sobrepostos na base da imagem com gradiente para contraste.
+`.site-loader-logo` do loader global.
+
+Desde a V48.1.1, os cards da grade exibem **somente título e artista** sobre a
+preview. Categoria, data, tags e crédito pertencem ao dialog aberto pelo usuário
+e não devem voltar para a sobreposição dos cards. O seletor de campo da busca da
+Galeria é um drop-down próprio em HTML/CSS/JS, com teclado, foco e ARIA, usando
+somente tokens do design system e sem introduzir asset gráfico local.
 
 Cada item editorial usa `id`, `titulo`, `artista`, `imagem`, `alt`, `data`,
 `categoria`, `tags` e opcionalmente `creditoUrl`, `largura` e `altura`. IDs são
-únicos em kebab-case e `imagem`/`creditoUrl` usam HTTPS.
+únicos em kebab-case e `imagem`/`creditoUrl` usam HTTPS. Ajustes puramente visuais
+da Galeria não devem criar, remover ou renomear campos em `data/content/artes.json`;
+a compatibilidade com Helpers depende desse contrato permanecer estável.
 
 ### Doações
 

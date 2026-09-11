@@ -165,6 +165,21 @@ Para o Blog, confirmar também o mesmo padrão de busca por campo com `Título`,
 ser insensível a maiúsculas/minúsculas e acentos. Alterações nessa UI não devem
 exigir campos novos em `data/blog/posts.json` ou no front matter.
 
+## V48.1.1 — Drop-down da Galeria e metadados da preview
+
+A V48.1.1 é uma alteração exclusivamente de frontend/documentação. O schema e o
+conteúdo de `data/content/artes.json` permanecem intactos, portanto não há patch
+de compatibilidade para Helpers.
+
+Smoke test adicional:
+
+1. abrir o drop-down **Buscar em** e confirmar aparência coerente em tema claro/escuro e com blur ligado/desligado;
+2. navegar pelas opções com `ArrowUp`/`ArrowDown`, `Home`/`End`, fechar com `Escape` e selecionar com teclado;
+3. confirmar que clicar fora fecha o menu e que `aria-expanded`/`aria-selected` acompanham o estado visual;
+4. confirmar que cada card da grade mostra somente título e artista — sem categoria, data ou tags;
+5. abrir uma obra e confirmar categoria, data, tags e crédito no dialog, sem provocar download da imagem full antes da abertura;
+6. confirmar que o patch não modifica arquivos sob `data/content/` ou `data/blog/`.
+
 
 ## CSP V48.0.2 e sanitização compartilhada
 

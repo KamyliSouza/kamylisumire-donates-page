@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.1.1 — Refinamento visual da Galeria e documentação
+
+- substitui o `<select>` nativo do escopo de busca da Galeria por um drop-down acessível próprio, desenhado apenas com HTML/CSS/JS e os tokens visuais já existentes; nenhum SVG, PNG, logo ou outro asset gráfico é adicionado;
+- preserva os mesmos valores de busca (`todos`, `artista`, `titulo`, `categoria`, `tags`) e a precedência dos prefixos textuais introduzida na V48.1.0;
+- simplifica os cards da grade: a preview exibe somente título e artista, removendo categoria e data da sobreposição;
+- move categoria, data e tags para o dialog da obra, junto ao crédito já existente, mantendo a imagem full carregada apenas sob demanda;
+- reforça `validate-content.py` para proteger o drop-down customizado, o cache-buster V48.1.1 e a separação entre metadados da preview e detalhes do dialog;
+- sincroniza README, AGENTS, DESIGN-SYSTEM e documentação de arquitetura/produção/validação com o comportamento atual;
+- não modifica `data/content/artes.json`, `data/blog/*`, schemas editoriais, Worker/KV, endpoints ou contratos dos Helpers.
+
 ## V48.0.2 — Hardening de segurança (sem mudança funcional esperada)
 
 - adiciona `Content-Security-Policy` via `<meta http-equiv>` às páginas HTML públicas atuais, restringindo fontes de script/estilo/conexão, bloqueando objetos e frames carregados pela página e preservando apenas os hosts já usados pelo frontend; `frame-ancestors` não é declarado porque exige cabeçalho HTTP, e `upgrade-insecure-requests` é deliberadamente omitido para preservar desenvolvimento/testes locais via HTTP sem reduzir a segurança do deploy HTTPS atual;

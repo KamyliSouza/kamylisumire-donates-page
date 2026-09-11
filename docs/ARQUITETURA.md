@@ -58,10 +58,11 @@ apenas para consultar o snapshot público de `/twitch/videos`. Essa consulta nã
 ## Galeria de Artes
 
 `/artes/` usa `data/content/artes.json` e renderiza uma grade fluida de imagens
-com proporções variadas. A imagem continua em sua proporção original; título,
-artista, categoria e data aparecem sobre a base com gradiente de contraste.
-Durante o carregamento individual, o card reutiliza `.site-loader-logo`, o mesmo
-símbolo animado do loader global. Imagens usam `loading=lazy`.
+com proporções variadas. A imagem continua em sua proporção original; desde a
+V48.1.1, somente título e artista aparecem sobre a preview com gradiente de
+contraste. Categoria, data, tags e crédito são renderizados somente no dialog da
+obra. Durante o carregamento individual, o card reutiliza `.site-loader-logo`, o
+mesmo símbolo animado do loader global. Imagens usam `loading=lazy`.
 
 A galeria é completamente estática do ponto de vista de backend: o navegador
 carrega o JSON local e as URLs HTTPS de imagem diretamente do host configurado.
@@ -72,12 +73,15 @@ campo: **Todos os campos, Artista, Título, Categoria e Tags**. O usuário tamb�
 pode usar prefixos no próprio texto (`artista:`, `artist:`, `titulo:`,
 `categoria:`, `tag:`/`tags:`); um prefixo explícito tem precedência sobre o
 seletor visual. Isso evita colisões como um nome de artista coincidir com o
-título de outra obra.
+título de outra obra. Na V48.1.1, o seletor visual da Galeria é um drop-down
+próprio, acessível por mouse/toque/teclado e estilizado com os tokens existentes;
+o valor lógico da busca continua idêntico ao da V48.1.0.
 
 O Blog segue a mesma convenção visual e de parsing, com os campos **Todos os
 campos, Título, Resumo e Tags** e os prefixos `titulo:`, `resumo:` e
 `tag:`/`tags:`. Essa funcionalidade usa somente metadados já existentes e não
-altera os contratos JSON/Markdown editoriais.
+altera os contratos JSON/Markdown editoriais. O refinamento V48.1.1 da Galeria
+também é somente de frontend/documentação e não requer alteração nos Helpers.
 
 ## Doações
 
