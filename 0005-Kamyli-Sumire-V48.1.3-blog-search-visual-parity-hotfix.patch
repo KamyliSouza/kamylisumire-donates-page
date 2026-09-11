@@ -1,0 +1,696 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 6fe70e2..e4000d2 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -834,6 +834,7 @@ def validate_architecture() -> None:
+     blog_index = read_text("blog/index.html")
+     artes_index = read_text("artes/index.html")
+     artes_css = read_text("css/pages/artes.css")
++    blog_css = read_text("css/pages/blog.css")
+     blog_js = read_text("js/pages/blog/blog.js")
+     artes_js = read_text("js/pages/artes/artes.js")
+     not_found = read_text("404.html")
+@@ -923,6 +924,47 @@ def validate_architecture() -> None:
+     if '<select id="artesSearchField"' in artes_index:
+         error("artes/index.html: seletor nativo antigo da Galeria não deve retornar na V48.1.1.")
+ 
++    # V48.1.3: o Blog compartilha o mesmo contrato visual/interativo da busca da Galeria.
++    for needle in (
++        'aria-haspopup="listbox"',
++        'id="blogSearchFieldMenu"',
++        'role="listbox"',
++        'class="blog-search-field-option"',
++        'data-value="todos"',
++        'data-value="titulo"',
++        'data-value="resumo"',
++        'data-value="tags"',
++    ):
++        if needle not in blog_index:
++            error(f"blog/index.html: drop-down V48.1.3 incompleto: {needle}")
++    if '<select id="blogSearchField"' in blog_index:
++        error("blog/index.html: seletor nativo antigo do Blog não deve retornar na V48.1.3.")
++
++    blog_visual_rules = (
++        (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "overflow: visible")),
++        (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--card-bg)", "border-radius: 14px")),
++        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("background: var(--card-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
++        (r"\.blog-search\s*\{([^}]*)\}", ("min-height: 44px", "background: var(--card-bg)", "border-radius: 14px")),
++    )
++    for pattern, required_declarations in blog_visual_rules:
++        match = re.search(pattern, blog_css, flags=re.S)
++        if not match:
++            error(f"css/pages/blog.css: regra visual V48.1.3 ausente: {pattern}")
++            continue
++        block = match.group(1)
++        for declaration in required_declarations:
++            if declaration not in block:
++                error(f"css/pages/blog.css: paridade visual V48.1.3 ausente: {declaration}")
++
++    for needle in (
++        'const normalizedIndex = (index + elements.searchFieldOptions.length) % elements.searchFieldOptions.length',
++        'elements.searchField.setAttribute("aria-expanded", "true")',
++        'document.addEventListener("pointerdown"',
++        'setupSearchFieldMenu(config)',
++    ):
++        if needle not in blog_js:
++            error(f"js/pages/blog/blog.js: interação do drop-down V48.1.3 ausente: {needle}")
++
+     # V48.1.2: o backdrop-filter do glass-panel cria stacking context; o painel
+     # de ferramentas precisa ficar explicitamente acima da masonry para o menu
+     # não ser coberto pelos cards/imagens da primeira linha.
+@@ -1117,10 +1159,10 @@ def validate_architecture() -> None:
+     if "js/pages/doacoes/content.js?v=47" not in donations:
+         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
+ 
+-    if "js/pages/blog/blog.js?v=48.1.0" not in blog_index:
+-        error("blog/index.html: cache-buster V48.1.0 ausente para js/pages/blog/blog.js.")
+-    if "css/pages/blog.css?v=48.1.0" not in blog_index:
+-        error("blog/index.html: cache-buster V48.1.0 ausente para css/pages/blog.css.")
++    if "js/pages/blog/blog.js?v=48.1.3" not in blog_index:
++        error("blog/index.html: cache-buster V48.1.3 ausente para js/pages/blog/blog.js.")
++    if "css/pages/blog.css?v=48.1.3" not in blog_index:
++        error("blog/index.html: cache-buster V48.1.3 ausente para css/pages/blog.css.")
+     if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
+         error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
+     if "css/pages/artes.css?v=48.1.2" not in artes_index:
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 295f0c5..c22ce50 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,15 @@
+ # Changelog
+ 
++## V48.1.3 — Hotfix de paridade visual da busca do Blog
++
++- padroniza a busca por campo do Blog com o componente visual já adotado pela Galeria: mesmo desenho de superfície, borda, radius, foco, drop-down e estados de seleção;
++- substitui o `<select>` nativo do Blog pelo mesmo padrão acessível de `listbox`/`option`, com navegação por teclado, fechamento por `Escape`/clique externo e chevron/check desenhados apenas em CSS;
++- simplifica o campo textual do Blog para a mesma linguagem visual da Galeria, removendo o wrapper/ícone de busca exclusivo que produzia uma aparência divergente;
++- protege o menu do Blog contra sobreposição por painéis subsequentes com stacking explícito em `.blog-tools`;
++- documenta em `DESIGN-SYSTEM.md` que Galeria e Blog devem manter paridade visual nos controles de busca por campo, preservando campos editoriais e filtros próprios de cada página;
++- atualiza cache-busters de `blog.css` e `blog.js` para `v=48.1.3`;
++- não modifica `data/blog/*`, `data/content/*`, schemas editoriais, Worker/KV ou contratos consumidos pelos Helpers.
++
+ ## V48.1.2 — Hotfix de empilhamento do drop-down da Galeria
+ 
+ - corrige o drop-down **Buscar em** que podia aparecer atrás dos cards/imagens da masonry;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index 1e59371..75b3029 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -65,9 +65,30 @@ Desde a V48.0.1, cards usam a `preview` leve; o lightbox reaproveita essa previe
+ 
+ Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da obra. O seletor de escopo da busca da Galeria usa um drop-down customizado com `--card-bg`, `--card-border`, `--primary-color`, `--primary-soft`, `--shadow-card` e `--blur-card`; a seta e a marca de seleção são desenhadas em CSS, sem arquivos de imagem. O componente deve manter `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e navegação por teclado.
+ 
+-Esse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
+-Lives, Agenda ou Blog. Não duplicar o CSS do loader global: a Galeria reutiliza
+-a classe compartilhada e altera apenas dimensões/posicionamento local.
++Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
++altera apenas dimensões/posicionamento local.
++
++## Blog
++
++Desde a V48.1.3, a busca por campo da listagem do Blog deve seguir o mesmo padrão
++visual e de interação da busca da Galeria. Essa paridade é uma regra do design
++system, não uma coincidência de implementação.
++
++O conjunto **Buscar em + campo de texto** deve preservar:
++
++- altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;
++- superfícies em `--card-bg`, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`;
++- drop-down próprio em vez de `<select>` nativo, com menu em `--card-bg`, `--shadow-card` e `--blur-card`;
++- chevron e marca de seleção desenhados somente em CSS, sem SVG/PNG ou outro asset;
++- `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e a mesma navegação por teclado usada na Galeria;
++- empilhamento suficiente para que o menu fique acima da lista de posts e de outros painéis subsequentes;
++- comportamento responsivo equivalente: controles em coluna no mobile e fonte de 16 px nos controles editáveis/interativos necessários para evitar zoom involuntário.
++
++Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
++Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os
++filtros de tags do Blog continuam em pills e não precisam imitar os filtros de
++categoria da Galeria. Não alterar `data/blog/*` apenas para atender a essa regra
++visual.
+ 
+ ## Carrosséis
+ 
+diff --git a/README.md b/README.md
+index 3dfd3da..dc51a5e 100644
+--- a/README.md
++++ b/README.md
+@@ -64,6 +64,8 @@ Desde a V48.0.1, `/artes/` integra uma galeria editorial em masonry com duas ima
+ 
+ Desde a V48.1.1, o seletor de escopo da busca da Galeria usa um drop-down próprio alinhado ao design system, sem assets gráficos locais. Os cards da grade exibem somente título e artista; categoria, data, tags e crédito ficam reservados ao dialog da obra. Essa alteração é exclusivamente de frontend e não modifica `data/content/artes.json`, schemas editoriais ou contratos consumidos pelos Helpers.
+ 
++Desde a V48.1.3, a listagem do Blog reutiliza a mesma linguagem visual e interação da busca por campo da Galeria, incluindo drop-down customizado e estados de foco/seleção. Os campos continuam próprios do Blog (`title`, `summary`, `tags`) e nenhum arquivo editorial em `data/blog/` é alterado.
++
+ Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
+ de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
+ Blog e a sintaxe do próprio `workers.js`, evitando regressões silenciosas.
+diff --git a/blog/index.html b/blog/index.html
+index a6fe077..d0d49fc 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -247,7 +247,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=47">
+     <link rel="stylesheet" href="../css/components/blog.css">
+-    <link rel="stylesheet" href="../css/pages/blog.css?v=48.1.0">
++    <link rel="stylesheet" href="../css/pages/blog.css?v=48.1.3">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -303,25 +303,41 @@
+             hidden
+         >
+             <div class="blog-search-controls">
+-                <label class="blog-search-field">
+-                    <span>Buscar em</span>
+-                    <select id="blogSearchField" aria-label="Campo de busca do blog">
+-                        <option value="todos">Todos os campos</option>
+-                        <option value="titulo">Título</option>
+-                        <option value="resumo">Resumo</option>
+-                        <option value="tags">Tags</option>
+-                    </select>
+-                </label>
+-                <label class="blog-search">
+-                    <span class="blog-search-icon" aria-hidden="true">⌕</span>
+-                    <input
+-                        id="blogSearch"
+-                        type="search"
+-                        placeholder="Buscar publicações..."
+-                        aria-label="Buscar publicações"
+-                        autocomplete="off"
++                <div class="blog-search-field" data-blog-search-field>
++                    <span class="blog-search-field-label" id="blogSearchFieldLabel">Buscar em</span>
++                    <button
++                        class="blog-search-field-toggle"
++                        id="blogSearchField"
++                        type="button"
++                        aria-labelledby="blogSearchFieldLabel blogSearchFieldValue"
++                        aria-haspopup="listbox"
++                        aria-expanded="false"
++                        aria-controls="blogSearchFieldMenu"
+                     >
+-                </label>
++                        <span id="blogSearchFieldValue">Todos os campos</span>
++                        <span class="blog-search-field-chevron" aria-hidden="true"></span>
++                    </button>
++                    <div
++                        class="blog-search-field-menu"
++                        id="blogSearchFieldMenu"
++                        role="listbox"
++                        aria-labelledby="blogSearchFieldLabel"
++                        hidden
++                    >
++                        <button class="blog-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
++                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
++                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="resumo">Resumo</button>
++                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
++                    </div>
++                </div>
++                <input
++                    class="blog-search"
++                    id="blogSearch"
++                    type="search"
++                    placeholder="Buscar publicações..."
++                    aria-label="Buscar publicações"
++                    autocomplete="off"
++                >
+             </div>
+ 
+             <div class="blog-filters" id="blogFilters" aria-label="Filtrar por tag"></div>
+@@ -353,7 +369,7 @@
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+-    <script src="../js/pages/blog/blog.js?v=48.1.0"></script>
++    <script src="../js/pages/blog/blog.js?v=48.1.3"></script>
+     <script src="../js/core/loader.js?v=46.3"></script>
+ </body>
+ </html>
+diff --git a/css/pages/blog.css b/css/pages/blog.css
+index 8462a74..4459d3e 100644
+--- a/css/pages/blog.css
++++ b/css/pages/blog.css
+@@ -1,5 +1,5 @@
+ /* =========================================================
+-   BLOG — PÁGINA DE LISTAGEM
++   BLOG — PÁGINA DE LISTAGEM — V48.1.3
+    Mantém o mesmo shell/glass/tokens do restante do site.
+    ========================================================= */
+ 
+@@ -35,100 +35,186 @@
+ }
+ 
+ .blog-tools {
++    position: relative;
++    z-index: 40;
+     display: flex;
+     align-items: center;
+     flex-wrap: wrap;
+-
+     gap: 8px;
++    overflow: visible;
+ }
+ 
+-
+ .blog-search-controls {
+     display: flex;
+     align-items: stretch;
+     gap: 8px;
+-    flex: 1 1 560px;
++    flex: 1 1 440px;
++    justify-content: flex-end;
+ }
+ 
+ .blog-search-field {
+-    min-height: 42px;
+-    padding: 8px 11px;
++    position: relative;
++    z-index: 5;
+     display: flex;
+     align-items: center;
+     gap: 8px;
++    min-height: 44px;
++    min-width: 248px;
++    padding: 0 8px 0 12px;
+     color: var(--subtitle-color);
+-    background-color: var(--card-bg);
++    background: var(--card-bg);
+     border: 1px solid var(--card-border);
+-    border-radius: var(--radius-small);
+-    box-shadow: var(--shadow-card);
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
++    border-radius: 14px;
+     font-size: .86rem;
+     font-weight: 800;
++    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
++}
++
++.blog-search-field:focus-within {
++    border-color: var(--primary-color);
++    box-shadow: 0 0 0 3px var(--primary-soft);
++}
++
++.blog-search-field-label {
++    flex: 0 0 auto;
++    white-space: nowrap;
+ }
+ 
+-.blog-search-field select {
+-    min-width: 142px;
++.blog-search-field-toggle {
++    min-width: 0;
++    min-height: 34px;
++    padding: 6px 30px 6px 8px;
++    position: relative;
++    flex: 1 1 auto;
+     color: var(--text-color);
+     background: transparent;
+     border: 0;
+-    outline: 0;
++    border-radius: 10px;
++    outline: none;
+     font: inherit;
++    text-align: right;
++    white-space: nowrap;
+     cursor: pointer;
++    transition: color .18s ease, background-color .18s ease;
+ }
+ 
+-.blog-search-field:focus-within {
+-    border-color: var(--primary-color);
+-    box-shadow: 0 0 0 3px var(--primary-soft);
++.blog-search-field-toggle:hover,
++.blog-search-field-toggle:focus-visible,
++.blog-search-field-toggle[aria-expanded="true"] {
++    color: var(--primary-color);
++    background: var(--primary-soft);
+ }
+ 
+-.blog-search {
+-    min-width: 280px;
+-    min-height: 42px;
+-    padding: 8px 12px;
+-
+-    flex: 1 1 320px;
++.blog-search-field-chevron {
++    position: absolute;
++    top: 50%;
++    right: 10px;
++    width: 8px;
++    height: 8px;
++    border-right: 2px solid currentColor;
++    border-bottom: 2px solid currentColor;
++    transform: translateY(-65%) rotate(45deg);
++    transition: transform .18s ease;
++    pointer-events: none;
++}
+ 
+-    display: flex;
+-    align-items: center;
+-    gap: 8px;
++.blog-search-field-toggle[aria-expanded="true"] .blog-search-field-chevron {
++    transform: translateY(-25%) rotate(225deg);
++}
+ 
++.blog-search-field-menu {
++    position: absolute;
++    top: calc(100% + 8px);
++    right: 0;
++    z-index: 30;
++    width: max(100%, 240px);
++    padding: 7px;
+     color: var(--text-color);
+-    background-color: var(--card-bg);
+-
++    background: var(--card-bg);
+     border: 1px solid var(--card-border);
+-    border-radius: var(--radius-small);
+-
++    border-radius: 16px;
+     box-shadow: var(--shadow-card);
+-
+     backdrop-filter: blur(var(--blur-card));
+     -webkit-backdrop-filter: blur(var(--blur-card));
+ }
+ 
+-.blog-search-icon {
+-    color: var(--primary-color);
+-    font-weight: 900;
++.blog-search-field-menu[hidden] {
++    display: none;
+ }
+ 
+-.blog-search input {
++.blog-search-field-option {
++    position: relative;
++    display: flex;
++    align-items: center;
+     width: 100%;
+-    min-width: 0;
+-
++    min-height: 40px;
++    padding: 9px 34px 9px 11px;
+     color: var(--text-color);
+     background: transparent;
+-
+     border: 0;
+-    outline: 0;
+-
++    border-radius: 10px;
++    outline: none;
+     font: inherit;
+-    font-weight: 650;
++    font-size: .88rem;
++    font-weight: 800;
++    text-align: left;
++    cursor: pointer;
++    transition: color .16s ease, background-color .16s ease;
++}
++
++.blog-search-field-option::after {
++    content: "";
++    position: absolute;
++    right: 13px;
++    width: 9px;
++    height: 5px;
++    border-left: 2px solid currentColor;
++    border-bottom: 2px solid currentColor;
++    opacity: 0;
++    transform: translateY(-2px) rotate(-45deg);
++}
++
++.blog-search-field-option:hover,
++.blog-search-field-option:focus-visible {
++    color: var(--primary-color);
++    background: var(--primary-soft);
++}
++
++.blog-search-field-option[aria-selected="true"] {
++    color: #fff;
++    background: var(--primary-color);
++}
++
++.blog-search-field-option[aria-selected="true"]::after {
++    opacity: 1;
++}
++
++:root[data-blur="off"] .blog-search-field-menu {
++    backdrop-filter: none;
++    -webkit-backdrop-filter: none;
+ }
+ 
+-.blog-search input::placeholder {
++.blog-search {
++    width: min(360px, 100%);
++    min-height: 44px;
++    padding: 10px 14px;
++    color: var(--text-color);
++    background: var(--card-bg);
++    border: 1px solid var(--card-border);
++    border-radius: 14px;
++    outline: none;
++}
++
++.blog-search::placeholder {
+     color: var(--subtitle-color);
+     opacity: .82;
+ }
+ 
++.blog-search:focus {
++    border-color: var(--primary-color);
++    box-shadow: 0 0 0 3px var(--primary-soft);
++}
++
+ .blog-filters {
+     display: flex;
+     align-items: center;
+@@ -179,14 +265,12 @@
+     border-color: var(--primary-color);
+ }
+ 
+-:root[data-blur="off"] .blog-search,
+-:root[data-blur="off"] .blog-search-field,
+ :root[data-blur="off"] .blog-filter {
+     backdrop-filter: none;
+     -webkit-backdrop-filter: none;
+ }
+ 
+-@media (max-width: 720px) {
++@media (max-width: 760px) {
+     .blog-intro {
+         padding: 24px 20px;
+     }
+@@ -200,30 +284,40 @@
+     }
+ 
+     .blog-search-controls {
+-        min-width: 100%;
+-        flex-basis: 100%;
++        width: 100%;
++        flex: 1 1 100%;
+         flex-direction: column;
+     }
+ 
+     .blog-search-field {
+         width: 100%;
++        min-width: 0;
+         justify-content: space-between;
+     }
+ 
+-    .blog-search-field select {
+-        min-width: 0;
+-        flex: 1 1 auto;
+-        text-align: right;
++    .blog-search-field-toggle {
+         font-size: 16px;
+     }
+ 
++    .blog-search-field-menu {
++        left: 0;
++        right: 0;
++        width: 100%;
++    }
++
+     .blog-search {
++        width: 100%;
+         min-width: 100%;
++        font-size: 16px;
+     }
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+-    .blog-filter {
++    .blog-filter,
++    .blog-search-field,
++    .blog-search-field-toggle,
++    .blog-search-field-chevron,
++    .blog-search-field-option {
+         transition-duration: .01ms;
+     }
+ }
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 5809439..795ec42 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -194,6 +194,22 @@ Smoke test adicional:
+ 4. confirmar que o painel e a grade não mudaram de posição quando o menu está fechado.
+ 
+ 
++## V48.1.3 — Paridade visual da busca do Blog
++
++A busca por campo do Blog deve usar o mesmo padrão visual/interativo da Galeria:
++drop-down customizado, foco rosa via tokens do design system, chevron/check em CSS
++e navegação por teclado. O `<select>` nativo não faz mais parte do contrato visual.
++
++Smoke test adicional:
++
++1. abrir `/blog/` com ao menos um post publicado e comparar o conjunto **Buscar em + busca textual** com `/artes/`;
++2. confirmar mesma altura, radius, bordas, estados de foco/hover e aparência do menu nos temas claro/escuro;
++3. testar `ArrowUp`/`ArrowDown`, `Home`/`End`, `Escape`, seleção pelo teclado e fechamento por clique externo;
++4. confirmar que o menu fica acima da lista de posts e não é cortado por painéis subsequentes;
++5. repetir em viewport mobile e com blur ligado/desligado;
++6. confirmar que `titulo:`, `resumo:` e `tag:` continuam tendo precedência sobre o escopo visual;
++7. confirmar que nenhum arquivo em `data/blog/` ou `data/content/` foi modificado.
++
+ ## CSP V48.0.2 e sanitização compartilhada
+ 
+ `validate-content.py` também verifica que toda página HTML versionada contém a CSP mínima da V48.0.2; que `frame-ancestors` e `upgrade-insecure-requests` não são declarados via meta CSP; que qualquer página com `footer.js` carrega `js/core/sanitize.js` antes dele; e que os consumidores conhecidos usam o `escapeHtml` compartilhado em vez de reintroduzir cópias locais. A ausência de `upgrade-insecure-requests` é intencional para manter o site testável via servidor HTTP local; produção continua servida em HTTPS. O validador também confirma a presença do caminho timing-safe usado na autenticação administrativa do Worker.
+diff --git a/js/pages/blog/blog.js b/js/pages/blog/blog.js
+index 809fc3d..62474d0 100644
+--- a/js/pages/blog/blog.js
++++ b/js/pages/blog/blog.js
+@@ -16,13 +16,18 @@
+         description: document.getElementById("blogDescription"),
+         tools: document.getElementById("blogTools"),
+         search: document.getElementById("blogSearch"),
++        searchFieldRoot: document.querySelector("[data-blog-search-field]"),
+         searchField: document.getElementById("blogSearchField"),
++        searchFieldValue: document.getElementById("blogSearchFieldValue"),
++        searchFieldMenu: document.getElementById("blogSearchFieldMenu"),
++        searchFieldOptions: [...document.querySelectorAll(".blog-search-field-option")],
+         filters: document.getElementById("blogFilters"),
+         list: document.getElementById("blogPostList")
+     };
+ 
+     let posts = [];
+     let activeTag = "";
++    let activeSearchField = "todos";
+ 
+     const SEARCH_PREFIXES = Object.freeze({
+         "titulo:": "titulo",
+@@ -54,7 +59,7 @@
+         }
+ 
+         return {
+-            field: elements.searchField?.value || "todos",
++            field: activeSearchField,
+             query: normalized
+         };
+     }
+@@ -192,6 +197,96 @@
+         });
+     }
+ 
++    function closeSearchFieldMenu({ restoreFocus = false } = {}) {
++        if (!elements.searchField || !elements.searchFieldMenu || elements.searchFieldMenu.hidden) return;
++        elements.searchFieldMenu.hidden = true;
++        elements.searchField.setAttribute("aria-expanded", "false");
++        if (restoreFocus) elements.searchField.focus();
++    }
++
++    function focusSearchFieldOption(index) {
++        if (!elements.searchFieldOptions.length) return;
++        const normalizedIndex = (index + elements.searchFieldOptions.length) % elements.searchFieldOptions.length;
++        elements.searchFieldOptions[normalizedIndex]?.focus();
++    }
++
++    function openSearchFieldMenu(focusIndex = null) {
++        if (!elements.searchField || !elements.searchFieldMenu) return;
++        elements.searchFieldMenu.hidden = false;
++        elements.searchField.setAttribute("aria-expanded", "true");
++
++        const selectedIndex = elements.searchFieldOptions.findIndex(
++            option => option.dataset.value === activeSearchField
++        );
++        const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
++        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
++    }
++
++    function selectSearchField(option, config, { restoreFocus = true } = {}) {
++        const value = option?.dataset.value;
++        if (!value) return;
++
++        activeSearchField = value;
++        if (elements.searchFieldValue) {
++            elements.searchFieldValue.textContent = option.textContent.trim();
++        }
++        elements.searchFieldOptions.forEach(node => {
++            node.setAttribute("aria-selected", String(node === option));
++        });
++        closeSearchFieldMenu({ restoreFocus });
++        renderList(config);
++    }
++
++    function setupSearchFieldMenu(config) {
++        if (!elements.searchField || !elements.searchFieldMenu || !elements.searchFieldOptions.length) return;
++
++        elements.searchField.addEventListener("click", () => {
++            if (elements.searchFieldMenu.hidden) openSearchFieldMenu();
++            else closeSearchFieldMenu();
++        });
++
++        elements.searchField.addEventListener("keydown", event => {
++            if (event.key === "ArrowDown") {
++                event.preventDefault();
++                openSearchFieldMenu();
++            } else if (event.key === "ArrowUp") {
++                event.preventDefault();
++                openSearchFieldMenu(elements.searchFieldOptions.length - 1);
++            } else if (event.key === "Escape") {
++                closeSearchFieldMenu();
++            }
++        });
++
++        elements.searchFieldOptions.forEach((option, index) => {
++            option.tabIndex = -1;
++            option.addEventListener("click", () => selectSearchField(option, config));
++            option.addEventListener("keydown", event => {
++                if (event.key === "ArrowDown") {
++                    event.preventDefault();
++                    focusSearchFieldOption(index + 1);
++                } else if (event.key === "ArrowUp") {
++                    event.preventDefault();
++                    focusSearchFieldOption(index - 1);
++                } else if (event.key === "Home") {
++                    event.preventDefault();
++                    focusSearchFieldOption(0);
++                } else if (event.key === "End") {
++                    event.preventDefault();
++                    focusSearchFieldOption(elements.searchFieldOptions.length - 1);
++                } else if (event.key === "Escape") {
++                    event.preventDefault();
++                    closeSearchFieldMenu({ restoreFocus: true });
++                } else if (event.key === "Tab") {
++                    closeSearchFieldMenu();
++                }
++            });
++        });
++
++        document.addEventListener("pointerdown", event => {
++            if (!elements.searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
++        });
++    }
++
+     function render(config, index) {
+         content.setText(elements.eyebrow, config.page?.eyebrow);
+         content.setText(elements.title, config.page?.titulo);
+@@ -218,7 +313,7 @@
+         renderList(config);
+ 
+         elements.search.addEventListener("input", () => renderList(config));
+-        elements.searchField?.addEventListener("change", () => renderList(config));
++        setupSearchFieldMenu(config);
+     }
+ 
+     function signalReady() {

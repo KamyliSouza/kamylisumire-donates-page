@@ -16,13 +16,18 @@
         description: document.getElementById("blogDescription"),
         tools: document.getElementById("blogTools"),
         search: document.getElementById("blogSearch"),
+        searchFieldRoot: document.querySelector("[data-blog-search-field]"),
         searchField: document.getElementById("blogSearchField"),
+        searchFieldValue: document.getElementById("blogSearchFieldValue"),
+        searchFieldMenu: document.getElementById("blogSearchFieldMenu"),
+        searchFieldOptions: [...document.querySelectorAll(".blog-search-field-option")],
         filters: document.getElementById("blogFilters"),
         list: document.getElementById("blogPostList")
     };
 
     let posts = [];
     let activeTag = "";
+    let activeSearchField = "todos";
 
     const SEARCH_PREFIXES = Object.freeze({
         "titulo:": "titulo",
@@ -54,7 +59,7 @@
         }
 
         return {
-            field: elements.searchField?.value || "todos",
+            field: activeSearchField,
             query: normalized
         };
     }
@@ -192,6 +197,96 @@
         });
     }
 
+    function closeSearchFieldMenu({ restoreFocus = false } = {}) {
+        if (!elements.searchField || !elements.searchFieldMenu || elements.searchFieldMenu.hidden) return;
+        elements.searchFieldMenu.hidden = true;
+        elements.searchField.setAttribute("aria-expanded", "false");
+        if (restoreFocus) elements.searchField.focus();
+    }
+
+    function focusSearchFieldOption(index) {
+        if (!elements.searchFieldOptions.length) return;
+        const normalizedIndex = (index + elements.searchFieldOptions.length) % elements.searchFieldOptions.length;
+        elements.searchFieldOptions[normalizedIndex]?.focus();
+    }
+
+    function openSearchFieldMenu(focusIndex = null) {
+        if (!elements.searchField || !elements.searchFieldMenu) return;
+        elements.searchFieldMenu.hidden = false;
+        elements.searchField.setAttribute("aria-expanded", "true");
+
+        const selectedIndex = elements.searchFieldOptions.findIndex(
+            option => option.dataset.value === activeSearchField
+        );
+        const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
+        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
+    }
+
+    function selectSearchField(option, config, { restoreFocus = true } = {}) {
+        const value = option?.dataset.value;
+        if (!value) return;
+
+        activeSearchField = value;
+        if (elements.searchFieldValue) {
+            elements.searchFieldValue.textContent = option.textContent.trim();
+        }
+        elements.searchFieldOptions.forEach(node => {
+            node.setAttribute("aria-selected", String(node === option));
+        });
+        closeSearchFieldMenu({ restoreFocus });
+        renderList(config);
+    }
+
+    function setupSearchFieldMenu(config) {
+        if (!elements.searchField || !elements.searchFieldMenu || !elements.searchFieldOptions.length) return;
+
+        elements.searchField.addEventListener("click", () => {
+            if (elements.searchFieldMenu.hidden) openSearchFieldMenu();
+            else closeSearchFieldMenu();
+        });
+
+        elements.searchField.addEventListener("keydown", event => {
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                openSearchFieldMenu();
+            } else if (event.key === "ArrowUp") {
+                event.preventDefault();
+                openSearchFieldMenu(elements.searchFieldOptions.length - 1);
+            } else if (event.key === "Escape") {
+                closeSearchFieldMenu();
+            }
+        });
+
+        elements.searchFieldOptions.forEach((option, index) => {
+            option.tabIndex = -1;
+            option.addEventListener("click", () => selectSearchField(option, config));
+            option.addEventListener("keydown", event => {
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    focusSearchFieldOption(index + 1);
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    focusSearchFieldOption(index - 1);
+                } else if (event.key === "Home") {
+                    event.preventDefault();
+                    focusSearchFieldOption(0);
+                } else if (event.key === "End") {
+                    event.preventDefault();
+                    focusSearchFieldOption(elements.searchFieldOptions.length - 1);
+                } else if (event.key === "Escape") {
+                    event.preventDefault();
+                    closeSearchFieldMenu({ restoreFocus: true });
+                } else if (event.key === "Tab") {
+                    closeSearchFieldMenu();
+                }
+            });
+        });
+
+        document.addEventListener("pointerdown", event => {
+            if (!elements.searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
+        });
+    }
+
     function render(config, index) {
         content.setText(elements.eyebrow, config.page?.eyebrow);
         content.setText(elements.title, config.page?.titulo);
@@ -218,7 +313,7 @@
         renderList(config);
 
         elements.search.addEventListener("input", () => renderList(config));
-        elements.searchField?.addEventListener("change", () => renderList(config));
+        setupSearchFieldMenu(config);
     }
 
     function signalReady() {

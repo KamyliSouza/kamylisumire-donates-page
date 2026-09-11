@@ -194,6 +194,22 @@ Smoke test adicional:
 4. confirmar que o painel e a grade não mudaram de posição quando o menu está fechado.
 
 
+## V48.1.3 — Paridade visual da busca do Blog
+
+A busca por campo do Blog deve usar o mesmo padrão visual/interativo da Galeria:
+drop-down customizado, foco rosa via tokens do design system, chevron/check em CSS
+e navegação por teclado. O `<select>` nativo não faz mais parte do contrato visual.
+
+Smoke test adicional:
+
+1. abrir `/blog/` com ao menos um post publicado e comparar o conjunto **Buscar em + busca textual** com `/artes/`;
+2. confirmar mesma altura, radius, bordas, estados de foco/hover e aparência do menu nos temas claro/escuro;
+3. testar `ArrowUp`/`ArrowDown`, `Home`/`End`, `Escape`, seleção pelo teclado e fechamento por clique externo;
+4. confirmar que o menu fica acima da lista de posts e não é cortado por painéis subsequentes;
+5. repetir em viewport mobile e com blur ligado/desligado;
+6. confirmar que `titulo:`, `resumo:` e `tag:` continuam tendo precedência sobre o escopo visual;
+7. confirmar que nenhum arquivo em `data/blog/` ou `data/content/` foi modificado.
+
 ## CSP V48.0.2 e sanitização compartilhada
 
 `validate-content.py` também verifica que toda página HTML versionada contém a CSP mínima da V48.0.2; que `frame-ancestors` e `upgrade-insecure-requests` não são declarados via meta CSP; que qualquer página com `footer.js` carrega `js/core/sanitize.js` antes dele; e que os consumidores conhecidos usam o `escapeHtml` compartilhado em vez de reintroduzir cópias locais. A ausência de `upgrade-insecure-requests` é intencional para manter o site testável via servidor HTTP local; produção continua servida em HTTPS. O validador também confirma a presença do caminho timing-safe usado na autenticação administrativa do Worker.

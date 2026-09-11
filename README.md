@@ -64,6 +64,8 @@ Desde a V48.0.1, `/artes/` integra uma galeria editorial em masonry com duas ima
 
 Desde a V48.1.1, o seletor de escopo da busca da Galeria usa um drop-down próprio alinhado ao design system, sem assets gráficos locais. Os cards da grade exibem somente título e artista; categoria, data, tags e crédito ficam reservados ao dialog da obra. Essa alteração é exclusivamente de frontend e não modifica `data/content/artes.json`, schemas editoriais ou contratos consumidos pelos Helpers.
 
+Desde a V48.1.3, a listagem do Blog reutiliza a mesma linguagem visual e interação da busca por campo da Galeria, incluindo drop-down customizado e estados de foco/seleção. Os campos continuam próprios do Blog (`title`, `summary`, `tags`) e nenhum arquivo editorial em `data/blog/` é alterado.
+
 Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
 de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
 Blog e a sintaxe do próprio `workers.js`, evitando regressões silenciosas.

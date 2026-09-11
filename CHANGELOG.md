@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.1.3 — Hotfix de paridade visual da busca do Blog
+
+- padroniza a busca por campo do Blog com o componente visual já adotado pela Galeria: mesmo desenho de superfície, borda, radius, foco, drop-down e estados de seleção;
+- substitui o `<select>` nativo do Blog pelo mesmo padrão acessível de `listbox`/`option`, com navegação por teclado, fechamento por `Escape`/clique externo e chevron/check desenhados apenas em CSS;
+- simplifica o campo textual do Blog para a mesma linguagem visual da Galeria, removendo o wrapper/ícone de busca exclusivo que produzia uma aparência divergente;
+- protege o menu do Blog contra sobreposição por painéis subsequentes com stacking explícito em `.blog-tools`;
+- documenta em `DESIGN-SYSTEM.md` que Galeria e Blog devem manter paridade visual nos controles de busca por campo, preservando campos editoriais e filtros próprios de cada página;
+- atualiza cache-busters de `blog.css` e `blog.js` para `v=48.1.3`;
+- não modifica `data/blog/*`, `data/content/*`, schemas editoriais, Worker/KV ou contratos consumidos pelos Helpers.
+
 ## V48.1.2 — Hotfix de empilhamento do drop-down da Galeria
 
 - corrige o drop-down **Buscar em** que podia aparecer atrás dos cards/imagens da masonry;

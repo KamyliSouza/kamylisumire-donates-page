@@ -65,9 +65,30 @@ Desde a V48.0.1, cards usam a `preview` leve; o lightbox reaproveita essa previe
 
 Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da obra. O seletor de escopo da busca da Galeria usa um drop-down customizado com `--card-bg`, `--card-border`, `--primary-color`, `--primary-soft`, `--shadow-card` e `--blur-card`; a seta e a marca de seleção são desenhadas em CSS, sem arquivos de imagem. O componente deve manter `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e navegação por teclado.
 
-Esse padrão pertence à Galeria e não deve ser aplicado mecanicamente a cards de
-Lives, Agenda ou Blog. Não duplicar o CSS do loader global: a Galeria reutiliza
-a classe compartilhada e altera apenas dimensões/posicionamento local.
+Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
+altera apenas dimensões/posicionamento local.
+
+## Blog
+
+Desde a V48.1.3, a busca por campo da listagem do Blog deve seguir o mesmo padrão
+visual e de interação da busca da Galeria. Essa paridade é uma regra do design
+system, não uma coincidência de implementação.
+
+O conjunto **Buscar em + campo de texto** deve preservar:
+
+- altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;
+- superfícies em `--card-bg`, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`;
+- drop-down próprio em vez de `<select>` nativo, com menu em `--card-bg`, `--shadow-card` e `--blur-card`;
+- chevron e marca de seleção desenhados somente em CSS, sem SVG/PNG ou outro asset;
+- `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e a mesma navegação por teclado usada na Galeria;
+- empilhamento suficiente para que o menu fique acima da lista de posts e de outros painéis subsequentes;
+- comportamento responsivo equivalente: controles em coluna no mobile e fonte de 16 px nos controles editáveis/interativos necessários para evitar zoom involuntário.
+
+Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
+Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os
+filtros de tags do Blog continuam em pills e não precisam imitar os filtros de
+categoria da Galeria. Não alterar `data/blog/*` apenas para atender a essa regra
+visual.
 
 ## Carrosséis
 
