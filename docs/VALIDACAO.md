@@ -1,5 +1,15 @@
 # Validação
 
+## V48.3.4 — Blur dos seletores de busca
+
+Smoke test recomendado:
+
+1. com **Blur ligado**, abrir `/artes/` e `/blog/`, abrir o seletor **Buscar em** e confirmar que campo e menu preservam transparência/desfoque do fundo;
+2. confirmar que o painel externo continua com aparência `glass-panel`, sem o menu perder stacking;
+3. alternar **Blur desligado** nas preferências e confirmar que campo/menu ficam opacos o suficiente para leitura e não mantêm `backdrop-filter`;
+4. repetir em tema claro/escuro e em viewport móvel;
+5. confirmar que busca, prefixos e navegação por teclado não mudaram.
+
 ## V44.4 — domínio próprio da API
 
 A API pública de produção é:

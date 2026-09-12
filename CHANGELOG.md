@@ -1,3 +1,10 @@
+## V48.3.4 — Hotfix: blur real nos seletores de busca
+
+- corrige Galeria e Blog para que o `backdrop-filter` dos seletores e menus não fique limitado pela Backdrop Root do `glass-panel` externo;
+- move o blur visual do painel de ferramentas para uma camada `::before`, preservando fundo, borda e stacking sem bloquear os filtros descendentes;
+- usa `--nav-bg` nos seletores/menus enquanto o blur está ativo e reforça `--card-bg` quando o usuário desliga o blur;
+- atualiza cache-busters, Design System e validação arquitetural.
+
 ## V48.3.3 — Hotfix: seletores de busca e cabeçalho do Blog
 
 - corrige o drop-down **Buscar em** da Galeria e do Blog para ancorar o menu ao controle do valor selecionado, evitando desalinhamento causado pelo rótulo lateral;

@@ -113,8 +113,8 @@ e espaçamento equivalentes ao `.artes-tools`.
 O conjunto **Buscar em + campo de texto** deve preservar:
 
 - altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;
-- superfícies em `--card-bg`, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`;
-- drop-down próprio em vez de `<select>` nativo, com menu em `--card-bg`, `--shadow-card` e `--blur-card`; o menu deve ser posicionado pelo wrapper interno do valor selecionado, e não pelo bloco completo que também contém o rótulo **Buscar em**, para manter alinhamento previsível;
+- seletor e menu usam `--nav-bg` durante o blur, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`; com blur desligado, voltam a `--card-bg` para reforçar a leitura;
+- drop-down próprio em vez de `<select>` nativo, com `--shadow-card` e `--blur-card`; o menu deve ser posicionado pelo wrapper interno do valor selecionado, e não pelo bloco completo que também contém o rótulo **Buscar em**, para manter alinhamento previsível;
 - chevron e marca de seleção desenhados somente em CSS, sem SVG/PNG ou outro asset;
 - `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e a mesma navegação por teclado usada na Galeria;
 - empilhamento suficiente para que o menu fique acima da lista de posts e de outros painéis subsequentes;
@@ -124,6 +124,8 @@ O cabeçalho do Blog segue a mesma hierarquia cromática da Galeria: eyebrow em
 `--primary-color` sobre a superfície auxiliar global, título principal em
 `--primary-color` e descrição em `--subtitle-color`. Não criar uma paleta exclusiva
 para o Blog.
+
+Desde a V48.3.4, o painel externo de ferramentas não deve aplicar `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`, porque isso transforma o painel em uma Backdrop Root e impede o blur descendente de enxergar o fundo real da página. Preserve o vidro externo em `::before` e mantenha o elemento pai com `backdrop-filter: none`; assim seletor e menu podem aplicar seu próprio blur sem perder o `glass-panel`.
 
 Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
 Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os
