@@ -2,6 +2,7 @@
   "version": 2,
   "ariaLabel": "Navegação principal",
   "brandAriaLabel": "Ir para a página inicial",
+  "apoioFixoNoFim": true,
   "ordem": [
     "inicio",
     "lives",

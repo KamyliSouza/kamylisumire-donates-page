@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.1 — Hotfix: Apoiar fixo opcional na Navbar
+
+- adiciona `apoioFixoNoFim` a `data/content/navbar.json`; quando `true` (ou ausente por compatibilidade), o CTA **Apoiar** é renderizado por último, preservando sua posição histórica à direita;
+- quando `apoioFixoNoFim: false`, **Apoiar** volta a obedecer integralmente a posição declarada em `ordem`;
+- os demais oito itens continuam totalmente reordenáveis e o CTA mantém seu estilo visual;
+- mantém `version: 2` e não altera as nove chaves estáveis, URLs, ícones ou estrutura DOM da Navbar;
+- atualiza validação, documentação e o cache-buster de `content.js` para V48.3.1.
+
+
 ## V48.3.0 — Ordem editorial da Navbar
 
 - adiciona `ordem` a `data/content/navbar.json`, mantendo as nove chaves estáveis e permitindo reorganizar todos os itens, inclusive **Apoiar**;

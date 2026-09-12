@@ -261,3 +261,11 @@ Smoke test recomendado:
 ### Navbar reordenável — V48.3.0
 
 `data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.
+
+### Hotfix Apoiar fixo — V48.3.1
+
+1. com `apoioFixoNoFim: true`, mover `apoio` para o meio de `ordem` e confirmar que o CTA continua renderizado por último;
+2. reordenar os outros oito itens e confirmar que a ordem visual muda sem deslocar o CTA do final;
+3. com `apoioFixoNoFim: false`, confirmar que `apoio` passa a ocupar exatamente a posição declarada em `ordem`;
+4. remover `apoioFixoNoFim` e confirmar o fallback compatível: **Apoiar** permanece no final;
+5. informar valor não booleano e confirmar que `.github/scripts/validate-content.py` rejeita o contrato.

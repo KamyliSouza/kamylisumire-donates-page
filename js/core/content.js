@@ -82,7 +82,7 @@
     }
 
     const defaults = {
-        navbar: {"version":2,"ariaLabel":"Navegação principal","brandAriaLabel":"Ir para a página inicial","ordem":["inicio","lives","agenda","artes","blog","jogos","regras","creditos","apoio"],"links":{"inicio":{"texto":"Início","icone":"home","url":"/"},"lives":{"texto":"Lives","icone":"youtube","url":"/#lives"},"agenda":{"texto":"Agenda","icone":"calendar","url":"/#agenda"},"artes":{"texto":"Artes","icone":"none","url":"/artes/"},"blog":{"texto":"Blog","icone":"none","url":"/blog/"},"jogos":{"texto":"Jogos","icone":"external-link","url":"https://trello.com/b/IfgV0jXS/jogos-das-lives"},"regras":{"texto":"Regras","icone":"none","url":"/#regras"},"creditos":{"texto":"Créditos","icone":"none","url":"/#creditos"},"apoio":{"texto":"Apoiar","icone":"heart","url":"/doacoes/"}}},
+        navbar: {"version":2,"ariaLabel":"Navegação principal","brandAriaLabel":"Ir para a página inicial","apoioFixoNoFim":true,"ordem":["inicio","lives","agenda","artes","blog","jogos","regras","creditos","apoio"],"links":{"inicio":{"texto":"Início","icone":"home","url":"/"},"lives":{"texto":"Lives","icone":"youtube","url":"/#lives"},"agenda":{"texto":"Agenda","icone":"calendar","url":"/#agenda"},"artes":{"texto":"Artes","icone":"none","url":"/artes/"},"blog":{"texto":"Blog","icone":"none","url":"/blog/"},"jogos":{"texto":"Jogos","icone":"external-link","url":"https://trello.com/b/IfgV0jXS/jogos-das-lives"},"regras":{"texto":"Regras","icone":"none","url":"/#regras"},"creditos":{"texto":"Créditos","icone":"none","url":"/#creditos"},"apoio":{"texto":"Apoiar","icone":"heart","url":"/doacoes/"}}},
         blogConfig: {"page": {"eyebrow": "Blog", "titulo": "Publicações", "descricao": "Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.", "buscaPlaceholder": "Buscar por título, resumo ou tag...", "vazio": "Nenhuma publicação disponível no momento.", "minutosLeitura": "{minutos} min de leitura"}, "home": {"eyebrow": "Blog", "titulo": "Últimas publicações", "descricao": "Textos recentes publicados por aqui.", "maxItems": 3}, "article": {"eyebrow": "Blog"}},
         blogPosts: {"version": 1, "posts": []},
         interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": "."}, "configuracoes": {"titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
@@ -259,7 +259,16 @@
         const container = nav?.querySelector(".site-nav-links");
         if (!container) return;
 
-        for (const key of normalizeNavbarOrder(data)) {
+        const order = normalizeNavbarOrder(data);
+        if (data?.apoioFixoNoFim !== false) {
+            const supportIndex = order.indexOf("apoio");
+            if (supportIndex >= 0) {
+                order.splice(supportIndex, 1);
+                order.push("apoio");
+            }
+        }
+
+        for (const key of order) {
             const link = nav.querySelector(`[data-nav-key="${key}"]`);
             if (link) container.appendChild(link);
         }

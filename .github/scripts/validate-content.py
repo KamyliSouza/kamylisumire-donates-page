@@ -715,6 +715,10 @@ def validate_navbar() -> None:
         if not isinstance(value, str) or not value.strip():
             error(f"data/content/navbar.json: {key} deve ser texto não vazio.")
 
+    apoio_fixo = data.get("apoioFixoNoFim")
+    if apoio_fixo is not None and not isinstance(apoio_fixo, bool):
+        error("data/content/navbar.json: apoioFixoNoFim deve ser booleano quando informado.")
+
     ordem = data.get("ordem")
     if not isinstance(ordem, list):
         error("data/content/navbar.json: ordem deve ser lista.")
@@ -1412,7 +1416,7 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.0",
+            "js/core/content.js?v=48.3.1",
             "js/core/navbar.js?v=48.3.0",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
@@ -1448,7 +1452,7 @@ def validate_architecture() -> None:
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
 
-    # V48.3.0: Navbar inteira é editorial e a ordem também é configurável.
+    # V48.3.1: Navbar reordenável com opção de manter o CTA Apoiar fixo ao final.
     for key in NAVBAR_LINK_KEYS:
         if f'data-nav-key="{key}"' not in navbar:
             error(f"js/core/navbar.js: link editorial da navbar ausente: {key}.")
@@ -1456,9 +1460,9 @@ def validate_architecture() -> None:
         error("V48.2.0: navbarSupport não deve mais depender de buttons.json.")
     if 'data-nav-key="blog"' not in navbar:
         error("V48.2.0: Blog deve permanecer presente na navbar mesmo sem posts.")
-    for runtime_token in ("normalizeNavbarOrder", "applyNavbarOrder", 'data.ordem'):
+    for runtime_token in ("normalizeNavbarOrder", "applyNavbarOrder", 'data.ordem', "apoioFixoNoFim", 'order.push("apoio")'):
         if runtime_token not in content_js:
-            error(f"V48.3.0: runtime de ordem da Navbar ausente em content.js: {runtime_token}.")
+            error(f"V48.3.1: runtime de ordem/pin da Navbar ausente em content.js: {runtime_token}.")
     if 'class="site-nav-divider site-nav-support-divider"' in navbar or 'class="site-nav-support-wrap"' in navbar:
         error("V48.3.0: Apoiar deve participar do mesmo fluxo reordenável .site-nav-links.")
     if "blogElements.section.hidden = true" in read_text("js/pages/home/content.js"):
