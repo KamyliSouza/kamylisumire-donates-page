@@ -269,3 +269,7 @@ Smoke test recomendado:
 3. com `apoioFixoNoFim: false`, confirmar que `apoio` passa a ocupar exatamente a posição declarada em `ordem`;
 4. remover `apoioFixoNoFim` e confirmar o fallback compatível: **Apoiar** permanece no final;
 5. informar valor não booleano e confirmar que `.github/scripts/validate-content.py` rejeita o contrato.
+
+### Hotfix slot histórico de Apoiar — V48.3.2
+
+A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `apoioFixoNoFim` nos dois valores: `true` deve manter Apoiar no slot à direita; `false` deve respeitar exatamente a posição de `apoio` em `ordem`.

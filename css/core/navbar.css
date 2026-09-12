@@ -130,8 +130,9 @@
 
 .site-nav-links {
     /*
-     * Todos os itens editoriais, inclusive Apoiar, compartilham este
-     * fluxo para permitir reordenação sem quebrar o scroll horizontal.
+     * O grupo central ocupa o espaço flexível. Quando Apoiar está em
+     * modo livre ele entra neste fluxo; quando fixo usa o slot dedicado
+     * à direita, preservando a posição histórica do CTA.
      */
     flex: 1 1 auto;
     min-width: 0;
@@ -396,9 +397,23 @@
 
 
 /* =========================================================
-   CTA APOIAR — participa da ordem editorial
+   CTA APOIAR — slot histórico opcional à direita
    ========================================================= */
 
+.site-nav-support-divider {
+    margin-left: 2px;
+}
+
+.site-nav-support-wrap {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.site-nav-support-divider[hidden],
+.site-nav-support-wrap[hidden] {
+    display: none;
+}
 
 .site-nav-support {
     min-height: 40px;
@@ -434,6 +449,9 @@
 }
 
 @media (max-width: 760px) {
+    .site-nav-support-divider {
+        margin-left: 0;
+    }
 
     .site-nav-support {
         min-height: 38px;

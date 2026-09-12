@@ -177,3 +177,7 @@ completo.
 ### Apoiar fixo opcional — V48.3.1
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+
+### Slot histórico de Apoiar — V48.3.2
+
+`apoioFixoNoFim: true` significa posição histórica real: o link `apoio` é montado no slot dedicado à direita. `false` coloca o mesmo link no grupo reordenável e sua posição passa a ser a indicada por `ordem`.

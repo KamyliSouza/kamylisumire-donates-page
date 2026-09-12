@@ -259,14 +259,27 @@
         const container = nav?.querySelector(".site-nav-links");
         if (!container) return;
 
+        const support = nav.querySelector('[data-nav-key="apoio"]');
+        const supportWrap = nav.querySelector(".site-nav-support-wrap");
+        const supportDivider = nav.querySelector(".site-nav-support-divider");
         const order = normalizeNavbarOrder(data);
-        if (data?.apoioFixoNoFim !== false) {
-            const supportIndex = order.indexOf("apoio");
-            if (supportIndex >= 0) {
-                order.splice(supportIndex, 1);
-                order.push("apoio");
+        const pinSupport = data?.apoioFixoNoFim !== false;
+
+        if (pinSupport) {
+            for (const key of order) {
+                if (key === "apoio") continue;
+                const link = nav.querySelector(`[data-nav-key="${key}"]`);
+                if (link) container.appendChild(link);
             }
+
+            if (support && supportWrap) supportWrap.appendChild(support);
+            supportWrap?.removeAttribute("hidden");
+            supportDivider?.removeAttribute("hidden");
+            return;
         }
+
+        supportWrap?.setAttribute("hidden", "");
+        supportDivider?.setAttribute("hidden", "");
 
         for (const key of order) {
             const link = nav.querySelector(`[data-nav-key="${key}"]`);

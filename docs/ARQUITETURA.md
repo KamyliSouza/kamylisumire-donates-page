@@ -196,3 +196,7 @@ O Blog não depende mais da existência de posts para aparecer. `/blog/` permane
 ### Apoiar fixo opcional — V48.3.1
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+
+### Navbar dual-mode — V48.3.2
+
+O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.

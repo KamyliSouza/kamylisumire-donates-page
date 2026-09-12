@@ -1,0 +1,431 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 86adf45..bd4a45c 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1416,11 +1416,11 @@ def validate_architecture() -> None:
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+         for asset in (
+-            "js/core/content.js?v=48.3.1",
+-            "js/core/navbar.js?v=48.3.0",
++            "js/core/content.js?v=48.3.2",
++            "js/core/navbar.js?v=48.3.2",
+             "js/core/external-links.js?v=47",
+             "js/core/footer.js?v=47",
+-            "css/core/navbar.css?v=48.3.0",
++            "css/core/navbar.css?v=48.3.2",
+         ):
+             if asset not in html:
+                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
+@@ -1452,7 +1452,7 @@ def validate_architecture() -> None:
+     if "KamyliButtonIcons" not in button_icons_js:
+         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+ 
+-    # V48.3.1: Navbar reordenável com opção de manter o CTA Apoiar fixo ao final.
++    # V48.3.2: Navbar reordenável com slot histórico opcional para o CTA Apoiar.
+     for key in NAVBAR_LINK_KEYS:
+         if f'data-nav-key="{key}"' not in navbar:
+             error(f"js/core/navbar.js: link editorial da navbar ausente: {key}.")
+@@ -1460,11 +1460,19 @@ def validate_architecture() -> None:
+         error("V48.2.0: navbarSupport não deve mais depender de buttons.json.")
+     if 'data-nav-key="blog"' not in navbar:
+         error("V48.2.0: Blog deve permanecer presente na navbar mesmo sem posts.")
+-    for runtime_token in ("normalizeNavbarOrder", "applyNavbarOrder", 'data.ordem', "apoioFixoNoFim", 'order.push("apoio")'):
+-        if runtime_token not in content_js:
+-            error(f"V48.3.1: runtime de ordem/pin da Navbar ausente em content.js: {runtime_token}.")
+-    if 'class="site-nav-divider site-nav-support-divider"' in navbar or 'class="site-nav-support-wrap"' in navbar:
+-        error("V48.3.0: Apoiar deve participar do mesmo fluxo reordenável .site-nav-links.")
++    for runtime_token in (
++        "normalizeNavbarOrder",
++        "applyNavbarOrder",
++        'data.ordem',
++        "apoioFixoNoFim",
++        "site-nav-support-wrap",
++        "site-nav-support-divider",
++        "pinSupport",
++    ):
++        if runtime_token not in content_js and runtime_token not in navbar:
++            error(f"V48.3.2: runtime/slot de ordem da Navbar ausente: {runtime_token}.")
++    if 'class="site-nav-divider site-nav-support-divider"' not in navbar or 'class="site-nav-support-wrap"' not in navbar:
++        error("V48.3.2: slot histórico opcional de Apoiar ausente em navbar.js.")
+     if "blogElements.section.hidden = true" in read_text("js/pages/home/content.js"):
+         error("V48.2.0: seção do Blog na Home não deve ser ocultada quando não há posts.")
+     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
+diff --git a/404.html b/404.html
+index 7e2e7b1..24cf0c7 100644
+--- a/404.html
++++ b/404.html
+@@ -233,7 +233,7 @@
+ 
+     <link rel="stylesheet" href="css/core/variables.css">
+     <link rel="stylesheet" href="css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="css/pages/404.css">
+ </head>
+ 
+@@ -288,10 +288,10 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.1"></script>
++    <script src="js/core/content.js?v=48.3.2"></script>
+     <script src="js/core/button-icons.js?v=47.2"></script>
+     <script src="js/core/buttons.js?v=48.2.0"></script>
+-    <script src="js/core/navbar.js?v=48.3.0"></script>
++    <script src="js/core/navbar.js?v=48.3.2"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+     <script src="js/core/footer.js?v=47.4.2"></script>
+diff --git a/AGENTS.md b/AGENTS.md
+index f7f760a..91987b8 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -384,3 +384,7 @@ Toda página HTML pública versionada deve manter a CSP mínima validada por `.g
+ ### Apoiar fixo opcional — V48.3.1
+ 
+ `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
++
++### Navbar Apoiar dual-mode — V48.3.2
++
++Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrapper dedicado `.site-nav-support-wrap` à direita; `false` deve mover o mesmo nó para `.site-nav-links` e obedecer `ordem`. Não duplique o link Apoiar no DOM.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 511d668..faa3b20 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,10 @@
++## V48.3.2 — Hotfix: slot histórico real do CTA Apoiar
++
++- corrige `apoioFixoNoFim: true` para restaurar o slot dedicado à direita, em vez de apenas colocar Apoiar por último no grupo central;
++- mantém `apoioFixoNoFim: false` com reordenação livre via `ordem`;
++- usa um único nó do CTA e o move entre o wrapper fixo e `.site-nav-links`;
++- atualiza validação, documentação e cache-busters para V48.3.2.
++
+ # Changelog
+ 
+ ## V48.3.1 — Hotfix: Apoiar fixo opcional na Navbar
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index 37844de..7893a53 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -172,3 +172,7 @@ Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
+ ### Apoiar fixo opcional — V48.3.1
+ 
+ `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
++
++### CTA Apoiar em dois modos — V48.3.2
++
++Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à direita, fora do scroll central e com divisor próprio. Quando `false`, ele participa do fluxo reordenável central sem perder o estilo de CTA.
+diff --git a/README.md b/README.md
+index 67519e5..27da624 100644
+--- a/README.md
++++ b/README.md
+@@ -155,3 +155,7 @@ A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de cont
+ ### Apoiar fixo opcional — V48.3.1
+ 
+ `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
++
++### Apoiar no slot histórico — V48.3.2
++
++`apoioFixoNoFim: true` agora restaura literalmente o layout histórico: o CTA **Apoiar** sai do grupo central reordenável e volta ao slot dedicado à direita, separado pelo divisor. Com `false`, o CTA entra em `.site-nav-links` e respeita sua posição em `ordem`.
+diff --git a/artes/index.html b/artes/index.html
+index 6184d85..bc45c94 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -245,7 +245,7 @@
+ 
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/pages/artes.css?v=48.1.2">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+@@ -360,10 +360,10 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.1"></script>
++    <script src="../js/core/content.js?v=48.3.2"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+     <script src="../js/core/buttons.js?v=48.2.0"></script>
+-    <script src="../js/core/navbar.js?v=48.3.0"></script>
++    <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+diff --git a/blog/index.html b/blog/index.html
+index a4bea3c..c130e1d 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -245,7 +245,7 @@
+ 
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/components/blog.css">
+     <link rel="stylesheet" href="../css/pages/blog.css?v=48.1.4">
+ 
+@@ -361,10 +361,10 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.1"></script>
++    <script src="../js/core/content.js?v=48.3.2"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+     <script src="../js/core/buttons.js?v=48.2.0"></script>
+-    <script src="../js/core/navbar.js?v=48.3.0"></script>
++    <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+diff --git a/css/core/navbar.css b/css/core/navbar.css
+index 7a9bf8d..802d54b 100644
+--- a/css/core/navbar.css
++++ b/css/core/navbar.css
+@@ -130,8 +130,9 @@
+ 
+ .site-nav-links {
+     /*
+-     * Todos os itens editoriais, inclusive Apoiar, compartilham este
+-     * fluxo para permitir reordenação sem quebrar o scroll horizontal.
++     * O grupo central ocupa o espaço flexível. Quando Apoiar está em
++     * modo livre ele entra neste fluxo; quando fixo usa o slot dedicado
++     * à direita, preservando a posição histórica do CTA.
+      */
+     flex: 1 1 auto;
+     min-width: 0;
+@@ -396,9 +397,23 @@
+ 
+ 
+ /* =========================================================
+-   CTA APOIAR — participa da ordem editorial
++   CTA APOIAR — slot histórico opcional à direita
+    ========================================================= */
+ 
++.site-nav-support-divider {
++    margin-left: 2px;
++}
++
++.site-nav-support-wrap {
++    display: flex;
++    align-items: center;
++    flex: 0 0 auto;
++}
++
++.site-nav-support-divider[hidden],
++.site-nav-support-wrap[hidden] {
++    display: none;
++}
+ 
+ .site-nav-support {
+     min-height: 40px;
+@@ -434,6 +449,9 @@
+ }
+ 
+ @media (max-width: 760px) {
++    .site-nav-support-divider {
++        margin-left: 0;
++    }
+ 
+     .site-nav-support {
+         min-height: 38px;
+diff --git a/data/content/README.md b/data/content/README.md
+index 0d1ea9a..0b59559 100644
+--- a/data/content/README.md
++++ b/data/content/README.md
+@@ -177,3 +177,7 @@ completo.
+ ### Apoiar fixo opcional — V48.3.1
+ 
+ `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
++
++### Slot histórico de Apoiar — V48.3.2
++
++`apoioFixoNoFim: true` significa posição histórica real: o link `apoio` é montado no slot dedicado à direita. `false` coloca o mesmo link no grupo reordenável e sua posição passa a ser a indicada por `ordem`.
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 896764d..08a7ebe 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -245,7 +245,7 @@
+ 
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/pages/doacoes.css">
+     <link rel="stylesheet" href="../css/components/ranking.css">
+ 
+@@ -453,11 +453,11 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.1"></script>
++    <script src="../js/core/content.js?v=48.3.2"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+     <script src="../js/core/buttons.js?v=48.2.0"></script>
+     <script src="../js/core/api.js?v=47.3"></script>
+-    <script src="../js/core/navbar.js?v=48.3.0"></script>
++    <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index b403217..aacc7c3 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -196,3 +196,7 @@ O Blog não depende mais da existência de posts para aparecer. `/blog/` permane
+ ### Apoiar fixo opcional — V48.3.1
+ 
+ `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
++
++### Navbar dual-mode — V48.3.2
++
++O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index f33a6a7..a0267f3 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -269,3 +269,7 @@ Smoke test recomendado:
+ 3. com `apoioFixoNoFim: false`, confirmar que `apoio` passa a ocupar exatamente a posição declarada em `ordem`;
+ 4. remover `apoioFixoNoFim` e confirmar o fallback compatível: **Apoiar** permanece no final;
+ 5. informar valor não booleano e confirmar que `.github/scripts/validate-content.py` rejeita o contrato.
++
++### Hotfix slot histórico de Apoiar — V48.3.2
++
++A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `apoioFixoNoFim` nos dois valores: `true` deve manter Apoiar no slot à direita; `false` deve respeitar exatamente a posição de `apoio` em `ordem`.
+diff --git a/index.html b/index.html
+index 12adc42..7fe84e0 100644
+--- a/index.html
++++ b/index.html
+@@ -254,7 +254,7 @@
+ 
+     <link rel="stylesheet" href="css/core/variables.css">
+     <link rel="stylesheet" href="css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="css/pages/home.css?v=48.2.0">
+     <link rel="stylesheet" href="css/components/lives.css?v=47.4">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+@@ -816,10 +816,10 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.1"></script>
++    <script src="js/core/content.js?v=48.3.2"></script>
+     <script src="js/core/button-icons.js?v=47.2"></script>
+     <script src="js/core/buttons.js?v=48.2.0"></script>
+-    <script src="js/core/navbar.js?v=48.3.0"></script>
++    <script src="js/core/navbar.js?v=48.3.2"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+diff --git a/js/core/content.js b/js/core/content.js
+index 3f70fe8..f18bdd6 100644
+--- a/js/core/content.js
++++ b/js/core/content.js
+@@ -259,15 +259,28 @@
+         const container = nav?.querySelector(".site-nav-links");
+         if (!container) return;
+ 
++        const support = nav.querySelector('[data-nav-key="apoio"]');
++        const supportWrap = nav.querySelector(".site-nav-support-wrap");
++        const supportDivider = nav.querySelector(".site-nav-support-divider");
+         const order = normalizeNavbarOrder(data);
+-        if (data?.apoioFixoNoFim !== false) {
+-            const supportIndex = order.indexOf("apoio");
+-            if (supportIndex >= 0) {
+-                order.splice(supportIndex, 1);
+-                order.push("apoio");
++        const pinSupport = data?.apoioFixoNoFim !== false;
++
++        if (pinSupport) {
++            for (const key of order) {
++                if (key === "apoio") continue;
++                const link = nav.querySelector(`[data-nav-key="${key}"]`);
++                if (link) container.appendChild(link);
+             }
++
++            if (support && supportWrap) supportWrap.appendChild(support);
++            supportWrap?.removeAttribute("hidden");
++            supportDivider?.removeAttribute("hidden");
++            return;
+         }
+ 
++        supportWrap?.setAttribute("hidden", "");
++        supportDivider?.setAttribute("hidden", "");
++
+         for (const key of order) {
+             const link = nav.querySelector(`[data-nav-key="${key}"]`);
+             if (link) container.appendChild(link);
+diff --git a/js/core/navbar.js b/js/core/navbar.js
+index f85f378..6e65f2a 100644
+--- a/js/core/navbar.js
++++ b/js/core/navbar.js
+@@ -64,7 +64,14 @@
+                         <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
+                         <span data-nav-label>Créditos</span>
+                     </a>
++                </div>
++
++                <span
++                    class="site-nav-divider site-nav-support-divider"
++                    aria-hidden="true"
++                ></span>
+ 
++                <div class="site-nav-support-wrap">
+                     <a
+                         class="site-nav-link site-nav-donate site-nav-support"
+                         data-nav-key="apoio"
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 53b0624..eb5e501 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -234,7 +234,7 @@
+ 
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=47.4.2">
+ </head>
+ 
+@@ -361,10 +361,10 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.1"></script>
++    <script src="../js/core/content.js?v=48.3.2"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+     <script src="../js/core/buttons.js?v=48.2.0"></script>
+-    <script src="../js/core/navbar.js?v=48.3.0"></script>
++    <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 8be15c0..050793c 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -234,7 +234,7 @@
+ 
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.0">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=47.4.2">
+ </head>
+ 
+@@ -341,10 +341,10 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.1"></script>
++    <script src="../js/core/content.js?v=48.3.2"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+     <script src="../js/core/buttons.js?v=48.2.0"></script>
+-    <script src="../js/core/navbar.js?v=48.3.0"></script>
++    <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>

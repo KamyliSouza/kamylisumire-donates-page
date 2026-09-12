@@ -384,3 +384,7 @@ Toda página HTML pública versionada deve manter a CSP mínima validada por `.g
 ### Apoiar fixo opcional — V48.3.1
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+
+### Navbar Apoiar dual-mode — V48.3.2
+
+Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrapper dedicado `.site-nav-support-wrap` à direita; `false` deve mover o mesmo nó para `.site-nav-links` e obedecer `ordem`. Não duplique o link Apoiar no DOM.

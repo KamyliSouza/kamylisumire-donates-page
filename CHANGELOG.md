@@ -1,3 +1,10 @@
+## V48.3.2 — Hotfix: slot histórico real do CTA Apoiar
+
+- corrige `apoioFixoNoFim: true` para restaurar o slot dedicado à direita, em vez de apenas colocar Apoiar por último no grupo central;
+- mantém `apoioFixoNoFim: false` com reordenação livre via `ordem`;
+- usa um único nó do CTA e o move entre o wrapper fixo e `.site-nav-links`;
+- atualiza validação, documentação e cache-busters para V48.3.2.
+
 # Changelog
 
 ## V48.3.1 — Hotfix: Apoiar fixo opcional na Navbar

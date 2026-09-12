@@ -64,7 +64,14 @@
                         <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
                         <span data-nav-label>Créditos</span>
                     </a>
+                </div>
 
+                <span
+                    class="site-nav-divider site-nav-support-divider"
+                    aria-hidden="true"
+                ></span>
+
+                <div class="site-nav-support-wrap">
                     <a
                         class="site-nav-link site-nav-donate site-nav-support"
                         data-nav-key="apoio"

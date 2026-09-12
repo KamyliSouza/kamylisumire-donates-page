@@ -155,3 +155,7 @@ A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de cont
 ### Apoiar fixo opcional — V48.3.1
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+
+### Apoiar no slot histórico — V48.3.2
+
+`apoioFixoNoFim: true` agora restaura literalmente o layout histórico: o CTA **Apoiar** sai do grupo central reordenável e volta ao slot dedicado à direita, separado pelo divisor. Com `false`, o CTA entra em `.site-nav-links` e respeita sua posição em `ordem`.

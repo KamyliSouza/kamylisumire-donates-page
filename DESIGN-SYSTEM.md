@@ -172,3 +172,7 @@ Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
 ### Apoiar fixo opcional — V48.3.1
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+
+### CTA Apoiar em dois modos — V48.3.2
+
+Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à direita, fora do scroll central e com divisor próprio. Quando `false`, ele participa do fluxo reordenável central sem perder o estilo de CTA.
