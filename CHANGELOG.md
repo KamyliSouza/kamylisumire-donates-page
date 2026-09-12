@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.0 — Ordem editorial da Navbar
+
+- adiciona `ordem` a `data/content/navbar.json`, mantendo as nove chaves estáveis e permitindo reorganizar todos os itens, inclusive **Apoiar**;
+- o runtime normaliza a ordem, ignora duplicatas/chaves desconhecidas em fallback e completa itens ausentes com a ordem padrão antes de reorganizar o DOM;
+- o CTA Apoiar passa a participar do mesmo fluxo horizontal de `.site-nav-links`, preservando seu estilo visual e permitindo qualquer posição;
+- mantém `version: 2`, `texto`/`icone`/`url`, Blog permanente e compatibilidade de leitura com dados V48.2.0 sem `ordem`;
+- atualiza validação, documentação e cache-busters de Navbar para V48.3.0.
+
+
 ## V48.2.0 — Navbar editorial completa e Blog sempre visível
 
 - evolui `data/content/navbar.json` para `version: 2`; cada item da navbar passa a ter `texto`, `icone` e `url` editáveis, mantendo chaves estáveis para Início, Lives, Agenda, Artes, Blog, Jogos, Regras, Créditos e Apoiar;

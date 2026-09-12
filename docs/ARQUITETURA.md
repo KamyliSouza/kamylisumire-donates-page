@@ -188,3 +188,8 @@ Cards adicionais usam `tipo: personalizado` e podem declarar alinhamento, textos
 `data/content/navbar.json` é a fonte única dos nove itens clicáveis da Navbar. O contrato `version: 2` mantém as chaves estáveis `inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`; cada uma contém `texto`, `icone` e `url`. O frontend valida/normaliza a URL antes de aplicá-la e renderiza o ícone somente pela allowlist de `js/core/button-icons.js`.
 
 O Blog não depende mais da existência de posts para aparecer. `/blog/` permanece na Navbar e no sitemap, e a Home mantém a seção de Blog visível com estado vazio quando `posts.json` não possui publicação válida.
+
+
+### Navbar reordenável — V48.3.0
+
+`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.

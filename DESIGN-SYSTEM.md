@@ -164,3 +164,8 @@ Manter:
 
 Gráficos públicos vêm de `assets.kamylisumire.com`.
 Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
+
+
+### Navbar reordenável — V48.3.0
+
+`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.

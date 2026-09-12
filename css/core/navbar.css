@@ -130,8 +130,8 @@
 
 .site-nav-links {
     /*
-     * O grupo central ocupa o espaço flexível.
-     * O botão Apoiar fica fora deste scroll e permanece fixo à direita.
+     * Todos os itens editoriais, inclusive Apoiar, compartilham este
+     * fluxo para permitir reordenação sem quebrar o scroll horizontal.
      */
     flex: 1 1 auto;
     min-width: 0;
@@ -396,18 +396,9 @@
 
 
 /* =========================================================
-   APOIO FIXO À DIREITA — V42
+   CTA APOIAR — participa da ordem editorial
    ========================================================= */
 
-.site-nav-support-divider {
-    margin-left: 2px;
-}
-
-.site-nav-support-wrap {
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-}
 
 .site-nav-support {
     min-height: 40px;
@@ -443,9 +434,6 @@
 }
 
 @media (max-width: 760px) {
-    .site-nav-support-divider {
-        margin-left: 0;
-    }
 
     .site-nav-support {
         min-height: 38px;

@@ -256,3 +256,8 @@ Smoke test recomendado:
 7. testar card personalizado sem CTA (texto e URL vazios) e confirmar ausência do botão;
 8. tentar ID duplicado, tipo nativo ausente/duplicado, ícone inválido, URL `//host`, HTML/SVG bruto e mais de 24 cards; todos devem ser rejeitados pelo validador;
 9. manter `data/blog/posts.json` vazio e confirmar que o card Blog continua no estado vazio quando `visivel: true`, podendo ser ocultado apenas pela configuração explícita da Home.
+
+
+### Navbar reordenável — V48.3.0
+
+`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.

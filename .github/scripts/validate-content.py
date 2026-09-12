@@ -715,6 +715,17 @@ def validate_navbar() -> None:
         if not isinstance(value, str) or not value.strip():
             error(f"data/content/navbar.json: {key} deve ser texto não vazio.")
 
+    ordem = data.get("ordem")
+    if not isinstance(ordem, list):
+        error("data/content/navbar.json: ordem deve ser lista.")
+    else:
+        if len(ordem) != len(NAVBAR_LINK_KEYS):
+            error("data/content/navbar.json: ordem deve conter exatamente os nove itens da Navbar.")
+        if len(set(ordem)) != len(ordem):
+            error("data/content/navbar.json: ordem não pode conter itens duplicados.")
+        if set(ordem) != set(NAVBAR_LINK_KEYS):
+            error("data/content/navbar.json: ordem deve conter exatamente as chaves estáveis da Navbar.")
+
     links = data.get("links")
     if not isinstance(links, dict):
         error("data/content/navbar.json: links deve ser objeto.")
@@ -1061,6 +1072,7 @@ def validate_architecture() -> None:
     carousel_js = read_text("js/pages/home/carousel.js")
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
+    content_js = read_text("js/core/content.js")
     page_transitions = read_text("js/core/page-transitions.js")
     buttons_js = read_text("js/core/buttons.js")
     button_icons_js = read_text("js/core/button-icons.js")
@@ -1400,11 +1412,11 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.2.0",
-            "js/core/navbar.js?v=48.2.0",
+            "js/core/content.js?v=48.3.0",
+            "js/core/navbar.js?v=48.3.0",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.2.0",
+            "css/core/navbar.css?v=48.3.0",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1436,7 +1448,7 @@ def validate_architecture() -> None:
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
 
-    # V48.2.0: Navbar inteira é editorial, inclusive Blog e Apoiar.
+    # V48.3.0: Navbar inteira é editorial e a ordem também é configurável.
     for key in NAVBAR_LINK_KEYS:
         if f'data-nav-key="{key}"' not in navbar:
             error(f"js/core/navbar.js: link editorial da navbar ausente: {key}.")
@@ -1444,6 +1456,11 @@ def validate_architecture() -> None:
         error("V48.2.0: navbarSupport não deve mais depender de buttons.json.")
     if 'data-nav-key="blog"' not in navbar:
         error("V48.2.0: Blog deve permanecer presente na navbar mesmo sem posts.")
+    for runtime_token in ("normalizeNavbarOrder", "applyNavbarOrder", 'data.ordem'):
+        if runtime_token not in content_js:
+            error(f"V48.3.0: runtime de ordem da Navbar ausente em content.js: {runtime_token}.")
+    if 'class="site-nav-divider site-nav-support-divider"' in navbar or 'class="site-nav-support-wrap"' in navbar:
+        error("V48.3.0: Apoiar deve participar do mesmo fluxo reordenável .site-nav-links.")
     if "blogElements.section.hidden = true" in read_text("js/pages/home/content.js"):
         error("V48.2.0: seção do Blog na Home não deve ser ocultada quando não há posts.")
     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):

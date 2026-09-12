@@ -376,3 +376,8 @@ migração/hotfix.
 ## CSP V48.0.2
 
 Toda página HTML pública versionada deve manter a CSP mínima validada por `.github/scripts/validate-content.py`. Ao adicionar um novo host usado por `fetch`, imagens, fontes ou outros recursos, atualizar a política deliberadamente e validar o repositório. Não adicionar `frame-ancestors` à CSP via `<meta>`; esse diretivo exige cabeçalho HTTP. Também não adicionar `upgrade-insecure-requests` à meta CSP: o repositório deve continuar testável por servidor HTTP local, enquanto produção já opera em HTTPS. Páginas que carregam `js/core/footer.js` devem carregar `js/core/sanitize.js` antes dele.
+
+
+### Navbar reordenável — V48.3.0
+
+`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.

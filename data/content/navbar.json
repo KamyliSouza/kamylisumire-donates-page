@@ -2,6 +2,17 @@
   "version": 2,
   "ariaLabel": "Navegação principal",
   "brandAriaLabel": "Ir para a página inicial",
+  "ordem": [
+    "inicio",
+    "lives",
+    "agenda",
+    "artes",
+    "blog",
+    "jogos",
+    "regras",
+    "creditos",
+    "apoio"
+  ],
   "links": {
     "inicio": {
       "texto": "Início",
