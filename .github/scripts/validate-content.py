@@ -1448,13 +1448,13 @@ def validate_architecture() -> None:
     ):
         if "page-transitions.js?v=46.3" not in html:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
-        if "loader.js?v=46.3" not in html:
-            error(f"{rel}: cache-buster do loader V46.3 ausente.")
+        if "loader.js?v=48.3.6" not in html:
+            error(f"{rel}: cache-buster do loader V48.3.6 ausente.")
         if "global.css?v=47.1" not in html:
             error(f"{rel}: cache-buster do CSS global V47.1 ausente.")
 
-    if "loader.js?v=46.3" not in not_found:
-        error("404.html: cache-buster do loader V46.3 ausente.")
+    if "loader.js?v=48.3.6" not in not_found:
+        error("404.html: cache-buster do loader V48.3.6 ausente.")
     if "global.css?v=47.1" not in not_found:
         error("404.html: cache-buster do CSS global V47.1 ausente.")
 
@@ -1466,12 +1466,12 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.2.0" not in html:
-            error(f"{rel}: módulos de botões/navbar V48.2.0 não carregados.")
+        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.3.6" not in html:
+            error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.2",
+            "js/core/content.js?v=48.3.6",
             "js/core/navbar.js?v=48.3.2",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
@@ -1506,6 +1506,42 @@ def validate_architecture() -> None:
         error("js/core/buttons.js: configuração central de botões não carregada.")
     if "KamyliButtonIcons" not in button_icons_js:
         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+
+    # V48.3.6: observers continuam existindo, mas não podem reagir a toda mutação
+    # do documento nem reescrever a Navbar a cada frame. Navegação direta por hash
+    # permanece responsabilidade de navbar.js e deve continuar estabilizando a seção.
+    for token in (
+        "mutationNeedsGlobalApply",
+        "mutationAddsConfigurableButton",
+        "sameOrder",
+        "navKeysIn",
+    ):
+        if token not in content_js and token not in buttons_js:
+            error(f"V48.3.6: proteção de performance ausente: {token}.")
+
+    if "new MutationObserver(scheduleApply)" in content_js or "new MutationObserver(scheduleApply)" in buttons_js:
+        error("V48.3.6: observers globais não devem reagir indiscriminadamente a toda mutação.")
+
+    if "KAMYLI_AGENDA_READY" in loader_js:
+        error("V48.3.6: Agenda não deve bloquear o reveal inicial do site.")
+    if "await prepareVisualBackdrop()" in loader_js:
+        error("V48.3.6: fundo decorativo não deve bloquear o reveal inicial.")
+    for token in (
+        "const INITIAL_MIN_DISPLAY_MS = 500",
+        "const INITIAL_MAX_WAIT_MS = 2500",
+        'loaderTimingVersion = "48.3.6"',
+    ):
+        if token not in loader_js:
+            error(f"V48.3.6: timing otimizado do loader ausente: {token}.")
+
+    for token in (
+        "runAfterSiteReveal",
+        'window.addEventListener("hashchange"',
+        "startSectionStabilization",
+        "SECTION_STABILIZATION_MS",
+    ):
+        if token not in navbar:
+            error(f"V48.3.6: navegação direta/estabilização de seção deve ser preservada: {token}.")
 
     # V48.3.2: Navbar reordenável com slot histórico opcional para o CTA Apoiar.
     for key in NAVBAR_LINK_KEYS:

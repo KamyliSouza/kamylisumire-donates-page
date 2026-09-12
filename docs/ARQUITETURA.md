@@ -200,3 +200,7 @@ O Blog não depende mais da existência de posts para aparecer. `/blog/` permane
 ### Navbar dual-mode — V48.3.2
 
 O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.
+
+### Montagem global e navegação por hash — V48.3.6
+
+`content.js` ainda observa montagem tardia porque Navbar, Footer e diálogo externo são criados por módulos separados, mas o callback só reaplica conteúdo quando esses mounts aparecem. `buttons.js` segue a mesma regra para novos `[data-button-key]`. A navegação `/#secao` permanece independente em `navbar.js`: ela aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a posição durante mudanças posteriores de layout.

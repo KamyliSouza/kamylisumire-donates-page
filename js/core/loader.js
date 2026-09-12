@@ -17,8 +17,8 @@
         return;
     }
 
-    const INITIAL_MIN_DISPLAY_MS = 1000;
-    const INITIAL_MAX_WAIT_MS = 4000;
+    const INITIAL_MIN_DISPLAY_MS = 500;
+    const INITIAL_MAX_WAIT_MS = 2500;
     const INITIAL_EXIT_MS = 320;
 
     const NAVIGATION_MIN_DISPLAY_MS = 240;
@@ -84,7 +84,6 @@
     const startedAt =
         Number(window.KAMYLI_LOADER_STARTED_AT) || performance.now();
 
-    const needsAgenda = Boolean(document.getElementById("agendaGrid"));
     let domReady = document.readyState !== "loading";
     let finished = false;
     let revealPreparing = false;
@@ -106,7 +105,7 @@
             )
         );
 
-    root.dataset.loaderTimingVersion = "46.3";
+    root.dataset.loaderTimingVersion = "48.3.6";
     root.dataset.loaderMode = loaderMode;
     root.dataset.pageRevealDelayMs =
         String(pageRevealDelayMs);
@@ -141,8 +140,7 @@
         return (
             window.KAMYLI_PAGE_CONTENT_READY === true &&
             window.KAMYLI_FOOTER_READY === true &&
-            window.KAMYLI_GLOBAL_UI_READY === true &&
-            (!needsAgenda || window.KAMYLI_AGENDA_READY === true)
+            window.KAMYLI_GLOBAL_UI_READY === true
         );
     }
 
@@ -157,7 +155,7 @@
                     backdropReady,
                     pageRevealDelayMs,
                     pageRevealOverlapMs,
-                    loaderTimingVersion: "46.3"
+                    loaderTimingVersion: "48.3.6"
                 }
             })
         );
@@ -293,7 +291,12 @@
             finishTimer = null;
         }
 
-        await prepareVisualBackdrop();
+        /*
+         * V48.3.6 — o fundo é decorativo e não pode segurar o conteúdo.
+         * Mantemos o preload/decode como preparação oportunista, mas o reveal
+         * não espera rede externa nem decodificação da arte de fundo.
+         */
+        prepareVisualBackdrop().catch(() => {});
 
         const remaining = Math.max(
             0,

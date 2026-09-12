@@ -255,6 +255,20 @@
         return ordered;
     }
 
+    function navKeysIn(container) {
+        if (!container) return [];
+        return [...container.children]
+            .map(node => node?.dataset?.navKey || "")
+            .filter(Boolean);
+    }
+
+    function sameOrder(current, expected) {
+        return (
+            current.length === expected.length &&
+            current.every((key, index) => key === expected[index])
+        );
+    }
+
     function applyNavbarOrder(nav, data) {
         const container = nav?.querySelector(".site-nav-links");
         if (!container) return;
@@ -264,15 +278,26 @@
         const supportDivider = nav.querySelector(".site-nav-support-divider");
         const order = normalizeNavbarOrder(data);
         const pinSupport = data?.apoioFixoNoFim !== false;
+        const expectedCentralOrder = pinSupport
+            ? order.filter(key => key !== "apoio")
+            : order;
 
-        if (pinSupport) {
-            for (const key of order) {
-                if (key === "apoio") continue;
+        /*
+         * V48.3.6 — importante para performance e para o observer editorial:
+         * appendChild() em um nó já montado também gera mutação. Só movemos
+         * os links quando a ordem/slot realmente mudou.
+         */
+        if (!sameOrder(navKeysIn(container), expectedCentralOrder)) {
+            for (const key of expectedCentralOrder) {
                 const link = nav.querySelector(`[data-nav-key="${key}"]`);
                 if (link) container.appendChild(link);
             }
+        }
 
-            if (support && supportWrap) supportWrap.appendChild(support);
+        if (pinSupport) {
+            if (support && supportWrap && support.parentElement !== supportWrap) {
+                supportWrap.appendChild(support);
+            }
             supportWrap?.removeAttribute("hidden");
             supportDivider?.removeAttribute("hidden");
             return;
@@ -281,9 +306,16 @@
         supportWrap?.setAttribute("hidden", "");
         supportDivider?.setAttribute("hidden", "");
 
-        for (const key of order) {
-            const link = nav.querySelector(`[data-nav-key="${key}"]`);
-            if (link) container.appendChild(link);
+        if (support && support.parentElement !== container) {
+            /*
+             * A ordem completa já foi aplicada acima quando necessário.
+             * Se Apoiar ainda estava no slot fixo, reaplicamos uma única vez
+             * para inseri-lo na posição editorial correta.
+             */
+            for (const key of expectedCentralOrder) {
+                const link = nav.querySelector(`[data-nav-key="${key}"]`);
+                if (link) container.appendChild(link);
+            }
         }
     }
 
@@ -628,13 +660,40 @@
         });
     }
 
+    function mutationNeedsGlobalApply(mutations) {
+        const mountedSelectors = [
+            ".site-nav",
+            ".site-footer-content",
+            ".site-external-dialog"
+        ];
+
+        return mutations.some(mutation => {
+            const target = mutation.target;
+            if (
+                target instanceof Element &&
+                (target.id === "site-navbar" || target.id === "site-footer")
+            ) {
+                return true;
+            }
+
+            return [...mutation.addedNodes].some(node => {
+                if (!(node instanceof Element)) return false;
+                return mountedSelectors.some(selector => (
+                    node.matches(selector) || Boolean(node.querySelector(selector))
+                ));
+            });
+        });
+    }
+
     function essentialUiMounted() {
         const navbar = document.getElementById("site-navbar");
         const footer = document.getElementById("site-footer");
+        const externalDialog = document.querySelector(".site-external-dialog");
 
         return (
             (!navbar || Boolean(navbar.querySelector(".site-nav"))) &&
-            (!footer || Boolean(footer.querySelector(".site-footer-content")))
+            (!footer || Boolean(footer.querySelector(".site-footer-content"))) &&
+            Boolean(externalDialog)
         );
     }
 
@@ -645,8 +704,12 @@
             !essentialUiMounted() &&
             performance.now() - started < timeoutMs
         ) {
+            /*
+             * O MutationObserver aplica o conteúdo exatamente quando os
+             * mounts relevantes aparecem. Aqui apenas aguardamos a montagem;
+             * não reescrevemos o DOM a cada frame.
+             */
             await new Promise(resolve => requestAnimationFrame(resolve));
-            applyGlobalContent();
         }
     }
 
@@ -684,8 +747,10 @@
 
         applyGlobalContent();
 
-        observer = new MutationObserver(scheduleApply);
-        observer.observe(document.documentElement, {
+        observer = new MutationObserver(mutations => {
+            if (mutationNeedsGlobalApply(mutations)) scheduleApply();
+        });
+        observer.observe(document.body || document.documentElement, {
             childList: true,
             subtree: true
         });

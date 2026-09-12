@@ -127,6 +127,18 @@
         });
     }
 
+    function mutationAddsConfigurableButton(mutations) {
+        return mutations.some(mutation =>
+            [...mutation.addedNodes].some(node => {
+                if (!(node instanceof Element)) return false;
+                return (
+                    node.matches("[data-button-key]") ||
+                    Boolean(node.querySelector("[data-button-key]"))
+                );
+            })
+        );
+    }
+
     async function init() {
         try {
             const remote = await content.getJSON("/data/content/buttons.json");
@@ -137,8 +149,13 @@
 
         applyAll();
 
-        const observer = new MutationObserver(scheduleApply);
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+        const observer = new MutationObserver(mutations => {
+            if (mutationAddsConfigurableButton(mutations)) scheduleApply();
+        });
+        observer.observe(document.body || document.documentElement, {
+            childList: true,
+            subtree: true
+        });
 
         setTimeout(() => observer.disconnect(), 5000);
 

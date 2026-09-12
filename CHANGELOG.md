@@ -1,3 +1,12 @@
+## V48.3.6 — Hotfix: carregamento e observers sem perder navegação por seção
+
+- reduz reaplicações de DOM: o observer editorial reage apenas à montagem de Navbar, Footer e diálogo externo, em vez de qualquer `childList` do documento;
+- torna a ordenação da Navbar idempotente, evitando `appendChild()` quando links/slot Apoiar já estão na posição correta;
+- filtra o observer de botões para reagir apenas quando novos elementos `[data-button-key]` são realmente inseridos;
+- mantém integralmente `runAfterSiteReveal`, `hashchange`, scrollspy e estabilização de seção, preservando links diretos como `/#creditos`;
+- reduz o mínimo do loader inicial para 500 ms e o fallback para 2500 ms, remove Agenda e decode do fundo do caminho crítico e rebaixa o preload do fundo para prioridade baixa;
+- não altera contratos editoriais, JSONs, Workers, Helpers ou comportamento de navegação interna.
+
 ## V48.3.5 — Hotfix: menu de busca fora da Backdrop Root
 
 - corrige definitivamente o blur do drop-down **Buscar em** da Galeria e do Blog movendo o menu aberto temporariamente para `document.body`;

@@ -185,3 +185,7 @@ Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
 ### CTA Apoiar em dois modos — V48.3.2
 
 Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à direita, fora do scroll central e com divisor próprio. Quando `false`, ele participa do fluxo reordenável central sem perder o estilo de CTA.
+
+### Performance de montagem — V48.3.6
+
+A identidade visual não deve tornar o conteúdo dependente de assets decorativos. O fundo usado por `backdrop-filter` pode ser antecipado, mas não deve bloquear o reveal da página nem competir com conteúdo editorial em prioridade alta. Observers de montagem devem reagir somente aos componentes que precisam de configuração tardia e não a toda mutação do documento.

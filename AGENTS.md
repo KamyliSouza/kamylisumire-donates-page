@@ -388,3 +388,7 @@ Toda página HTML pública versionada deve manter a CSP mínima validada por `.g
 ### Navbar Apoiar dual-mode — V48.3.2
 
 Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrapper dedicado `.site-nav-support-wrap` à direita; `false` deve mover o mesmo nó para `.site-nav-links` e obedecer `ordem`. Não duplique o link Apoiar no DOM.
+
+### Invariante de performance e âncoras — V48.3.6
+
+Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem `startSectionStabilization`: eles preservam navegação direta para seções enquanto a Home muda de altura. Para performance, observers de conteúdo/botões devem filtrar mutações relevantes e `applyNavbarOrder()` deve permanecer idempotente. Agenda e assets decorativos não devem voltar ao caminho crítico do loader inicial.

@@ -1,0 +1,642 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 782667924293239cbcc76e17fc1a7193378bda8f..5b79fae9f26d6463007fe766ea7dfec82c018da9 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1448,13 +1448,13 @@ def validate_architecture() -> None:
+     ):
+         if "page-transitions.js?v=46.3" not in html:
+             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
+-        if "loader.js?v=46.3" not in html:
+-            error(f"{rel}: cache-buster do loader V46.3 ausente.")
++        if "loader.js?v=48.3.6" not in html:
++            error(f"{rel}: cache-buster do loader V48.3.6 ausente.")
+         if "global.css?v=47.1" not in html:
+             error(f"{rel}: cache-buster do CSS global V47.1 ausente.")
+ 
+-    if "loader.js?v=46.3" not in not_found:
+-        error("404.html: cache-buster do loader V46.3 ausente.")
++    if "loader.js?v=48.3.6" not in not_found:
++        error("404.html: cache-buster do loader V48.3.6 ausente.")
+     if "global.css?v=47.1" not in not_found:
+         error("404.html: cache-buster do CSS global V47.1 ausente.")
+ 
+@@ -1466,12 +1466,12 @@ def validate_architecture() -> None:
+         )
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+-        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.2.0" not in html:
+-            error(f"{rel}: módulos de botões/navbar V48.2.0 não carregados.")
++        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.3.6" not in html:
++            error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+         for asset in (
+-            "js/core/content.js?v=48.3.2",
++            "js/core/content.js?v=48.3.6",
+             "js/core/navbar.js?v=48.3.2",
+             "js/core/external-links.js?v=47",
+             "js/core/footer.js?v=47",
+@@ -1507,6 +1507,42 @@ def validate_architecture() -> None:
+     if "KamyliButtonIcons" not in button_icons_js:
+         error("js/core/button-icons.js: biblioteca segura de ícones ausente.")
+ 
++    # V48.3.6: observers continuam existindo, mas não podem reagir a toda mutação
++    # do documento nem reescrever a Navbar a cada frame. Navegação direta por hash
++    # permanece responsabilidade de navbar.js e deve continuar estabilizando a seção.
++    for token in (
++        "mutationNeedsGlobalApply",
++        "mutationAddsConfigurableButton",
++        "sameOrder",
++        "navKeysIn",
++    ):
++        if token not in content_js and token not in buttons_js:
++            error(f"V48.3.6: proteção de performance ausente: {token}.")
++
++    if "new MutationObserver(scheduleApply)" in content_js or "new MutationObserver(scheduleApply)" in buttons_js:
++        error("V48.3.6: observers globais não devem reagir indiscriminadamente a toda mutação.")
++
++    if "KAMYLI_AGENDA_READY" in loader_js:
++        error("V48.3.6: Agenda não deve bloquear o reveal inicial do site.")
++    if "await prepareVisualBackdrop()" in loader_js:
++        error("V48.3.6: fundo decorativo não deve bloquear o reveal inicial.")
++    for token in (
++        "const INITIAL_MIN_DISPLAY_MS = 500",
++        "const INITIAL_MAX_WAIT_MS = 2500",
++        'loaderTimingVersion = "48.3.6"',
++    ):
++        if token not in loader_js:
++            error(f"V48.3.6: timing otimizado do loader ausente: {token}.")
++
++    for token in (
++        "runAfterSiteReveal",
++        'window.addEventListener("hashchange"',
++        "startSectionStabilization",
++        "SECTION_STABILIZATION_MS",
++    ):
++        if token not in navbar:
++            error(f"V48.3.6: navegação direta/estabilização de seção deve ser preservada: {token}.")
++
+     # V48.3.2: Navbar reordenável com slot histórico opcional para o CTA Apoiar.
+     for key in NAVBAR_LINK_KEYS:
+         if f'data-nav-key="{key}"' not in navbar:
+diff --git a/404.html b/404.html
+index 24cf0c7605287e636c5f7b36e2f7dd37ff2ff9f1..6900473c8091dc1c492481215d2a7f6357d6d895 100644
+--- a/404.html
++++ b/404.html
+@@ -196,7 +196,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -288,9 +288,9 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.2"></script>
++    <script src="js/core/content.js?v=48.3.6"></script>
+     <script src="js/core/button-icons.js?v=47.2"></script>
+-    <script src="js/core/buttons.js?v=48.2.0"></script>
++    <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/navbar.js?v=48.3.2"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+@@ -298,6 +298,6 @@
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+-    <script src="js/core/loader.js?v=46.3"></script>
++    <script src="js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/AGENTS.md b/AGENTS.md
+index 91987b876ab534030b5b97c7c54868b193741283..b453601a9dc2f8120b952ee138be5aad12b9a5d3 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -388,3 +388,7 @@ Toda página HTML pública versionada deve manter a CSP mínima validada por `.g
+ ### Navbar Apoiar dual-mode — V48.3.2
+ 
+ Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrapper dedicado `.site-nav-support-wrap` à direita; `false` deve mover o mesmo nó para `.site-nav-links` e obedecer `ordem`. Não duplique o link Apoiar no DOM.
++
++### Invariante de performance e âncoras — V48.3.6
++
++Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem `startSectionStabilization`: eles preservam navegação direta para seções enquanto a Home muda de altura. Para performance, observers de conteúdo/botões devem filtrar mutações relevantes e `applyNavbarOrder()` deve permanecer idempotente. Agenda e assets decorativos não devem voltar ao caminho crítico do loader inicial.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 90fb603ff5ecbd1ee260c7427896dcc9860fd883..87bf255579b0af2d4d9e168a6039b991dc78874c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,12 @@
++## V48.3.6 — Hotfix: carregamento e observers sem perder navegação por seção
++
++- reduz reaplicações de DOM: o observer editorial reage apenas à montagem de Navbar, Footer e diálogo externo, em vez de qualquer `childList` do documento;
++- torna a ordenação da Navbar idempotente, evitando `appendChild()` quando links/slot Apoiar já estão na posição correta;
++- filtra o observer de botões para reagir apenas quando novos elementos `[data-button-key]` são realmente inseridos;
++- mantém integralmente `runAfterSiteReveal`, `hashchange`, scrollspy e estabilização de seção, preservando links diretos como `/#creditos`;
++- reduz o mínimo do loader inicial para 500 ms e o fallback para 2500 ms, remove Agenda e decode do fundo do caminho crítico e rebaixa o preload do fundo para prioridade baixa;
++- não altera contratos editoriais, JSONs, Workers, Helpers ou comportamento de navegação interna.
++
+ ## V48.3.5 — Hotfix: menu de busca fora da Backdrop Root
+ 
+ - corrige definitivamente o blur do drop-down **Buscar em** da Galeria e do Blog movendo o menu aberto temporariamente para `document.body`;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index f58ab618726f75a6e061b0fb6bdd8fc964ae2c6c..9c2ba62ea65bb3d9fddf5572de4d0a05035e385e 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -185,3 +185,7 @@ Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
+ ### CTA Apoiar em dois modos — V48.3.2
+ 
+ Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à direita, fora do scroll central e com divisor próprio. Quando `false`, ele participa do fluxo reordenável central sem perder o estilo de CTA.
++
++### Performance de montagem — V48.3.6
++
++A identidade visual não deve tornar o conteúdo dependente de assets decorativos. O fundo usado por `backdrop-filter` pode ser antecipado, mas não deve bloquear o reveal da página nem competir com conteúdo editorial em prioridade alta. Observers de montagem devem reagir somente aos componentes que precisam de configuração tardia e não a toda mutação do documento.
+diff --git a/README.md b/README.md
+index 68474cf207c6a80486e4adfaf5dc8828e515d5cb..261db9857a022e4403fed43c6009bb76244975f3 100644
+--- a/README.md
++++ b/README.md
+@@ -167,3 +167,7 @@ O menu aberto de **Buscar em** da Galeria e do Blog é portado temporariamente p
+ ### Blur dos seletores — V48.3.4
+ 
+ Galeria e Blog mantêm o painel externo translúcido, mas o blur desse painel é pintado por `::before` para não criar uma Backdrop Root ancestral dos seletores. Campo e menu de **Buscar em** usam blur próprio e respeitam a preferência global de blur.
++
++### Carregamento V48.3.6
++
++A V48.3.6 reduz trabalho redundante durante a montagem sem remover a navegação por seção. Links diretos como `/#agenda`, `/#regras` e `/#creditos` continuam esperando o reveal e usando estabilização posterior; o hotfix apenas restringe observers globais, evita reordenação redundante da Navbar e impede Agenda/fundo decorativo de segurarem o loader inicial.
+diff --git a/artes/index.html b/artes/index.html
+index be4c1c7d307443ac9d0091a85f12a6491d9ab99c..86c3d5020e3237fba3dff0e1286ff0725275432a 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -208,7 +208,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -362,15 +362,15 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.2"></script>
++    <script src="../js/core/content.js?v=48.3.6"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+-    <script src="../js/core/buttons.js?v=48.2.0"></script>
++    <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script src="../js/pages/artes/artes.js?v=48.3.5"></script>
+-    <script src="../js/core/loader.js?v=46.3"></script>
++    <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/blog/index.html b/blog/index.html
+index 98c7b8b6be9b958d8fd79a0612882686eaba9e81..8d6f49aa5d9cf761b795c796cb650d6db2ef80e7 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -208,7 +208,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -363,15 +363,15 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.2"></script>
++    <script src="../js/core/content.js?v=48.3.6"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+-    <script src="../js/core/buttons.js?v=48.2.0"></script>
++    <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script src="../js/pages/blog/blog.js?v=48.3.5"></script>
+-    <script src="../js/core/loader.js?v=46.3"></script>
++    <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 08a7ebe0b6f0bb6f08db4f4296705826c6bf28c5..4f4230ad36643aeba2e9227badafa03ccaff3d87 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -208,7 +208,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -453,9 +453,9 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.2"></script>
++    <script src="../js/core/content.js?v=48.3.6"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+-    <script src="../js/core/buttons.js?v=48.2.0"></script>
++    <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/api.js?v=47.3"></script>
+     <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+@@ -465,6 +465,6 @@
+     <script src="../js/pages/doacoes/doacoes.js"></script>
+     <script src="../js/pages/doacoes/content.js?v=47"></script>
+     <script src="../js/pages/doacoes/ranking.js?v=47.3"></script>
+-    <script src="../js/core/loader.js?v=46.3"></script>
++    <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index aacc7c309fefe2fbd360ed2df1d5090d10466fbe..029a04cdd5565d5f77239c0bf894057e6989cb96 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -200,3 +200,7 @@ O Blog não depende mais da existência de posts para aparecer. `/blog/` permane
+ ### Navbar dual-mode — V48.3.2
+ 
+ O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.
++
++### Montagem global e navegação por hash — V48.3.6
++
++`content.js` ainda observa montagem tardia porque Navbar, Footer e diálogo externo são criados por módulos separados, mas o callback só reaplica conteúdo quando esses mounts aparecem. `buttons.js` segue a mesma regra para novos `[data-button-key]`. A navegação `/#secao` permanece independente em `navbar.js`: ela aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a posição durante mudanças posteriores de layout.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 547bc08018e746bcf42baf699760647a0bd1ef81..493d0f31254c3c2ef839a61266a6ce775a2cd311 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -305,3 +305,12 @@ Smoke test recomendado:
+ ### Hotfix slot histórico de Apoiar — V48.3.2
+ 
+ A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `apoioFixoNoFim` nos dois valores: `true` deve manter Apoiar no slot à direita; `false` deve respeitar exatamente a posição de `apoio` em `ordem`.
++
++### Smoke test de performance/âncoras — V48.3.6
++
++1. abrir `/` e confirmar que o loader não espera a Agenda nem o decode do fundo;
++2. abrir diretamente `/#creditos`, `/#agenda` e `/#regras` em nova navegação e confirmar chegada à seção correta após o reveal;
++3. durante os primeiros segundos, confirmar que a montagem de Navbar/Footer mantém textos/ícones editoriais;
++4. alternar `apoioFixoNoFim` e confirmar que a ordem/slot do CTA continuam corretos;
++5. confirmar que botões inseridos pelo Footer e diálogo externo recebem seus ícones/textos;
++6. verificar que o console não mostra loop contínuo de mutações/reaplicações.
+diff --git a/index.html b/index.html
+index 7fe84e093100234f6ff0efb3fee7b7be66a5fddb..d81f51efdde4e0c52cd0fa663e9c912bd16eea03 100644
+--- a/index.html
++++ b/index.html
+@@ -217,7 +217,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -816,9 +816,9 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.2"></script>
++    <script src="js/core/content.js?v=48.3.6"></script>
+     <script src="js/core/button-icons.js?v=47.2"></script>
+-    <script src="js/core/buttons.js?v=48.2.0"></script>
++    <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/navbar.js?v=48.3.2"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+@@ -831,6 +831,6 @@
+     <script src="js/pages/home/lives.js?v=47.4.3"></script>
+     <script src="js/pages/home/twitch-live.js?v=47.4.3"></script>
+     <script src="js/pages/home/home-interactions.js?v=47"></script>
+-    <script src="js/core/loader.js?v=46.3"></script>
++    <script src="js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/js/core/buttons.js b/js/core/buttons.js
+index d7a365dc32a40a77688107ce275a368281c46ce8..6b584272e6946dda6230cac815f7b0c8c483e2fb 100644
+--- a/js/core/buttons.js
++++ b/js/core/buttons.js
+@@ -127,6 +127,18 @@
+         });
+     }
+ 
++    function mutationAddsConfigurableButton(mutations) {
++        return mutations.some(mutation =>
++            [...mutation.addedNodes].some(node => {
++                if (!(node instanceof Element)) return false;
++                return (
++                    node.matches("[data-button-key]") ||
++                    Boolean(node.querySelector("[data-button-key]"))
++                );
++            })
++        );
++    }
++
+     async function init() {
+         try {
+             const remote = await content.getJSON("/data/content/buttons.json");
+@@ -137,8 +149,13 @@
+ 
+         applyAll();
+ 
+-        const observer = new MutationObserver(scheduleApply);
+-        observer.observe(document.documentElement, { childList: true, subtree: true });
++        const observer = new MutationObserver(mutations => {
++            if (mutationAddsConfigurableButton(mutations)) scheduleApply();
++        });
++        observer.observe(document.body || document.documentElement, {
++            childList: true,
++            subtree: true
++        });
+ 
+         setTimeout(() => observer.disconnect(), 5000);
+ 
+diff --git a/js/core/content.js b/js/core/content.js
+index f18bdd6987ec894c43029ca553bcd0e27778b8a3..834dddc7d171da88204b92560c3e66b820996b78 100644
+--- a/js/core/content.js
++++ b/js/core/content.js
+@@ -255,6 +255,20 @@
+         return ordered;
+     }
+ 
++    function navKeysIn(container) {
++        if (!container) return [];
++        return [...container.children]
++            .map(node => node?.dataset?.navKey || "")
++            .filter(Boolean);
++    }
++
++    function sameOrder(current, expected) {
++        return (
++            current.length === expected.length &&
++            current.every((key, index) => key === expected[index])
++        );
++    }
++
+     function applyNavbarOrder(nav, data) {
+         const container = nav?.querySelector(".site-nav-links");
+         if (!container) return;
+@@ -264,15 +278,26 @@
+         const supportDivider = nav.querySelector(".site-nav-support-divider");
+         const order = normalizeNavbarOrder(data);
+         const pinSupport = data?.apoioFixoNoFim !== false;
+-
+-        if (pinSupport) {
+-            for (const key of order) {
+-                if (key === "apoio") continue;
++        const expectedCentralOrder = pinSupport
++            ? order.filter(key => key !== "apoio")
++            : order;
++
++        /*
++         * V48.3.6 — importante para performance e para o observer editorial:
++         * appendChild() em um nó já montado também gera mutação. Só movemos
++         * os links quando a ordem/slot realmente mudou.
++         */
++        if (!sameOrder(navKeysIn(container), expectedCentralOrder)) {
++            for (const key of expectedCentralOrder) {
+                 const link = nav.querySelector(`[data-nav-key="${key}"]`);
+                 if (link) container.appendChild(link);
+             }
++        }
+ 
+-            if (support && supportWrap) supportWrap.appendChild(support);
++        if (pinSupport) {
++            if (support && supportWrap && support.parentElement !== supportWrap) {
++                supportWrap.appendChild(support);
++            }
+             supportWrap?.removeAttribute("hidden");
+             supportDivider?.removeAttribute("hidden");
+             return;
+@@ -281,9 +306,16 @@
+         supportWrap?.setAttribute("hidden", "");
+         supportDivider?.setAttribute("hidden", "");
+ 
+-        for (const key of order) {
+-            const link = nav.querySelector(`[data-nav-key="${key}"]`);
+-            if (link) container.appendChild(link);
++        if (support && support.parentElement !== container) {
++            /*
++             * A ordem completa já foi aplicada acima quando necessário.
++             * Se Apoiar ainda estava no slot fixo, reaplicamos uma única vez
++             * para inseri-lo na posição editorial correta.
++             */
++            for (const key of expectedCentralOrder) {
++                const link = nav.querySelector(`[data-nav-key="${key}"]`);
++                if (link) container.appendChild(link);
++            }
+         }
+     }
+ 
+@@ -628,13 +660,40 @@
+         });
+     }
+ 
++    function mutationNeedsGlobalApply(mutations) {
++        const mountedSelectors = [
++            ".site-nav",
++            ".site-footer-content",
++            ".site-external-dialog"
++        ];
++
++        return mutations.some(mutation => {
++            const target = mutation.target;
++            if (
++                target instanceof Element &&
++                (target.id === "site-navbar" || target.id === "site-footer")
++            ) {
++                return true;
++            }
++
++            return [...mutation.addedNodes].some(node => {
++                if (!(node instanceof Element)) return false;
++                return mountedSelectors.some(selector => (
++                    node.matches(selector) || Boolean(node.querySelector(selector))
++                ));
++            });
++        });
++    }
++
+     function essentialUiMounted() {
+         const navbar = document.getElementById("site-navbar");
+         const footer = document.getElementById("site-footer");
++        const externalDialog = document.querySelector(".site-external-dialog");
+ 
+         return (
+             (!navbar || Boolean(navbar.querySelector(".site-nav"))) &&
+-            (!footer || Boolean(footer.querySelector(".site-footer-content")))
++            (!footer || Boolean(footer.querySelector(".site-footer-content"))) &&
++            Boolean(externalDialog)
+         );
+     }
+ 
+@@ -645,8 +704,12 @@
+             !essentialUiMounted() &&
+             performance.now() - started < timeoutMs
+         ) {
++            /*
++             * O MutationObserver aplica o conteúdo exatamente quando os
++             * mounts relevantes aparecem. Aqui apenas aguardamos a montagem;
++             * não reescrevemos o DOM a cada frame.
++             */
+             await new Promise(resolve => requestAnimationFrame(resolve));
+-            applyGlobalContent();
+         }
+     }
+ 
+@@ -684,8 +747,10 @@
+ 
+         applyGlobalContent();
+ 
+-        observer = new MutationObserver(scheduleApply);
+-        observer.observe(document.documentElement, {
++        observer = new MutationObserver(mutations => {
++            if (mutationNeedsGlobalApply(mutations)) scheduleApply();
++        });
++        observer.observe(document.body || document.documentElement, {
+             childList: true,
+             subtree: true
+         });
+diff --git a/js/core/loader.js b/js/core/loader.js
+index 9203b6631362d33dc20e203d93b57154f603ae5a..4b8ddb374ea05377ea44a8637741f4c7a7df6329 100644
+--- a/js/core/loader.js
++++ b/js/core/loader.js
+@@ -17,8 +17,8 @@
+         return;
+     }
+ 
+-    const INITIAL_MIN_DISPLAY_MS = 1000;
+-    const INITIAL_MAX_WAIT_MS = 4000;
++    const INITIAL_MIN_DISPLAY_MS = 500;
++    const INITIAL_MAX_WAIT_MS = 2500;
+     const INITIAL_EXIT_MS = 320;
+ 
+     const NAVIGATION_MIN_DISPLAY_MS = 240;
+@@ -84,7 +84,6 @@
+     const startedAt =
+         Number(window.KAMYLI_LOADER_STARTED_AT) || performance.now();
+ 
+-    const needsAgenda = Boolean(document.getElementById("agendaGrid"));
+     let domReady = document.readyState !== "loading";
+     let finished = false;
+     let revealPreparing = false;
+@@ -106,7 +105,7 @@
+             )
+         );
+ 
+-    root.dataset.loaderTimingVersion = "46.3";
++    root.dataset.loaderTimingVersion = "48.3.6";
+     root.dataset.loaderMode = loaderMode;
+     root.dataset.pageRevealDelayMs =
+         String(pageRevealDelayMs);
+@@ -141,8 +140,7 @@
+         return (
+             window.KAMYLI_PAGE_CONTENT_READY === true &&
+             window.KAMYLI_FOOTER_READY === true &&
+-            window.KAMYLI_GLOBAL_UI_READY === true &&
+-            (!needsAgenda || window.KAMYLI_AGENDA_READY === true)
++            window.KAMYLI_GLOBAL_UI_READY === true
+         );
+     }
+ 
+@@ -157,7 +155,7 @@
+                     backdropReady,
+                     pageRevealDelayMs,
+                     pageRevealOverlapMs,
+-                    loaderTimingVersion: "46.3"
++                    loaderTimingVersion: "48.3.6"
+                 }
+             })
+         );
+@@ -293,7 +291,12 @@
+             finishTimer = null;
+         }
+ 
+-        await prepareVisualBackdrop();
++        /*
++         * V48.3.6 — o fundo é decorativo e não pode segurar o conteúdo.
++         * Mantemos o preload/decode como preparação oportunista, mas o reveal
++         * não espera rede externa nem decodificação da arte de fundo.
++         */
++        prepareVisualBackdrop().catch(() => {});
+ 
+         const remaining = Math.max(
+             0,
+diff --git a/privacidade/index.html b/privacidade/index.html
+index eb5e501dc2dc421c6b3d7c24e6f2031dd3c26a62..d317a13cabc686d72314ec80815aba27797e0d87 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -197,7 +197,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -361,9 +361,9 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.2"></script>
++    <script src="../js/core/content.js?v=48.3.6"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+-    <script src="../js/core/buttons.js?v=48.2.0"></script>
++    <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+@@ -371,6 +371,6 @@
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+-    <script src="../js/core/loader.js?v=46.3"></script>
++    <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 050793cdbfe6d347f2a49fff21ba0bc629bfc15e..e102ed25c7de39cdac4a3c7ce42450a5ea8402bb 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -197,7 +197,7 @@
+                 backdropPreload.as = "image";
+                 backdropPreload.type = "image/avif";
+                 backdropPreload.href = backdropUrl;
+-                backdropPreload.fetchPriority = "high";
++                backdropPreload.fetchPriority = "low";
+ 
+                 window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                 window.KAMYLI_BACKDROP_PRELOAD_READY =
+@@ -341,9 +341,9 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.2"></script>
++    <script src="../js/core/content.js?v=48.3.6"></script>
+     <script src="../js/core/button-icons.js?v=47.2"></script>
+-    <script src="../js/core/buttons.js?v=48.2.0"></script>
++    <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.2"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+@@ -351,6 +351,6 @@
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+-    <script src="../js/core/loader.js?v=46.3"></script>
++    <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>

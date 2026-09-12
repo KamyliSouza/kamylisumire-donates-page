@@ -167,3 +167,7 @@ O menu aberto de **Buscar em** da Galeria e do Blog é portado temporariamente p
 ### Blur dos seletores — V48.3.4
 
 Galeria e Blog mantêm o painel externo translúcido, mas o blur desse painel é pintado por `::before` para não criar uma Backdrop Root ancestral dos seletores. Campo e menu de **Buscar em** usam blur próprio e respeitam a preferência global de blur.
+
+### Carregamento V48.3.6
+
+A V48.3.6 reduz trabalho redundante durante a montagem sem remover a navegação por seção. Links diretos como `/#agenda`, `/#regras` e `/#creditos` continuam esperando o reveal e usando estabilização posterior; o hotfix apenas restringe observers globais, evita reordenação redundante da Navbar e impede Agenda/fundo decorativo de segurarem o loader inicial.

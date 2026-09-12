@@ -305,3 +305,12 @@ Smoke test recomendado:
 ### Hotfix slot histórico de Apoiar — V48.3.2
 
 A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `apoioFixoNoFim` nos dois valores: `true` deve manter Apoiar no slot à direita; `false` deve respeitar exatamente a posição de `apoio` em `ordem`.
+
+### Smoke test de performance/âncoras — V48.3.6
+
+1. abrir `/` e confirmar que o loader não espera a Agenda nem o decode do fundo;
+2. abrir diretamente `/#creditos`, `/#agenda` e `/#regras` em nova navegação e confirmar chegada à seção correta após o reveal;
+3. durante os primeiros segundos, confirmar que a montagem de Navbar/Footer mantém textos/ícones editoriais;
+4. alternar `apoioFixoNoFim` e confirmar que a ordem/slot do CTA continuam corretos;
+5. confirmar que botões inseridos pelo Footer e diálogo externo recebem seus ícones/textos;
+6. verificar que o console não mostra loop contínuo de mutações/reaplicações.
