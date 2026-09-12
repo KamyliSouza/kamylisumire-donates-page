@@ -1,3 +1,10 @@
+## V48.3.3 — Hotfix: seletores de busca e cabeçalho do Blog
+
+- corrige o drop-down **Buscar em** da Galeria e do Blog para ancorar o menu ao controle do valor selecionado, evitando desalinhamento causado pelo rótulo lateral;
+- preserva o componente customizado, ARIA, teclado, stacking e identidade visual já estabelecidos;
+- faz o título principal do Blog usar `--primary-color`, seguindo a hierarquia cromática da Galeria e do restante do site;
+- atualiza cache-busters, Design System e validação arquitetural sem alterar arquivos editoriais ou contratos dos Helpers.
+
 ## V48.3.2 — Hotfix: slot histórico real do CTA Apoiar
 
 - corrige `apoioFixoNoFim: true` para restaurar o slot dedicado à direita, em vez de apenas colocar Apoiar por último no grupo central;

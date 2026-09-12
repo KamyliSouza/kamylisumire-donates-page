@@ -1186,6 +1186,7 @@ def validate_architecture() -> None:
     # V48.1.1: a Galeria usa drop-down próprio para manter a identidade visual.
     for needle in (
         'aria-haspopup="listbox"',
+        'class="artes-search-field-control"',
         'id="artesSearchFieldMenu"',
         'role="listbox"',
         'class="artes-search-field-option"',
@@ -1203,6 +1204,7 @@ def validate_architecture() -> None:
     # V48.1.3: o Blog compartilha o mesmo contrato visual/interativo da busca da Galeria.
     for needle in (
         'aria-haspopup="listbox"',
+        'class="blog-search-field-control"',
         'id="blogSearchFieldMenu"',
         'role="listbox"',
         'class="blog-search-field-option"',
@@ -1221,8 +1223,11 @@ def validate_architecture() -> None:
 
     blog_visual_rules = (
         (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "justify-content: space-between", "gap: 12px", "padding: 14px", "margin-bottom: 18px", "overflow: visible")),
+        (r"\.blog-intro h1\s*\{([^}]*)\}", ("color: var(--primary-color)",)),
         (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--card-bg)", "border-radius: 14px")),
-        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("background: var(--card-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
+        (r"\.blog-search-field-control\s*\{([^}]*)\}", ("position: relative", "flex: 1 1 auto", "min-width: 0")),
+        (r"\.blog-search-field-toggle\s*\{([^}]*)\}", ("width: 100%",)),
+        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("right: 0", "background: var(--card-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
         (r"\.blog-search\s*\{([^}]*)\}", ("min-height: 44px", "background: var(--card-bg)", "border-radius: 14px")),
     )
     for pattern, required_declarations in blog_visual_rules:
@@ -1243,6 +1248,23 @@ def validate_architecture() -> None:
     ):
         if needle not in blog_js:
             error(f"js/pages/blog/blog.js: interação do drop-down V48.1.3 ausente: {needle}")
+
+    # V48.3.3: o menu deve ser ancorado ao controle do valor, não ao bloco
+    # inteiro "Buscar em + valor", para manter alinhamento consistente.
+    gallery_selector_rules = (
+        (r"\.artes-search-field-control\s*\{([^}]*)\}", ("position: relative", "flex: 1 1 auto", "min-width: 0")),
+        (r"\.artes-search-field-toggle\s*\{([^}]*)\}", ("width: 100%",)),
+        (r"\.artes-search-field-menu\s*\{([^}]*)\}", ("right: 0", "box-sizing: border-box")),
+    )
+    for pattern, required_declarations in gallery_selector_rules:
+        match = re.search(pattern, artes_css, flags=re.S)
+        if not match:
+            error(f"css/pages/artes.css: correção de ancoragem V48.3.3 ausente: {pattern}")
+            continue
+        block = match.group(1)
+        for declaration in required_declarations:
+            if declaration not in block:
+                error(f"css/pages/artes.css: seletor V48.3.3 incompleto: {declaration}")
 
     # V48.1.2: o backdrop-filter do glass-panel cria stacking context; o painel
     # de ferramentas precisa ficar explicitamente acima da masonry para o menu
@@ -1440,12 +1462,12 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.1.3" not in blog_index:
         error("blog/index.html: cache-buster V48.1.3 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.1.4" not in blog_index:
-        error("blog/index.html: cache-buster V48.1.4 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.3" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.3 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
         error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.1.2" not in artes_index:
-        error("artes/index.html: cache-buster V48.1.2 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.3" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.3 ausente para css/pages/artes.css.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")

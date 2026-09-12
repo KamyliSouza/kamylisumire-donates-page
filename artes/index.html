@@ -246,7 +246,7 @@
     <link rel="stylesheet" href="../css/core/variables.css">
     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.1.2">
+    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.3">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -295,30 +295,32 @@
             <div class="artes-search-controls">
                 <div class="artes-search-field" data-artes-search-field>
                     <span class="artes-search-field-label" id="artesSearchFieldLabel">Buscar em</span>
-                    <button
-                        class="artes-search-field-toggle"
-                        id="artesSearchField"
-                        type="button"
-                        aria-labelledby="artesSearchFieldLabel artesSearchFieldValue"
-                        aria-haspopup="listbox"
-                        aria-expanded="false"
-                        aria-controls="artesSearchFieldMenu"
-                    >
-                        <span id="artesSearchFieldValue">Todos os campos</span>
-                        <span class="artes-search-field-chevron" aria-hidden="true"></span>
-                    </button>
-                    <div
-                        class="artes-search-field-menu"
-                        id="artesSearchFieldMenu"
-                        role="listbox"
-                        aria-labelledby="artesSearchFieldLabel"
-                        hidden
-                    >
-                        <button class="artes-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
-                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="artista">Artista</button>
-                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
-                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="categoria">Categoria</button>
-                        <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
+                    <div class="artes-search-field-control">
+                        <button
+                            class="artes-search-field-toggle"
+                            id="artesSearchField"
+                            type="button"
+                            aria-labelledby="artesSearchFieldLabel artesSearchFieldValue"
+                            aria-haspopup="listbox"
+                            aria-expanded="false"
+                            aria-controls="artesSearchFieldMenu"
+                        >
+                            <span id="artesSearchFieldValue">Todos os campos</span>
+                            <span class="artes-search-field-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div
+                            class="artes-search-field-menu"
+                            id="artesSearchFieldMenu"
+                            role="listbox"
+                            aria-labelledby="artesSearchFieldLabel"
+                            hidden
+                        >
+                            <button class="artes-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
+                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="artista">Artista</button>
+                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
+                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="categoria">Categoria</button>
+                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
+                        </div>
                     </div>
                 </div>
                 <input

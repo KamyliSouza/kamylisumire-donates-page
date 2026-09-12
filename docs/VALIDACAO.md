@@ -165,6 +165,24 @@ Para o Blog, confirmar também o mesmo padrão de busca por campo com `Título`,
 ser insensível a maiúsculas/minúsculas e acentos. Alterações nessa UI não devem
 exigir campos novos em `data/blog/posts.json` ou no front matter.
 
+## V48.3.3 — Hotfix dos seletores de busca e cabeçalho do Blog
+
+O drop-down **Buscar em** da Galeria e do Blog mantém o rótulo e o controle dentro
+do mesmo campo visual, mas o menu absoluto deve ser ancorado a um wrapper interno
+que contém somente o valor/chevron. Assim a borda do campo continua única e o menu
+abre alinhado ao seletor real em desktop e mobile. O título principal do Blog deve
+usar `--primary-color`, como na Galeria.
+
+Smoke test adicional:
+
+1. abrir `/artes/` e `/blog/` (com ao menos um post para exibir as ferramentas) e abrir **Buscar em**;
+2. confirmar que o menu começa/termina alinhado ao controle do valor, sem usar a largura do rótulo **Buscar em** como âncora;
+3. repetir em 1440 px, 760 px e 390 px, nos temas claro/escuro e com blur ligado/desligado;
+4. testar seleção por mouse e teclado (`ArrowUp`/`ArrowDown`, `Home`/`End`, `Escape`, `Enter`/`Space`) e clique externo;
+5. confirmar que o menu continua acima da masonry/lista e não é cortado pelo painel externo;
+6. confirmar no Blog que eyebrow/título/descrição usam a mesma hierarquia cromática da Galeria, com o `h1` em `--primary-color`;
+7. confirmar que nenhum arquivo em `data/content/` ou `data/blog/` foi alterado.
+
 ## V48.1.1 — Drop-down da Galeria e metadados da preview
 
 A V48.1.1 é uma alteração exclusivamente de frontend/documentação. O schema e o

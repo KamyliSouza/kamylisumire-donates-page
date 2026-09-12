@@ -114,11 +114,16 @@ O conjunto **Buscar em + campo de texto** deve preservar:
 
 - altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;
 - superfícies em `--card-bg`, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`;
-- drop-down próprio em vez de `<select>` nativo, com menu em `--card-bg`, `--shadow-card` e `--blur-card`;
+- drop-down próprio em vez de `<select>` nativo, com menu em `--card-bg`, `--shadow-card` e `--blur-card`; o menu deve ser posicionado pelo wrapper interno do valor selecionado, e não pelo bloco completo que também contém o rótulo **Buscar em**, para manter alinhamento previsível;
 - chevron e marca de seleção desenhados somente em CSS, sem SVG/PNG ou outro asset;
 - `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e a mesma navegação por teclado usada na Galeria;
 - empilhamento suficiente para que o menu fique acima da lista de posts e de outros painéis subsequentes;
 - comportamento responsivo equivalente: controles em coluna no mobile e fonte de 16 px nos controles editáveis/interativos necessários para evitar zoom involuntário.
+
+O cabeçalho do Blog segue a mesma hierarquia cromática da Galeria: eyebrow em
+`--primary-color` sobre a superfície auxiliar global, título principal em
+`--primary-color` e descrição em `--subtitle-color`. Não criar uma paleta exclusiva
+para o Blog.
 
 Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
 Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os

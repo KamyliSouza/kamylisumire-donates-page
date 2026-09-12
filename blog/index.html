@@ -247,7 +247,7 @@
     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
     <link rel="stylesheet" href="../css/components/blog.css">
-    <link rel="stylesheet" href="../css/pages/blog.css?v=48.1.4">
+    <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.3">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -305,29 +305,31 @@
             <div class="blog-search-controls">
                 <div class="blog-search-field" data-blog-search-field>
                     <span class="blog-search-field-label" id="blogSearchFieldLabel">Buscar em</span>
-                    <button
-                        class="blog-search-field-toggle"
-                        id="blogSearchField"
-                        type="button"
-                        aria-labelledby="blogSearchFieldLabel blogSearchFieldValue"
-                        aria-haspopup="listbox"
-                        aria-expanded="false"
-                        aria-controls="blogSearchFieldMenu"
-                    >
-                        <span id="blogSearchFieldValue">Todos os campos</span>
-                        <span class="blog-search-field-chevron" aria-hidden="true"></span>
-                    </button>
-                    <div
-                        class="blog-search-field-menu"
-                        id="blogSearchFieldMenu"
-                        role="listbox"
-                        aria-labelledby="blogSearchFieldLabel"
-                        hidden
-                    >
-                        <button class="blog-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
-                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
-                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="resumo">Resumo</button>
-                        <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
+                    <div class="blog-search-field-control">
+                        <button
+                            class="blog-search-field-toggle"
+                            id="blogSearchField"
+                            type="button"
+                            aria-labelledby="blogSearchFieldLabel blogSearchFieldValue"
+                            aria-haspopup="listbox"
+                            aria-expanded="false"
+                            aria-controls="blogSearchFieldMenu"
+                        >
+                            <span id="blogSearchFieldValue">Todos os campos</span>
+                            <span class="blog-search-field-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div
+                            class="blog-search-field-menu"
+                            id="blogSearchFieldMenu"
+                            role="listbox"
+                            aria-labelledby="blogSearchFieldLabel"
+                            hidden
+                        >
+                            <button class="blog-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
+                            <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
+                            <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="resumo">Resumo</button>
+                            <button class="blog-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
+                        </div>
                     </div>
                 </div>
                 <input

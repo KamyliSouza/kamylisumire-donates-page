@@ -75,6 +75,7 @@ Desde a V48.1.1, o seletor de escopo da busca da Galeria usa um drop-down própr
 
 Desde a V48.1.3, a listagem do Blog reutiliza a mesma linguagem visual e interação da busca por campo da Galeria, incluindo drop-down customizado e estados de foco/seleção. Os campos continuam próprios do Blog (`title`, `summary`, `tags`) e nenhum arquivo editorial em `data/blog/` é alterado.
 Desde a V48.1.4, o conjunto completo de ferramentas do Blog também usa o mesmo `glass-panel` externo da Galeria, envolvendo filtros de tags, seletor e campo de busca em uma única superfície visual.
+Desde a V48.3.3, os drop-downs **Buscar em** da Galeria e do Blog ancoram seus menus diretamente ao controle do valor selecionado; o título do Blog também usa a cor primária do site, seguindo a mesma hierarquia cromática da Galeria.
 
 Desde a V47.4.8, as páginas institucionais usam caminhos locais corretos a partir
 de seus diretórios, e a validação/CI cobre qualquer HTML público, Markdown do
