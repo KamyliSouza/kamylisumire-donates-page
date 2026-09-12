@@ -160,6 +160,10 @@ A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de cont
 ### Apoiar no slot histórico — V48.3.2
 
 `apoioFixoNoFim: true` agora restaura literalmente o layout histórico: o CTA **Apoiar** sai do grupo central reordenável e volta ao slot dedicado à direita, separado pelo divisor. Com `false`, o CTA entra em `.site-nav-links` e respeita sua posição em `ordem`.
+### Blur dos seletores — V48.3.5
+
+O menu aberto de **Buscar em** da Galeria e do Blog é portado temporariamente para `document.body` e posicionado sob o controle. Assim o `backdrop-filter` do listbox desfoca a página real, sem depender da composição do `glass-panel` ancestral. O mesmo nó retorna ao seu wrapper ao fechar; ARIA, teclado e preferência **Blur desligado** são preservados.
+
 ### Blur dos seletores — V48.3.4
 
 Galeria e Blog mantêm o painel externo translúcido, mas o blur desse painel é pintado por `::before` para não criar uma Backdrop Root ancestral dos seletores. Campo e menu de **Buscar em** usam blur próprio e respeitam a preferência global de blur.

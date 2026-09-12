@@ -1,14 +1,18 @@
 # Validação
 
-## V48.3.4 — Blur dos seletores de busca
+## V48.3.5 — Blur real do drop-down de busca
 
 Smoke test recomendado:
 
-1. com **Blur ligado**, abrir `/artes/` e `/blog/`, abrir o seletor **Buscar em** e confirmar que campo e menu preservam transparência/desfoque do fundo;
-2. confirmar que o painel externo continua com aparência `glass-panel`, sem o menu perder stacking;
-3. alternar **Blur desligado** nas preferências e confirmar que campo/menu ficam opacos o suficiente para leitura e não mantêm `backdrop-filter`;
-4. repetir em tema claro/escuro e em viewport móvel;
-5. confirmar que busca, prefixos e navegação por teclado não mudaram.
+1. com **Blur ligado**, abrir `/artes/` e `/blog/` e abrir **Buscar em**; inspecionar o DOM e confirmar que o listbox aberto foi movido temporariamente para `document.body`;
+2. confirmar visualmente que conteúdo/cores atrás do menu ficam desfocados, inclusive quando o menu ultrapassa a área do painel de ferramentas;
+3. rolar a página e redimensionar a janela com o menu aberto e confirmar que ele continua ancorado ao seletor;
+4. usar mouse e teclado (`ArrowUp`, `ArrowDown`, `Home`, `End`, `Escape`, `Tab`) e confirmar que seleção/foco continuam corretos;
+5. fechar o menu e confirmar que o mesmo nó retorna ao wrapper interno, sem duplicata no DOM;
+6. alternar **Blur desligado** e confirmar ausência de `backdrop-filter`, com fundo reforçado por `--card-bg`;
+7. repetir em tema claro/escuro e em viewport móvel.
+
+A V48.3.4 moveu o blur do painel externo para `::before`; a V48.3.5 não depende apenas dessa composição e tira o listbox aberto da hierarquia do painel para que seu backdrop seja a página real.
 
 ## V44.4 — domínio próprio da API
 

@@ -125,7 +125,9 @@ O cabeçalho do Blog segue a mesma hierarquia cromática da Galeria: eyebrow em
 `--primary-color` e descrição em `--subtitle-color`. Não criar uma paleta exclusiva
 para o Blog.
 
-Desde a V48.3.4, o painel externo de ferramentas não deve aplicar `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`, porque isso transforma o painel em uma Backdrop Root e impede o blur descendente de enxergar o fundo real da página. Preserve o vidro externo em `::before` e mantenha o elemento pai com `backdrop-filter: none`; assim seletor e menu podem aplicar seu próprio blur sem perder o `glass-panel`.
+Desde a V48.3.4, o painel externo de ferramentas não aplica `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`; o vidro externo permanece em `::before`. A V48.3.5 acrescenta uma regra mais forte para o drop-down: enquanto aberto, o menu deve ser portado temporariamente para `document.body`, usando posicionamento fixo calculado pelo controle. Isso evita que o menu fique visualmente limitado pela composição/backdrop do painel e garante que seu `backdrop-filter` atue sobre a página real atrás dele. Ao fechar, o mesmo nó retorna ao wrapper original; não criar uma cópia do listbox.
+
+Campo e menu devem manter fundo translúcido derivado de `--nav-bg`, com fallback para o token original. Quando `data-blur="off"`, não usar blur/saturação e voltar a `--card-bg`.
 
 Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
 Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os

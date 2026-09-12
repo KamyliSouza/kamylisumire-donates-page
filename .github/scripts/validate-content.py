@@ -1224,10 +1224,10 @@ def validate_architecture() -> None:
     blog_visual_rules = (
         (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "justify-content: space-between", "gap: 12px", "padding: 14px", "margin-bottom: 18px", "overflow: visible")),
         (r"\.blog-intro h1\s*\{([^}]*)\}", ("color: var(--primary-color)",)),
-        (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--nav-bg)", "border-radius: 14px", "backdrop-filter: blur(var(--blur-card))")),
+        (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--nav-bg)", "border-radius: 14px", "backdrop-filter: blur(calc(var(--blur-card) + 6px))")),
         (r"\.blog-search-field-control\s*\{([^}]*)\}", ("position: relative", "flex: 1 1 auto", "min-width: 0")),
         (r"\.blog-search-field-toggle\s*\{([^}]*)\}", ("width: 100%",)),
-        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("right: 0", "background: var(--nav-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
+        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("right: 0", "background: var(--nav-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(calc(var(--blur-card) + 8px))")),
         (r"\.blog-search\s*\{([^}]*)\}", ("min-height: 44px", "background: var(--card-bg)", "border-radius: 14px")),
     )
     for pattern, required_declarations in blog_visual_rules:
@@ -1266,27 +1266,39 @@ def validate_architecture() -> None:
             if declaration not in block:
                 error(f"css/pages/artes.css: seletor V48.3.3 incompleto: {declaration}")
 
-    # V48.3.4: o painel de ferramentas não pode ser a Backdrop Root dos
-    # próprios seletores. O glass fica em ::before e campo/menu mantêm blur real.
+    # V48.3.5: campo e menu usam vidro mais translúcido; o menu aberto sai
+    # temporariamente do glass-panel e vai ao body para não ficar preso ao
+    # backdrop/composição do painel ancestral.
     selector_blur_rules = (
         (artes_css, "artes", r"\.artes-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
-        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
-        (artes_css, "artes", r"\.artes-search-field\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
-        (artes_css, "artes", r"\.artes-search-field-menu\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
+        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+        (artes_css, "artes", r"\.artes-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
+        (artes_css, "artes", r"\.artes-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
+        (artes_css, "artes", r"\.artes-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
         (blog_css, "blog", r"\.blog-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
-        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
-        (blog_css, "blog", r"\.blog-search-field\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
-        (blog_css, "blog", r"\.blog-search-field-menu\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
+        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+        (blog_css, "blog", r"\.blog-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
+        (blog_css, "blog", r"\.blog-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
+        (blog_css, "blog", r"\.blog-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
     )
     for css_text, label, pattern, required_declarations in selector_blur_rules:
         match = re.search(pattern, css_text, flags=re.S)
         if not match:
-            error(f"css/pages/{label}.css: regra de blur V48.3.4 ausente: {pattern}")
+            error(f"css/pages/{label}.css: regra de blur V48.3.5 ausente: {pattern}")
             continue
         block = match.group(1)
         for declaration in required_declarations:
             if declaration not in block:
-                error(f"css/pages/{label}.css: blur V48.3.4 incompleto: {declaration}")
+                error(f"css/pages/{label}.css: blur V48.3.5 incompleto: {declaration}")
+
+    selector_portal_rules = (
+        (artes_js, "artes", ("positionSearchFieldMenu", "portalSearchFieldMenu", "restoreSearchFieldMenu", "document.body.appendChild(searchFieldMenu)", 'classList.add("is-portaled")', "getBoundingClientRect()")),
+        (blog_js, "blog", ("positionSearchFieldMenu", "portalSearchFieldMenu", "restoreSearchFieldMenu", "document.body.appendChild(elements.searchFieldMenu)", 'classList.add("is-portaled")', "getBoundingClientRect()")),
+    )
+    for js_text, label, needles in selector_portal_rules:
+        for needle in needles:
+            if needle not in js_text:
+                error(f"js/pages/{label}/{label}.js: portal do seletor V48.3.5 ausente: {needle}")
 
     # V48.1.2: o painel de ferramentas precisa permanecer explicitamente acima
     # da masonry para o menu não ser coberto pelos cards/imagens da primeira linha.
@@ -1481,14 +1493,14 @@ def validate_architecture() -> None:
     if "js/pages/doacoes/content.js?v=47" not in donations:
         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
 
-    if "js/pages/blog/blog.js?v=48.1.3" not in blog_index:
-        error("blog/index.html: cache-buster V48.1.3 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.4" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.4 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
-        error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.4" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.4 ausente para css/pages/artes.css.")
+    if "js/pages/blog/blog.js?v=48.3.5" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.5 ausente para js/pages/blog/blog.js.")
+    if "css/pages/blog.css?v=48.3.5" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.5 ausente para css/pages/blog.css.")
+    if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
+    if "css/pages/artes.css?v=48.3.5" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.5 ausente para css/pages/artes.css.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")

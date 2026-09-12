@@ -10,6 +10,8 @@
     const searchFieldValue = document.getElementById("artesSearchFieldValue");
     const searchFieldMenu = document.getElementById("artesSearchFieldMenu");
     const searchFieldOptions = [...document.querySelectorAll(".artes-search-field-option")];
+    const searchFieldControl = searchField?.closest(".artes-search-field-control") || null;
+    const searchFieldMenuHome = searchFieldMenu?.parentElement || null;
     const state = document.getElementById("artesState");
     const dialog = document.getElementById("arteDialog");
     const dialogImage = document.getElementById("arteDialogImage");
@@ -275,10 +277,51 @@
         }
     }
 
+    function positionSearchFieldMenu() {
+        if (!searchFieldMenu || searchFieldMenu.hidden || !searchFieldControl) return;
+
+        const rect = searchFieldControl.getBoundingClientRect();
+        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+        const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
+        const margin = 12;
+        const width = Math.min(Math.max(rect.width, 240), Math.max(160, viewportWidth - margin * 2));
+        let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, viewportWidth - width - margin));
+
+        let top = rect.bottom + 8;
+        const menuHeight = searchFieldMenu.offsetHeight;
+        if (top + menuHeight > viewportHeight - margin && rect.top - menuHeight - 8 >= margin) {
+            top = rect.top - menuHeight - 8;
+        }
+
+        searchFieldMenu.style.left = `${Math.round(left)}px`;
+        searchFieldMenu.style.top = `${Math.round(top)}px`;
+        searchFieldMenu.style.width = `${Math.round(width)}px`;
+    }
+
+    function portalSearchFieldMenu() {
+        if (!searchFieldMenu || searchFieldMenu.parentElement === document.body) return;
+        document.body.appendChild(searchFieldMenu);
+        searchFieldMenu.classList.add("is-portaled");
+    }
+
+    function restoreSearchFieldMenu() {
+        if (!searchFieldMenu) return;
+        searchFieldMenu.classList.remove("is-portaled");
+        searchFieldMenu.style.removeProperty("left");
+        searchFieldMenu.style.removeProperty("top");
+        searchFieldMenu.style.removeProperty("width");
+        if (searchFieldMenuHome && searchFieldMenu.parentElement !== searchFieldMenuHome) {
+            searchFieldMenuHome.appendChild(searchFieldMenu);
+        }
+    }
+
     function closeSearchFieldMenu({ restoreFocus = false } = {}) {
-        if (!searchField || !searchFieldMenu || searchFieldMenu.hidden) return;
+        if (!searchField || !searchFieldMenu) return;
         searchFieldMenu.hidden = true;
         searchField.setAttribute("aria-expanded", "false");
+        searchFieldRoot?.classList.remove("is-menu-open");
+        restoreSearchFieldMenu();
         if (restoreFocus) searchField.focus();
     }
 
@@ -290,12 +333,18 @@
 
     function openSearchFieldMenu(focusIndex = null) {
         if (!searchField || !searchFieldMenu) return;
+        portalSearchFieldMenu();
         searchFieldMenu.hidden = false;
         searchField.setAttribute("aria-expanded", "true");
+        searchFieldRoot?.classList.add("is-menu-open");
+        positionSearchFieldMenu();
 
         const selectedIndex = searchFieldOptions.findIndex(option => option.dataset.value === activeSearchField);
         const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
-        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
+        requestAnimationFrame(() => {
+            positionSearchFieldMenu();
+            focusSearchFieldOption(targetIndex);
+        });
     }
 
     function selectSearchField(option, { restoreFocus = true } = {}) {
@@ -357,8 +406,12 @@
         });
 
         document.addEventListener("pointerdown", event => {
-            if (!searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
+            if (!searchFieldRoot?.contains(event.target) && !searchFieldMenu?.contains(event.target)) {
+                closeSearchFieldMenu();
+            }
         });
+        window.addEventListener("resize", positionSearchFieldMenu, { passive: true });
+        window.addEventListener("scroll", positionSearchFieldMenu, { passive: true, capture: true });
     }
 
     async function load() {

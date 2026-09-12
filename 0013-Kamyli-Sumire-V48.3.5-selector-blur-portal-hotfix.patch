@@ -1,0 +1,570 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index d74936f..7826679 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1224,10 +1224,10 @@ def validate_architecture() -> None:
+     blog_visual_rules = (
+         (r"\.blog-tools\s*\{([^}]*)\}", ("position: relative", "z-index: 40", "justify-content: space-between", "gap: 12px", "padding: 14px", "margin-bottom: 18px", "overflow: visible")),
+         (r"\.blog-intro h1\s*\{([^}]*)\}", ("color: var(--primary-color)",)),
+-        (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--nav-bg)", "border-radius: 14px", "backdrop-filter: blur(var(--blur-card))")),
++        (r"\.blog-search-field\s*\{([^}]*)\}", ("min-height: 44px", "min-width: 248px", "background: var(--nav-bg)", "border-radius: 14px", "backdrop-filter: blur(calc(var(--blur-card) + 6px))")),
+         (r"\.blog-search-field-control\s*\{([^}]*)\}", ("position: relative", "flex: 1 1 auto", "min-width: 0")),
+         (r"\.blog-search-field-toggle\s*\{([^}]*)\}", ("width: 100%",)),
+-        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("right: 0", "background: var(--nav-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(var(--blur-card))")),
++        (r"\.blog-search-field-menu\s*\{([^}]*)\}", ("right: 0", "background: var(--nav-bg)", "border-radius: 16px", "box-shadow: var(--shadow-card)", "backdrop-filter: blur(calc(var(--blur-card) + 8px))")),
+         (r"\.blog-search\s*\{([^}]*)\}", ("min-height: 44px", "background: var(--card-bg)", "border-radius: 14px")),
+     )
+     for pattern, required_declarations in blog_visual_rules:
+@@ -1266,27 +1266,39 @@ def validate_architecture() -> None:
+             if declaration not in block:
+                 error(f"css/pages/artes.css: seletor V48.3.3 incompleto: {declaration}")
+ 
+-    # V48.3.4: o painel de ferramentas não pode ser a Backdrop Root dos
+-    # próprios seletores. O glass fica em ::before e campo/menu mantêm blur real.
++    # V48.3.5: campo e menu usam vidro mais translúcido; o menu aberto sai
++    # temporariamente do glass-panel e vai ao body para não ficar preso ao
++    # backdrop/composição do painel ancestral.
+     selector_blur_rules = (
+         (artes_css, "artes", r"\.artes-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
+-        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+-        (artes_css, "artes", r"\.artes-search-field\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
+-        (artes_css, "artes", r"\.artes-search-field-menu\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
++        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
++        (artes_css, "artes", r"\.artes-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
++        (artes_css, "artes", r"\.artes-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
++        (artes_css, "artes", r"\.artes-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
+         (blog_css, "blog", r"\.blog-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
+-        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+-        (blog_css, "blog", r"\.blog-search-field\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
+-        (blog_css, "blog", r"\.blog-search-field-menu\s*\{([^}]*)\}", ("background: var(--nav-bg)", "backdrop-filter: blur(var(--blur-card))")),
++        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
++        (blog_css, "blog", r"\.blog-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
++        (blog_css, "blog", r"\.blog-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
++        (blog_css, "blog", r"\.blog-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
+     )
+     for css_text, label, pattern, required_declarations in selector_blur_rules:
+         match = re.search(pattern, css_text, flags=re.S)
+         if not match:
+-            error(f"css/pages/{label}.css: regra de blur V48.3.4 ausente: {pattern}")
++            error(f"css/pages/{label}.css: regra de blur V48.3.5 ausente: {pattern}")
+             continue
+         block = match.group(1)
+         for declaration in required_declarations:
+             if declaration not in block:
+-                error(f"css/pages/{label}.css: blur V48.3.4 incompleto: {declaration}")
++                error(f"css/pages/{label}.css: blur V48.3.5 incompleto: {declaration}")
++
++    selector_portal_rules = (
++        (artes_js, "artes", ("positionSearchFieldMenu", "portalSearchFieldMenu", "restoreSearchFieldMenu", "document.body.appendChild(searchFieldMenu)", 'classList.add("is-portaled")', "getBoundingClientRect()")),
++        (blog_js, "blog", ("positionSearchFieldMenu", "portalSearchFieldMenu", "restoreSearchFieldMenu", "document.body.appendChild(elements.searchFieldMenu)", 'classList.add("is-portaled")', "getBoundingClientRect()")),
++    )
++    for js_text, label, needles in selector_portal_rules:
++        for needle in needles:
++            if needle not in js_text:
++                error(f"js/pages/{label}/{label}.js: portal do seletor V48.3.5 ausente: {needle}")
+ 
+     # V48.1.2: o painel de ferramentas precisa permanecer explicitamente acima
+     # da masonry para o menu não ser coberto pelos cards/imagens da primeira linha.
+@@ -1481,14 +1493,14 @@ def validate_architecture() -> None:
+     if "js/pages/doacoes/content.js?v=47" not in donations:
+         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
+ 
+-    if "js/pages/blog/blog.js?v=48.1.3" not in blog_index:
+-        error("blog/index.html: cache-buster V48.1.3 ausente para js/pages/blog/blog.js.")
+-    if "css/pages/blog.css?v=48.3.4" not in blog_index:
+-        error("blog/index.html: cache-buster V48.3.4 ausente para css/pages/blog.css.")
+-    if "js/pages/artes/artes.js?v=48.1.1" not in artes_index:
+-        error("artes/index.html: cache-buster V48.1.1 ausente para js/pages/artes/artes.js.")
+-    if "css/pages/artes.css?v=48.3.4" not in artes_index:
+-        error("artes/index.html: cache-buster V48.3.4 ausente para css/pages/artes.css.")
++    if "js/pages/blog/blog.js?v=48.3.5" not in blog_index:
++        error("blog/index.html: cache-buster V48.3.5 ausente para js/pages/blog/blog.js.")
++    if "css/pages/blog.css?v=48.3.5" not in blog_index:
++        error("blog/index.html: cache-buster V48.3.5 ausente para css/pages/blog.css.")
++    if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
++        error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
++    if "css/pages/artes.css?v=48.3.5" not in artes_index:
++        error("artes/index.html: cache-buster V48.3.5 ausente para css/pages/artes.css.")
+ 
+     if "data/content/buttons.json" not in buttons_js:
+         error("js/core/buttons.js: configuração central de botões não carregada.")
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 6e2b24f..90fb603 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,11 @@
++## V48.3.5 — Hotfix: menu de busca fora da Backdrop Root
++
++- corrige definitivamente o blur do drop-down **Buscar em** da Galeria e do Blog movendo o menu aberto temporariamente para `document.body`;
++- posiciona o menu por `getBoundingClientRect()`, acompanha resize/scroll e devolve o nó ao wrapper original ao fechar, preservando ARIA e teclado;
++- torna campo/menu mais translúcidos e reforça blur/saturação sem alterar os tokens globais de tema;
++- mantém **Blur desligado** sem `backdrop-filter` e com superfície `--card-bg`;
++- atualiza cache-busters, Design System e CI sem alterar dados editoriais.
++
+ ## V48.3.4 — Hotfix: blur real nos seletores de busca
+ 
+ - corrige Galeria e Blog para que o `backdrop-filter` dos seletores e menus não fique limitado pela Backdrop Root do `glass-panel` externo;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index aaebf32..f58ab61 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -125,7 +125,9 @@ O cabeçalho do Blog segue a mesma hierarquia cromática da Galeria: eyebrow em
+ `--primary-color` e descrição em `--subtitle-color`. Não criar uma paleta exclusiva
+ para o Blog.
+ 
+-Desde a V48.3.4, o painel externo de ferramentas não deve aplicar `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`, porque isso transforma o painel em uma Backdrop Root e impede o blur descendente de enxergar o fundo real da página. Preserve o vidro externo em `::before` e mantenha o elemento pai com `backdrop-filter: none`; assim seletor e menu podem aplicar seu próprio blur sem perder o `glass-panel`.
++Desde a V48.3.4, o painel externo de ferramentas não aplica `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`; o vidro externo permanece em `::before`. A V48.3.5 acrescenta uma regra mais forte para o drop-down: enquanto aberto, o menu deve ser portado temporariamente para `document.body`, usando posicionamento fixo calculado pelo controle. Isso evita que o menu fique visualmente limitado pela composição/backdrop do painel e garante que seu `backdrop-filter` atue sobre a página real atrás dele. Ao fechar, o mesmo nó retorna ao wrapper original; não criar uma cópia do listbox.
++
++Campo e menu devem manter fundo translúcido derivado de `--nav-bg`, com fallback para o token original. Quando `data-blur="off"`, não usar blur/saturação e voltar a `--card-bg`.
+ 
+ Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
+ Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os
+diff --git a/README.md b/README.md
+index 1674627..68474cf 100644
+--- a/README.md
++++ b/README.md
+@@ -160,6 +160,10 @@ A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de cont
+ ### Apoiar no slot histórico — V48.3.2
+ 
+ `apoioFixoNoFim: true` agora restaura literalmente o layout histórico: o CTA **Apoiar** sai do grupo central reordenável e volta ao slot dedicado à direita, separado pelo divisor. Com `false`, o CTA entra em `.site-nav-links` e respeita sua posição em `ordem`.
++### Blur dos seletores — V48.3.5
++
++O menu aberto de **Buscar em** da Galeria e do Blog é portado temporariamente para `document.body` e posicionado sob o controle. Assim o `backdrop-filter` do listbox desfoca a página real, sem depender da composição do `glass-panel` ancestral. O mesmo nó retorna ao seu wrapper ao fechar; ARIA, teclado e preferência **Blur desligado** são preservados.
++
+ ### Blur dos seletores — V48.3.4
+ 
+ Galeria e Blog mantêm o painel externo translúcido, mas o blur desse painel é pintado por `::before` para não criar uma Backdrop Root ancestral dos seletores. Campo e menu de **Buscar em** usam blur próprio e respeitam a preferência global de blur.
+diff --git a/artes/index.html b/artes/index.html
+index 3fc8ee9..be4c1c7 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -246,7 +246,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css">
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.4">
++    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.5">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -370,7 +370,7 @@
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+-    <script src="../js/pages/artes/artes.js?v=48.1.1"></script>
++    <script src="../js/pages/artes/artes.js?v=48.3.5"></script>
+     <script src="../js/core/loader.js?v=46.3"></script>
+ </body>
+ </html>
+diff --git a/blog/index.html b/blog/index.html
+index f60046b..98c7b8b 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -247,7 +247,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=47.1">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.2">
+     <link rel="stylesheet" href="../css/components/blog.css">
+-    <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.4">
++    <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.5">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -371,7 +371,7 @@
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+-    <script src="../js/pages/blog/blog.js?v=48.1.3"></script>
++    <script src="../js/pages/blog/blog.js?v=48.3.5"></script>
+     <script src="../js/core/loader.js?v=46.3"></script>
+ </body>
+ </html>
+diff --git a/css/pages/artes.css b/css/pages/artes.css
+index 40a6ffb..c32febc 100644
+--- a/css/pages/artes.css
++++ b/css/pages/artes.css
+@@ -57,6 +57,7 @@
+     z-index: -1;
+     border-radius: calc(var(--radius-card) - 2px);
+     background: var(--card-bg);
++    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+     backdrop-filter: blur(var(--blur-card));
+     -webkit-backdrop-filter: blur(var(--blur-card));
+     pointer-events: none;
+@@ -112,16 +113,18 @@
+     padding: 0 8px 0 12px;
+     color: var(--subtitle-color);
+     background: var(--nav-bg);
++    background: color-mix(in srgb, var(--nav-bg) 68%, transparent);
+     border: 1px solid var(--card-border);
+     border-radius: 14px;
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
++    backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%);
++    -webkit-backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%);
+     font-size: .86rem;
+     font-weight: 800;
+     transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+ }
+ 
+-.artes-search-field:focus-within {
++.artes-search-field:focus-within,
++.artes-search-field.is-menu-open {
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px var(--primary-soft);
+ }
+@@ -191,17 +194,31 @@
+     padding: 7px;
+     color: var(--text-color);
+     background: var(--nav-bg);
++    background: color-mix(in srgb, var(--nav-bg) 66%, transparent);
+     border: 1px solid var(--card-border);
+     border-radius: 16px;
+     box-shadow: var(--shadow-card);
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
++    backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%);
++    -webkit-backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%);
+ }
+ 
+ .artes-search-field-menu[hidden] {
+     display: none;
+ }
+ 
++.artes-search-field-menu.is-portaled {
++    position: fixed;
++    top: 0;
++    left: 0;
++    right: auto;
++    z-index: 1300;
++    width: 240px;
++    max-width: calc(100vw - 24px);
++    font-family: var(--font-main);
++    font-size: .86rem;
++    font-weight: 800;
++}
++
+ .artes-search-field-option {
+     position: relative;
+     display: flex;
+@@ -256,6 +273,7 @@
+     -webkit-backdrop-filter: none;
+ }
+ 
++:root[data-blur="off"] .artes-tools::before,
+ :root[data-blur="off"] .artes-search-field,
+ :root[data-blur="off"] .artes-search-field-menu {
+     background: var(--card-bg);
+diff --git a/css/pages/blog.css b/css/pages/blog.css
+index b5e5081..51de830 100644
+--- a/css/pages/blog.css
++++ b/css/pages/blog.css
+@@ -58,6 +58,7 @@
+     z-index: -1;
+     border-radius: calc(var(--radius-card) - 2px);
+     background: var(--card-bg);
++    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+     backdrop-filter: blur(var(--blur-card));
+     -webkit-backdrop-filter: blur(var(--blur-card));
+     pointer-events: none;
+@@ -82,16 +83,18 @@
+     padding: 0 8px 0 12px;
+     color: var(--subtitle-color);
+     background: var(--nav-bg);
++    background: color-mix(in srgb, var(--nav-bg) 68%, transparent);
+     border: 1px solid var(--card-border);
+     border-radius: 14px;
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
++    backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%);
++    -webkit-backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%);
+     font-size: .86rem;
+     font-weight: 800;
+     transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+ }
+ 
+-.blog-search-field:focus-within {
++.blog-search-field:focus-within,
++.blog-search-field.is-menu-open {
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px var(--primary-soft);
+ }
+@@ -161,17 +164,31 @@
+     padding: 7px;
+     color: var(--text-color);
+     background: var(--nav-bg);
++    background: color-mix(in srgb, var(--nav-bg) 66%, transparent);
+     border: 1px solid var(--card-border);
+     border-radius: 16px;
+     box-shadow: var(--shadow-card);
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
++    backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%);
++    -webkit-backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%);
+ }
+ 
+ .blog-search-field-menu[hidden] {
+     display: none;
+ }
+ 
++.blog-search-field-menu.is-portaled {
++    position: fixed;
++    top: 0;
++    left: 0;
++    right: auto;
++    z-index: 1300;
++    width: 240px;
++    max-width: calc(100vw - 24px);
++    font-family: var(--font-main);
++    font-size: .86rem;
++    font-weight: 800;
++}
++
+ .blog-search-field-option {
+     position: relative;
+     display: flex;
+@@ -226,6 +243,7 @@
+     -webkit-backdrop-filter: none;
+ }
+ 
++:root[data-blur="off"] .blog-tools::before,
+ :root[data-blur="off"] .blog-search-field,
+ :root[data-blur="off"] .blog-search-field-menu {
+     background: var(--card-bg);
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 5fceaec..547bc08 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -1,14 +1,18 @@
+ # Validação
+ 
+-## V48.3.4 — Blur dos seletores de busca
++## V48.3.5 — Blur real do drop-down de busca
+ 
+ Smoke test recomendado:
+ 
+-1. com **Blur ligado**, abrir `/artes/` e `/blog/`, abrir o seletor **Buscar em** e confirmar que campo e menu preservam transparência/desfoque do fundo;
+-2. confirmar que o painel externo continua com aparência `glass-panel`, sem o menu perder stacking;
+-3. alternar **Blur desligado** nas preferências e confirmar que campo/menu ficam opacos o suficiente para leitura e não mantêm `backdrop-filter`;
+-4. repetir em tema claro/escuro e em viewport móvel;
+-5. confirmar que busca, prefixos e navegação por teclado não mudaram.
++1. com **Blur ligado**, abrir `/artes/` e `/blog/` e abrir **Buscar em**; inspecionar o DOM e confirmar que o listbox aberto foi movido temporariamente para `document.body`;
++2. confirmar visualmente que conteúdo/cores atrás do menu ficam desfocados, inclusive quando o menu ultrapassa a área do painel de ferramentas;
++3. rolar a página e redimensionar a janela com o menu aberto e confirmar que ele continua ancorado ao seletor;
++4. usar mouse e teclado (`ArrowUp`, `ArrowDown`, `Home`, `End`, `Escape`, `Tab`) e confirmar que seleção/foco continuam corretos;
++5. fechar o menu e confirmar que o mesmo nó retorna ao wrapper interno, sem duplicata no DOM;
++6. alternar **Blur desligado** e confirmar ausência de `backdrop-filter`, com fundo reforçado por `--card-bg`;
++7. repetir em tema claro/escuro e em viewport móvel.
++
++A V48.3.4 moveu o blur do painel externo para `::before`; a V48.3.5 não depende apenas dessa composição e tira o listbox aberto da hierarquia do painel para que seu backdrop seja a página real.
+ 
+ ## V44.4 — domínio próprio da API
+ 
+diff --git a/js/pages/artes/artes.js b/js/pages/artes/artes.js
+index 59cf063..db800e1 100644
+--- a/js/pages/artes/artes.js
++++ b/js/pages/artes/artes.js
+@@ -10,6 +10,8 @@
+     const searchFieldValue = document.getElementById("artesSearchFieldValue");
+     const searchFieldMenu = document.getElementById("artesSearchFieldMenu");
+     const searchFieldOptions = [...document.querySelectorAll(".artes-search-field-option")];
++    const searchFieldControl = searchField?.closest(".artes-search-field-control") || null;
++    const searchFieldMenuHome = searchFieldMenu?.parentElement || null;
+     const state = document.getElementById("artesState");
+     const dialog = document.getElementById("arteDialog");
+     const dialogImage = document.getElementById("arteDialogImage");
+@@ -275,10 +277,51 @@
+         }
+     }
+ 
++    function positionSearchFieldMenu() {
++        if (!searchFieldMenu || searchFieldMenu.hidden || !searchFieldControl) return;
++
++        const rect = searchFieldControl.getBoundingClientRect();
++        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
++        const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
++        const margin = 12;
++        const width = Math.min(Math.max(rect.width, 240), Math.max(160, viewportWidth - margin * 2));
++        let left = rect.right - width;
++        left = Math.max(margin, Math.min(left, viewportWidth - width - margin));
++
++        let top = rect.bottom + 8;
++        const menuHeight = searchFieldMenu.offsetHeight;
++        if (top + menuHeight > viewportHeight - margin && rect.top - menuHeight - 8 >= margin) {
++            top = rect.top - menuHeight - 8;
++        }
++
++        searchFieldMenu.style.left = `${Math.round(left)}px`;
++        searchFieldMenu.style.top = `${Math.round(top)}px`;
++        searchFieldMenu.style.width = `${Math.round(width)}px`;
++    }
++
++    function portalSearchFieldMenu() {
++        if (!searchFieldMenu || searchFieldMenu.parentElement === document.body) return;
++        document.body.appendChild(searchFieldMenu);
++        searchFieldMenu.classList.add("is-portaled");
++    }
++
++    function restoreSearchFieldMenu() {
++        if (!searchFieldMenu) return;
++        searchFieldMenu.classList.remove("is-portaled");
++        searchFieldMenu.style.removeProperty("left");
++        searchFieldMenu.style.removeProperty("top");
++        searchFieldMenu.style.removeProperty("width");
++        if (searchFieldMenuHome && searchFieldMenu.parentElement !== searchFieldMenuHome) {
++            searchFieldMenuHome.appendChild(searchFieldMenu);
++        }
++    }
++
+     function closeSearchFieldMenu({ restoreFocus = false } = {}) {
+-        if (!searchField || !searchFieldMenu || searchFieldMenu.hidden) return;
++        if (!searchField || !searchFieldMenu) return;
+         searchFieldMenu.hidden = true;
+         searchField.setAttribute("aria-expanded", "false");
++        searchFieldRoot?.classList.remove("is-menu-open");
++        restoreSearchFieldMenu();
+         if (restoreFocus) searchField.focus();
+     }
+ 
+@@ -290,12 +333,18 @@
+ 
+     function openSearchFieldMenu(focusIndex = null) {
+         if (!searchField || !searchFieldMenu) return;
++        portalSearchFieldMenu();
+         searchFieldMenu.hidden = false;
+         searchField.setAttribute("aria-expanded", "true");
++        searchFieldRoot?.classList.add("is-menu-open");
++        positionSearchFieldMenu();
+ 
+         const selectedIndex = searchFieldOptions.findIndex(option => option.dataset.value === activeSearchField);
+         const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
+-        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
++        requestAnimationFrame(() => {
++            positionSearchFieldMenu();
++            focusSearchFieldOption(targetIndex);
++        });
+     }
+ 
+     function selectSearchField(option, { restoreFocus = true } = {}) {
+@@ -357,8 +406,12 @@
+         });
+ 
+         document.addEventListener("pointerdown", event => {
+-            if (!searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
++            if (!searchFieldRoot?.contains(event.target) && !searchFieldMenu?.contains(event.target)) {
++                closeSearchFieldMenu();
++            }
+         });
++        window.addEventListener("resize", positionSearchFieldMenu, { passive: true });
++        window.addEventListener("scroll", positionSearchFieldMenu, { passive: true, capture: true });
+     }
+ 
+     async function load() {
+diff --git a/js/pages/blog/blog.js b/js/pages/blog/blog.js
+index 62474d0..d861ed2 100644
+--- a/js/pages/blog/blog.js
++++ b/js/pages/blog/blog.js
+@@ -21,6 +21,7 @@
+         searchFieldValue: document.getElementById("blogSearchFieldValue"),
+         searchFieldMenu: document.getElementById("blogSearchFieldMenu"),
+         searchFieldOptions: [...document.querySelectorAll(".blog-search-field-option")],
++        searchFieldControl: document.querySelector(".blog-search-field-control"),
+         filters: document.getElementById("blogFilters"),
+         list: document.getElementById("blogPostList")
+     };
+@@ -28,6 +29,7 @@
+     let posts = [];
+     let activeTag = "";
+     let activeSearchField = "todos";
++    const searchFieldMenuHome = elements.searchFieldMenu?.parentElement || null;
+ 
+     const SEARCH_PREFIXES = Object.freeze({
+         "titulo:": "titulo",
+@@ -197,10 +199,51 @@
+         });
+     }
+ 
++    function positionSearchFieldMenu() {
++        if (!elements.searchFieldMenu || elements.searchFieldMenu.hidden || !elements.searchFieldControl) return;
++
++        const rect = elements.searchFieldControl.getBoundingClientRect();
++        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
++        const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
++        const margin = 12;
++        const width = Math.min(Math.max(rect.width, 240), Math.max(160, viewportWidth - margin * 2));
++        let left = rect.right - width;
++        left = Math.max(margin, Math.min(left, viewportWidth - width - margin));
++
++        let top = rect.bottom + 8;
++        const menuHeight = elements.searchFieldMenu.offsetHeight;
++        if (top + menuHeight > viewportHeight - margin && rect.top - menuHeight - 8 >= margin) {
++            top = rect.top - menuHeight - 8;
++        }
++
++        elements.searchFieldMenu.style.left = `${Math.round(left)}px`;
++        elements.searchFieldMenu.style.top = `${Math.round(top)}px`;
++        elements.searchFieldMenu.style.width = `${Math.round(width)}px`;
++    }
++
++    function portalSearchFieldMenu() {
++        if (!elements.searchFieldMenu || elements.searchFieldMenu.parentElement === document.body) return;
++        document.body.appendChild(elements.searchFieldMenu);
++        elements.searchFieldMenu.classList.add("is-portaled");
++    }
++
++    function restoreSearchFieldMenu() {
++        if (!elements.searchFieldMenu) return;
++        elements.searchFieldMenu.classList.remove("is-portaled");
++        elements.searchFieldMenu.style.removeProperty("left");
++        elements.searchFieldMenu.style.removeProperty("top");
++        elements.searchFieldMenu.style.removeProperty("width");
++        if (searchFieldMenuHome && elements.searchFieldMenu.parentElement !== searchFieldMenuHome) {
++            searchFieldMenuHome.appendChild(elements.searchFieldMenu);
++        }
++    }
++
+     function closeSearchFieldMenu({ restoreFocus = false } = {}) {
+-        if (!elements.searchField || !elements.searchFieldMenu || elements.searchFieldMenu.hidden) return;
++        if (!elements.searchField || !elements.searchFieldMenu) return;
+         elements.searchFieldMenu.hidden = true;
+         elements.searchField.setAttribute("aria-expanded", "false");
++        elements.searchFieldRoot?.classList.remove("is-menu-open");
++        restoreSearchFieldMenu();
+         if (restoreFocus) elements.searchField.focus();
+     }
+ 
+@@ -212,14 +255,20 @@
+ 
+     function openSearchFieldMenu(focusIndex = null) {
+         if (!elements.searchField || !elements.searchFieldMenu) return;
++        portalSearchFieldMenu();
+         elements.searchFieldMenu.hidden = false;
+         elements.searchField.setAttribute("aria-expanded", "true");
++        elements.searchFieldRoot?.classList.add("is-menu-open");
++        positionSearchFieldMenu();
+ 
+         const selectedIndex = elements.searchFieldOptions.findIndex(
+             option => option.dataset.value === activeSearchField
+         );
+         const targetIndex = focusIndex ?? (selectedIndex >= 0 ? selectedIndex : 0);
+-        requestAnimationFrame(() => focusSearchFieldOption(targetIndex));
++        requestAnimationFrame(() => {
++            positionSearchFieldMenu();
++            focusSearchFieldOption(targetIndex);
++        });
+     }
+ 
+     function selectSearchField(option, config, { restoreFocus = true } = {}) {
+@@ -283,8 +332,12 @@
+         });
+ 
+         document.addEventListener("pointerdown", event => {
+-            if (!elements.searchFieldRoot?.contains(event.target)) closeSearchFieldMenu();
++            if (!elements.searchFieldRoot?.contains(event.target) && !elements.searchFieldMenu?.contains(event.target)) {
++                closeSearchFieldMenu();
++            }
+         });
++        window.addEventListener("resize", positionSearchFieldMenu, { passive: true });
++        window.addEventListener("scroll", positionSearchFieldMenu, { passive: true, capture: true });
+     }
+ 
+     function render(config, index) {

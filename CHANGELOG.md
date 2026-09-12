@@ -1,3 +1,11 @@
+## V48.3.5 — Hotfix: menu de busca fora da Backdrop Root
+
+- corrige definitivamente o blur do drop-down **Buscar em** da Galeria e do Blog movendo o menu aberto temporariamente para `document.body`;
+- posiciona o menu por `getBoundingClientRect()`, acompanha resize/scroll e devolve o nó ao wrapper original ao fechar, preservando ARIA e teclado;
+- torna campo/menu mais translúcidos e reforça blur/saturação sem alterar os tokens globais de tema;
+- mantém **Blur desligado** sem `backdrop-filter` e com superfície `--card-bg`;
+- atualiza cache-busters, Design System e CI sem alterar dados editoriais.
+
 ## V48.3.4 — Hotfix: blur real nos seletores de busca
 
 - corrige Galeria e Blog para que o `backdrop-filter` dos seletores e menus não fique limitado pela Backdrop Root do `glass-panel` externo;
