@@ -20,7 +20,7 @@
       "data": "2026-09-11",
       "categoria": "Comissão ",
       "tags": [],
-      "largura": 1920,
+      "largura": 1080,
       "altura": 1080
     },
     {
@@ -34,8 +34,8 @@
       "data": "2026-09-11",
       "categoria": "Originais",
       "tags": [],
-      "largura": 600,
-      "altura": 600
+      "largura": 1920,
+      "altura": 1080
     },
     {
       "id": "arte0003",
@@ -48,8 +48,8 @@
       "data": "2026-09-11",
       "categoria": "Fanart",
       "tags": [],
-      "largura": 1080,
-      "altura": 1080
+      "largura": 600,
+      "altura": 600
     },
     {
       "id": "arte0004",
@@ -62,7 +62,7 @@
       "data": "2026-09-11",
       "categoria": "Comissão ",
       "tags": [],
-      "largura": 810,
+      "largura": 1080,
       "altura": 1080
     },
     {
@@ -76,8 +76,8 @@
       "data": "2026-09-11",
       "categoria": "Comissão ",
       "tags": [],
-      "largura": 1080,
-      "altura": 1080
+      "largura": 800,
+      "altura": 800
     },
     {
       "id": "arte0006",
@@ -92,6 +92,22 @@
       "tags": [],
       "largura": 1080,
       "altura": 1080
+    },
+    {
+      "id": "arte0007",
+      "titulo": "Emote",
+      "artista": "Howl",
+      "creditoUrl": "https://www.instagram.com/h0wl_oficial/",
+      "alt": "Kamyli toda confusa",
+      "data": "2026-09-13",
+      "categoria": "Comissão",
+      "tags": [
+        "Emote"
+      ],
+      "largura": 1000,
+      "altura": 1000,
+      "preview": "https://media.kamylisumire.com/artes/arte0006/preview/arte0006.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0006/full/arte0006.avif"
     }
   ]
 }
