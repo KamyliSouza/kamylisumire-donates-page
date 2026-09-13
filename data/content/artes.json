@@ -46,8 +46,8 @@
       "titulo": "KamyD20",
       "artista": "Mari",
       "creditoUrl": "https://bsky.app/profile/maililac.bsky.social",
-      "preview": "https://media.kamylisumire.com/artes/arte0003/preview/arte0003.avif",
-      "imagem": "https://media.kamylisumire.com/artes/arte0003/full/arte0003.avif",
+      "preview": "https://media.kamylisumire.com/artes/arte0018/preview/arte0018.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0018/full/arte0018.avif",
       "alt": "Só tiro 1!",
       "data": "2026-09-11",
       "categoria": "Fanart",
@@ -278,6 +278,22 @@
       "altura": 1200,
       "preview": "https://media.kamylisumire.com/artes/arte0024/preview/arte0024.avif",
       "imagem": "https://media.kamylisumire.com/artes/arte0024/full/arte0024.avif"
+    },
+    {
+      "id": "arte0018",
+      "titulo": "Emote: A Mimir",
+      "artista": "Mari",
+      "creditoUrl": "https://bsky.app/profile/maililac.bsky.social",
+      "alt": "A Boba Sonolenta",
+      "data": "2026-09-13",
+      "categoria": "Comissão",
+      "tags": [
+        "Emote"
+      ],
+      "largura": 1200,
+      "altura": 1200,
+      "preview": "https://media.kamylisumire.com/artes/arte0027/preview/arte0027.avif",
+      "imagem": "https://media.kamylisumire.com/artes/arte0027/full/arte0027.avif"
     }
   ]
 }
