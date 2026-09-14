@@ -29,6 +29,27 @@
     font-weight: 600;
 }
 
+.ranking-heading .ranking-privacy-note {
+    max-width: 640px;
+    margin: 12px auto 0;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    background: var(--notice-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    line-height: 1.55;
+}
+
+.ranking-privacy-note strong,
+.ranking-privacy-note a {
+    color: var(--primary-text);
+    font-weight: 800;
+}
+
+.ranking-privacy-note a {
+    text-underline-offset: 3px;
+}
+
 /* =========================================================
    ABAS
    ========================================================= */

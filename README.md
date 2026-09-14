@@ -176,3 +176,7 @@ A V48.3.6 reduz trabalho redundante durante a montagem sem remover a navegação
 A V48.3.7 remove `unsafe-inline` da CSP em favor de hashes SHA-256 validados pela CI, introduz `--primary-text` para texto normal no tema claro e mantém `--primary-color` em títulos grandes/elementos de identidade. `twitch-live.js` aceita thumbnails apenas por HTTPS.
 
 Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow` e fora do `sitemap.xml` até possuírem conteúdo público. A validação cruza `posts.json`/`artes.json`, meta robots e sitemap para impedir publicação com esses sinais fora de sincronia.
+
+### Privacidade e LGPD — V48.3.8
+
+A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e limita o cache em `localStorage` a 30 minutos reais, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.

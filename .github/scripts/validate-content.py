@@ -77,6 +77,7 @@ REQUIRED_FILES = (
     "docs/SANEAMENTO-V44.md",
     "docs/VALIDACAO.md",
     "docs/GUIA-TWITCH-V47.4.md",
+    "docs/PRIVACIDADE-RANKING.md",
 )
 
 FORBIDDEN_PATHS = (
@@ -167,6 +168,7 @@ ALLOWED_DOCS = {
     "SANEAMENTO-V44.md",
     "VALIDACAO.md",
     "GUIA-TWITCH-V47.4.md",
+    "PRIVACIDADE-RANKING.md",
 }
 
 EXPECTED_DAYS = (
@@ -1083,7 +1085,9 @@ def validate_architecture() -> None:
     buttons_js = read_text("js/core/buttons.js")
     button_icons_js = read_text("js/core/button-icons.js")
     worker_js = read_text("workers.js")
+    ranking_js = read_text("js/pages/doacoes/ranking.js")
     privacy_html = read_text("privacidade/index.html")
+    ranking_privacy_doc = read_text("docs/PRIVACIDADE-RANKING.md")
 
     for element_id in (
         'id="inicio"',
@@ -1548,7 +1552,8 @@ def validate_architecture() -> None:
         "doacoes/index.html": (
             "css/core/variables.css?v=48.3.7",
             "css/pages/doacoes.css?v=48.3.7",
-            "css/components/ranking.css?v=48.3.7",
+            "css/components/ranking.css?v=48.3.8",
+            "js/pages/doacoes/ranking.js?v=48.3.8",
         ),
         "blog/index.html": (
             "css/core/variables.css?v=48.3.7",
@@ -1782,14 +1787,90 @@ def validate_architecture() -> None:
     if "env.ALLOWED_ORIGIN || '*" in worker_js or "env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*'" in worker_js:
         error("workers.js: CORS não deve voltar ao wildcard implícito na V47.4.5.")
 
+    # V48.3.8: política precisa refletir o mapa de dados real e expor canal LGPD.
+    # Normaliza whitespace para não acoplar a validação semântica à quebra visual do HTML/Markdown.
+    privacy_text = " ".join(privacy_html.split())
+    donations_text = " ".join(donations.split())
+    ranking_privacy_text = " ".join(ranking_privacy_doc.split())
+
     for needle in (
-        "V47.4.5",
-        "miniaturas exibidas podem ser carregadas diretamente",
-        "infraestrutura",
-        "Twitch",
+        "Kamyli Souza",
+        "contato@kamylisumire.com",
+        "Responsável pelo tratamento e contato",
+        "Doações e ranking de apoiadores",
+        "Serviços externos e transferências internacionais",
+        "Armazenamento e retenção",
+        "Seus direitos pela LGPD",
+        "Segurança e incidentes",
+        "cache local do Top 5 do ranking é mantido por no máximo 30 minutos",
+        "Pixie oferece, inclusive, ranking público de apoiadores",
+        "LivePix oferece alertas e integrações",
+        "não é tratada pelo projeto como consentimento específico",
+        "identificador de exibição é autodeclarado",
+        "Pessoas diferentes podem utilizar o mesmo texto",
+        "somente a coincidência com o identificador exibido não é suficiente",
+        "Uma contestação plausível pode resultar preventivamente",
+        "Miniaturas exibidas podem",
+        "infraestrutura da Twitch",
     ):
-        if needle not in privacy_html:
-            error(f"privacidade/index.html: transparência Twitch V47.4.5 ausente: {needle}")
+        if needle not in privacy_text:
+            error(f"privacidade/index.html: transparência LGPD V48.3.8 ausente: {needle}")
+
+    if 'id="rankingPrivacyNotice"' not in donations:
+        error("doacoes/index.html: aviso contextual do ranking V48.3.8 ausente.")
+
+    for needle in (
+        "Os identificadores informados nas contribuições podem ser utilizados neste ranking",
+        "não representam identidades verificadas",
+        "../privacidade/#ranking",
+    ):
+        if needle not in donations_text:
+            error(f"doacoes/index.html: aviso contextual do ranking V48.3.8 ausente: {needle}")
+
+    for needle in (
+        "identificador de exibição autodeclarado e não autenticado",
+        "Pixie oferece ranking público de apoiadores como recurso nativo",
+        "LivePix oferece alertas/integrações",
+        "não deve ser descrito como uma autorização irrestrita",
+        "não é autenticação suficiente",
+        "não solicitar documento civil por padrão",
+        "RANKING_PRIVATE_NAMES",
+    ):
+        if needle not in ranking_privacy_text:
+            error(f"docs/PRIVACIDADE-RANKING.md: governança V48.3.8 ausente: {needle}")
+
+    for needle in (
+        "donation.name é um identificador de exibição autodeclarado",
+        "não autentica titularidade nem altera",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: semântica de identidade do ranking V48.3.8 ausente: {needle}")
+
+    for needle in (
+        'RANKING_CACHE_KEY = "kamyli-ranking-cache-v4"',
+        'RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
+        'LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"]',
+        'localStorage.removeItem(key)',
+        'age > RANKING_CACHE_TTL_MS',
+        'clearLegacyRankingCaches();',
+    ):
+        if needle not in ranking_js:
+            error(f"js/pages/doacoes/ranking.js: retenção local V48.3.8 ausente: {needle}")
+
+    for forbidden in (
+        "allowExpired",
+        "staleCache",
+        "mostrar o último cache conhecido",
+    ):
+        if forbidden in ranking_js:
+            error(f"js/pages/doacoes/ranking.js: fallback expirado V48.3.8 não permitido: {forbidden}")
+
+    for forbidden in (
+        "nome verificado do doador",
+        "informando o nome ou pseudônimo utilizado na contribuição",
+    ):
+        if forbidden in privacy_html or forbidden in donations:
+            error(f"ranking V48.3.8: linguagem de identidade insegura presente: {forbidden}")
 
     for route in ('"home"', '"doacoes"', '"blog"'):
         if route not in page_transitions:

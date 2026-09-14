@@ -1,3 +1,16 @@
+## V48.3.8 — Privacidade, ranking e LGPD
+
+Antes de publicar:
+
+1. abrir `/privacidade/` e confirmar que **Kamyli Souza** e `contato@kamylisumire.com` aparecem como identificação/canal público, sem exposição do endereço Gmail de destino ou de dados civis privados;
+2. confirmar que a política chama `donation.name` de **identificador de exibição autodeclarado/não autenticado**, explica que textos iguais podem pertencer a pessoas diferentes e não trata o ranking como cadastro de identidades verificadas;
+3. abrir `/doacoes/` e confirmar o aviso junto ao ranking sobre identificador não verificado, valor acumulado, exibição como **Anônimo** e contestação de possível personificação;
+4. confirmar em `docs/PRIVACIDADE-RANKING.md` que contestação pública não concede acesso aos dados internos e que coincidência de nome/pseudônimo, isoladamente, não autoriza correção ou exclusão de totais;
+5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; após simular `savedAt` com mais de 30 minutos, confirmar remoção da chave e nova consulta à API;
+6. confirmar que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
+7. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker;
+8. confirmar SEO editorial: Galeria com obras deve estar `index, follow` e no sitemap; Blog sem posts publicados deve permanecer `noindex, follow` e fora do sitemap.
+
 # Validação
 
 ## V48.3.7 — CSP, contraste e indexação condicional

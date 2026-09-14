@@ -1,3 +1,15 @@
+# Changelog
+
+## V48.3.8 — Privacidade LGPD e retenção do ranking
+
+- identifica publicamente a responsável pelo tratamento como **Kamyli Souza** (nome social) e estabelece `contato@kamylisumire.com` como canal de privacidade e exercício de direitos, sem expor e-mail pessoal de destino, nome civil, endereço ou telefone;
+- reescreve `/privacidade/` a partir do mapa técnico de dados: infraestrutura, preferências locais, ranking, créditos editoriais, provedores externos, transferências internacionais, retenção, direitos LGPD, segurança e incidentes;
+- esclarece que LivePix/Pixie processam a contribuição fora do site e que o ranking usa um **identificador de exibição autodeclarado e não autenticado** + valor acumulado; documenta que Pixie possui ranking público nativo e LivePix oferece alertas/integrações de exibição, reforçando a expectativa contextual sem tratar os termos de terceiros como consentimento específico ao ranking deste site; textos iguais podem ser agregados sem provar que pertencem à mesma pessoa;
+- transforma os 30 minutos do cache local do ranking em limite real de retenção: cache vencido é apagado, não há fallback expirado e a chave `v3` é removida ao carregar a nova `v4`, preservando a economia de API dentro da janela válida;
+- mantém no card do ranking apenas um aviso contextual curto, com link para a Política de Privacidade; a explicação completa sobre identificador não verificado, contestação/personificação e pedidos internos fica centralizada na Política e no procedimento de governança;
+- corrige o estado SEO da Galeria na árvore editorial real: como há artes publicadas, `/artes/` volta a `index, follow` e ao sitemap; o Blog permanece `noindex, follow` enquanto não houver post `published: true`;
+- adiciona `docs/PRIVACIDADE-RANKING.md` com o procedimento interno simplificado de moderação e atendimento, e amplia a CI para impedir regressão da política, do canal de contato, da semântica de identidade, do hard TTL e do aviso junto à funcionalidade.
+
 ## V48.3.7 — Hardening de segurança, contraste AA e indexação condicional
 
 - remove `unsafe-inline` da CSP e autoriza apenas os blocos inline atuais por hashes SHA-256; a CI recalcula os hashes a partir dos bytes reais e bloqueia atributos `style=`/`on*=` incompatíveis com essa política;
@@ -45,8 +57,6 @@
 - mantém `apoioFixoNoFim: false` com reordenação livre via `ordem`;
 - usa um único nó do CTA e o move entre o wrapper fixo e `.site-nav-links`;
 - atualiza validação, documentação e cache-busters para V48.3.2.
-
-# Changelog
 
 ## V48.3.1 — Hotfix: Apoiar fixo opcional na Navbar
 

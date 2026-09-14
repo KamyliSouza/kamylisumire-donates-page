@@ -513,6 +513,9 @@ async function syncDonations(env) {
 
   if (hasNewDonations) {
     for (const donation of newDonations) {
+      // donation.name é um identificador de exibição autodeclarado. Ele não
+      // comprova identidade civil ou unicidade: textos iguais são agregados
+      // por design do ranking e podem ter sido informados por pessoas distintas.
       const name = (donation.name || 'Anônimo').trim();
       const amount = Number(donation.amount) || 0;
 
@@ -1355,9 +1358,12 @@ async function handleDebugSync(request, url, env) {
 // Helpers
 // ---------------------------------------------------------------------
 // RANKING_PRIVATE_NAMES: variável de ambiente do Worker (fora do Git),
-// lista separada por vírgula de nomes que devem aparecer como anônimos
-// no ranking público. Ex.: "Fulano,Ciclano". A comparação ignora caixa
-// e espaços nas extremidades; acentos continuam significativos.
+// lista separada por vírgula de identificadores de exibição que devem
+// aparecer como anônimos no ranking público, inclusive por privacidade ou
+// contestação de personificação. Ex.: "Fulano,Ciclano". A comparação ignora
+// caixa e espaços nas extremidades; acentos continuam significativos.
+// Esta lista modera a saída pública; não autentica titularidade nem altera
+// os totais internos agregados sob o identificador.
 function getPrivateNames(env) {
   return (env.RANKING_PRIVATE_NAMES || '')
     .split(',')

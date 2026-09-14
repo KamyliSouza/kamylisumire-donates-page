@@ -1,20 +1,44 @@
 // Evita novas consultas ao Worker por 30 minutos no mesmo navegador.
-const RANKING_CACHE_KEY = "kamyli-ranking-cache-v3";
+// V48.3.8: o TTL também é um limite real de retenção local; cache vencido
+// é removido e nunca volta como fallback com nomes/valores antigos.
+const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
 const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
+const LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"];
 
-function readRankingCache({ allowExpired = false } = {}) {
+function removeRankingCache(key = RANKING_CACHE_KEY) {
+    try {
+        localStorage.removeItem(key);
+    } catch (error) {
+        console.warn("Não foi possível remover o cache do ranking:", error);
+    }
+}
+
+function clearLegacyRankingCaches() {
+    LEGACY_RANKING_CACHE_KEYS.forEach(removeRankingCache);
+}
+
+function readRankingCache() {
     try {
         const raw = localStorage.getItem(RANKING_CACHE_KEY);
         if (!raw) return null;
 
         const cached = JSON.parse(raw);
-        const age = Date.now() - Number(cached.savedAt || 0);
-        if (!allowExpired && age > RANKING_CACHE_TTL_MS) {
+        const savedAt = Number(cached.savedAt || 0);
+        const age = Date.now() - savedAt;
+
+        if (!Number.isFinite(savedAt) || savedAt <= 0 || age < 0 || age > RANKING_CACHE_TTL_MS) {
+            removeRankingCache();
             return null;
         }
 
-        return cached.data || null;
+        if (!cached.data || typeof cached.data !== "object") {
+            removeRankingCache();
+            return null;
+        }
+
+        return cached.data;
     } catch (error) {
+        removeRankingCache();
         console.warn("Cache local do ranking indisponível:", error);
         return null;
     }
@@ -153,24 +177,8 @@ async function loadRanking() {
     } catch (error) {
         console.error("Erro ao carregar ranking:", error);
 
-        // Se a API estiver temporariamente indisponível, ainda tentamos
-        // mostrar o último cache conhecido, mesmo que tenha expirado.
-        const staleCache = readRankingCache({ allowExpired: true });
-
-        if (staleCache) {
-            rankingData = {
-                monthly: Array.isArray(staleCache.monthly)
-                    ? staleCache.monthly
-                    : [],
-                allTime: Array.isArray(staleCache.allTime)
-                    ? staleCache.allTime
-                    : []
-            };
-
-            renderRanking(rankingData.monthly);
-            return;
-        }
-
+        // Cache expirado é apagado por readRankingCache(). Não reutilizamos
+        // nomes/valores antigos como fallback após o limite de 30 minutos.
         rankingList.innerHTML = `
             <li class="ranking-status">
                 Não foi possível carregar o ranking.
@@ -271,6 +279,7 @@ tabButtons.forEach(button => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    clearLegacyRankingCaches();
     setActiveTab("monthly");
     loadRanking();
 });

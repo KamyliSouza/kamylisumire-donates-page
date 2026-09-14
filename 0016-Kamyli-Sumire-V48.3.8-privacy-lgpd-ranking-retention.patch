@@ -1,0 +1,812 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 161c4f5b51630093588a523503587d90955de1da..d816a3123f3566e443d6689c81b761a4232233ef 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -77,6 +77,7 @@ REQUIRED_FILES = (
+     "docs/SANEAMENTO-V44.md",
+     "docs/VALIDACAO.md",
+     "docs/GUIA-TWITCH-V47.4.md",
++    "docs/PRIVACIDADE-RANKING.md",
+ )
+ 
+ FORBIDDEN_PATHS = (
+@@ -167,6 +168,7 @@ ALLOWED_DOCS = {
+     "SANEAMENTO-V44.md",
+     "VALIDACAO.md",
+     "GUIA-TWITCH-V47.4.md",
++    "PRIVACIDADE-RANKING.md",
+ }
+ 
+ EXPECTED_DAYS = (
+@@ -1083,7 +1085,9 @@ def validate_architecture() -> None:
+     buttons_js = read_text("js/core/buttons.js")
+     button_icons_js = read_text("js/core/button-icons.js")
+     worker_js = read_text("workers.js")
++    ranking_js = read_text("js/pages/doacoes/ranking.js")
+     privacy_html = read_text("privacidade/index.html")
++    ranking_privacy_doc = read_text("docs/PRIVACIDADE-RANKING.md")
+ 
+     for element_id in (
+         'id="inicio"',
+@@ -1548,7 +1552,8 @@ def validate_architecture() -> None:
+         "doacoes/index.html": (
+             "css/core/variables.css?v=48.3.7",
+             "css/pages/doacoes.css?v=48.3.7",
+-            "css/components/ranking.css?v=48.3.7",
++            "css/components/ranking.css?v=48.3.8",
++            "js/pages/doacoes/ranking.js?v=48.3.8",
+         ),
+         "blog/index.html": (
+             "css/core/variables.css?v=48.3.7",
+@@ -1782,14 +1787,90 @@ def validate_architecture() -> None:
+     if "env.ALLOWED_ORIGIN || '*" in worker_js or "env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*'" in worker_js:
+         error("workers.js: CORS não deve voltar ao wildcard implícito na V47.4.5.")
+ 
++    # V48.3.8: política precisa refletir o mapa de dados real e expor canal LGPD.
++    # Normaliza whitespace para não acoplar a validação semântica à quebra visual do HTML/Markdown.
++    privacy_text = " ".join(privacy_html.split())
++    donations_text = " ".join(donations.split())
++    ranking_privacy_text = " ".join(ranking_privacy_doc.split())
++
++    for needle in (
++        "Kamyli Souza",
++        "contato@kamylisumire.com",
++        "Responsável pelo tratamento e contato",
++        "Doações e ranking de apoiadores",
++        "Serviços externos e transferências internacionais",
++        "Armazenamento e retenção",
++        "Seus direitos pela LGPD",
++        "Segurança e incidentes",
++        "cache local do Top 5 do ranking é mantido por no máximo 30 minutos",
++        "Pixie oferece, inclusive, ranking público de apoiadores",
++        "LivePix oferece alertas e integrações",
++        "não é tratada pelo projeto como consentimento específico",
++        "identificador de exibição é autodeclarado",
++        "Pessoas diferentes podem utilizar o mesmo texto",
++        "somente a coincidência com o identificador exibido não é suficiente",
++        "Uma contestação plausível pode resultar preventivamente",
++        "Miniaturas exibidas podem",
++        "infraestrutura da Twitch",
++    ):
++        if needle not in privacy_text:
++            error(f"privacidade/index.html: transparência LGPD V48.3.8 ausente: {needle}")
++
++    if 'id="rankingPrivacyNotice"' not in donations:
++        error("doacoes/index.html: aviso contextual do ranking V48.3.8 ausente.")
++
++    for needle in (
++        "Os identificadores informados nas contribuições podem ser utilizados neste ranking",
++        "não representam identidades verificadas",
++        "../privacidade/#ranking",
++    ):
++        if needle not in donations_text:
++            error(f"doacoes/index.html: aviso contextual do ranking V48.3.8 ausente: {needle}")
++
++    for needle in (
++        "identificador de exibição autodeclarado e não autenticado",
++        "Pixie oferece ranking público de apoiadores como recurso nativo",
++        "LivePix oferece alertas/integrações",
++        "não deve ser descrito como uma autorização irrestrita",
++        "não é autenticação suficiente",
++        "não solicitar documento civil por padrão",
++        "RANKING_PRIVATE_NAMES",
++    ):
++        if needle not in ranking_privacy_text:
++            error(f"docs/PRIVACIDADE-RANKING.md: governança V48.3.8 ausente: {needle}")
++
+     for needle in (
+-        "V47.4.5",
+-        "miniaturas exibidas podem ser carregadas diretamente",
+-        "infraestrutura",
+-        "Twitch",
++        "donation.name é um identificador de exibição autodeclarado",
++        "não autentica titularidade nem altera",
++    ):
++        if needle not in worker_js:
++            error(f"workers.js: semântica de identidade do ranking V48.3.8 ausente: {needle}")
++
++    for needle in (
++        'RANKING_CACHE_KEY = "kamyli-ranking-cache-v4"',
++        'RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
++        'LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"]',
++        'localStorage.removeItem(key)',
++        'age > RANKING_CACHE_TTL_MS',
++        'clearLegacyRankingCaches();',
++    ):
++        if needle not in ranking_js:
++            error(f"js/pages/doacoes/ranking.js: retenção local V48.3.8 ausente: {needle}")
++
++    for forbidden in (
++        "allowExpired",
++        "staleCache",
++        "mostrar o último cache conhecido",
++    ):
++        if forbidden in ranking_js:
++            error(f"js/pages/doacoes/ranking.js: fallback expirado V48.3.8 não permitido: {forbidden}")
++
++    for forbidden in (
++        "nome verificado do doador",
++        "informando o nome ou pseudônimo utilizado na contribuição",
+     ):
+-        if needle not in privacy_html:
+-            error(f"privacidade/index.html: transparência Twitch V47.4.5 ausente: {needle}")
++        if forbidden in privacy_html or forbidden in donations:
++            error(f"ranking V48.3.8: linguagem de identidade insegura presente: {forbidden}")
+ 
+     for route in ('"home"', '"doacoes"', '"blog"'):
+         if route not in page_transitions:
+diff --git a/AGENTS.md b/AGENTS.md
+index b4043d05a03ca914bce825b80f276844df484155..8b036de9d2934c3853f029266315e80a467e5ea6 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -400,3 +400,14 @@ Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem
+ - `/artes/` permanece pública, mas só é indexável e incluída no sitemap quando `data/content/artes.json` contém ao menos um item.
+ - `/blog/` permanece pública, mas só é indexável e incluída no sitemap quando `data/blog/posts.json` contém ao menos um post com `published: true`. Drafts não contam.
+ - Não usar JavaScript para trocar `robots` em runtime; meta robots e sitemap são artefatos estáticos validados contra os JSONs editoriais.
++
++## Privacidade e ranking — V48.3.8
++
++- A identificação pública de privacidade é **Kamyli Souza** (nome social) e o canal é `contato@kamylisumire.com`; não adicionar nome civil, Gmail de destino, endereço residencial, telefone ou documentos ao repositório.
++- O valor recebido em `donation.name` é **identificador de exibição autodeclarado e não autenticado**, não "nome verificado do doador". Pessoas diferentes podem usar o mesmo texto e o ranking agrega textos idênticos por design.
++- O ranking pode publicar somente esse identificador e o valor acumulado necessários à finalidade; não enriquecer o identificador com outras bases nem inferir identidade civil.
++- Uma contestação plausível pode levar o identificador público a **Anônimo** via `RANKING_PRIVATE_NAMES`, sem alterar valor/posição e sem reconhecer o solicitante como titular das contribuições.
++- Nunca fornecer, corrigir ou excluir registros internos apenas porque o solicitante conhece ou usa o mesmo identificador exibido. Pedidos formais exigem avaliação proporcional da relação com os dados; não coletar documento civil por padrão.
++- `RANKING_CACHE_TTL_MS` é limite máximo de retenção local: cache expirado deve ser removido e nunca usado como fallback.
++- O aviso de privacidade do ranking deve permanecer próximo à própria funcionalidade, não apenas na Política de Privacidade.
++- A indexação de `/artes/` e `/blog/` continua derivada do conteúdo editorial real e validada pela CI.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 5d8a99887050623ba1c4e9c2a579e1ba21995e25..aac3c736fba31ea1fc22244b7e5bb2503f472d79 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,15 @@
++# Changelog
++
++## V48.3.8 — Privacidade LGPD e retenção do ranking
++
++- identifica publicamente a responsável pelo tratamento como **Kamyli Souza** (nome social) e estabelece `contato@kamylisumire.com` como canal de privacidade e exercício de direitos, sem expor e-mail pessoal de destino, nome civil, endereço ou telefone;
++- reescreve `/privacidade/` a partir do mapa técnico de dados: infraestrutura, preferências locais, ranking, créditos editoriais, provedores externos, transferências internacionais, retenção, direitos LGPD, segurança e incidentes;
++- esclarece que LivePix/Pixie processam a contribuição fora do site e que o ranking usa um **identificador de exibição autodeclarado e não autenticado** + valor acumulado; documenta que Pixie possui ranking público nativo e LivePix oferece alertas/integrações de exibição, reforçando a expectativa contextual sem tratar os termos de terceiros como consentimento específico ao ranking deste site; textos iguais podem ser agregados sem provar que pertencem à mesma pessoa;
++- transforma os 30 minutos do cache local do ranking em limite real de retenção: cache vencido é apagado, não há fallback expirado e a chave `v3` é removida ao carregar a nova `v4`, preservando a economia de API dentro da janela válida;
++- mantém no card do ranking apenas um aviso contextual curto, com link para a Política de Privacidade; a explicação completa sobre identificador não verificado, contestação/personificação e pedidos internos fica centralizada na Política e no procedimento de governança;
++- corrige o estado SEO da Galeria na árvore editorial real: como há artes publicadas, `/artes/` volta a `index, follow` e ao sitemap; o Blog permanece `noindex, follow` enquanto não houver post `published: true`;
++- adiciona `docs/PRIVACIDADE-RANKING.md` com o procedimento interno simplificado de moderação e atendimento, e amplia a CI para impedir regressão da política, do canal de contato, da semântica de identidade, do hard TTL e do aviso junto à funcionalidade.
++
+ ## V48.3.7 — Hardening de segurança, contraste AA e indexação condicional
+ 
+ - remove `unsafe-inline` da CSP e autoriza apenas os blocos inline atuais por hashes SHA-256; a CI recalcula os hashes a partir dos bytes reais e bloqueia atributos `style=`/`on*=` incompatíveis com essa política;
+@@ -46,8 +58,6 @@
+ - usa um único nó do CTA e o move entre o wrapper fixo e `.site-nav-links`;
+ - atualiza validação, documentação e cache-busters para V48.3.2.
+ 
+-# Changelog
+-
+ ## V48.3.1 — Hotfix: Apoiar fixo opcional na Navbar
+ 
+ - adiciona `apoioFixoNoFim` a `data/content/navbar.json`; quando `true` (ou ausente por compatibilidade), o CTA **Apoiar** é renderizado por último, preservando sua posição histórica à direita;
+diff --git a/README.md b/README.md
+index 21cba8f58dd8718fbdf33ffe4923007a8f4f8d45..7dbf307972c8eea50c5c674142182e0db0a2e229 100644
+--- a/README.md
++++ b/README.md
+@@ -176,3 +176,7 @@ A V48.3.6 reduz trabalho redundante durante a montagem sem remover a navegação
+ A V48.3.7 remove `unsafe-inline` da CSP em favor de hashes SHA-256 validados pela CI, introduz `--primary-text` para texto normal no tema claro e mantém `--primary-color` em títulos grandes/elementos de identidade. `twitch-live.js` aceita thumbnails apenas por HTTPS.
+ 
+ Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow` e fora do `sitemap.xml` até possuírem conteúdo público. A validação cruza `posts.json`/`artes.json`, meta robots e sitemap para impedir publicação com esses sinais fora de sincronia.
++
++### Privacidade e LGPD — V48.3.8
++
++A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e limita o cache em `localStorage` a 30 minutos reais, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
+diff --git a/artes/index.html b/artes/index.html
+index 4f569be0967c1f5712034b4e24454f3eccc5412f..6f2f3dbbe0f35c4777f0c6b023ed26e5001b4413 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -9,7 +9,7 @@
+     <meta name="description" content="Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.">
+     <meta
+         name="robots"
+-        content="noindex, follow"
++        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+     >
+     <meta name="theme-color" content="#B35EAF">
+ 
+diff --git a/css/components/ranking.css b/css/components/ranking.css
+index 5f4e58e2b0575b1fd03558b5fd83099a979181cf..e1d2b416ab89fbf98b8b649cef5c9687d6d2009c 100644
+--- a/css/components/ranking.css
++++ b/css/components/ranking.css
+@@ -29,6 +29,27 @@
+     font-weight: 600;
+ }
+ 
++.ranking-heading .ranking-privacy-note {
++    max-width: 640px;
++    margin: 12px auto 0;
++    padding: 10px 12px;
++    color: var(--text-muted);
++    background: var(--notice-bg);
++    border: 1px solid var(--card-border);
++    border-radius: 12px;
++    line-height: 1.55;
++}
++
++.ranking-privacy-note strong,
++.ranking-privacy-note a {
++    color: var(--primary-text);
++    font-weight: 800;
++}
++
++.ranking-privacy-note a {
++    text-underline-offset: 3px;
++}
++
+ /* =========================================================
+    ABAS
+    ========================================================= */
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 732430fe7482a2c9629a3e7c64ddf11aa2e9c2e4..8d253e6eb1069ba77f2d6678dfeb5db57267a2c6 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -247,7 +247,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.8">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -400,6 +400,11 @@
+ 
+                 <h2 id="rankingTitle">Ranking de apoiadores</h2>
+                 <p id="rankingDescription">Top 5 de doações registradas.</p>
++                <p class="ranking-privacy-note" id="rankingPrivacyNotice">
++                    Os identificadores informados nas contribuições podem ser utilizados neste ranking
++                    e não representam identidades verificadas.
++                    <a href="../privacidade/#ranking">Saiba como o ranking trata esses dados.</a>
++                </p>
+             </div>
+ 
+             <div class="ranking-tabs" role="tablist" aria-label="Período do ranking">
+@@ -464,7 +469,7 @@
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script src="../js/pages/doacoes/doacoes.js"></script>
+     <script src="../js/pages/doacoes/content.js?v=47"></script>
+-    <script src="../js/pages/doacoes/ranking.js?v=47.3"></script>
++    <script src="../js/pages/doacoes/ranking.js?v=48.3.8"></script>
+     <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/docs/PRIVACIDADE-RANKING.md b/docs/PRIVACIDADE-RANKING.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1f5559c412fc02a044573b0239d519fd25974c36
+--- /dev/null
++++ b/docs/PRIVACIDADE-RANKING.md
+@@ -0,0 +1,79 @@
++# Privacidade do ranking de apoiadores — V48.3.8
++
++Este documento registra o procedimento interno simplificado para o ranking. Ele não substitui avaliação jurídica quando um caso concreto exigir.
++
++## 1. Finalidade e minimização
++
++O ranking reconhece apoiadores da comunidade por meio de **identificador de exibição + valor acumulado**. O projeto não precisa de CPF, documento civil, telefone, endereço, e-mail do doador ou dados bancários para essa finalidade e não deve criar esses campos apenas para verificar o ranking.
++
++O valor recebido em `donation.name` é tratado como **identificador de exibição autodeclarado e não autenticado**. Não deve ser descrito como nome verificado, identidade civil ou chave única de pessoa natural.
++
++
++## 2. Expectativa contextual e base do tratamento
++
++O ranking é documentado sob o **legítimo interesse** de reconhecer apoiadores e manter uma funcionalidade comunitária, com minimização de dados e possibilidade de ocultação pública.
++
++A expectativa contextual é reforçada pelas próprias funcionalidades das plataformas de contribuição: o Pixie oferece ranking público de apoiadores como recurso nativo e o LivePix oferece alertas/integrações voltados à exibição de contribuições em transmissões. Isso não deve ser descrito como uma autorização irrestrita dos terceiros nem como consentimento específico ao ranking deste site. A concordância do usuário com os termos de LivePix/Pixie rege o tratamento realizado por essas plataformas; o tratamento do projeto continua sujeito à própria Política de Privacidade.
++
++Salvaguardas consideradas no balanceamento:
++
++- somente identificador de exibição e valor acumulado são necessários à exibição pública;
++- o projeto não verifica nem tenta descobrir identidade civil por trás do identificador;
++- não há enriquecimento do identificador com outras bases;
++- existe canal de contato e possibilidade de exibição pública como **Anônimo**;
++- o identificador não é aceito como prova de titularidade de registros internos.
++
++## 3. Limitação de identidade
++
++- pessoas diferentes podem informar exatamente o mesmo identificador;
++- uma mesma pessoa pode usar identificadores diferentes;
++- alguém pode informar texto associado a terceiro ou tentar se passar por outra pessoa;
++- o Worker agrega contribuições que possuem o mesmo texto, mas essa soma é apenas uma regra do ranking e **não comprova que pertencem à mesma pessoa**;
++- o projeto não deve enriquecer esse texto com outras bases para tentar descobrir identidade civil.
++
++## 4. Contestação da exibição pública
++
++Quando alguém relatar que um identificador a expõe, aparenta personificação ou não deveria permanecer público:
++
++1. registrar a solicitação recebida em `contato@kamylisumire.com` com o mínimo de contexto necessário;
++2. avaliar se a contestação é plausível e se há abuso evidente do canal;
++3. quando adequado, adicionar o identificador a `RANKING_PRIVATE_NAMES`;
++4. confirmar que a API pública passa a responder **Anônimo** para esse identificador;
++5. não alterar valor, posição ou totais internos apenas para efetuar a ocultação pública.
++
++A ocultação preventiva é uma medida de privacidade/moderação. **Ela não reconhece o solicitante como autor da contribuição nem como titular de todos os registros agregados sob aquele texto.**
++
++## 5. Pedidos sobre registros internos
++
++Conhecer, usar ou alegar ser a pessoa associada ao identificador exibido **não é autenticação suficiente** para receber dados internos, corrigir totais ou excluir registros. Como o modelo agrega por texto e não mantém uma identidade verificada, remover todo o identificador pode afetar contribuições de pessoas diferentes.
++
++Para pedidos formais de acesso, correção ou eliminação:
++
++1. nunca entregar ou alterar dados internos apenas pela coincidência do identificador;
++2. pedir somente informações adicionais proporcionais que estejam disponíveis e possam ajudar a relacionar o solicitante ao tratamento concreto;
++3. não solicitar documento civil por padrão e não criar coleta permanente de documentos para essa finalidade;
++4. quando não for possível estabelecer associação segura a uma única pessoa, registrar essa limitação e não divulgar dados de terceiros;
++5. a possibilidade de exibição pública como **Anônimo** permanece separada desse processo e pode ser aplicada como medida preventiva.
++
++## 6. Retenção e cache
++
++- `localStorage`: cache do Top 5 por no máximo 30 minutos; expirado, deve ser removido e nunca usado como fallback;
++- totais mensais: acompanham o período corrente;
++- totais históricos agregados: podem existir enquanto o ranking histórico estiver ativo;
++- a saída pública aplica `RANKING_PRIVATE_NAMES` sem apagar automaticamente os totais internos.
++
++## 7. Linguagem pública obrigatória
++
++Preferir:
++
++- “identificador de exibição”;
++- “nome, apelido ou pseudônimo informado na contribuição”;
++- “identificador não verificado como identidade civil”;
++- “exibição como Anônimo”.
++
++Evitar:
++
++- “nome verificado do doador”;
++- “dono do nome”;
++- “essa pessoa realizou a doação” quando a única evidência for `donation.name`;
++- prometer exclusão de todos os registros apenas mediante indicação do identificador exibido.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 86e4a1d95e6bbcc4c60743c53a7fe184daf964a8..86cdd7f6cc10a565aad2d3e8aa02e20ace7b3037 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -1,3 +1,16 @@
++## V48.3.8 — Privacidade, ranking e LGPD
++
++Antes de publicar:
++
++1. abrir `/privacidade/` e confirmar que **Kamyli Souza** e `contato@kamylisumire.com` aparecem como identificação/canal público, sem exposição do endereço Gmail de destino ou de dados civis privados;
++2. confirmar que a política chama `donation.name` de **identificador de exibição autodeclarado/não autenticado**, explica que textos iguais podem pertencer a pessoas diferentes e não trata o ranking como cadastro de identidades verificadas;
++3. abrir `/doacoes/` e confirmar o aviso junto ao ranking sobre identificador não verificado, valor acumulado, exibição como **Anônimo** e contestação de possível personificação;
++4. confirmar em `docs/PRIVACIDADE-RANKING.md` que contestação pública não concede acesso aos dados internos e que coincidência de nome/pseudônimo, isoladamente, não autoriza correção ou exclusão de totais;
++5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; após simular `savedAt` com mais de 30 minutos, confirmar remoção da chave e nova consulta à API;
++6. confirmar que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
++7. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker;
++8. confirmar SEO editorial: Galeria com obras deve estar `index, follow` e no sitemap; Blog sem posts publicados deve permanecer `noindex, follow` e fora do sitemap.
++
+ # Validação
+ 
+ ## V48.3.7 — CSP, contraste e indexação condicional
+diff --git a/js/pages/doacoes/ranking.js b/js/pages/doacoes/ranking.js
+index b9226f574bab525cd214904d646fa961521cfd9d..e0a76320bbf602b0e558970fff127ad5d67f55fd 100644
+--- a/js/pages/doacoes/ranking.js
++++ b/js/pages/doacoes/ranking.js
+@@ -1,20 +1,44 @@
+ // Evita novas consultas ao Worker por 30 minutos no mesmo navegador.
+-const RANKING_CACHE_KEY = "kamyli-ranking-cache-v3";
++// V48.3.8: o TTL também é um limite real de retenção local; cache vencido
++// é removido e nunca volta como fallback com nomes/valores antigos.
++const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
+ const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
++const LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"];
+ 
+-function readRankingCache({ allowExpired = false } = {}) {
++function removeRankingCache(key = RANKING_CACHE_KEY) {
++    try {
++        localStorage.removeItem(key);
++    } catch (error) {
++        console.warn("Não foi possível remover o cache do ranking:", error);
++    }
++}
++
++function clearLegacyRankingCaches() {
++    LEGACY_RANKING_CACHE_KEYS.forEach(removeRankingCache);
++}
++
++function readRankingCache() {
+     try {
+         const raw = localStorage.getItem(RANKING_CACHE_KEY);
+         if (!raw) return null;
+ 
+         const cached = JSON.parse(raw);
+-        const age = Date.now() - Number(cached.savedAt || 0);
+-        if (!allowExpired && age > RANKING_CACHE_TTL_MS) {
++        const savedAt = Number(cached.savedAt || 0);
++        const age = Date.now() - savedAt;
++
++        if (!Number.isFinite(savedAt) || savedAt <= 0 || age < 0 || age > RANKING_CACHE_TTL_MS) {
++            removeRankingCache();
++            return null;
++        }
++
++        if (!cached.data || typeof cached.data !== "object") {
++            removeRankingCache();
+             return null;
+         }
+ 
+-        return cached.data || null;
++        return cached.data;
+     } catch (error) {
++        removeRankingCache();
+         console.warn("Cache local do ranking indisponível:", error);
+         return null;
+     }
+@@ -153,24 +177,8 @@ async function loadRanking() {
+     } catch (error) {
+         console.error("Erro ao carregar ranking:", error);
+ 
+-        // Se a API estiver temporariamente indisponível, ainda tentamos
+-        // mostrar o último cache conhecido, mesmo que tenha expirado.
+-        const staleCache = readRankingCache({ allowExpired: true });
+-
+-        if (staleCache) {
+-            rankingData = {
+-                monthly: Array.isArray(staleCache.monthly)
+-                    ? staleCache.monthly
+-                    : [],
+-                allTime: Array.isArray(staleCache.allTime)
+-                    ? staleCache.allTime
+-                    : []
+-            };
+-
+-            renderRanking(rankingData.monthly);
+-            return;
+-        }
+-
++        // Cache expirado é apagado por readRankingCache(). Não reutilizamos
++        // nomes/valores antigos como fallback após o limite de 30 minutos.
+         rankingList.innerHTML = `
+             <li class="ranking-status">
+                 Não foi possível carregar o ranking.
+@@ -271,6 +279,7 @@ tabButtons.forEach(button => {
+ });
+ 
+ document.addEventListener("DOMContentLoaded", () => {
++    clearLegacyRankingCaches();
+     setActiveTab("monthly");
+     loadRanking();
+ });
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 44d771b238988cd8fd0aa08a8ef845f58799e8a9..a6c0bec2e2e19ad53282da0829592b0520f25c06 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -8,7 +8,7 @@
+     <link rel="preconnect" href="https://assets.kamylisumire.com">
+ 
+     <title>Política de Privacidade · Kamyli Sumire</title>
+-    <meta name="description" content="Política de Privacidade do site Kamyli Sumire: informações tratadas, finalidades, serviços envolvidos e escolhas do visitante.">
++    <meta name="description" content="Política de Privacidade do site Kamyli Sumire: dados tratados, ranking de apoiadores, retenção, terceiros, direitos LGPD e contato.">
+     <meta name="robots" content="index, follow">
+     <link rel="canonical" href="https://kamylisumire.com/privacidade/">
+     <meta name="theme-color" content="#B35EAF">
+@@ -270,79 +270,234 @@
+                 <span class="eyebrow">Privacidade e transparência</span>
+                 <h1>Política de Privacidade</h1>
+                 <p class="privacy-lead">
+-                    Esta política resume quais informações podem ser tratadas ao usar o
+-                    site Kamyli Sumire, por que elas são utilizadas e quais serviços
+-                    participam desse funcionamento.
++                    Esta política explica como o projeto Kamyli Sumire trata dados pessoais,
++                    para quais finalidades, por quanto tempo, quais serviços participam do
++                    funcionamento e como exercer direitos previstos na LGPD.
+                 </p>
+-                <time class="privacy-updated" datetime="2026-09-09">
+-                    Última atualização: 9 de setembro de 2026 · V47.4.5
++                <time class="privacy-updated" datetime="2026-09-14">
++                    Última atualização: 14 de setembro de 2026 · V48.3.8
+                 </time>
+             </header>
+ 
++            <section class="privacy-section" id="responsavel">
++                <h2>1. Responsável pelo tratamento e contato</h2>
++                <p>
++                    O projeto Kamyli Sumire é administrado por <strong>Kamyli Souza</strong>,
++                    nome social utilizado publicamente pela responsável pelas decisões sobre
++                    os tratamentos de dados descritos nesta política.
++                </p>
++                <p>
++                    Para dúvidas, solicitações de privacidade ou exercício de direitos, use
++                    <a href="mailto:contato@kamylisumire.com">contato@kamylisumire.com</a>.
++                    Esse é o canal público de contato do projeto; endereços pessoais de destino
++                    e outros dados privados da responsável não são divulgados pelo site.
++                </p>
++            </section>
++
+             <section class="privacy-section" id="informacoes">
+-                <h2>1. Informações tratadas</h2>
++                <h2>2. Informações tratadas</h2>
++                <p>
++                    O site não exige cadastro para navegação e não recebe diretamente dados de
++                    cartão, Pix, conta bancária ou outros dados de pagamento. A infraestrutura
++                    de hospedagem, entrega e segurança pode processar dados técnicos inerentes a
++                    uma conexão web, como endereço IP, navegador, dispositivo e metadados da
++                    requisição, conforme as práticas dos respectivos provedores.
++                </p>
++                <p>
++                    Preferências de interface, como tema e efeitos visuais, podem ser armazenadas
++                    no próprio navegador. Características disponibilizadas pelo navegador, como
++                    Save-Data, memória aproximada, quantidade de processadores e preferências do
++                    sistema, podem ser consultadas localmente para ajustar desempenho e
++                    transparência; o código do site não as envia para formar um perfil próprio
++                    do visitante.
++                </p>
+                 <p>
+-                    O site não exige cadastro para navegação. Durante o uso, podem ser
+-                    tratadas informações técnicas necessárias ao funcionamento e à
+-                    segurança, como endereço IP, navegador, dispositivo e dados da
+-                    requisição. Preferências de interface e caches funcionais também
+-                    podem ser armazenados localmente no seu navegador.
++                    Para o ranking de apoiadores, a integração com a Streamlabs pode fornecer
++                    identificador da doação, data, identificador de exibição informado na
++                    contribuição (como nome, apelido ou pseudônimo) e valor. Esse identificador
++                    é autodeclarado e não é tratado pelo projeto como comprovação de identidade
++                    civil. O site utiliza esses dados para atualizar totais agregados do ranking
++                    e não mantém um cadastro próprio com dados de pagamento. Créditos editoriais
++                    de artistas também podem conter nome ou pseudônimo e link público fornecido
++                    para crédito.
+                 </p>
+             </section>
+ 
+             <section class="privacy-section" id="finalidades">
+-                <h2>2. Como as informações são usadas</h2>
++                <h2>3. Finalidades e bases legais</h2>
++                <p>
++                    Os dados são tratados somente para finalidades relacionadas ao funcionamento
++                    do site: entrega e segurança da página, manutenção de preferências, redução de
++                    requisições desnecessárias, exibição de Lives e conteúdos públicos, crédito
++                    editorial, atendimento de solicitações e funcionamento do ranking de
++                    apoiadores. O site não cria perfis próprios de publicidade comportamental.
++                </p>
++                <p>
++                    A hipótese legal aplicável depende da operação concreta. Para o ranking de
++                    apoiadores, o projeto adota o legítimo interesse de reconhecer contribuições e
++                    manter uma funcionalidade comunitária, usando somente o identificador de
++                    exibição necessário ao ranking e o valor acumulado. Essa avaliação considera a
++                    finalidade, a minimização dos dados, a expectativa contextual de interação
++                    pública com criadores e as salvaguardas descritas nesta política, inclusive a
++                    possibilidade de ocultação pública como <strong>Anônimo</strong>. Também podem se
++                    aplicar cumprimento de obrigação legal ou regulatória e exercício regular de
++                    direitos. Consentimento somente será tratado como base quando houver uma
++                    manifestação específica para a finalidade correspondente.
++                </p>
++            </section>
++
++            <section class="privacy-section" id="ranking">
++                <h2>4. Doações e ranking de apoiadores</h2>
++                <p>
++                    As contribuições são realizadas em plataformas externas voltadas à interação
++                    entre público e criadores. O Pixie oferece, inclusive, ranking público de
++                    apoiadores como funcionalidade própria; o LivePix oferece alertas e integrações
++                    destinadas à exibição de contribuições em transmissões. Esse contexto torna
++                    previsível que um nome, apelido ou pseudônimo informado para interação com o
++                    criador possa ser utilizado para reconhecimento público de apoiadores.
++                </p>
++                <p>
++                    O ranking deste site, porém, é operado pelo projeto Kamyli Sumire e segue esta
++                    Política de Privacidade. A aceitação dos termos ou políticas de uma plataforma
++                    externa não é tratada pelo projeto como consentimento específico para o nosso
++                    ranking. Quando a Streamlabs disponibiliza ao projeto um identificador de
++                    exibição informado na contribuição, esse identificador e o valor acumulado
++                    podem aparecer no Top 5 mensal ou histórico.
++                </p>
++                <p>
++                    O identificador de exibição é autodeclarado e não é verificado pelo projeto como
++                    identidade civil ou identidade única. Pessoas diferentes podem utilizar o mesmo
++                    texto, uma pessoa pode utilizar identificadores diferentes e alguém pode informar
++                    um identificador associado a terceiro. Quando contribuições distintas usam o
++                    mesmo texto, os valores podem ser agregados pelo ranking; essa soma é uma regra
++                    de funcionamento e não comprova que as contribuições vieram da mesma pessoa.
++                </p>
++                <p>
++                    O projeto não tenta descobrir a identidade civil por trás do identificador, não
++                    o enriquece com outras bases e limita a exibição pública ao identificador e ao
++                    valor necessários para a proposta do ranking. Identificadores configurados como
++                    privados ou cuja exibição seja suspensa após contestação podem ser substituídos
++                    por <strong>Anônimo</strong> antes da resposta pública da API, preservando o valor
++                    e a posição calculada. Essa medida de moderação não reconhece quem realizou a
++                    contribuição e não significa, por si só, exclusão ou alteração dos totais internos.
++                </p>
+                 <p>
+-                    Essas informações são utilizadas somente para entregar e proteger o
+-                    site, manter preferências escolhidas pelo visitante, reduzir
+-                    requisições desnecessárias e oferecer funcionalidades como Lives e
+-                    ranking de apoiadores. O site não utiliza esses dados para criar
+-                    perfis próprios de publicidade comportamental.
++                    Se um identificador expuser você, aparentar personificação ou você preferir que
++                    ele não seja exibido, escreva para
++                    <a href="mailto:contato@kamylisumire.com">contato@kamylisumire.com</a>.
++                    Uma contestação plausível pode resultar preventivamente na exibição como
++                    Anônimo sem que o projeto precise decidir quem é a pessoa verdadeira por trás
++                    do texto. A ocultação pública não concede acesso a dados internos nem permite
++                    assumir a titularidade das contribuições associadas.
++                </p>
++                <p>
++                    Para pedidos formais sobre registros internos, somente a coincidência com o
++                    identificador exibido não é suficiente para confirmar a relação entre o
++                    solicitante e os dados. Poderão ser solicitadas informações adicionais
++                    proporcionais e disponíveis para avaliar essa relação, sem exigir documento civil
++                    por padrão. Como o mesmo identificador pode ser usado por pessoas diferentes,
++                    algumas solicitações podem não permitir associação segura a uma única pessoa.
+                 </p>
+             </section>
+ 
+             <section class="privacy-section" id="integracoes">
+-                <h2>3. Doações e integrações externas</h2>
++                <h2>5. Serviços externos e transferências internacionais</h2>
++                <p>
++                    O funcionamento pode envolver GitHub Pages, Cloudflare, Twitch, YouTube/Google
++                    e Streamlabs. Ao escolher contribuir, o visitante é direcionado a serviços
++                    externos como LivePix ou Pixie; os dados fornecidos nessas plataformas são
++                    tratados por elas conforme suas próprias políticas e não são inseridos em um
++                    formulário de pagamento deste site.
++                </p>
++                <p>
++                    Informações públicas da Twitch usadas no status ao vivo e em transmissões
++                    recentes são consultadas pelo servidor e mantidas temporariamente em cache; o
++                    visitante não precisa autenticar sua conta Twitch. Miniaturas exibidas podem
++                    ser carregadas diretamente da infraestrutura da Twitch ou do YouTube, fazendo
++                    com que o navegador solicite o recurso ao respectivo serviço.
++                </p>
++                <p>
++                    Alguns desses provedores utilizam infraestrutura internacional e podem tratar
++                    dados fora do Brasil. Quando uma transferência internacional estiver sob a
++                    responsabilidade do projeto, serão observados os requisitos e mecanismos
++                    aplicáveis da LGPD e da regulamentação da ANPD, com tratamento limitado ao
++                    necessário para a finalidade informada.
++                </p>
++            </section>
++
++            <section class="privacy-section" id="retencao">
++                <h2>6. Armazenamento e retenção</h2>
++                <ul>
++                    <li>
++                        Preferências de interface em <code>localStorage</code> permanecem no
++                        dispositivo até serem alteradas ou apagadas pelo usuário/navegador.
++                    </li>
++                    <li>
++                        O cache local do Top 5 do ranking é mantido por no máximo 30 minutos.
++                        Ao expirar, ele é removido e não é reutilizado como fallback.
++                    </li>
++                    <li>
++                        Totais mensais do ranking acompanham o período corrente; totais históricos
++                        agregados podem ser mantidos enquanto a funcionalidade de ranking histórico
++                        estiver ativa, ressalvadas solicitações aplicáveis e obrigações legais.
++                    </li>
++                    <li>
++                        Logs e metadados mantidos por provedores externos seguem as políticas e
++                        configurações desses provedores e podem ter prazos próprios.
++                    </li>
++                </ul>
++                <p>
++                    Quando dados deixarem de ser necessários à finalidade e não houver outra base
++                    legal para conservá-los, o projeto poderá eliminá-los, anonimizá-los ou deixar
++                    de utilizá-los, conforme o caso.
++                </p>
++            </section>
++
++            <section class="privacy-section" id="direitos">
++                <h2>7. Seus direitos pela LGPD</h2>
+                 <p>
+-                    O ranking de apoio utiliza dados recebidos da Streamlabs. Quando um
+-                    nome é configurado como privado, a API do site aplica a anonimização
+-                    antes da resposta pública. As informações públicas da Twitch usadas nas últimas transmissões e no
+-                    status ao vivo são consultadas pelo servidor e mantidas temporariamente
+-                    em cache; o visitante não precisa autenticar sua conta Twitch. As
+-                    miniaturas exibidas podem ser carregadas diretamente da infraestrutura
+-                    da Twitch, fazendo com que o navegador solicite a imagem ao serviço.
++                    Conforme aplicável ao tratamento realizado, o titular pode solicitar confirmação
++                    da existência de tratamento, acesso, correção de dados incompletos ou inexatos,
++                    anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou
++                    tratados em desconformidade, informações sobre compartilhamento, portabilidade
++                    nos termos da regulamentação, oposição quando cabível e revogação de
++                    consentimento quando essa for a base utilizada.
+                 </p>
+                 <p>
+-                    Cloudflare é utilizada na infraestrutura do site e da API. Links ou
+-                    recursos de Twitch, YouTube, Streamlabs, LivePix, Pixie e outros
+-                    serviços externos permanecem sujeitos às políticas dos respectivos
+-                    provedores quando acessados.
++                    Solicitações devem ser enviadas para
++                    <a href="mailto:contato@kamylisumire.com">contato@kamylisumire.com</a>.
++                    Poderemos pedir informações proporcionais para avaliar a legitimidade do pedido
++                    e evitar alteração ou divulgação de dados a terceiros. No ranking, conhecer ou
++                    utilizar o mesmo identificador de exibição não demonstra, sozinho, que os
++                    registros pertencem ao solicitante. O projeto buscará meios menos invasivos de
++                    avaliação e não exige documento civil por padrão. Se uma questão não for
++                    resolvida, o titular também pode recorrer aos canais competentes, inclusive à
++                    Autoridade Nacional de Proteção de Dados (ANPD), nos casos previstos em lei.
+                 </p>
+             </section>
+ 
+-            <section class="privacy-section" id="armazenamento">
+-                <h2>4. Armazenamento e controle</h2>
++            <section class="privacy-section" id="seguranca">
++                <h2>8. Segurança e incidentes</h2>
+                 <p>
+-                    Preferências e caches armazenados em <code>localStorage</code> ou
+-                    <code>sessionStorage</code> permanecem no dispositivo e podem ser
+-                    apagados pelas ferramentas do navegador. Informações mantidas pela
+-                    infraestrutura do site são conservadas apenas pelo tempo necessário
+-                    à respectiva funcionalidade ou cache.
++                    O projeto adota medidas técnicas e administrativas compatíveis com sua
++                    arquitetura, incluindo HTTPS, restrição de origens, validação e sanitização de
++                    conteúdo e manutenção de credenciais privadas fora do JavaScript público.
++                    Nenhuma medida elimina completamente os riscos inerentes ao uso da internet.
+                 </p>
+                 <p>
+-                    Solicitações relacionadas ao nome exibido no ranking ou a
+-                    informações sob controle direto do site podem ser encaminhadas pelos
+-                    canais oficiais da Kamyli indicados no próprio site.
++                    Incidentes de segurança envolvendo dados pessoais serão avaliados e, quando
++                    presentes os requisitos legais e regulamentares, comunicados à ANPD e aos
++                    titulares afetados nos termos aplicáveis.
+                 </p>
+             </section>
+ 
+             <section class="privacy-section" id="alteracoes">
+-                <h2>5. Segurança e alterações</h2>
++                <h2>9. Alterações desta política</h2>
+                 <p>
+-                    Credenciais privadas das integrações permanecem no servidor e não
+-                    são incorporadas ao JavaScript público. Esta política pode ser
+-                    atualizada quando o funcionamento do site ou os serviços utilizados
+-                    mudarem; a data e a versão acima identificam a revisão vigente.
++                    Esta política pode ser atualizada quando o funcionamento do site, as integrações
++                    ou as regras aplicáveis mudarem. A data e a versão no início da página identificam
++                    a revisão vigente. Mudanças relevantes de finalidade ou tratamento serão
++                    refletidas nesta página antes ou junto da entrada em vigor da nova prática.
+                 </p>
+ 
+                 <div class="privacy-actions">
+diff --git a/sitemap.xml b/sitemap.xml
+index 0f158a0f7fafee24bbaca2c1d0f57ad804941213..25ed9a440f66a6b8c86aa24210789bbb0229b067 100644
+--- a/sitemap.xml
++++ b/sitemap.xml
+@@ -8,9 +8,13 @@
+     <loc>https://kamylisumire.com/doacoes/</loc>
+     <lastmod>2026-09-06</lastmod>
+   </url>
++  <url>
++    <loc>https://kamylisumire.com/artes/</loc>
++    <lastmod>2026-09-14</lastmod>
++  </url>
+   <url>
+     <loc>https://kamylisumire.com/privacidade/</loc>
+-    <lastmod>2026-09-09</lastmod>
++    <lastmod>2026-09-14</lastmod>
+   </url>
+   <url>
+     <loc>https://kamylisumire.com/uso-de-ia/</loc>
+diff --git a/workers.js b/workers.js
+index aee96a379a9bff7562aeb9b85cc6502212bfdf6a..afe0524b0c591ffb9e54b76260a120114c8784f7 100644
+--- a/workers.js
++++ b/workers.js
+@@ -513,6 +513,9 @@ async function syncDonations(env) {
+ 
+   if (hasNewDonations) {
+     for (const donation of newDonations) {
++      // donation.name é um identificador de exibição autodeclarado. Ele não
++      // comprova identidade civil ou unicidade: textos iguais são agregados
++      // por design do ranking e podem ter sido informados por pessoas distintas.
+       const name = (donation.name || 'Anônimo').trim();
+       const amount = Number(donation.amount) || 0;
+ 
+@@ -1355,9 +1358,12 @@ async function handleDebugSync(request, url, env) {
+ // Helpers
+ // ---------------------------------------------------------------------
+ // RANKING_PRIVATE_NAMES: variável de ambiente do Worker (fora do Git),
+-// lista separada por vírgula de nomes que devem aparecer como anônimos
+-// no ranking público. Ex.: "Fulano,Ciclano". A comparação ignora caixa
+-// e espaços nas extremidades; acentos continuam significativos.
++// lista separada por vírgula de identificadores de exibição que devem
++// aparecer como anônimos no ranking público, inclusive por privacidade ou
++// contestação de personificação. Ex.: "Fulano,Ciclano". A comparação ignora
++// caixa e espaços nas extremidades; acentos continuam significativos.
++// Esta lista modera a saída pública; não autentica titularidade nem altera
++// os totais internos agregados sob o identificador.
+ function getPrivateNames(env) {
+   return (env.RANKING_PRIVATE_NAMES || '')
+     .split(',')

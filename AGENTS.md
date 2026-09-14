@@ -400,3 +400,14 @@ Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem
 - `/artes/` permanece pública, mas só é indexável e incluída no sitemap quando `data/content/artes.json` contém ao menos um item.
 - `/blog/` permanece pública, mas só é indexável e incluída no sitemap quando `data/blog/posts.json` contém ao menos um post com `published: true`. Drafts não contam.
 - Não usar JavaScript para trocar `robots` em runtime; meta robots e sitemap são artefatos estáticos validados contra os JSONs editoriais.
+
+## Privacidade e ranking — V48.3.8
+
+- A identificação pública de privacidade é **Kamyli Souza** (nome social) e o canal é `contato@kamylisumire.com`; não adicionar nome civil, Gmail de destino, endereço residencial, telefone ou documentos ao repositório.
+- O valor recebido em `donation.name` é **identificador de exibição autodeclarado e não autenticado**, não "nome verificado do doador". Pessoas diferentes podem usar o mesmo texto e o ranking agrega textos idênticos por design.
+- O ranking pode publicar somente esse identificador e o valor acumulado necessários à finalidade; não enriquecer o identificador com outras bases nem inferir identidade civil.
+- Uma contestação plausível pode levar o identificador público a **Anônimo** via `RANKING_PRIVATE_NAMES`, sem alterar valor/posição e sem reconhecer o solicitante como titular das contribuições.
+- Nunca fornecer, corrigir ou excluir registros internos apenas porque o solicitante conhece ou usa o mesmo identificador exibido. Pedidos formais exigem avaliação proporcional da relação com os dados; não coletar documento civil por padrão.
+- `RANKING_CACHE_TTL_MS` é limite máximo de retenção local: cache expirado deve ser removido e nunca usado como fallback.
+- O aviso de privacidade do ranking deve permanecer próximo à própria funcionalidade, não apenas na Política de Privacidade.
+- A indexação de `/artes/` e `/blog/` continua derivada do conteúdo editorial real e validada pela CI.
