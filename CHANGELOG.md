@@ -7,7 +7,7 @@
 - esclarece que LivePix/Pixie processam a contribuição fora do site e que o ranking usa um **identificador de exibição autodeclarado e não autenticado** + valor acumulado; documenta que Pixie possui ranking público nativo e LivePix oferece alertas/integrações de exibição, reforçando a expectativa contextual sem tratar os termos de terceiros como consentimento específico ao ranking deste site; textos iguais podem ser agregados sem provar que pertencem à mesma pessoa;
 - transforma os 30 minutos do cache local do ranking em limite real de retenção: cache vencido é apagado, não há fallback expirado e a chave `v3` é removida ao carregar a nova `v4`, preservando a economia de API dentro da janela válida;
 - mantém no card do ranking apenas um aviso contextual curto, com link para a Política de Privacidade; a explicação completa sobre identificador não verificado, contestação/personificação e pedidos internos fica centralizada na Política e no procedimento de governança;
-- corrige o estado SEO da Galeria na árvore editorial real: como há artes publicadas, `/artes/` volta a `index, follow` e ao sitemap; o Blog permanece `noindex, follow` enquanto não houver post `published: true`;
+- preserva o SEO condicional de Blog e Galeria sem forçar indexação: rotas vazias permanecem `noindex, follow` e fora do sitemap, e a CI passa a exigir `index, follow` somente quando houver conteúdo editorial público;
 - adiciona `docs/PRIVACIDADE-RANKING.md` com o procedimento interno simplificado de moderação e atendimento, e amplia a CI para impedir regressão da política, do canal de contato, da semântica de identidade, do hard TTL e do aviso junto à funcionalidade.
 
 ## V48.3.7 — Hardening de segurança, contraste AA e indexação condicional
