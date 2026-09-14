@@ -1,5 +1,11 @@
 # Changelog
 
+## V48.3.9 — Hotfix visual da moldura de busca
+
+- corrige a geometria do fundo translúcido dos painéis de ferramentas da Galeria e do Blog: `::before` passa de `inset: 2px` para `inset: 0`, eliminando o recuo duplo que fazia a borda parecer maior que a caixa;
+- preserva `border-radius`, blur, transparência, stacking e o portal do seletor **Buscar em**, sem alterar comportamento de busca, tags ou dados editoriais;
+- atualiza os cache-busters de `artes.css` e `blog.css` para `48.3.9` e a CI passa a exigir `inset: 0` nas duas superfícies.
+
 ## V48.3.8 — Privacidade LGPD e retenção do ranking
 
 - identifica publicamente a responsável pelo tratamento como **Kamyli Souza** (nome social) e estabelece `contato@kamylisumire.com` como canal de privacidade e exercício de direitos, sem expor e-mail pessoal de destino, nome civil, endereço ou telefone;

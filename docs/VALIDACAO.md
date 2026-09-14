@@ -1,3 +1,13 @@
+## V48.3.9 — Geometria da moldura de busca
+
+Smoke test recomendado:
+
+1. abrir `/artes/` e `/blog/` em tema claro e escuro e confirmar que a borda externa do painel de busca acompanha exatamente o fundo translúcido, sem faixa/recuo adicional de 2 px;
+2. repetir com **Blur ligado** e **Blur desligado**;
+3. abrir o seletor **Buscar em** e confirmar que o portal, o blur do menu e o posicionamento continuam inalterados;
+4. repetir em viewport móvel e desktop;
+5. executar `python .github/scripts/validate-content.py` e confirmar zero erros/avisos.
+
 ## V48.3.8 — Privacidade, ranking e LGPD
 
 Antes de publicar:
