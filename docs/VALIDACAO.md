@@ -1,5 +1,16 @@
 # Validação
 
+## V48.3.7 — CSP, contraste e indexação condicional
+
+Smoke test recomendado:
+
+1. executar `python .github/scripts/validate-content.py` e confirmar zero erros/avisos;
+2. com `data/blog/posts.json` sem post `published: true`, confirmar `/blog/` com `noindex, follow` e ausência de `/blog/` no sitemap; ao adicionar um post público em uma cópia de teste, a CI deve exigir `index, follow`, a rota base no sitemap e a URL do post;
+3. com `data/content/artes.json` sem itens, confirmar `/artes/` com `noindex, follow` e ausência de `/artes/` no sitemap; ao adicionar uma arte válida em uma cópia de teste, a CI deve exigir `index, follow` e a rota base no sitemap;
+4. confirmar que Home, Galeria, Blog e demais títulos grandes mantêm `--primary-color`, enquanto links/tags/labels pequenos alterados usam `--primary-text`; repetir em tema claro e escuro;
+5. confirmar no console do navegador ausência de violações CSP nas sete páginas públicas; alterar propositalmente um byte de um script inline em uma cópia de teste e confirmar que a CI acusa hash desatualizado;
+6. validar o card Twitch ao vivo com thumbnail HTTPS e confirmar que valores ausentes/não-string não quebram o módulo.
+
 ## V48.3.5 — Blur real do drop-down de busca
 
 Smoke test recomendado:

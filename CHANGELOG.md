@@ -1,3 +1,13 @@
+## V48.3.7 — Hardening de segurança, contraste AA e indexação condicional
+
+- remove `unsafe-inline` da CSP e autoriza apenas os blocos inline atuais por hashes SHA-256; a CI recalcula os hashes a partir dos bytes reais e bloqueia atributos `style=`/`on*=` incompatíveis com essa política;
+- adiciona `--primary-text` para texto normal no tema claro, preservando `--primary-color` em fundos, bordas, ícones e títulos grandes;
+- mantém a hierarquia cromática dos títulos principais de Home, Galeria e Blog sem escurecimento desnecessário;
+- endurece `twitch-live.js` para aceitar thumbnail apenas quando o valor é string HTTPS;
+- deixa `/artes/` e `/blog/` em `noindex, follow` e fora do sitemap enquanto não houver conteúdo público; a CI exige automaticamente `index, follow` + sitemap quando surgir a primeira arte ou o primeiro post publicado;
+- remove os patches V48.3.5/V48.3.6 já incorporados que haviam ficado como resíduos na raiz;
+- atualiza cache-busters dos assets CSS/JS alterados e documentação de manutenção.
+
 ## V48.3.6 — Hotfix: carregamento e observers sem perder navegação por seção
 
 - reduz reaplicações de DOM: o observer editorial reage apenas à montagem de Navbar, Footer e diálogo externo, em vez de qualquer `childList` do documento;

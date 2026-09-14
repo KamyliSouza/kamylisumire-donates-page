@@ -17,7 +17,7 @@
 
     gap: 5px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .82rem;
     font-weight: 800;
@@ -213,7 +213,7 @@
 }
 
 .live-card-source {
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-weight: 850;
 }
@@ -318,7 +318,7 @@
 
 .lives-platform-tab:hover,
 .lives-platform-tab:focus-visible {
-    color: var(--primary-color);
+    color: var(--primary-text);
     outline: none;
 }
 

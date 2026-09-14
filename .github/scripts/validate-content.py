@@ -12,6 +12,8 @@ O validador não altera nenhum arquivo.
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import re
 import sys
@@ -112,8 +114,8 @@ LEGACY_LIVES_KEYS = {
 
 SECURITY_CSP_REQUIRED_DIRECTIVES = (
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self'",
+    "style-src 'self'",
     "img-src 'self' https:",
     "font-src 'self'",
     "connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com",
@@ -1170,8 +1172,8 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.2.0" not in index:
-        error("index.html: cache-buster V48.2.0 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.7" not in index:
+        error("index.html: cache-buster V48.3.7 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
 
@@ -1239,6 +1241,38 @@ def validate_architecture() -> None:
         for declaration in required_declarations:
             if declaration not in block:
                 error(f"css/pages/blog.css: paridade visual V48.1.3 ausente: {declaration}")
+
+    # V48.3.7: contraste AA para texto normal sem escurecer títulos grandes/ícones.
+    variables_css = read_text("css/core/variables.css")
+    if "--primary-text: #9b4d97;" not in variables_css:
+        error("css/core/variables.css: --primary-text claro V48.3.7 ausente/incorreto.")
+    if variables_css.count("--primary-text: #d178cd;") < 2:
+        error("css/core/variables.css: --primary-text escuro V48.3.7 ausente no tema escuro/automático.")
+
+    large_title_rules = (
+        (read_text("css/pages/home.css"), "Home", r"\.hero-copy h1\s*\{([^}]*)\}"),
+        (artes_css, "Galeria", r"\.artes-intro h1\s*\{([^}]*)\}"),
+        (blog_css, "Blog", r"\.blog-intro h1\s*\{([^}]*)\}"),
+        (read_text("css/pages/404.css"), "404", r"\.not-found-card h1\s*\{([^}]*)\}"),
+        (read_text("css/pages/doacoes.css"), "Doações", r"\.donation-card h1\s*\{([^}]*)\}"),
+    )
+    for css_text, label, pattern in large_title_rules:
+        match = re.search(pattern, css_text, flags=re.S)
+        if not match or "color: var(--primary-color)" not in match.group(1):
+            error(f"V48.3.7: título grande de {label} deve preservar --primary-color.")
+
+    normal_text_rules = (
+        (read_text("css/core/global.css"), "global", ".eyebrow"),
+        (read_text("css/components/ranking.css"), "ranking", ".ranking-amount"),
+        (artes_css, "artes", ".artes-search-field-option:hover"),
+        (blog_css, "blog", ".blog-article-body a"),
+        (read_text("css/pages/privacidade.css"), "privacidade", ".privacy-section a:not(.button)"),
+    )
+    for css_text, label, selector in normal_text_rules:
+        pos = css_text.find(selector)
+        end = css_text.find("}", pos) if pos >= 0 else -1
+        if pos < 0 or end < 0 or "color: var(--primary-text)" not in css_text[pos:end]:
+            error(f"V48.3.7: uso de --primary-text ausente em {label}: {selector}.")
 
     for needle in (
         'const normalizedIndex = (index + elements.searchFieldOptions.length) % elements.searchFieldOptions.length',
@@ -1450,13 +1484,13 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=48.3.6" not in html:
             error(f"{rel}: cache-buster do loader V48.3.6 ausente.")
-        if "global.css?v=47.1" not in html:
-            error(f"{rel}: cache-buster do CSS global V47.1 ausente.")
+        if "global.css?v=48.3.7" not in html:
+            error(f"{rel}: cache-buster do CSS global V48.3.7 ausente.")
 
     if "loader.js?v=48.3.6" not in not_found:
         error("404.html: cache-buster do loader V48.3.6 ausente.")
-    if "global.css?v=47.1" not in not_found:
-        error("404.html: cache-buster do CSS global V47.1 ausente.")
+    if "global.css?v=48.3.7" not in not_found:
+        error("404.html: cache-buster do CSS global V48.3.7 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
@@ -1475,7 +1509,7 @@ def validate_architecture() -> None:
             "js/core/navbar.js?v=48.3.2",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.2",
+            "css/core/navbar.css?v=48.3.7",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1483,7 +1517,7 @@ def validate_architecture() -> None:
     for asset in (
         "js/pages/home/content.js?v=48.2.0",
         "js/pages/home/lives.js?v=47.4.3",
-        "js/pages/home/twitch-live.js?v=47.4.3",
+        "js/pages/home/twitch-live.js?v=48.3.7",
         "js/pages/home/home-interactions.js?v=47",
         "css/components/home-interactions.css?v=47",
     ):
@@ -1495,12 +1529,47 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.5" not in blog_index:
         error("blog/index.html: cache-buster V48.3.5 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.5" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.5 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.7" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.7 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
         error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.5" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.5 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.7" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.7 ausente para css/pages/artes.css.")
+
+    # V48.3.7: todo asset CSS/JS alterado pelo hardening precisa invalidar cache.
+    v4837_assets = {
+        "index.html": (
+            "css/core/variables.css?v=48.3.7",
+            "css/pages/home.css?v=48.3.7",
+            "css/components/lives.css?v=48.3.7",
+            "css/components/blog.css?v=48.3.7",
+            "js/pages/home/twitch-live.js?v=48.3.7",
+        ),
+        "doacoes/index.html": (
+            "css/core/variables.css?v=48.3.7",
+            "css/pages/doacoes.css?v=48.3.7",
+            "css/components/ranking.css?v=48.3.7",
+        ),
+        "blog/index.html": (
+            "css/core/variables.css?v=48.3.7",
+            "css/components/blog.css?v=48.3.7",
+        ),
+        "artes/index.html": ("css/core/variables.css?v=48.3.7",),
+        "privacidade/index.html": (
+            "css/core/variables.css?v=48.3.7",
+            "css/pages/privacidade.css?v=48.3.7",
+        ),
+        "uso-de-ia/index.html": (
+            "css/core/variables.css?v=48.3.7",
+            "css/pages/privacidade.css?v=48.3.7",
+        ),
+        "404.html": ("css/core/variables.css?v=48.3.7",),
+    }
+    for rel, assets in v4837_assets.items():
+        html = read_text(rel)
+        for asset in assets:
+            if asset not in html:
+                error(f"{rel}: cache-buster V48.3.7 ausente para {asset.split('?')[0]}.")
 
     if "data/content/buttons.json" not in buttons_js:
         error("js/core/buttons.js: configuração central de botões não carregada.")
@@ -1635,8 +1704,8 @@ def validate_architecture() -> None:
     if "window.KamyliCarousel" not in lives_js:
         error("js/pages/home/lives.js: controlador compartilhado ausente.")
 
-    if "css/components/lives.css?v=47.4" not in index:
-        error("index.html: cache-buster V47.4 ausente para css/components/lives.css.")
+    if "css/components/lives.css?v=48.3.7" not in index:
+        error("index.html: cache-buster V48.3.7 ausente para css/components/lives.css.")
 
     for element_id in ('id="livesTabTwitch"', 'id="livesTabYoutube"'):
         if element_id not in index:
@@ -1791,8 +1860,8 @@ def validate_seo_and_deployment() -> None:
 
     index = read_text("index.html")
     donations = read_text("doacoes/index.html")
-
     blog_index = read_text("blog/index.html")
+    artes_index = read_text("artes/index.html")
 
     checks = (
         (index, 'rel="canonical" href="https://kamylisumire.com/"', "Home canonical"),
@@ -1805,6 +1874,11 @@ def validate_seo_and_deployment() -> None:
             blog_index,
             'rel="canonical" href="https://kamylisumire.com/blog/"',
             "Blog canonical",
+        ),
+        (
+            artes_index,
+            'rel="canonical" href="https://kamylisumire.com/artes/"',
+            "Artes canonical",
         ),
     )
     for text, needle, label in checks:
@@ -1834,11 +1908,15 @@ def validate_seo_and_deployment() -> None:
     expected = {
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
-        "https://kamylisumire.com/artes/",
-        "https://kamylisumire.com/blog/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
+
+    artes = load_json("data/content/artes.json")
+    art_items = artes.get("itens", []) if isinstance(artes, dict) else []
+    has_public_art = isinstance(art_items, list) and any(
+        isinstance(item, dict) for item in art_items
+    )
 
     blog = load_json("data/blog/posts.json")
     published = []
@@ -1847,6 +1925,44 @@ def validate_seo_and_deployment() -> None:
             post for post in blog["posts"]
             if isinstance(post, dict) and post.get("published") is True
         ]
+    has_public_blog = bool(published)
+
+    def robots_tokens(html: str, rel: str) -> set[str]:
+        for tag in re.findall(r"<meta\b[^>]*>", html, re.I):
+            if not re.search(r"\bname\s*=\s*[\"']robots[\"']", tag, re.I):
+                continue
+            match = re.search(r"\bcontent\s*=\s*[\"']([^\"']+)[\"']", tag, re.I)
+            if not match:
+                error(f"{rel}: meta robots sem atributo content.")
+                return set()
+            return {token.strip().lower() for token in match.group(1).split(",") if token.strip()}
+        error(f"{rel}: meta robots ausente.")
+        return set()
+
+    def validate_collection_indexing(rel: str, html: str, url: str, should_index: bool) -> None:
+        tokens = robots_tokens(html, rel)
+        if should_index:
+            if "index" not in tokens or "noindex" in tokens or "follow" not in tokens:
+                error(f"{rel}: conteúdo público existe; esperado meta robots index, follow.")
+            expected.add(url)
+        else:
+            if "noindex" not in tokens or "follow" not in tokens or "index" in tokens:
+                error(f"{rel}: coleção vazia; esperado meta robots noindex, follow.")
+            if url in urls:
+                error(f"sitemap.xml: {url} deve ficar fora do sitemap enquanto a coleção estiver vazia.")
+
+    validate_collection_indexing(
+        "artes/index.html",
+        artes_index,
+        "https://kamylisumire.com/artes/",
+        has_public_art,
+    )
+    validate_collection_indexing(
+        "blog/index.html",
+        blog_index,
+        "https://kamylisumire.com/blog/",
+        has_public_blog,
+    )
 
     for post in published:
         slug = post.get("slug")
@@ -1854,8 +1970,53 @@ def validate_seo_and_deployment() -> None:
             expected.add(f"https://kamylisumire.com/blog/{slug}/")
 
     if not expected.issubset(urls):
-        error("sitemap.xml: URLs públicas obrigatórias estão ausentes.")
+        missing = sorted(expected - urls)
+        error(f"sitemap.xml: URLs públicas obrigatórias estão ausentes: {', '.join(missing)}")
 
+
+
+def _csp_hash(body: str) -> str:
+    digest = hashlib.sha256(body.encode("utf-8")).digest()
+    encoded = base64.b64encode(digest).decode("ascii")
+    return f"'sha256-{encoded}'"
+
+
+def _inline_csp_hashes(html: str) -> tuple[set[str], set[str]]:
+    script_hashes: set[str] = set()
+    style_hashes: set[str] = set()
+
+    for match in re.finditer(r"<script\b([^>]*)>([\s\S]*?)</script>", html, re.I):
+        attrs, body = match.group(1), match.group(2)
+        if re.search(r"\bsrc\s*=", attrs, re.I):
+            continue
+        type_match = re.search(r"\btype\s*=\s*[\"']([^\"']+)[\"']", attrs, re.I)
+        if type_match:
+            script_type = type_match.group(1).strip().lower()
+            if script_type not in {"text/javascript", "application/javascript", "module"}:
+                continue
+        script_hashes.add(_csp_hash(body))
+
+    for match in re.finditer(r"<style\b[^>]*>([\s\S]*?)</style>", html, re.I):
+        style_hashes.add(_csp_hash(match.group(1)))
+
+    return script_hashes, style_hashes
+
+
+class _InlineAttributePolicyParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.inline_style = False
+        self.inline_handler = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        for name, _value in attrs:
+            lowered = name.lower()
+            if lowered == "style":
+                self.inline_style = True
+            elif lowered.startswith("on"):
+                self.inline_handler = True
+
+    handle_startendtag = handle_starttag
 
 
 def validate_security_contracts() -> None:
@@ -1881,10 +2042,30 @@ def validate_security_contracts() -> None:
         for directive in SECURITY_CSP_REQUIRED_DIRECTIVES:
             if directive not in csp:
                 error(f"{rel}: CSP obrigatória ausente/incompleta: {directive}")
+        if "'unsafe-inline'" in csp:
+            error(f"{rel}: CSP V48.3.7 não deve reintroduzir unsafe-inline.")
         if "frame-ancestors" in csp:
             error(f"{rel}: frame-ancestors não deve ser declarado via meta CSP; use header HTTP quando disponível.")
         if "upgrade-insecure-requests" in csp:
             error(f"{rel}: upgrade-insecure-requests não deve ser usado na meta CSP; o repositório preserva teste/desenvolvimento local por HTTP.")
+
+        # V48.3.7: hashes devem corresponder aos bytes reais dos blocos inline.
+        # Assim qualquer whitespace alterado sem atualizar a CSP falha na CI.
+        raw_html = path.read_bytes().decode("utf-8")
+        script_hashes, style_hashes = _inline_csp_hashes(raw_html)
+        for expected_hash in sorted(script_hashes):
+            if expected_hash not in csp:
+                error(f"{rel}: hash CSP de script inline ausente/desatualizado: {expected_hash}")
+        for expected_hash in sorted(style_hashes):
+            if expected_hash not in csp:
+                error(f"{rel}: hash CSP de style inline ausente/desatualizado: {expected_hash}")
+
+        policy_parser = _InlineAttributePolicyParser()
+        policy_parser.feed(raw_html)
+        if policy_parser.inline_handler:
+            error(f"{rel}: handler inline on*= é incompatível com a CSP sem unsafe-inline.")
+        if policy_parser.inline_style:
+            error(f"{rel}: atributo style= é incompatível com a CSP sem unsafe-inline.")
 
         # Qualquer página que use footer.js deve carregar sanitize.js antes dele.
         footer_match = re.search(r'<script[^>]+src=["\']([^"\']*js/core/footer\.js[^"\']*)["\']', text, re.I)

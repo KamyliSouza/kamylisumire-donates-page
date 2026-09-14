@@ -20,6 +20,10 @@
     --primary-color: #B35EAF;
     --primary-hover: #9b4d97;
     --primary-soft: rgba(179, 94, 175, 0.08);
+    /* Mesmo tom do hover: garante contraste AA (4.5:1+) quando --primary
+       é usado como cor de texto, sem alterar --primary-color (fundos,
+       ícones, títulos grandes, onde a régua de contraste é 3:1). */
+    --primary-text: #9b4d97;
 
     /* Fundo e superfícies */
     --bg-color: #f7eff7;
@@ -66,6 +70,9 @@
 :root[data-theme="dark"] {
     --primary-color: #d178cd;
     --primary-hover: #b35eaf;
+    /* Já passava AA como texto (6.49:1); mantém a aparência atual do
+       tema escuro sem mudanças. */
+    --primary-text: #d178cd;
     --primary-soft: rgba(209, 120, 205, 0.12);
 
     --bg-color: #121212;
@@ -94,6 +101,7 @@
     :root:not([data-theme]) {
         --primary-color: #d178cd;
         --primary-hover: #b35eaf;
+        --primary-text: #d178cd;
         --primary-soft: rgba(209, 120, 205, 0.12);
 
         --bg-color: #121212;

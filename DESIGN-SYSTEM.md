@@ -189,3 +189,8 @@ Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à di
 ### Performance de montagem — V48.3.6
 
 A identidade visual não deve tornar o conteúdo dependente de assets decorativos. O fundo usado por `backdrop-filter` pode ser antecipado, mas não deve bloquear o reveal da página nem competir com conteúdo editorial em prioridade alta. Observers de montagem devem reagir somente aos componentes que precisam de configuração tardia e não a toda mutação do documento.
+### Cor primária para texto — V48.3.7
+
+No tema claro, `--primary-color` continua sendo o tom de identidade para fundos, bordas, ícones e títulos grandes. Texto normal ou pequeno que use a cor primária deve usar `--primary-text`, cujo contraste atende AA nas superfícies claras principais. No tema escuro, `--primary-text` mantém o mesmo tom visual de `--primary-color`. Não substituir títulos grandes por `--primary-text` apenas por consistência mecânica; a distinção é semântica e preserva a identidade visual.
+
+Galeria e Blog continuam compartilhando a mesma hierarquia cromática: seus títulos principais usam `--primary-color`; controles, links, tags e estados textuais pequenos podem usar `--primary-text` quando necessário para contraste.

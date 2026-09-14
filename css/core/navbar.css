@@ -187,7 +187,7 @@
 .site-nav-link:hover,
 .site-nav-link:focus-visible,
 .site-nav-link.is-active {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--primary-soft);
     outline: none;
 }

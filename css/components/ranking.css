@@ -58,7 +58,7 @@
     align-items: center;
     justify-content: center;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: transparent;
 
     border: 2px solid var(--primary-color);
@@ -79,7 +79,7 @@
 }
 
 .ranking-tabs .tab-btn:hover {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--notice-bg);
 
     transform: translateY(-2px);
@@ -142,7 +142,7 @@
     min-width: 32px;
     flex-shrink: 0;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: 1rem;
     font-weight: 800;
@@ -166,7 +166,7 @@
 }
 
 .ranking-amount {
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .9rem;
     font-weight: 800;

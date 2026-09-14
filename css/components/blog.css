@@ -75,7 +75,7 @@
 .blog-post-tag {
     padding: 4px 8px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--primary-soft);
 
     border-radius: 999px;

@@ -171,3 +171,8 @@ Galeria e Blog mantêm o painel externo translúcido, mas o blur desse painel é
 ### Carregamento V48.3.6
 
 A V48.3.6 reduz trabalho redundante durante a montagem sem remover a navegação por seção. Links diretos como `/#agenda`, `/#regras` e `/#creditos` continuam esperando o reveal e usando estabilização posterior; o hotfix apenas restringe observers globais, evita reordenação redundante da Navbar e impede Agenda/fundo decorativo de segurarem o loader inicial.
+### Segurança, contraste e SEO condicional — V48.3.7
+
+A V48.3.7 remove `unsafe-inline` da CSP em favor de hashes SHA-256 validados pela CI, introduz `--primary-text` para texto normal no tema claro e mantém `--primary-color` em títulos grandes/elementos de identidade. `twitch-live.js` aceita thumbnails apenas por HTTPS.
+
+Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow` e fora do `sitemap.xml` até possuírem conteúdo público. A validação cruza `posts.json`/`artes.json`, meta robots e sitemap para impedir publicação com esses sinais fora de sincronia.

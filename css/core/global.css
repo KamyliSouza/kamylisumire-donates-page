@@ -94,7 +94,7 @@ a {
 
     padding: 6px 10px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--notice-bg);
 
     border-radius: 999px;
@@ -155,7 +155,7 @@ a {
 }
 
 .button-outline {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: transparent;
 
     border-color: var(--primary-color);
@@ -237,7 +237,7 @@ a {
 }
 
 .site-footer a {
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-weight: 800;
     text-decoration: none;
@@ -270,7 +270,7 @@ a {
 
     gap: 7px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--notice-bg);
 
     border: 1px solid var(--card-border);
@@ -367,7 +367,7 @@ a {
 .site-settings-header h2 {
     margin: 0;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: 1.08rem;
     font-weight: 900;

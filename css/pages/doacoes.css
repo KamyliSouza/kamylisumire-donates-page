@@ -145,7 +145,7 @@
 }
 
 .donation-btn-secondary {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: transparent;
     border-color: var(--primary-color);
 }
@@ -250,7 +250,7 @@
 }
 
 .donation-notice strong {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* =========================================================

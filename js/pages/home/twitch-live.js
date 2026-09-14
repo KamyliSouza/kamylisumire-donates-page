@@ -114,7 +114,7 @@
             heroLiveAnchor.href = twitchUrl;
         }
 
-        if (liveThumbnail && thumbnail) {
+        if (liveThumbnail && typeof thumbnail === "string" && thumbnail.startsWith("https://")) {
             liveThumbnail.src = thumbnail;
         }
 

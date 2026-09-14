@@ -76,7 +76,7 @@
 }
 
 .privacy-section a:not(.button) {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 800;
     text-underline-offset: 3px;
 }

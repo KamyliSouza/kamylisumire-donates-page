@@ -132,7 +132,7 @@
 .blog-search-field-toggle:hover,
 .blog-search-field-toggle:focus-visible,
 .blog-search-field-toggle[aria-expanded="true"] {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--primary-soft);
 }
 
@@ -223,7 +223,7 @@
 
 .blog-search-field-option:hover,
 .blog-search-field-option:focus-visible {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--primary-soft);
 }
 
@@ -308,7 +308,7 @@
 
 .blog-filter:hover,
 .blog-filter:focus-visible {
-    color: var(--primary-color);
+    color: var(--primary-text);
     border-color: var(--primary-color);
     transform: translateY(-1px);
     outline: none;
@@ -399,7 +399,7 @@
 
     margin-bottom: 20px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .82rem;
     font-weight: 800;
@@ -461,7 +461,7 @@
 }
 
 .blog-article-body a {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 800;
 }
 

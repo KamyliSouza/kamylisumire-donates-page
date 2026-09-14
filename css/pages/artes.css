@@ -162,7 +162,7 @@
 .artes-search-field-toggle:hover,
 .artes-search-field-toggle:focus-visible,
 .artes-search-field-toggle[aria-expanded="true"] {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--primary-soft);
 }
 
@@ -253,7 +253,7 @@
 
 .artes-search-field-option:hover,
 .artes-search-field-option:focus-visible {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--primary-soft);
 }
 

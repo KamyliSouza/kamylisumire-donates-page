@@ -392,3 +392,11 @@ Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrappe
 ### Invariante de performance e âncoras — V48.3.6
 
 Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem `startSectionStabilization`: eles preservam navegação direta para seções enquanto a Home muda de altura. Para performance, observers de conteúdo/botões devem filtrar mutações relevantes e `applyNavbarOrder()` deve permanecer idempotente. Agenda e assets decorativos não devem voltar ao caminho crítico do loader inicial.
+### V48.3.7 — CSP, contraste e indexação condicional
+
+- Não reintroduzir `unsafe-inline`. Blocos `<script>`/`<style>` inline permitidos pela CSP usam hash SHA-256 e `.github/scripts/validate-content.py` recalcula os hashes reais; qualquer alteração de whitespace exige atualização da meta CSP correspondente.
+- Não adicionar atributos `style=` ou handlers `on*=` aos HTMLs públicos enquanto a CSP permanecer sem `unsafe-inline`.
+- `--primary-text` é para texto normal/pequeno no tema claro; `--primary-color` continua em fundos, bordas, ícones e títulos grandes. Galeria e Blog devem manter títulos principais no mesmo token `--primary-color`.
+- `/artes/` permanece pública, mas só é indexável e incluída no sitemap quando `data/content/artes.json` contém ao menos um item.
+- `/blog/` permanece pública, mas só é indexável e incluída no sitemap quando `data/blog/posts.json` contém ao menos um post com `published: true`. Drafts não contam.
+- Não usar JavaScript para trocar `robots` em runtime; meta robots e sitemap são artefatos estáticos validados contra os JSONs editoriais.

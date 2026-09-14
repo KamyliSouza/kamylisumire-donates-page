@@ -421,7 +421,7 @@
 .agenda-day {
     display: block;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .76rem;
     font-weight: 800;
@@ -478,7 +478,7 @@
 }
 
 .has-live .agenda-status {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* conteúdo principal: jogo em destaque + tema abaixo */
@@ -530,7 +530,7 @@
     margin-top: auto;
     padding-top: 12px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .72rem;
     font-weight: 800;
@@ -646,7 +646,7 @@
 
     margin-top: 1px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--card-bg);
 
     border: 1px solid var(--card-border);
@@ -698,7 +698,7 @@
 
 .credit-item:hover strong,
 .credit-item:focus-visible strong {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .editable-item-arrow {
@@ -897,7 +897,7 @@
     min-height: 38px;
     padding: 8px 11px;
 
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--notice-bg);
 
     border: 1px solid var(--card-border);
@@ -997,7 +997,7 @@
 
 .hero-view-tab:hover,
 .hero-view-tab:focus-visible {
-    color: var(--primary-color);
+    color: var(--primary-text);
     background-color: var(--primary-soft);
     outline: none;
 }
