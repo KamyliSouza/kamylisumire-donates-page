@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.10 — Hotfix: blur contínuo sob a borda externa
+
+- corrige Galeria e Blog para que a borda externa de 2 px participe da mesma superfície com `backdrop-filter`, eliminando trechos da moldura que ainda mostravam o fundo sem desfoque;
+- mantém `.artes-tools`/`.blog-tools` sem `backdrop-filter` para preservar a arquitetura sem Backdrop Root ancestral, mas torna a borda original transparente e move borda + vidro para o `::before`, que passa a usar `inset: -2px`;
+- preserva o raio externo de 24 px, sombra, transparência, portal do seletor, filtros, busca e preferência **Blur desligado**;
+- atualiza os cache-busters de `artes.css` e `blog.css` para `48.3.10` e fortalece a CI para impedir que a moldura volte a ficar fora da superfície desfocada.
+
 ## V48.3.9 — Hotfix visual da moldura de busca
 
 - corrige a geometria do fundo translúcido dos painéis de ferramentas da Galeria e do Blog: `::before` passa de `inset: 2px` para `inset: 0`, eliminando o recuo duplo que fazia a borda parecer maior que a caixa;

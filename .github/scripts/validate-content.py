@@ -1304,17 +1304,17 @@ def validate_architecture() -> None:
             if declaration not in block:
                 error(f"css/pages/artes.css: seletor V48.3.3 incompleto: {declaration}")
 
-    # V48.3.5: campo e menu usam vidro mais translúcido; o menu aberto sai
-    # temporariamente do glass-panel e vai ao body para não ficar preso ao
-    # backdrop/composição do painel ancestral.
+    # V48.3.10: o pai continua sem backdrop-filter para não virar Backdrop Root.
+    # A superfície ::before avança 2 px sob a moldura e passa a desenhar a borda;
+    # assim o próprio border-box da superfície participa do backdrop-filter.
     selector_blur_rules = (
-        (artes_css, "artes", r"\.artes-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
-        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("inset: 0", "background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+        (artes_css, "artes", r"\.artes-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "border-color: transparent", "backdrop-filter: none")),
+        (artes_css, "artes", r"\.artes-tools::before\s*\{([^}]*)\}", ("inset: -2px", "border: 2px solid var(--card-border)", "border-radius: var(--radius-card)", "background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
         (artes_css, "artes", r"\.artes-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
         (artes_css, "artes", r"\.artes-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
         (artes_css, "artes", r"\.artes-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
-        (blog_css, "blog", r"\.blog-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "backdrop-filter: none")),
-        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("inset: 0", "background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
+        (blog_css, "blog", r"\.blog-tools\s*\{([^}]*)\}", ("isolation: isolate", "background-color: transparent", "border-color: transparent", "backdrop-filter: none")),
+        (blog_css, "blog", r"\.blog-tools::before\s*\{([^}]*)\}", ("inset: -2px", "border: 2px solid var(--card-border)", "border-radius: var(--radius-card)", "background: var(--card-bg)", "color-mix(in srgb, var(--card-bg) 72%, transparent)", "backdrop-filter: blur(var(--blur-card))", "pointer-events: none")),
         (blog_css, "blog", r"\.blog-search-field\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 68%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 6px)) saturate(115%)")),
         (blog_css, "blog", r"\.blog-search-field-menu\s*\{([^}]*)\}", ("color-mix(in srgb, var(--nav-bg) 66%, transparent)", "backdrop-filter: blur(calc(var(--blur-card) + 8px)) saturate(120%)")),
         (blog_css, "blog", r"\.blog-search-field-menu\.is-portaled\s*\{([^}]*)\}", ("position: fixed", "z-index: 1300", "max-width: calc(100vw - 24px)")),
@@ -1322,12 +1322,12 @@ def validate_architecture() -> None:
     for css_text, label, pattern, required_declarations in selector_blur_rules:
         match = re.search(pattern, css_text, flags=re.S)
         if not match:
-            error(f"css/pages/{label}.css: regra de blur V48.3.5 ausente: {pattern}")
+            error(f"css/pages/{label}.css: regra de blur V48.3.10 ausente: {pattern}")
             continue
         block = match.group(1)
         for declaration in required_declarations:
             if declaration not in block:
-                error(f"css/pages/{label}.css: blur V48.3.5 incompleto: {declaration}")
+                error(f"css/pages/{label}.css: blur V48.3.10 incompleto: {declaration}")
 
     selector_portal_rules = (
         (artes_js, "artes", ("positionSearchFieldMenu", "portalSearchFieldMenu", "restoreSearchFieldMenu", "document.body.appendChild(searchFieldMenu)", 'classList.add("is-portaled")', "getBoundingClientRect()")),
@@ -1533,12 +1533,12 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.5" not in blog_index:
         error("blog/index.html: cache-buster V48.3.5 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.9" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.9 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.10" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.10 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
         error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.9" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.9 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.10" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.10 ausente para css/pages/artes.css.")
 
     # V48.3.7: todo asset CSS/JS alterado pelo hardening precisa invalidar cache.
     v4837_assets = {

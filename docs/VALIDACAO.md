@@ -1,3 +1,14 @@
+## V48.3.10 — Blur da borda externa dos painéis de busca
+
+Smoke test recomendado:
+
+1. abrir `/artes/` e `/blog/` com **Blur ligado** e confirmar que o fundo atrás de toda a moldura externa — inclusive os 2 px da borda — fica desfocado de forma contínua, sem faixa nítida no contorno;
+2. repetir nos quatro cantos arredondados e nas laterais em tema claro/escuro, desktop/mobile;
+3. confirmar que o fundo translúcido e a borda continuam geometricamente coincidentes, sem o recuo visual corrigido na V48.3.9;
+4. abrir **Buscar em**, rolar/redimensionar com o menu aberto e confirmar que portal, blur próprio do menu e navegação por teclado continuam inalterados;
+5. com **Blur desligado**, confirmar ausência de `backdrop-filter` no painel/campo/menu e leitura normal da superfície;
+6. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker.
+
 ## V48.3.9 — Geometria da moldura de busca
 
 Smoke test recomendado:

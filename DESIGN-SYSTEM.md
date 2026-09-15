@@ -127,6 +127,8 @@ para o Blog.
 
 Desde a V48.3.4, o painel externo de ferramentas não aplica `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`; o vidro externo permanece em `::before`. A V48.3.5 acrescenta uma regra mais forte para o drop-down: enquanto aberto, o menu deve ser portado temporariamente para `document.body`, usando posicionamento fixo calculado pelo controle. Isso evita que o menu fique visualmente limitado pela composição/backdrop do painel e garante que seu `backdrop-filter` atue sobre a página real atrás dele. Ao fechar, o mesmo nó retorna ao wrapper original; não criar uma cópia do listbox.
 
+Desde a V48.3.10, a moldura externa desses dois painéis também pertence ao `::before`: a borda herdada de `glass-panel` fica transparente no elemento pai, enquanto o pseudo-elemento usa `inset: -2px`, `border: 2px solid var(--card-border)` e `border-radius: var(--radius-card)`. Isso faz o `backdrop-filter` cobrir também a área sob a borda sem reintroduzir uma Backdrop Root ancestral. Não mover o blur de volta para `.artes-tools`/`.blog-tools`.
+
 Campo e menu devem manter fundo translúcido derivado de `--nav-bg`, com fallback para o token original. Quando `data-blur="off"`, não usar blur/saturação e voltar a `--card-bg`.
 
 Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,

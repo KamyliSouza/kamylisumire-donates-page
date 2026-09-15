@@ -1,5 +1,5 @@
 /* =========================================================
-   GALERIA DE ARTES — V48.3.4
+   GALERIA DE ARTES — V48.3.10
    Página estática/editorial; imagens externas, sem Worker.
    ========================================================= */
 
@@ -38,6 +38,7 @@
     z-index: 40;
     isolation: isolate;
     background-color: transparent;
+    border-color: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     display: flex;
@@ -53,9 +54,10 @@
 .artes-tools::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -2px;
     z-index: -1;
-    border-radius: calc(var(--radius-card) - 2px);
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-card);
     background: var(--card-bg);
     background: color-mix(in srgb, var(--card-bg) 72%, transparent);
     backdrop-filter: blur(var(--blur-card));
