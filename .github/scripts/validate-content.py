@@ -1552,7 +1552,7 @@ def validate_architecture() -> None:
         "doacoes/index.html": (
             "css/core/variables.css?v=48.3.7",
             "css/pages/doacoes.css?v=48.3.7",
-            "css/components/ranking.css?v=48.3.8",
+            "css/components/ranking.css?v=48.3.11",
             "js/pages/doacoes/ranking.js?v=48.3.8",
         ),
         "blog/index.html": (
@@ -1864,6 +1864,23 @@ def validate_architecture() -> None:
     ):
         if forbidden in ranking_js:
             error(f"js/pages/doacoes/ranking.js: fallback expirado V48.3.8 não permitido: {forbidden}")
+
+    # V48.3.11: nomes de exibição arbitrariamente longos não podem alargar o card/página.
+    ranking_css = read_text("css/components/ranking.css")
+    ranking_overflow_rules = (
+        (r"\.ranking-list\s*\{([^}]*)\}", ("width: 100%", "max-width: 100%", "min-width: 0")),
+        (r"\.ranking-item\s*\{([^}]*)\}", ("width: 100%", "max-width: 100%", "min-width: 0", "overflow: hidden")),
+        (r"\.ranking-name\s*\{([^}]*)\}", ("flex: 1 1 0", "width: 0", "min-width: 0", "max-width: 100%", "overflow: hidden", "text-overflow: ellipsis", "white-space: nowrap")),
+    )
+    for pattern, required_declarations in ranking_overflow_rules:
+        match = re.search(pattern, ranking_css, flags=re.S)
+        if not match:
+            error(f"css/components/ranking.css: contenção V48.3.11 ausente: {pattern}")
+            continue
+        block = match.group(1)
+        for declaration in required_declarations:
+            if declaration not in block:
+                error(f"css/components/ranking.css: contenção V48.3.11 incompleta: {declaration}")
 
     for forbidden in (
         "nome verificado do doador",

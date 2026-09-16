@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.11 — Hotfix: nomes longos no ranking
+
+- impede identificadores de exibição muito longos de aumentarem a largura do card de ranking ou da página;
+- reforça a contenção horizontal em `.ranking-list` e `.ranking-item` e torna `.ranking-name` explicitamente encolhível com `flex: 1 1 0` + `width: 0`;
+- preserva o nome completo no DOM e exibe visualmente `...` quando o espaço disponível termina, sem alterar valor, posição ou dados recebidos da API;
+- atualiza o cache-buster de `ranking.css` para `48.3.11` e adiciona guarda de CI contra regressão de overflow.
+
 ## V48.3.10 — Hotfix: blur contínuo sob a borda externa
 
 - corrige Galeria e Blog para que a borda externa de 2 px participe da mesma superfície com `backdrop-filter`, eliminando trechos da moldura que ainda mostravam o fundo sem desfoque;

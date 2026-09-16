@@ -1,3 +1,14 @@
+## V48.3.11 — Contenção de nomes longos no ranking
+
+Smoke test recomendado:
+
+1. abrir `/doacoes/` e simular um identificador curto, um com espaços e outro sem espaços com pelo menos 150 caracteres;
+2. confirmar que o card e a página mantêm a mesma largura e não criam scroll horizontal;
+3. confirmar que o identificador longo termina visualmente em `...`, enquanto posição e valor permanecem totalmente visíveis;
+4. repetir em desktop, 920 px, 760 px e viewport móvel estreito;
+5. confirmar que o texto completo continua no DOM para acessibilidade e que apenas a apresentação visual é truncada;
+6. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker.
+
 ## V48.3.10 — Blur da borda externa dos painéis de busca
 
 Smoke test recomendado:

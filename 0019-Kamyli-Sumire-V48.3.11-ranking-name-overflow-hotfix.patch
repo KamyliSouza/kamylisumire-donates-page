@@ -1,0 +1,126 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 589ce67..2ea74e7 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1552,7 +1552,7 @@ def validate_architecture() -> None:
+         "doacoes/index.html": (
+             "css/core/variables.css?v=48.3.7",
+             "css/pages/doacoes.css?v=48.3.7",
+-            "css/components/ranking.css?v=48.3.8",
++            "css/components/ranking.css?v=48.3.11",
+             "js/pages/doacoes/ranking.js?v=48.3.8",
+         ),
+         "blog/index.html": (
+@@ -1865,6 +1865,23 @@ def validate_architecture() -> None:
+         if forbidden in ranking_js:
+             error(f"js/pages/doacoes/ranking.js: fallback expirado V48.3.8 não permitido: {forbidden}")
+ 
++    # V48.3.11: nomes de exibição arbitrariamente longos não podem alargar o card/página.
++    ranking_css = read_text("css/components/ranking.css")
++    ranking_overflow_rules = (
++        (r"\.ranking-list\s*\{([^}]*)\}", ("width: 100%", "max-width: 100%", "min-width: 0")),
++        (r"\.ranking-item\s*\{([^}]*)\}", ("width: 100%", "max-width: 100%", "min-width: 0", "overflow: hidden")),
++        (r"\.ranking-name\s*\{([^}]*)\}", ("flex: 1 1 0", "width: 0", "min-width: 0", "max-width: 100%", "overflow: hidden", "text-overflow: ellipsis", "white-space: nowrap")),
++    )
++    for pattern, required_declarations in ranking_overflow_rules:
++        match = re.search(pattern, ranking_css, flags=re.S)
++        if not match:
++            error(f"css/components/ranking.css: contenção V48.3.11 ausente: {pattern}")
++            continue
++        block = match.group(1)
++        for declaration in required_declarations:
++            if declaration not in block:
++                error(f"css/components/ranking.css: contenção V48.3.11 incompleta: {declaration}")
++
+     for forbidden in (
+         "nome verificado do doador",
+         "informando o nome ou pseudônimo utilizado na contribuição",
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f4e5c07..0938da6 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,12 @@
+ # Changelog
+ 
++## V48.3.11 — Hotfix: nomes longos no ranking
++
++- impede identificadores de exibição muito longos de aumentarem a largura do card de ranking ou da página;
++- reforça a contenção horizontal em `.ranking-list` e `.ranking-item` e torna `.ranking-name` explicitamente encolhível com `flex: 1 1 0` + `width: 0`;
++- preserva o nome completo no DOM e exibe visualmente `...` quando o espaço disponível termina, sem alterar valor, posição ou dados recebidos da API;
++- atualiza o cache-buster de `ranking.css` para `48.3.11` e adiciona guarda de CI contra regressão de overflow.
++
+ ## V48.3.10 — Hotfix: blur contínuo sob a borda externa
+ 
+ - corrige Galeria e Blog para que a borda externa de 2 px participe da mesma superfície com `backdrop-filter`, eliminando trechos da moldura que ainda mostravam o fundo sem desfoque;
+diff --git a/css/components/ranking.css b/css/components/ranking.css
+index e1d2b41..e5738c9 100644
+--- a/css/components/ranking.css
++++ b/css/components/ranking.css
+@@ -122,6 +122,9 @@
+     flex-direction: column;
+ 
+     gap: 8px;
++    width: 100%;
++    max-width: 100%;
++    min-width: 0;
+     min-height: 150px;
+ 
+     margin: 0;
+@@ -136,8 +139,13 @@
+     align-items: center;
+ 
+     gap: 12px;
++    width: 100%;
++    max-width: 100%;
++    min-width: 0;
+     padding: 10px 14px;
+ 
++    overflow: hidden;
++
+     background-color: var(--notice-bg);
+ 
+     border: 1px solid var(--card-border);
+@@ -172,8 +180,10 @@
+ }
+ 
+ .ranking-name {
+-    flex: 1;
++    flex: 1 1 0;
++    width: 0;
+     min-width: 0;
++    max-width: 100%;
+ 
+     overflow: hidden;
+ 
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 8d253e6..c8b36f0 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -247,7 +247,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.8">
++    <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.11">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index f179b0c..4d32a0c 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -1,3 +1,14 @@
++## V48.3.11 — Contenção de nomes longos no ranking
++
++Smoke test recomendado:
++
++1. abrir `/doacoes/` e simular um identificador curto, um com espaços e outro sem espaços com pelo menos 150 caracteres;
++2. confirmar que o card e a página mantêm a mesma largura e não criam scroll horizontal;
++3. confirmar que o identificador longo termina visualmente em `...`, enquanto posição e valor permanecem totalmente visíveis;
++4. repetir em desktop, 920 px, 760 px e viewport móvel estreito;
++5. confirmar que o texto completo continua no DOM para acessibilidade e que apenas a apresentação visual é truncada;
++6. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker.
++
+ ## V48.3.10 — Blur da borda externa dos painéis de busca
+ 
+ Smoke test recomendado:
