@@ -1,4 +1,776 @@
 {
   "version": 1,
-  "entries": {}
+  "entries": {
+    "okami": {
+      "status": "resolved",
+      "gameId": 38266,
+      "artworkId": 43746,
+      "url": "https://cdn2.steamgriddb.com/grid/d36ac395fa31afe3c1cc571c09a9644d.png"
+    },
+    "impostor factory": {
+      "status": "resolved",
+      "gameId": 5252987,
+      "artworkId": 162886,
+      "url": "https://cdn2.steamgriddb.com/grid/93be941067fb31fc21273f3760e284cb.png"
+    },
+    "resident evil 7 biohazard": {
+      "status": "resolved",
+      "gameId": 9774,
+      "artworkId": 42431,
+      "url": "https://cdn2.steamgriddb.com/grid/68fa8bc4c8b50ad66a583462a1c684e4.png"
+    },
+    "amnesia rebirth": {
+      "status": "resolved",
+      "gameId": 5257345,
+      "artworkId": 78511,
+      "url": "https://cdn2.steamgriddb.com/grid/9d616a379e7fecf7481ffebb04eb45e9.png"
+    },
+    "road 96": {
+      "status": "resolved",
+      "gameId": 5273107,
+      "artworkId": 126030,
+      "url": "https://cdn2.steamgriddb.com/grid/fa9fb94ddca8d81c2436da9f1433490a.jpg"
+    },
+    "momodora moonlit farewell": {
+      "status": "resolved",
+      "gameId": 5317066,
+      "artworkId": 402274,
+      "url": "https://cdn2.steamgriddb.com/grid/dd4c33434525551f6309f5508f0b8b2f.png"
+    },
+    "lies of p": {
+      "status": "resolved",
+      "gameId": 5285351,
+      "artworkId": 336906,
+      "url": "https://cdn2.steamgriddb.com/grid/48275392f5b7db75dbd692d35e92689c.png"
+    },
+    "momodora reverie under the moonlight": {
+      "status": "resolved",
+      "gameId": 10109,
+      "artworkId": 40312,
+      "url": "https://cdn2.steamgriddb.com/grid/4614ebe3b424d6d3ed9d84d0f366598d.png"
+    },
+    "metaphor refantazio": {
+      "status": "resolved",
+      "gameId": 5439691,
+      "artworkId": 399008,
+      "url": "https://cdn2.steamgriddb.com/grid/790891ce3077c965fcba8baf8fd0e948.jpg"
+    },
+    "ai limit": {
+      "status": "resolved",
+      "gameId": 5441889,
+      "artworkId": 556580,
+      "url": "https://cdn2.steamgriddb.com/grid/e7306db64ebb9c2db2cf9b27d884ae0a.png"
+    },
+    "jedi survivor": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:58:53.779Z"
+    },
+    "animal well": {
+      "status": "resolved",
+      "gameId": 5319754,
+      "artworkId": 440470,
+      "url": "https://cdn2.steamgriddb.com/grid/455a5c25e5cdaea7adb85d5d44f79c6b.png"
+    },
+    "bokura": {
+      "status": "resolved",
+      "gameId": 5302739,
+      "artworkId": 397472,
+      "url": "https://cdn2.steamgriddb.com/grid/fb05addb7243a910a6f776012ea57011.png"
+    },
+    "blue prince": {
+      "status": "resolved",
+      "gameId": 5282856,
+      "artworkId": 560055,
+      "url": "https://cdn2.steamgriddb.com/grid/a115cc22994faaac90dbbbf2dcdbdb3f.jpg"
+    },
+    "kena bridge of spirits": {
+      "status": "resolved",
+      "gameId": 5267310,
+      "artworkId": 107797,
+      "url": "https://cdn2.steamgriddb.com/grid/9fd3dc148733fd20d350ff5114d53c70.png"
+    },
+    "little witch in the woods": {
+      "status": "resolved",
+      "gameId": 5282060,
+      "artworkId": 204674,
+      "url": "https://cdn2.steamgriddb.com/grid/bcb14aaee6dd31a5b815a3c4d1366800.jpg"
+    },
+    "blasphemous": {
+      "status": "resolved",
+      "gameId": 4878706,
+      "artworkId": 64358,
+      "url": "https://cdn2.steamgriddb.com/grid/e2740409877ae434b094616d11de3e4c.png"
+    },
+    "sea of stars throes of the watchmaker": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:58:56.200Z"
+    },
+    "mouse p i for hire": {
+      "status": "resolved",
+      "gameId": 5400121,
+      "artworkId": 658742,
+      "url": "https://cdn2.steamgriddb.com/grid/479ce9c547f4764aa6bde6eaa4a7e874.png"
+    },
+    "the first berserker khazan": {
+      "status": "resolved",
+      "gameId": 5438459,
+      "artworkId": 530573,
+      "url": "https://cdn2.steamgriddb.com/grid/b1afb060d220ccde73835202179cda57.jpg"
+    },
+    "indika": {
+      "status": "resolved",
+      "gameId": 5264093,
+      "artworkId": 443804,
+      "url": "https://cdn2.steamgriddb.com/grid/08544e52298c8f8da792812bb11d50c1.jpg"
+    },
+    "blasphemous ii": {
+      "status": "resolved",
+      "gameId": 5396050,
+      "artworkId": 326759,
+      "url": "https://cdn2.steamgriddb.com/grid/71136483ba006733ac2eaab91fba5cde.png"
+    },
+    "red dead redemption ii": {
+      "status": "resolved",
+      "gameId": 5249031,
+      "artworkId": 68429,
+      "url": "https://cdn2.steamgriddb.com/grid/22774e7dbd2a3030e3e0c0b7381dee3e.png"
+    },
+    "dark souls ii": {
+      "status": "resolved",
+      "gameId": 2652,
+      "artworkId": 38250,
+      "url": "https://cdn2.steamgriddb.com/grid/5946ab295af0afd89e7003485afefe2d.png"
+    },
+    "life is strange remastered": {
+      "status": "resolved",
+      "gameId": 5280191,
+      "artworkId": 131294,
+      "url": "https://cdn2.steamgriddb.com/grid/7e24c1cffa19b29b6c9e058a0b14091c.jpg"
+    },
+    "sea of stars": {
+      "status": "resolved",
+      "gameId": 5257712,
+      "artworkId": 298610,
+      "url": "https://cdn2.steamgriddb.com/grid/80ec7627c27c3218e306489955d99cce.png"
+    },
+    "dead space": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:58:59.400Z"
+    },
+    "alien isolation": {
+      "status": "resolved",
+      "gameId": 2108,
+      "artworkId": 35918,
+      "url": "https://cdn2.steamgriddb.com/grid/ce3d865b7bb66f7728988e0220bd51bd.png"
+    },
+    "spiritfarer": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:00.053Z"
+    },
+    "rain world": {
+      "status": "resolved",
+      "gameId": 5039,
+      "artworkId": 57295,
+      "url": "https://cdn2.steamgriddb.com/grid/999bb84ff9a5813ec209176cf121ac13.png"
+    },
+    "pragmata": {
+      "status": "resolved",
+      "gameId": 5454532,
+      "artworkId": 452511,
+      "url": "https://cdn2.steamgriddb.com/grid/0de1bc4514f2cc17d1cf53a541d6a73c.png"
+    },
+    "reanimal": {
+      "status": "resolved",
+      "gameId": 5462324,
+      "artworkId": 477437,
+      "url": "https://cdn2.steamgriddb.com/grid/caf959e38bfd1e5a98cebf08c8c12328.png"
+    },
+    "little nightmares iii": {
+      "status": "resolved",
+      "gameId": 5423718,
+      "artworkId": 360840,
+      "url": "https://cdn2.steamgriddb.com/grid/53f5b0ccb6bc15a136c57179f752fbfb.jpg"
+    },
+    "little nightmares ii": {
+      "status": "resolved",
+      "gameId": 5266557,
+      "artworkId": 121222,
+      "url": "https://cdn2.steamgriddb.com/grid/ac05b86d4aa540cb24cfe4d0dbd4a93b.png"
+    },
+    "a bird story": {
+      "status": "resolved",
+      "gameId": 5634,
+      "artworkId": 42285,
+      "url": "https://cdn2.steamgriddb.com/grid/d396b4b665a89fe161dd89d58f9dd437.png"
+    },
+    "code vein": {
+      "status": "resolved",
+      "gameId": 5245377,
+      "artworkId": 48498,
+      "url": "https://cdn2.steamgriddb.com/grid/3dd13198e56a2d4d0a9880ce2e55e813.png"
+    },
+    "baldurs gate 3": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:02.935Z"
+    },
+    "elden ring": {
+      "status": "resolved",
+      "gameId": 5277816,
+      "artworkId": 147155,
+      "url": "https://cdn2.steamgriddb.com/grid/557fa68027943a8b0d3b66c4e72ff23b.png"
+    },
+    "pacific drive": {
+      "status": "resolved",
+      "gameId": 5382824,
+      "artworkId": 300834,
+      "url": "https://cdn2.steamgriddb.com/grid/3e6379e32745d01a0bf49f6670b12d23.png"
+    },
+    "elden ring shadow of the erdtree": {
+      "status": "resolved",
+      "gameId": 5452291,
+      "artworkId": 419314,
+      "url": "https://cdn2.steamgriddb.com/grid/4f8647de30c0dfdd2872544e9a7daeaa.jpg"
+    },
+    "sekiro shadows die twice": {
+      "status": "resolved",
+      "gameId": 26258,
+      "artworkId": 65380,
+      "url": "https://cdn2.steamgriddb.com/grid/0033ac30345370155f8c564570543295.png"
+    },
+    "witchspire": {
+      "status": "resolved",
+      "gameId": 5499508,
+      "artworkId": 616247,
+      "url": "https://cdn2.steamgriddb.com/grid/e1b731d4ab7f8394bbd41fb5030bc84c.png"
+    },
+    "hollow knight": {
+      "status": "resolved",
+      "gameId": 7545,
+      "artworkId": 79838,
+      "url": "https://cdn2.steamgriddb.com/grid/cf4929ed2d6ab134a9d0d3d83dfa4006.png"
+    },
+    "another crab s treasure": {
+      "status": "resolved",
+      "gameId": 5328043,
+      "artworkId": 442359,
+      "url": "https://cdn2.steamgriddb.com/grid/fcfefd8e77e13c19841cefeda13043b7.png"
+    },
+    "retro rewind": {
+      "status": "resolved",
+      "gameId": 5490357,
+      "artworkId": 738095,
+      "url": "https://cdn2.steamgriddb.com/grid/5d54b4953970fa150cd9b9bc9ffdc213.png"
+    },
+    "crypt of the necrodancer": {
+      "status": "resolved",
+      "gameId": 2917,
+      "artworkId": 68643,
+      "url": "https://cdn2.steamgriddb.com/grid/98555e2a46b8f678592b7caba74504cf.png"
+    },
+    "stray": {
+      "status": "resolved",
+      "gameId": 5262075,
+      "artworkId": 114509,
+      "url": "https://cdn2.steamgriddb.com/grid/9e4813649219fa1edd9794620143edcc.png"
+    },
+    "devil may cry 5": {
+      "status": "resolved",
+      "gameId": 349500,
+      "artworkId": 36347,
+      "url": "https://cdn2.steamgriddb.com/grid/3fdd5555c11b1ff0d580b9718947e4ba.png"
+    },
+    "nine sols": {
+      "status": "resolved",
+      "gameId": 5323221,
+      "artworkId": 449382,
+      "url": "https://cdn2.steamgriddb.com/grid/f3089718c3f12af1fd8b9fe9b38ccb62.jpg"
+    },
+    "a space for the unbound": {
+      "status": "resolved",
+      "gameId": 5252965,
+      "artworkId": 299434,
+      "url": "https://cdn2.steamgriddb.com/grid/d3eeb860801d630df91240db2b4b42a0.png"
+    },
+    "hades": {
+      "status": "resolved",
+      "gameId": 4997889,
+      "artworkId": 63955,
+      "url": "https://cdn2.steamgriddb.com/grid/bfe339860b048949369fc6945cea504d.png"
+    },
+    "alice madness returns": {
+      "status": "resolved",
+      "gameId": 1615,
+      "artworkId": 36455,
+      "url": "https://cdn2.steamgriddb.com/grid/4ffdeb775c5117fa22e7a134744584e1.png"
+    },
+    "investigacao postuma": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:08.737Z"
+    },
+    "celeste": {
+      "status": "resolved",
+      "gameId": 13136,
+      "artworkId": 36389,
+      "url": "https://cdn2.steamgriddb.com/grid/a0d63af8542e13942f6ac9577a738af3.jpg"
+    },
+    "mika and the witch s mountain": {
+      "status": "resolved",
+      "gameId": 5318977,
+      "artworkId": 298739,
+      "url": "https://cdn2.steamgriddb.com/grid/b024612193b897efa7801337bad2e2f0.jpg"
+    },
+    "deltarune": {
+      "status": "resolved",
+      "gameId": 5246864,
+      "artworkId": 38731,
+      "url": "https://cdn2.steamgriddb.com/grid/97c216cb25ce4c47de15d030c76fed39.png"
+    },
+    "cuphead the delicious last course": {
+      "status": "resolved",
+      "gameId": 5439115,
+      "artworkId": 408637,
+      "url": "https://cdn2.steamgriddb.com/grid/be7ec228d6a8829bfbf708318a1111f3.png"
+    },
+    "onirism": {
+      "status": "resolved",
+      "gameId": 4889009,
+      "artworkId": 96601,
+      "url": "https://cdn2.steamgriddb.com/grid/cb8db2c585df47b9e5920323dde0513c.png"
+    },
+    "neva": {
+      "status": "resolved",
+      "gameId": 5403591,
+      "artworkId": 495082,
+      "url": "https://cdn2.steamgriddb.com/grid/303527f13afc9331a56de038871fcb7a.png"
+    },
+    "restory": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:11.248Z"
+    },
+    "rakuen": {
+      "status": "resolved",
+      "gameId": 15396,
+      "artworkId": 36681,
+      "url": "https://cdn2.steamgriddb.com/grid/7a9044f58ba25564d2a56b6007c47165.png"
+    },
+    "resident evil 8 village": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:11.885Z"
+    },
+    "warhammer vermintide 2": {
+      "status": "resolved",
+      "gameId": 15105,
+      "artworkId": 71464,
+      "url": "https://cdn2.steamgriddb.com/grid/46fedbe0b075398f1e3fc2ee10dd4698.png"
+    },
+    "ori and the blind forest": {
+      "status": "resolved",
+      "gameId": 3360,
+      "artworkId": 43862,
+      "url": "https://cdn2.steamgriddb.com/grid/d4aa28edb4a7e60bf8a800ef24c26eb3.png"
+    },
+    "ori and the will of the wisps": {
+      "status": "resolved",
+      "gameId": 5253486,
+      "artworkId": 73304,
+      "url": "https://cdn2.steamgriddb.com/grid/7cd613b5798d0c540ba064c5f7ecc386.png"
+    },
+    "slay the princess": {
+      "status": "resolved",
+      "gameId": 5342714,
+      "artworkId": 394697,
+      "url": "https://cdn2.steamgriddb.com/grid/d61b5044e5d81369e2dd0e60f715d6c8.png"
+    },
+    "silent hill f": {
+      "status": "resolved",
+      "gameId": 5436386,
+      "artworkId": 383539,
+      "url": "https://cdn2.steamgriddb.com/grid/c417ecc84cb08d39a573ec0c470fd9ef.png"
+    },
+    "outer wilds": {
+      "status": "resolved",
+      "gameId": 23535,
+      "artworkId": 40870,
+      "url": "https://cdn2.steamgriddb.com/grid/f3482a102a8dfa7ecdf57d63ec37872a.jpg"
+    },
+    "silent hill 2": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:14.419Z"
+    },
+    "ghost of tsushima director s cut": {
+      "status": "resolved",
+      "gameId": 5446016,
+      "artworkId": 156465,
+      "url": "https://cdn2.steamgriddb.com/grid/b13b57c93aa09536490f30a89d645072.jpg"
+    },
+    "ender magnolia bloom in the mist": {
+      "status": "resolved",
+      "gameId": 5444804,
+      "artworkId": 419323,
+      "url": "https://cdn2.steamgriddb.com/grid/bf6a0e301fef8c1b31d39fd4c5381b0c.png"
+    },
+    "killer frequency": {
+      "status": "resolved",
+      "gameId": 5334530,
+      "artworkId": 335290,
+      "url": "https://cdn2.steamgriddb.com/grid/f090d39cf80dc800195fdeb2702a6b27.png"
+    },
+    "oneshot": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:15.768Z"
+    },
+    "ender lilies": {
+      "status": "resolved",
+      "gameId": 5267569,
+      "artworkId": 149692,
+      "url": "https://cdn2.steamgriddb.com/grid/1130064514f563b2d894f0840d31db3c.png"
+    },
+    "to the moon": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:16.390Z"
+    },
+    "hollow knight silksong": {
+      "status": "resolved",
+      "gameId": 1043,
+      "artworkId": 109489,
+      "url": "https://cdn2.steamgriddb.com/grid/848ffe097e37ee8768d50dbc688e0757.png"
+    },
+    "danganronpa trigger happy havoc": {
+      "status": "resolved",
+      "gameId": 9572,
+      "artworkId": 36521,
+      "url": "https://cdn2.steamgriddb.com/grid/12d8aa143e766d84ff3a170a1e1a3aef.png"
+    },
+    "fear the spotlight": {
+      "status": "resolved",
+      "gameId": 5325057,
+      "artworkId": 372439,
+      "url": "https://cdn2.steamgriddb.com/grid/4ac71cdf192679a986ad5b370cbe8335.jpg"
+    },
+    "undertale": {
+      "status": "resolved",
+      "gameId": 8643,
+      "artworkId": 36593,
+      "url": "https://cdn2.steamgriddb.com/grid/0b6e39d73bf91651ad76349e38067c67.png"
+    },
+    "dark souls iii delux edition": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:18.143Z"
+    },
+    "ratchet clank rift apart": {
+      "status": "resolved",
+      "gameId": 5266059,
+      "artworkId": 127342,
+      "url": "https://cdn2.steamgriddb.com/grid/e30c7d71dd22da8264499ef52ad97c81.png"
+    },
+    "outlast": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:18.778Z"
+    },
+    "dark souls remastered": {
+      "status": "resolved",
+      "gameId": 15863,
+      "artworkId": 36328,
+      "url": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png"
+    },
+    "outlast 2": {
+      "status": "resolved",
+      "gameId": 9614,
+      "artworkId": 81225,
+      "url": "https://cdn2.steamgriddb.com/grid/011540ce92c39d682c0e4e358abe2715.png"
+    },
+    "clair obscur expedition 33": {
+      "status": "resolved",
+      "gameId": 5454521,
+      "artworkId": 531710,
+      "url": "https://cdn2.steamgriddb.com/grid/33b4f54e8f16ecff858a76b1803df96f.jpg"
+    },
+    "a plague tale requiem": {
+      "status": "resolved",
+      "gameId": 5287667,
+      "artworkId": 147632,
+      "url": "https://cdn2.steamgriddb.com/grid/1943f57fa2c04b52c38d176589f76d52.jpg"
+    },
+    "minecraft": {
+      "status": "resolved",
+      "gameId": 38365,
+      "artworkId": 36537,
+      "url": "https://cdn2.steamgriddb.com/grid/a73027901f88055aaa0fd1a9e25d36c7.png"
+    },
+    "finding paradise": {
+      "status": "resolved",
+      "gameId": 6061,
+      "artworkId": 46917,
+      "url": "https://cdn2.steamgriddb.com/grid/d607cb39183721ffdca411d397c2db0d.png"
+    },
+    "granblue fantasy relink": {
+      "status": "resolved",
+      "gameId": 5423743,
+      "artworkId": 395789,
+      "url": "https://cdn2.steamgriddb.com/grid/b58d9ff7198e607422852323ffdf8d2e.jpg"
+    },
+    "stardew valley": {
+      "status": "resolved",
+      "gameId": 9569,
+      "artworkId": 39727,
+      "url": "https://cdn2.steamgriddb.com/grid/d1c63ba3bc4fb3539d63cc48feae519a.jpg"
+    },
+    "stellar blade": {
+      "status": "resolved",
+      "gameId": 5443884,
+      "artworkId": 416299,
+      "url": "https://cdn2.steamgriddb.com/grid/49c44c72a9c47453127878cc3d4eaf5b.png"
+    },
+    "keeper": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:22.458Z"
+    },
+    "nioh": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:22.708Z"
+    },
+    "the elder scrolls v skyrim special edition": {
+      "status": "resolved",
+      "gameId": 12404,
+      "artworkId": 37593,
+      "url": "https://cdn2.steamgriddb.com/grid/07da625d725f8d78daf4576f397c6e82.png"
+    },
+    "resident evil 4 2023": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:23.353Z"
+    },
+    "windrose": {
+      "status": "resolved",
+      "gameId": 5519593,
+      "artworkId": 752578,
+      "url": "https://cdn2.steamgriddb.com/grid/380734d1189834983400bda5f3cf9bb5.png"
+    },
+    "a hat in time": {
+      "status": "resolved",
+      "gameId": 3120,
+      "artworkId": 42280,
+      "url": "https://cdn2.steamgriddb.com/grid/572c4588735cdf3f37ebf333b8af21da.png"
+    },
+    "hades ii": {
+      "status": "resolved",
+      "gameId": 5376530,
+      "artworkId": 289677,
+      "url": "https://cdn2.steamgriddb.com/grid/6c744b66b42980f6fcd148a0f993ad27.png"
+    },
+    "tormented souls": {
+      "status": "resolved",
+      "gameId": 5264834,
+      "artworkId": 157850,
+      "url": "https://cdn2.steamgriddb.com/grid/3cd3180f55fd2cb6da47cd1590de6cd1.jpg"
+    },
+    "doki doki literature club plus": {
+      "status": "resolved",
+      "gameId": 5287508,
+      "artworkId": 149380,
+      "url": "https://cdn2.steamgriddb.com/grid/4744974da867bdb3e3e3a52691f6e8eb.png"
+    },
+    "portal 2": {
+      "status": "resolved",
+      "gameId": 17830,
+      "artworkId": 42698,
+      "url": "https://cdn2.steamgriddb.com/grid/e1508a958e7df0833ae54777d6475b9e.png"
+    },
+    "cairn": {
+      "status": "unresolved",
+      "reason": "ambiguous",
+      "checkedAt": "2026-09-17T18:59:25.841Z"
+    },
+    "little nightmares": {
+      "status": "resolved",
+      "gameId": 9974,
+      "artworkId": 48536,
+      "url": "https://cdn2.steamgriddb.com/grid/44b4034e6b33988e2b4539a0783215b9.png"
+    },
+    "portal 1": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:26.458Z"
+    },
+    "unbeatable": {
+      "status": "resolved",
+      "gameId": 5454547,
+      "artworkId": 321050,
+      "url": "https://cdn2.steamgriddb.com/grid/59d8b474c62e25b88727b8051c056dfc.png"
+    },
+    "enigma do medo": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:27.065Z"
+    },
+    "star wars jedi fallen order": {
+      "status": "resolved",
+      "gameId": 5138394,
+      "artworkId": 46076,
+      "url": "https://cdn2.steamgriddb.com/grid/935a281a70ae21d54479c9c468145f7e.png"
+    },
+    "cuphead": {
+      "status": "resolved",
+      "gameId": 3583,
+      "artworkId": 37575,
+      "url": "https://cdn2.steamgriddb.com/grid/25dcf1554f13c36b512dfe907acc77d3.png"
+    },
+    "grand theft auto iv the complete edition": {
+      "status": "resolved",
+      "gameId": 1361,
+      "artworkId": 78566,
+      "url": "https://cdn2.steamgriddb.com/grid/a32bc8141e168ff20fdfe3f0fbc72155.png"
+    },
+    "7 days to end with you": {
+      "status": "resolved",
+      "gameId": 5316963,
+      "artworkId": 575719,
+      "url": "https://cdn2.steamgriddb.com/grid/c495f5a4452f14596eaf540aaa44d93f.jpg"
+    },
+    "outer wilds echoes of the eye": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:28.835Z"
+    },
+    "black mesa": {
+      "status": "resolved",
+      "gameId": 7304,
+      "artworkId": 38001,
+      "url": "https://cdn2.steamgriddb.com/grid/6487ba8ae406887e3c94a658d21dfbdd.png"
+    },
+    "half life 2": {
+      "status": "resolved",
+      "gameId": 2254,
+      "artworkId": 38527,
+      "url": "https://cdn2.steamgriddb.com/grid/8053519398a89e3d928132298251e0ec.png"
+    },
+    "lieat": {
+      "status": "resolved",
+      "gameId": 7845,
+      "artworkId": 42682,
+      "url": "https://cdn2.steamgriddb.com/grid/6a1db1b02d3580d4591f08e140aa9277.png"
+    },
+    "half life 2 episode one": {
+      "status": "resolved",
+      "gameId": 8111,
+      "artworkId": 56109,
+      "url": "https://cdn2.steamgriddb.com/grid/18ce193a851d7e07837368f942deec06.png"
+    },
+    "mio memories in orbit": {
+      "status": "resolved",
+      "gameId": 5455449,
+      "artworkId": 512126,
+      "url": "https://cdn2.steamgriddb.com/grid/5d87e5849e22e2a6d393fcc93e5ac684.png"
+    },
+    "half life 2 episode two": {
+      "status": "resolved",
+      "gameId": 9803,
+      "artworkId": 61617,
+      "url": "https://cdn2.steamgriddb.com/grid/08cf94e3112aa2c3f1ad84ca940e1264.png"
+    },
+    "visage": {
+      "status": "resolved",
+      "gameId": 16822,
+      "artworkId": 43618,
+      "url": "https://cdn2.steamgriddb.com/grid/7894404cafbdaf644226a6ac1db485f6.png"
+    },
+    "minoria": {
+      "status": "resolved",
+      "gameId": 31424,
+      "artworkId": 121669,
+      "url": "https://cdn2.steamgriddb.com/grid/c837a32d20bd8ea7bbc42ddc9c02ca9a.png"
+    },
+    "ultrakill": {
+      "status": "resolved",
+      "gameId": 5255287,
+      "artworkId": 106401,
+      "url": "https://cdn2.steamgriddb.com/grid/f1c328e39bf118226984ae2973b1c49e.png"
+    },
+    "en garde": {
+      "status": "resolved",
+      "gameId": 5303955,
+      "artworkId": 167579,
+      "url": "https://cdn2.steamgriddb.com/grid/3c5f0aa1064ce45bf82cc377b4330733.jpg"
+    },
+    "omori": {
+      "status": "resolved",
+      "gameId": 5247997,
+      "artworkId": 124247,
+      "url": "https://cdn2.steamgriddb.com/grid/8906750f6e52df1e0f89abadb63fc8fb.png"
+    },
+    "subliminal": {
+      "status": "resolved",
+      "gameId": 5385665,
+      "artworkId": 763645,
+      "url": "https://cdn2.steamgriddb.com/grid/3f721c2add600ca665d27a1de88bebf4.png"
+    },
+    "the farmer was replaced": {
+      "status": "resolved",
+      "gameId": 5337167,
+      "artworkId": 518007,
+      "url": "https://cdn2.steamgriddb.com/grid/54c96f1285af3bd5affd0b1cf48d02bb.jpg"
+    },
+    "when the past was around": {
+      "status": "resolved",
+      "gameId": 5249184,
+      "artworkId": 313996,
+      "url": "https://cdn2.steamgriddb.com/grid/d72845bcf028137383ed4a6a4f8d12b6.png"
+    },
+    "guns gore cannoli": {
+      "status": "resolved",
+      "gameId": 5429,
+      "artworkId": 39161,
+      "url": "https://cdn2.steamgriddb.com/grid/6589ee45c56ebe661629f7a37cce0304.png"
+    },
+    "hell clock 2025": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T18:59:34.552Z"
+    },
+    "coffee talk": {
+      "status": "resolved",
+      "gameId": 30441,
+      "artworkId": 74538,
+      "url": "https://cdn2.steamgriddb.com/grid/957a78f5ddc130a3ff359acf26e5805e.png"
+    },
+    "hogwarts legacy": {
+      "status": "resolved",
+      "gameId": 5267354,
+      "artworkId": 240154,
+      "url": "https://cdn2.steamgriddb.com/grid/ac728daf9c469f1aee953d655094c2e3.png"
+    },
+    "monster hunter wilds": {
+      "status": "resolved",
+      "gameId": 5438489,
+      "artworkId": 494712,
+      "url": "https://cdn2.steamgriddb.com/grid/7d2723b8ae1b7dadbd383ca3cd9715fe.png"
+    },
+    "replaced": {
+      "status": "resolved",
+      "gameId": 5287655,
+      "artworkId": 176205,
+      "url": "https://cdn2.steamgriddb.com/grid/7de8a2676009a6735b3c3334e8e519dc.jpg"
+    },
+    "eriksholm the stolen dream": {
+      "status": "resolved",
+      "gameId": 5454468,
+      "artworkId": 595875,
+      "url": "https://cdn2.steamgriddb.com/grid/46fe5faf3e256d3679190582c42f2d25.jpg"
+    }
+  }
 }
