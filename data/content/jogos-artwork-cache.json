@@ -1,776 +1,872 @@
 {
-  "version": 1,
+  "version": 2,
   "entries": {
     "okami": {
-      "status": "resolved",
-      "gameId": 38266,
-      "artworkId": 43746,
-      "url": "https://cdn2.steamgriddb.com/grid/d36ac395fa31afe3c1cc571c09a9644d.png"
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T19:15:24.095Z"
     },
     "impostor factory": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5252987,
-      "artworkId": 162886,
-      "url": "https://cdn2.steamgriddb.com/grid/93be941067fb31fc21273f3760e284cb.png"
+      "steamAppId": 1182620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1182620/library_600x900.jpg"
     },
     "resident evil 7 biohazard": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 9774,
-      "artworkId": 42431,
-      "url": "https://cdn2.steamgriddb.com/grid/68fa8bc4c8b50ad66a583462a1c684e4.png"
+      "steamAppId": 418370,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/418370/library_600x900.jpg"
     },
     "amnesia rebirth": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5257345,
-      "artworkId": 78511,
-      "url": "https://cdn2.steamgriddb.com/grid/9d616a379e7fecf7481ffebb04eb45e9.png"
+      "steamAppId": 999220,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/999220/library_600x900.jpg"
     },
     "road 96": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5273107,
-      "artworkId": 126030,
-      "url": "https://cdn2.steamgriddb.com/grid/fa9fb94ddca8d81c2436da9f1433490a.jpg"
+      "steamAppId": 1466640,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1466640/library_600x900.jpg"
     },
     "momodora moonlit farewell": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5317066,
-      "artworkId": 402274,
-      "url": "https://cdn2.steamgriddb.com/grid/dd4c33434525551f6309f5508f0b8b2f.png"
+      "steamAppId": 1747760,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1747760/library_600x900.jpg"
     },
     "lies of p": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5285351,
-      "artworkId": 336906,
-      "url": "https://cdn2.steamgriddb.com/grid/48275392f5b7db75dbd692d35e92689c.png"
+      "steamAppId": 1627720,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1627720/library_600x900.jpg"
     },
     "momodora reverie under the moonlight": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 10109,
-      "artworkId": 40312,
-      "url": "https://cdn2.steamgriddb.com/grid/4614ebe3b424d6d3ed9d84d0f366598d.png"
+      "steamAppId": 428550,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/428550/library_600x900.jpg"
     },
     "metaphor refantazio": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5439691,
-      "artworkId": 399008,
-      "url": "https://cdn2.steamgriddb.com/grid/790891ce3077c965fcba8baf8fd0e948.jpg"
+      "steamAppId": 2679460,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg"
     },
     "ai limit": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5441889,
-      "artworkId": 556580,
-      "url": "https://cdn2.steamgriddb.com/grid/e7306db64ebb9c2db2cf9b27d884ae0a.png"
+      "steamAppId": 2407270,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2407270/library_600x900.jpg"
     },
     "jedi survivor": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:58:53.779Z"
+      "checkedAt": "2026-09-17T19:15:30.094Z"
     },
     "animal well": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5319754,
-      "artworkId": 440470,
-      "url": "https://cdn2.steamgriddb.com/grid/455a5c25e5cdaea7adb85d5d44f79c6b.png"
+      "steamAppId": 813230,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/813230/library_600x900.jpg"
     },
     "bokura": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5302739,
-      "artworkId": 397472,
-      "url": "https://cdn2.steamgriddb.com/grid/fb05addb7243a910a6f776012ea57011.png"
+      "checkedAt": "2026-09-17T19:15:31.022Z"
     },
     "blue prince": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5282856,
-      "artworkId": 560055,
-      "url": "https://cdn2.steamgriddb.com/grid/a115cc22994faaac90dbbbf2dcdbdb3f.jpg"
+      "steamAppId": 1569580,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
     },
     "kena bridge of spirits": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5267310,
-      "artworkId": 107797,
-      "url": "https://cdn2.steamgriddb.com/grid/9fd3dc148733fd20d350ff5114d53c70.png"
+      "steamAppId": 1954200,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
     },
     "little witch in the woods": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5282060,
-      "artworkId": 204674,
-      "url": "https://cdn2.steamgriddb.com/grid/bcb14aaee6dd31a5b815a3c4d1366800.jpg"
+      "steamAppId": 1594940,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1594940/library_600x900.jpg"
     },
     "blasphemous": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 4878706,
-      "artworkId": 64358,
-      "url": "https://cdn2.steamgriddb.com/grid/e2740409877ae434b094616d11de3e4c.png"
+      "steamAppId": 774361,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/774361/library_600x900.jpg"
     },
     "sea of stars throes of the watchmaker": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:58:56.200Z"
+      "checkedAt": "2026-09-17T19:15:33.317Z"
     },
     "mouse p i for hire": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5400121,
-      "artworkId": 658742,
-      "url": "https://cdn2.steamgriddb.com/grid/479ce9c547f4764aa6bde6eaa4a7e874.png"
+      "steamAppId": 2416450,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2416450/library_600x900.jpg"
     },
     "the first berserker khazan": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5438459,
-      "artworkId": 530573,
-      "url": "https://cdn2.steamgriddb.com/grid/b1afb060d220ccde73835202179cda57.jpg"
+      "steamAppId": 2680010,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2680010/library_600x900.jpg"
     },
     "indika": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5264093,
-      "artworkId": 443804,
-      "url": "https://cdn2.steamgriddb.com/grid/08544e52298c8f8da792812bb11d50c1.jpg"
+      "steamAppId": 1373960,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1373960/library_600x900.jpg"
     },
     "blasphemous ii": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5396050,
-      "artworkId": 326759,
-      "url": "https://cdn2.steamgriddb.com/grid/71136483ba006733ac2eaab91fba5cde.png"
+      "checkedAt": "2026-09-17T19:15:35.252Z"
     },
     "red dead redemption ii": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5249031,
-      "artworkId": 68429,
-      "url": "https://cdn2.steamgriddb.com/grid/22774e7dbd2a3030e3e0c0b7381dee3e.png"
+      "checkedAt": "2026-09-17T19:15:35.894Z"
     },
     "dark souls ii": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 2652,
-      "artworkId": 38250,
-      "url": "https://cdn2.steamgriddb.com/grid/5946ab295af0afd89e7003485afefe2d.png"
+      "steamAppId": 236430,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
     },
     "life is strange remastered": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5280191,
-      "artworkId": 131294,
-      "url": "https://cdn2.steamgriddb.com/grid/7e24c1cffa19b29b6c9e058a0b14091c.jpg"
+      "steamAppId": 1265920,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1265920/library_600x900.jpg"
     },
     "sea of stars": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5257712,
-      "artworkId": 298610,
-      "url": "https://cdn2.steamgriddb.com/grid/80ec7627c27c3218e306489955d99cce.png"
+      "checkedAt": "2026-09-17T19:15:37.476Z"
     },
     "dead space": {
       "status": "unresolved",
       "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:58:59.400Z"
+      "checkedAt": "2026-09-17T19:15:37.763Z"
     },
     "alien isolation": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 2108,
-      "artworkId": 35918,
-      "url": "https://cdn2.steamgriddb.com/grid/ce3d865b7bb66f7728988e0220bd51bd.png"
+      "steamAppId": 214490,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/214490/library_600x900.jpg"
     },
     "spiritfarer": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:00.053Z"
+      "checkedAt": "2026-09-17T19:15:38.669Z"
     },
     "rain world": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5039,
-      "artworkId": 57295,
-      "url": "https://cdn2.steamgriddb.com/grid/999bb84ff9a5813ec209176cf121ac13.png"
+      "steamAppId": 312520,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/312520/library_600x900.jpg"
     },
     "pragmata": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "no-original-steam-portrait",
       "gameId": 5454532,
-      "artworkId": 452511,
-      "url": "https://cdn2.steamgriddb.com/grid/0de1bc4514f2cc17d1cf53a541d6a73c.png"
+      "steamAppId": 3357650,
+      "checkedAt": "2026-09-17T19:15:41.105Z"
     },
     "reanimal": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5462324,
-      "artworkId": 477437,
-      "url": "https://cdn2.steamgriddb.com/grid/caf959e38bfd1e5a98cebf08c8c12328.png"
+      "steamAppId": 2129530,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2129530/library_600x900.jpg"
     },
     "little nightmares iii": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5423718,
-      "artworkId": 360840,
-      "url": "https://cdn2.steamgriddb.com/grid/53f5b0ccb6bc15a136c57179f752fbfb.jpg"
+      "steamAppId": 1392860,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1392860/library_600x900.jpg"
     },
     "little nightmares ii": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5266557,
-      "artworkId": 121222,
-      "url": "https://cdn2.steamgriddb.com/grid/ac05b86d4aa540cb24cfe4d0dbd4a93b.png"
+      "steamAppId": 860510,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/860510/library_600x900.jpg"
     },
     "a bird story": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5634,
-      "artworkId": 42285,
-      "url": "https://cdn2.steamgriddb.com/grid/d396b4b665a89fe161dd89d58f9dd437.png"
+      "steamAppId": 327410,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/327410/library_600x900.jpg"
     },
     "code vein": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5245377,
-      "artworkId": 48498,
-      "url": "https://cdn2.steamgriddb.com/grid/3dd13198e56a2d4d0a9880ce2e55e813.png"
+      "steamAppId": 678960,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/678960/library_600x900.jpg"
     },
     "baldurs gate 3": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:02.935Z"
+      "checkedAt": "2026-09-17T19:15:44.456Z"
     },
     "elden ring": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5277816,
-      "artworkId": 147155,
-      "url": "https://cdn2.steamgriddb.com/grid/557fa68027943a8b0d3b66c4e72ff23b.png"
+      "steamAppId": 1245620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg"
     },
     "pacific drive": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5382824,
-      "artworkId": 300834,
-      "url": "https://cdn2.steamgriddb.com/grid/3e6379e32745d01a0bf49f6670b12d23.png"
+      "steamAppId": 1458140,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1458140/library_600x900.jpg"
     },
     "elden ring shadow of the erdtree": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "no-original-steam-portrait",
       "gameId": 5452291,
-      "artworkId": 419314,
-      "url": "https://cdn2.steamgriddb.com/grid/4f8647de30c0dfdd2872544e9a7daeaa.jpg"
+      "steamAppId": 2778580,
+      "checkedAt": "2026-09-17T19:15:46.279Z"
     },
     "sekiro shadows die twice": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 26258,
-      "artworkId": 65380,
-      "url": "https://cdn2.steamgriddb.com/grid/0033ac30345370155f8c564570543295.png"
+      "checkedAt": "2026-09-17T19:15:46.753Z"
     },
     "witchspire": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5499508,
-      "artworkId": 616247,
-      "url": "https://cdn2.steamgriddb.com/grid/e1b731d4ab7f8394bbd41fb5030bc84c.png"
+      "steamAppId": 2679100,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2679100/library_600x900.jpg"
     },
     "hollow knight": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 7545,
-      "artworkId": 79838,
-      "url": "https://cdn2.steamgriddb.com/grid/cf4929ed2d6ab134a9d0d3d83dfa4006.png"
+      "steamAppId": 367520,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900.jpg"
     },
     "another crab s treasure": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5328043,
-      "artworkId": 442359,
-      "url": "https://cdn2.steamgriddb.com/grid/fcfefd8e77e13c19841cefeda13043b7.png"
+      "steamAppId": 1887840,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1887840/library_600x900.jpg"
     },
     "retro rewind": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5490357,
-      "artworkId": 738095,
-      "url": "https://cdn2.steamgriddb.com/grid/5d54b4953970fa150cd9b9bc9ffdc213.png"
+      "checkedAt": "2026-09-17T19:15:48.768Z"
     },
     "crypt of the necrodancer": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 2917,
-      "artworkId": 68643,
-      "url": "https://cdn2.steamgriddb.com/grid/98555e2a46b8f678592b7caba74504cf.png"
+      "steamAppId": 247080,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/247080/library_600x900.jpg"
     },
     "stray": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5262075,
-      "artworkId": 114509,
-      "url": "https://cdn2.steamgriddb.com/grid/9e4813649219fa1edd9794620143edcc.png"
+      "steamAppId": 1332010,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1332010/library_600x900.jpg"
     },
     "devil may cry 5": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 349500,
-      "artworkId": 36347,
-      "url": "https://cdn2.steamgriddb.com/grid/3fdd5555c11b1ff0d580b9718947e4ba.png"
+      "steamAppId": 601150,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/601150/library_600x900.jpg"
     },
     "nine sols": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5323221,
-      "artworkId": 449382,
-      "url": "https://cdn2.steamgriddb.com/grid/f3089718c3f12af1fd8b9fe9b38ccb62.jpg"
+      "steamAppId": 1809540,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1809540/library_600x900.jpg"
     },
     "a space for the unbound": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5252965,
-      "artworkId": 299434,
-      "url": "https://cdn2.steamgriddb.com/grid/d3eeb860801d630df91240db2b4b42a0.png"
+      "steamAppId": 1201270,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1201270/library_600x900.jpg"
     },
     "hades": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 4997889,
-      "artworkId": 63955,
-      "url": "https://cdn2.steamgriddb.com/grid/bfe339860b048949369fc6945cea504d.png"
+      "steamAppId": 1145360,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900.jpg"
     },
     "alice madness returns": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 1615,
-      "artworkId": 36455,
-      "url": "https://cdn2.steamgriddb.com/grid/4ffdeb775c5117fa22e7a134744584e1.png"
+      "steamAppId": 19680,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/19680/library_600x900.jpg"
     },
     "investigacao postuma": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:08.737Z"
+      "checkedAt": "2026-09-17T19:15:53.612Z"
     },
     "celeste": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 13136,
-      "artworkId": 36389,
-      "url": "https://cdn2.steamgriddb.com/grid/a0d63af8542e13942f6ac9577a738af3.jpg"
+      "steamAppId": 504230,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900.jpg"
     },
     "mika and the witch s mountain": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5318977,
-      "artworkId": 298739,
-      "url": "https://cdn2.steamgriddb.com/grid/b024612193b897efa7801337bad2e2f0.jpg"
+      "steamAppId": 1819460,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1819460/library_600x900.jpg"
     },
     "deltarune": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5246864,
-      "artworkId": 38731,
-      "url": "https://cdn2.steamgriddb.com/grid/97c216cb25ce4c47de15d030c76fed39.png"
+      "steamAppId": 1671210,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1671210/library_600x900.jpg"
     },
     "cuphead the delicious last course": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5439115,
-      "artworkId": 408637,
-      "url": "https://cdn2.steamgriddb.com/grid/be7ec228d6a8829bfbf708318a1111f3.png"
+      "checkedAt": "2026-09-17T19:15:55.860Z"
     },
     "onirism": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 4889009,
-      "artworkId": 96601,
-      "url": "https://cdn2.steamgriddb.com/grid/cb8db2c585df47b9e5920323dde0513c.png"
+      "steamAppId": 1057640,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1057640/library_600x900.jpg"
     },
     "neva": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5403591,
-      "artworkId": 495082,
-      "url": "https://cdn2.steamgriddb.com/grid/303527f13afc9331a56de038871fcb7a.png"
+      "steamAppId": 2420660,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2420660/library_600x900.jpg"
     },
     "restory": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:11.248Z"
+      "checkedAt": "2026-09-17T19:15:57.687Z"
     },
     "rakuen": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 15396,
-      "artworkId": 36681,
-      "url": "https://cdn2.steamgriddb.com/grid/7a9044f58ba25564d2a56b6007c47165.png"
+      "steamAppId": 559210,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/559210/library_600x900.jpg"
     },
     "resident evil 8 village": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:11.885Z"
+      "checkedAt": "2026-09-17T19:15:58.644Z"
     },
     "warhammer vermintide 2": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 15105,
-      "artworkId": 71464,
-      "url": "https://cdn2.steamgriddb.com/grid/46fedbe0b075398f1e3fc2ee10dd4698.png"
+      "steamAppId": 552500,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
     },
     "ori and the blind forest": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 3360,
-      "artworkId": 43862,
-      "url": "https://cdn2.steamgriddb.com/grid/d4aa28edb4a7e60bf8a800ef24c26eb3.png"
+      "steamAppId": 261570,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/261570/library_600x900.jpg"
     },
     "ori and the will of the wisps": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5253486,
-      "artworkId": 73304,
-      "url": "https://cdn2.steamgriddb.com/grid/7cd613b5798d0c540ba064c5f7ecc386.png"
+      "steamAppId": 1057090,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1057090/library_600x900.jpg"
     },
     "slay the princess": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5342714,
-      "artworkId": 394697,
-      "url": "https://cdn2.steamgriddb.com/grid/d61b5044e5d81369e2dd0e60f715d6c8.png"
+      "checkedAt": "2026-09-17T19:16:00.704Z"
     },
     "silent hill f": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5436386,
-      "artworkId": 383539,
-      "url": "https://cdn2.steamgriddb.com/grid/c417ecc84cb08d39a573ec0c470fd9ef.png"
+      "steamAppId": 2947440,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2947440/library_600x900.jpg"
     },
     "outer wilds": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 23535,
-      "artworkId": 40870,
-      "url": "https://cdn2.steamgriddb.com/grid/f3482a102a8dfa7ecdf57d63ec37872a.jpg"
+      "steamAppId": 753640,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/753640/library_600x900.jpg"
     },
     "silent hill 2": {
-      "status": "unresolved",
-      "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:14.419Z"
+      "status": "resolved",
+      "source": "steam-original",
+      "gameId": 5359291,
+      "steamAppId": 2124490,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2124490/library_600x900.jpg"
     },
     "ghost of tsushima director s cut": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5446016,
-      "artworkId": 156465,
-      "url": "https://cdn2.steamgriddb.com/grid/b13b57c93aa09536490f30a89d645072.jpg"
+      "steamAppId": 2215430,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2215430/library_600x900.jpg"
     },
     "ender magnolia bloom in the mist": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5444804,
-      "artworkId": 419323,
-      "url": "https://cdn2.steamgriddb.com/grid/bf6a0e301fef8c1b31d39fd4c5381b0c.png"
+      "steamAppId": 2725260,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2725260/library_600x900.jpg"
     },
     "killer frequency": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5334530,
-      "artworkId": 335290,
-      "url": "https://cdn2.steamgriddb.com/grid/f090d39cf80dc800195fdeb2702a6b27.png"
+      "steamAppId": 1903620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1903620/library_600x900.jpg"
     },
     "oneshot": {
       "status": "unresolved",
       "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:15.768Z"
+      "checkedAt": "2026-09-17T19:16:04.157Z"
     },
     "ender lilies": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5267569,
-      "artworkId": 149692,
-      "url": "https://cdn2.steamgriddb.com/grid/1130064514f563b2d894f0840d31db3c.png"
+      "checkedAt": "2026-09-17T19:16:04.619Z"
     },
     "to the moon": {
       "status": "unresolved",
       "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:16.390Z"
+      "checkedAt": "2026-09-17T19:16:04.891Z"
     },
     "hollow knight silksong": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 1043,
-      "artworkId": 109489,
-      "url": "https://cdn2.steamgriddb.com/grid/848ffe097e37ee8768d50dbc688e0757.png"
+      "steamAppId": 1030300,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg"
     },
     "danganronpa trigger happy havoc": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 9572,
-      "artworkId": 36521,
-      "url": "https://cdn2.steamgriddb.com/grid/12d8aa143e766d84ff3a170a1e1a3aef.png"
+      "steamAppId": 413410,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413410/library_600x900.jpg"
     },
     "fear the spotlight": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5325057,
-      "artworkId": 372439,
-      "url": "https://cdn2.steamgriddb.com/grid/4ac71cdf192679a986ad5b370cbe8335.jpg"
+      "steamAppId": 1959390,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1959390/library_600x900.jpg"
     },
     "undertale": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 8643,
-      "artworkId": 36593,
-      "url": "https://cdn2.steamgriddb.com/grid/0b6e39d73bf91651ad76349e38067c67.png"
+      "steamAppId": 391540,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/391540/library_600x900.jpg"
     },
     "dark souls iii delux edition": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:18.143Z"
+      "checkedAt": "2026-09-17T19:16:07.468Z"
     },
     "ratchet clank rift apart": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 5266059,
-      "artworkId": 127342,
-      "url": "https://cdn2.steamgriddb.com/grid/e30c7d71dd22da8264499ef52ad97c81.png"
+      "checkedAt": "2026-09-17T19:16:07.874Z"
     },
     "outlast": {
       "status": "unresolved",
       "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:18.778Z"
+      "checkedAt": "2026-09-17T19:16:08.153Z"
     },
     "dark souls remastered": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 15863,
-      "artworkId": 36328,
-      "url": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png"
+      "steamAppId": 570940,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/570940/library_600x900.jpg"
     },
     "outlast 2": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 9614,
-      "artworkId": 81225,
-      "url": "https://cdn2.steamgriddb.com/grid/011540ce92c39d682c0e4e358abe2715.png"
+      "steamAppId": 414700,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/414700/library_600x900.jpg"
     },
     "clair obscur expedition 33": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5454521,
-      "artworkId": 531710,
-      "url": "https://cdn2.steamgriddb.com/grid/33b4f54e8f16ecff858a76b1803df96f.jpg"
+      "steamAppId": 1903340,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1903340/library_600x900.jpg"
     },
     "a plague tale requiem": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5287667,
-      "artworkId": 147632,
-      "url": "https://cdn2.steamgriddb.com/grid/1943f57fa2c04b52c38d176589f76d52.jpg"
+      "steamAppId": 1182900,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1182900/library_600x900.jpg"
     },
     "minecraft": {
-      "status": "resolved",
-      "gameId": 38365,
-      "artworkId": 36537,
-      "url": "https://cdn2.steamgriddb.com/grid/a73027901f88055aaa0fd1a9e25d36c7.png"
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T19:16:10.581Z"
     },
     "finding paradise": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 6061,
-      "artworkId": 46917,
-      "url": "https://cdn2.steamgriddb.com/grid/d607cb39183721ffdca411d397c2db0d.png"
+      "steamAppId": 337340,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/337340/library_600x900.jpg"
     },
     "granblue fantasy relink": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5423743,
-      "artworkId": 395789,
-      "url": "https://cdn2.steamgriddb.com/grid/b58d9ff7198e607422852323ffdf8d2e.jpg"
+      "steamAppId": 881020,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/881020/library_600x900.jpg"
     },
     "stardew valley": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 9569,
-      "artworkId": 39727,
-      "url": "https://cdn2.steamgriddb.com/grid/d1c63ba3bc4fb3539d63cc48feae519a.jpg"
+      "steamAppId": 413150,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900.jpg"
     },
     "stellar blade": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5443884,
-      "artworkId": 416299,
-      "url": "https://cdn2.steamgriddb.com/grid/49c44c72a9c47453127878cc3d4eaf5b.png"
+      "steamAppId": 3489700,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/3489700/library_600x900.jpg"
     },
     "keeper": {
       "status": "unresolved",
       "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:22.458Z"
+      "checkedAt": "2026-09-17T19:16:13.263Z"
     },
     "nioh": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:22.708Z"
+      "checkedAt": "2026-09-17T19:16:13.546Z"
     },
     "the elder scrolls v skyrim special edition": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 12404,
-      "artworkId": 37593,
-      "url": "https://cdn2.steamgriddb.com/grid/07da625d725f8d78daf4576f397c6e82.png"
+      "checkedAt": "2026-09-17T19:16:13.958Z"
     },
     "resident evil 4 2023": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:23.353Z"
+      "checkedAt": "2026-09-17T19:16:14.235Z"
     },
     "windrose": {
-      "status": "resolved",
-      "gameId": 5519593,
-      "artworkId": 752578,
-      "url": "https://cdn2.steamgriddb.com/grid/380734d1189834983400bda5f3cf9bb5.png"
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T19:16:14.508Z"
     },
     "a hat in time": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 3120,
-      "artworkId": 42280,
-      "url": "https://cdn2.steamgriddb.com/grid/572c4588735cdf3f37ebf333b8af21da.png"
+      "steamAppId": 253230,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/253230/library_600x900.jpg"
     },
     "hades ii": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5376530,
-      "artworkId": 289677,
-      "url": "https://cdn2.steamgriddb.com/grid/6c744b66b42980f6fcd148a0f993ad27.png"
+      "steamAppId": 1145350,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg"
     },
     "tormented souls": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5264834,
-      "artworkId": 157850,
-      "url": "https://cdn2.steamgriddb.com/grid/3cd3180f55fd2cb6da47cd1590de6cd1.jpg"
+      "steamAppId": 1367590,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1367590/library_600x900.jpg"
     },
     "doki doki literature club plus": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5287508,
-      "artworkId": 149380,
-      "url": "https://cdn2.steamgriddb.com/grid/4744974da867bdb3e3e3a52691f6e8eb.png"
+      "steamAppId": 1388880,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1388880/library_600x900.jpg"
     },
     "portal 2": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 17830,
-      "artworkId": 42698,
-      "url": "https://cdn2.steamgriddb.com/grid/e1508a958e7df0833ae54777d6475b9e.png"
+      "steamAppId": 620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/620/library_600x900.jpg"
     },
     "cairn": {
-      "status": "unresolved",
-      "reason": "ambiguous",
-      "checkedAt": "2026-09-17T18:59:25.841Z"
+      "status": "resolved",
+      "source": "steam-original",
+      "gameId": 5454368,
+      "steamAppId": 1588550,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1588550/library_600x900.jpg"
     },
     "little nightmares": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 9974,
-      "artworkId": 48536,
-      "url": "https://cdn2.steamgriddb.com/grid/44b4034e6b33988e2b4539a0783215b9.png"
+      "steamAppId": 424840,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/424840/library_600x900.jpg"
     },
     "portal 1": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:26.458Z"
+      "checkedAt": "2026-09-17T19:16:18.908Z"
     },
     "unbeatable": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5454547,
-      "artworkId": 321050,
-      "url": "https://cdn2.steamgriddb.com/grid/59d8b474c62e25b88727b8051c056dfc.png"
+      "steamAppId": 2240620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2240620/library_600x900.jpg"
     },
     "enigma do medo": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:27.065Z"
+      "checkedAt": "2026-09-17T19:16:19.782Z"
     },
     "star wars jedi fallen order": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5138394,
-      "artworkId": 46076,
-      "url": "https://cdn2.steamgriddb.com/grid/935a281a70ae21d54479c9c468145f7e.png"
+      "steamAppId": 1172380,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172380/library_600x900.jpg"
     },
     "cuphead": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 3583,
-      "artworkId": 37575,
-      "url": "https://cdn2.steamgriddb.com/grid/25dcf1554f13c36b512dfe907acc77d3.png"
+      "steamAppId": 268910,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/268910/library_600x900.jpg"
     },
     "grand theft auto iv the complete edition": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 1361,
-      "artworkId": 78566,
-      "url": "https://cdn2.steamgriddb.com/grid/a32bc8141e168ff20fdfe3f0fbc72155.png"
+      "steamAppId": 12210,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/12210/library_600x900.jpg"
     },
     "7 days to end with you": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5316963,
-      "artworkId": 575719,
-      "url": "https://cdn2.steamgriddb.com/grid/c495f5a4452f14596eaf540aaa44d93f.jpg"
+      "steamAppId": 1859280,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1859280/library_600x900.jpg"
     },
     "outer wilds echoes of the eye": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:28.835Z"
+      "checkedAt": "2026-09-17T19:16:22.157Z"
     },
     "black mesa": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 7304,
-      "artworkId": 38001,
-      "url": "https://cdn2.steamgriddb.com/grid/6487ba8ae406887e3c94a658d21dfbdd.png"
+      "steamAppId": 362890,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/362890/library_600x900.jpg"
     },
     "half life 2": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 2254,
-      "artworkId": 38527,
-      "url": "https://cdn2.steamgriddb.com/grid/8053519398a89e3d928132298251e0ec.png"
+      "steamAppId": 220,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/220/library_600x900.jpg"
     },
     "lieat": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 7845,
-      "artworkId": 42682,
-      "url": "https://cdn2.steamgriddb.com/grid/6a1db1b02d3580d4591f08e140aa9277.png"
+      "steamAppId": 373770,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/373770/library_600x900.jpg"
     },
     "half life 2 episode one": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 8111,
-      "artworkId": 56109,
-      "url": "https://cdn2.steamgriddb.com/grid/18ce193a851d7e07837368f942deec06.png"
+      "checkedAt": "2026-09-17T19:16:24.212Z"
     },
     "mio memories in orbit": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5455449,
-      "artworkId": 512126,
-      "url": "https://cdn2.steamgriddb.com/grid/5d87e5849e22e2a6d393fcc93e5ac684.png"
+      "steamAppId": 1672810,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1672810/library_600x900.jpg"
     },
     "half life 2 episode two": {
-      "status": "resolved",
+      "status": "unresolved",
+      "reason": "steam-not-found",
       "gameId": 9803,
-      "artworkId": 61617,
-      "url": "https://cdn2.steamgriddb.com/grid/08cf94e3112aa2c3f1ad84ca940e1264.png"
+      "checkedAt": "2026-09-17T19:16:25.234Z"
     },
     "visage": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 16822,
-      "artworkId": 43618,
-      "url": "https://cdn2.steamgriddb.com/grid/7894404cafbdaf644226a6ac1db485f6.png"
+      "steamAppId": 594330,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/594330/library_600x900.jpg"
     },
     "minoria": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 31424,
-      "artworkId": 121669,
-      "url": "https://cdn2.steamgriddb.com/grid/c837a32d20bd8ea7bbc42ddc9c02ca9a.png"
+      "steamAppId": 940910,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/940910/library_600x900.jpg"
     },
     "ultrakill": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5255287,
-      "artworkId": 106401,
-      "url": "https://cdn2.steamgriddb.com/grid/f1c328e39bf118226984ae2973b1c49e.png"
+      "steamAppId": 1229490,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1229490/library_600x900.jpg"
     },
     "en garde": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5303955,
-      "artworkId": 167579,
-      "url": "https://cdn2.steamgriddb.com/grid/3c5f0aa1064ce45bf82cc377b4330733.jpg"
+      "steamAppId": 1654660,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1654660/library_600x900.jpg"
     },
     "omori": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5247997,
-      "artworkId": 124247,
-      "url": "https://cdn2.steamgriddb.com/grid/8906750f6e52df1e0f89abadb63fc8fb.png"
+      "steamAppId": 1150690,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1150690/library_600x900.jpg"
     },
     "subliminal": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5385665,
-      "artworkId": 763645,
-      "url": "https://cdn2.steamgriddb.com/grid/3f721c2add600ca665d27a1de88bebf4.png"
+      "steamAppId": 2300840,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2300840/library_600x900.jpg"
     },
     "the farmer was replaced": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5337167,
-      "artworkId": 518007,
-      "url": "https://cdn2.steamgriddb.com/grid/54c96f1285af3bd5affd0b1cf48d02bb.jpg"
+      "steamAppId": 2060160,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2060160/library_600x900.jpg"
     },
     "when the past was around": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5249184,
-      "artworkId": 313996,
-      "url": "https://cdn2.steamgriddb.com/grid/d72845bcf028137383ed4a6a4f8d12b6.png"
+      "steamAppId": 1164050,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1164050/library_600x900.jpg"
     },
     "guns gore cannoli": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5429,
-      "artworkId": 39161,
-      "url": "https://cdn2.steamgriddb.com/grid/6589ee45c56ebe661629f7a37cce0304.png"
+      "steamAppId": 322210,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/322210/library_600x900.jpg"
     },
     "hell clock 2025": {
       "status": "unresolved",
       "reason": "not-found",
-      "checkedAt": "2026-09-17T18:59:34.552Z"
+      "checkedAt": "2026-09-17T19:16:31.195Z"
     },
     "coffee talk": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 30441,
-      "artworkId": 74538,
-      "url": "https://cdn2.steamgriddb.com/grid/957a78f5ddc130a3ff359acf26e5805e.png"
+      "steamAppId": 914800,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/914800/library_600x900.jpg"
     },
     "hogwarts legacy": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5267354,
-      "artworkId": 240154,
-      "url": "https://cdn2.steamgriddb.com/grid/ac728daf9c469f1aee953d655094c2e3.png"
+      "steamAppId": 990080,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/library_600x900.jpg"
     },
     "monster hunter wilds": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5438489,
-      "artworkId": 494712,
-      "url": "https://cdn2.steamgriddb.com/grid/7d2723b8ae1b7dadbd383ca3cd9715fe.png"
+      "steamAppId": 2246340,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2246340/library_600x900.jpg"
     },
     "replaced": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5287655,
-      "artworkId": 176205,
-      "url": "https://cdn2.steamgriddb.com/grid/7de8a2676009a6735b3c3334e8e519dc.jpg"
+      "steamAppId": 1663850,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1663850/library_600x900.jpg"
     },
     "eriksholm the stolen dream": {
       "status": "resolved",
+      "source": "steam-original",
       "gameId": 5454468,
-      "artworkId": 595875,
-      "url": "https://cdn2.steamgriddb.com/grid/46fe5faf3e256d3679190582c42f2d25.jpg"
+      "steamAppId": 2377280,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2377280/library_600x900.jpg"
     }
   }
 }
