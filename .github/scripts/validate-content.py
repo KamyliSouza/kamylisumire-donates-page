@@ -1613,15 +1613,15 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.21" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.21 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.22" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.22 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.19" not in artes_index:
         error("artes/index.html: cache-buster V48.3.19 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.21" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.21 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.22" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.22 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.3.21" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.21 ausente para css/pages/jogos.css.")
+    if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
     if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
 
@@ -1744,40 +1744,48 @@ def validate_architecture() -> None:
             if token not in css:
                 error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
 
-    # V48.3.21: chips ativos ganham respiro vertical suficiente e as setas
-    # ficam sobrepostas à faixa, com fades contextuais e sem reservar espaço.
+    # V48.3.22: setas continuam sobrepostas e os fades passam a usar máscara
+    # na própria faixa rolável, evitando blocos visíveis sobre o vidro.
     filter_arrow_contracts = (
-        ("Jogos", jogos_index, jogos_css, ".jogos-filter-scroll", ".jogos-filter-arrow"),
-        ("Blog", blog_index, blog_css, ".blog-filter-scroll", ".blog-filter-arrow"),
-        ("Galeria", artes_index, artes_css, ".artes-filter-scroll", ".artes-filter-arrow"),
+        ("Jogos", jogos_index, jogos_css, ".jogos-filter-scroll", ".jogos-filters", ".jogos-filter-arrow", '.jogos-filter[aria-pressed="true"]'),
+        ("Blog", blog_index, blog_css, ".blog-filter-scroll", ".blog-filters", ".blog-filter-arrow", ".blog-filter.is-active"),
+        ("Galeria", artes_index, artes_css, ".artes-filter-scroll", ".artes-filters", ".artes-filter-arrow", ".artes-filter.is-active"),
     )
-    for label, html, css, shell_selector, arrow_selector in filter_arrow_contracts:
+    for label, html, css, shell_selector, track_selector, arrow_selector, active_selector in filter_arrow_contracts:
         for token in (
             "data-horizontal-scroll-shell",
             "data-horizontal-scroll-prev",
             "data-horizontal-scroll-next",
         ):
             if token not in html:
-                error(f"{label}: controle lateral V48.3.21 ausente do HTML: {token}.")
+                error(f"{label}: controle lateral V48.3.22 ausente do HTML: {token}.")
         if shell_selector not in css or arrow_selector not in css:
-            error(f"{label}: shell/setas V48.3.21 ausentes do CSS.")
+            error(f"{label}: shell/setas V48.3.22 ausentes do CSS.")
         for declaration in (
             "padding-block: 14px;",
             "padding-inline: 6px;",
             "scroll-padding-inline: 48px;",
         ):
             if declaration not in css:
-                error(f"{label}: respiro de sombra V48.3.21 ausente: {declaration}")
+                error(f"{label}: respiro de sombra V48.3.22 ausente: {declaration}")
         for token in (
-            f"{shell_selector}::before",
-            f"{shell_selector}::after",
-            f"{shell_selector}.can-scroll-prev::before",
-            f"{shell_selector}.can-scroll-next::after",
-            "linear-gradient(",
+            f"{shell_selector}.can-scroll-prev {track_selector}",
+            f"{shell_selector}.can-scroll-next {track_selector}",
+            f"{shell_selector}.can-scroll-prev.can-scroll-next {track_selector}",
+            "-webkit-mask-image: linear-gradient(",
+            "mask-image: linear-gradient(",
             "position: absolute;",
+            active_selector,
+            "inset 0 0 0 1px",
         ):
             if token not in css:
-                error(f"{label}: fade/seta sobreposta V48.3.21 ausente: {token}")
+                error(f"{label}: máscara/realce V48.3.22 ausente: {token}")
+        for obsolete in (
+            f"{shell_selector}::before",
+            f"{shell_selector}::after",
+        ):
+            if obsolete in css:
+                error(f"{label}: camada de fade antiga V48.3.21 ainda presente: {obsolete}")
 
     for token in (
         "function enableOverflowControls(track)",

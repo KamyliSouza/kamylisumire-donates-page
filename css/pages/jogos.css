@@ -1,4 +1,4 @@
-/* JOGOS — V48.3.21. Cards da Galeria, paginação e filtros horizontais. */
+/* JOGOS — V48.3.22. Cards da Galeria, paginação e filtros horizontais. */
 .jogos-shell { width: min(1120px, calc(100% - 32px)); margin: 28px auto 56px; display: grid; gap: 14px; }
 .jogos-intro { padding: 30px; }
 .jogos-intro h1 { margin: 10px 0 7px; color: var(--primary-color); font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 900; line-height: 1.05; letter-spacing: -.035em; }
@@ -13,39 +13,14 @@
     max-width: 100%;
 }
 
-.jogos-filter-scroll::before,
-.jogos-filter-scroll::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 2;
-    width: 64px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .18s ease;
-}
-
-.jogos-filter-scroll::before {
-    left: 0;
-    background: linear-gradient(90deg, var(--nav-bg) 0%, color-mix(in srgb, var(--nav-bg) 34%, transparent) 54%, transparent 100%);
-}
-
-.jogos-filter-scroll::after {
-    right: 0;
-    background: linear-gradient(270deg, var(--nav-bg) 0%, color-mix(in srgb, var(--nav-bg) 34%, transparent) 54%, transparent 100%);
-}
-
-.jogos-filter-scroll.can-scroll-prev::before,
-.jogos-filter-scroll.can-scroll-next::after {
-    opacity: 1;
-}
-
 .jogos-filters { width: 100%; display: flex; align-items: center; min-width: 0; max-width: 100%; flex-wrap: nowrap; gap: 8px; padding-block: 14px; padding-inline: 6px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scroll-padding-inline: 48px; scrollbar-width: none; }
+.jogos-filter-scroll.can-scroll-prev .jogos-filters { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 100%); mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 100%); }
+.jogos-filter-scroll.can-scroll-next .jogos-filters { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%); mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%); }
+.jogos-filter-scroll.can-scroll-prev.can-scroll-next .jogos-filters { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%); }
 .jogos-filters::-webkit-scrollbar { display: none; }
 .jogos-filter { flex: 0 0 auto; min-height: 40px; padding: 8px 13px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 999px; font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
 .jogos-filter[aria-pressed="true"], .jogos-filter:hover, .jogos-filter:focus-visible { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); transform: translateY(-1px); outline: none; }
-.jogos-filter[aria-pressed="true"] { box-shadow: 0 3px 8px var(--primary-soft); }
+.jogos-filter[aria-pressed="true"] { box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent); }
 .jogos-filter-arrow {
     position: absolute;
     top: 50%;
@@ -120,4 +95,4 @@
 @media (max-width: 480px) { .jogos-pagination { gap: 4px; padding-inline: 8px; } .jogos-pagination-label { display: none; } .jogos-page-button { min-width: 32px; min-height: 32px; padding: 4px 7px; } .jogos-pagination-gap { min-width: 8px; } }
 @media (max-width: 380px) { .jogos-grid { grid-template-columns: 1fr; } }
 
-@media (prefers-reduced-motion: reduce) { .jogos-filter-scroll::before, .jogos-filter-scroll::after, .jogos-filter, .jogos-filter-arrow, .jogo-card, .jogo-card-media img, .jogos-page-button { transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) { .jogos-filter, .jogos-filter-arrow, .jogo-card, .jogo-card-media img, .jogos-page-button { transition-duration: .01ms !important; } }

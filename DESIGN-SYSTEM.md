@@ -137,6 +137,12 @@ filtros de tags do Blog continuam em pills e não precisam imitar os filtros de
 categoria da Galeria. Não alterar `data/blog/*` apenas para atender a essa regra
 visual.
 
+Desde a V48.3.22, as faixas horizontais de filtros de Jogos, Blog e Galeria
+indicam conteúdo oculto com `mask-image` aplicado à própria faixa rolável, e não
+com uma camada de fundo sobre os chips. Isso evita blocos/recortes visíveis sobre
+superfícies translúcidas e permite que o realce do chip selecionado permaneça
+integrado ao próprio botão. As setas continuam sobrepostas e não reservam espaço.
+
 ## Carrosséis
 
 Lives e Agenda mantêm:

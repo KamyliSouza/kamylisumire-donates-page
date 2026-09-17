@@ -74,35 +74,6 @@
     max-width: 100%;
 }
 
-.artes-filter-scroll::before,
-.artes-filter-scroll::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 2;
-    width: 64px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .18s ease;
-}
-
-.artes-filter-scroll::before {
-    left: 0;
-    background: linear-gradient(90deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 34%, transparent) 54%, transparent 100%);
-}
-
-.artes-filter-scroll::after {
-    right: 0;
-    background: linear-gradient(270deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 34%, transparent) 54%, transparent 100%);
-}
-
-.artes-filter-scroll.can-scroll-prev::before,
-.artes-filter-scroll.can-scroll-next::after {
-    opacity: 1;
-}
-
-
 .artes-filters {
     width: 100%;
     display: flex;
@@ -118,6 +89,21 @@
     overscroll-behavior-inline: contain;
     scroll-padding-inline: 48px;
     scrollbar-width: none;
+}
+
+.artes-filter-scroll.can-scroll-prev .artes-filters {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 100%);
+}
+
+.artes-filter-scroll.can-scroll-next .artes-filters {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%);
+}
+
+.artes-filter-scroll.can-scroll-prev.can-scroll-next .artes-filters {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%);
 }
 
 .artes-filters::-webkit-scrollbar {
@@ -152,7 +138,7 @@
 }
 
 .artes-filter.is-active {
-    box-shadow: 0 3px 8px var(--primary-soft);
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
 }
 
 
@@ -727,7 +713,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .artes-filter-scroll::before,
-    .artes-filter-scroll::after,
     .artes-filter, .artes-filter-arrow, .arte-card, .arte-media img, .arte-image-loader, .arte-dialog-image { transition-duration: .01ms !important; }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.22 — Hotfix: fade sem recorte nos filtros
+
+- substitui as camadas de degradê sobrepostas das faixas de Jogos, Blog e Galeria por máscaras de borda aplicadas diretamente ao conteúdo rolável, eliminando o recorte retangular visível sobre superfícies translúcidas;
+- mantém as setas laterais flutuantes e contextuais sem reservar espaço quando somem;
+- torna o realce do filtro selecionado autocontido no próprio botão, com sombra compacta e anel interno, preservando legibilidade sem depender de uma sombra espalhada sob o fade;
+- preserva click + arrasta, touch/trackpad, teclado, animações e `prefers-reduced-motion`, sem alterar busca, paginação ou integrações externas.
+
 ## V48.3.21 — Hotfix: fades dos filtros, Steam App ID no Trello e privacidade
 
 - transforma as setas laterais de Jogos, Blog e Galeria em controles sobrepostos, sem reservar espaço quando uma direção deixa de estar disponível;
