@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.23 — Hotfix: Steam App ID gratuito pela descrição do Trello
+
+- substitui o override por Custom Field pago por uma linha opcional `SteamAppID: 123456` na descrição do card do Trello;
+- o marcador da descrição continua tendo prioridade sobre a resolução automática pelo nome e alimenta tanto **Ver na Steam** quanto a tentativa de capa vertical original;
+- aceita `SteamAppID`/`Steam App ID` sem diferenciar maiúsculas e minúsculas, mas rejeita valores inválidos ou IDs conflitantes e mantém o fallback automático nesses casos;
+- remove a consulta a `/customFields` e `customFieldItems`, reduzindo uma chamada ao Trello e eliminando a dependência de Campos Personalizados;
+- a descrição completa do card nunca é publicada em `jogos.json` nem registrada nos logs; somente o App ID validado é utilizado.
+
 ## V48.3.22 — Hotfix: fade sem recorte nos filtros
 
 - substitui as camadas de degradê sobrepostas das faixas de Jogos, Blog e Galeria por máscaras de borda aplicadas diretamente ao conteúdo rolável, eliminando o recorte retangular visível sobre superfícies translúcidas;

@@ -37,48 +37,39 @@ function trelloUrl(path, params = {}) {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const STEAM_FIELD_NAMES = new Set(["steam app id", "steam id", "steamid"]);
 const sgdbHeaders = { Authorization: `Bearer ${SGDB_KEY}` };
 
+function getSteamAppIdFromDescription(card) {
+  const description = String(card?.desc || "");
+  const markerLines = description
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => /^steam\s*app\s*id\s*:/i.test(line));
 
-function findSteamAppIdField(customFields) {
-  const candidates = (customFields || []).filter(field => STEAM_FIELD_NAMES.has(normalize(field?.name)));
-  if (!candidates.length) return null;
+  if (!markerLines.length) return null;
 
-  const preferred = candidates.filter(field => normalize(field?.name) === "steam app id");
-  const field = preferred.length === 1 ? preferred[0] : (candidates.length === 1 ? candidates[0] : null);
-  if (!field) {
-    console.warn('Trello: mais de um campo compatível com "Steam App ID"; overrides ignorados até remover a ambiguidade.');
-    return null;
+  const values = [];
+  for (const line of markerLines) {
+    const match = line.match(/^steam\s*app\s*id\s*:\s*([1-9][0-9]*)\s*$/i);
+    if (!match) {
+      console.warn(`Trello: SteamAppID inválido na descrição de "${card.name}"; usando resolução automática.`);
+      return null;
+    }
+
+    const appId = Number(match[1]);
+    if (!Number.isSafeInteger(appId) || appId <= 0) {
+      console.warn(`Trello: SteamAppID fora do intervalo válido na descrição de "${card.name}"; usando resolução automática.`);
+      return null;
+    }
+    values.push(appId);
   }
 
-  if (!new Set(["text", "number"]).has(field.type)) {
-    console.warn(`Trello: o campo "${field.name}" deve ser Texto ou Número; overrides ignorados.`);
+  const uniqueValues = [...new Set(values)];
+  if (uniqueValues.length !== 1) {
+    console.warn(`Trello: mais de um SteamAppID diferente na descrição de "${card.name}"; usando resolução automática.`);
     return null;
   }
-
-  return field;
-}
-
-function getSteamAppIdFromCard(card, field) {
-  if (!field || !Array.isArray(card?.customFieldItems)) return null;
-  const item = card.customFieldItems.find(value => value?.idCustomField === field.id);
-  if (!item) return null;
-
-  const raw = item.value?.text ?? item.value?.number ?? "";
-  const value = String(raw).trim();
-  if (!value) return null;
-  if (!/^[1-9][0-9]*$/.test(value)) {
-    console.warn(`Trello: Steam App ID inválido em "${card.name}"; usando resolução automática.`);
-    return null;
-  }
-
-  const appId = Number(value);
-  if (!Number.isSafeInteger(appId) || appId <= 0) {
-    console.warn(`Trello: Steam App ID fora do intervalo válido em "${card.name}"; usando resolução automática.`);
-    return null;
-  }
-  return appId;
+  return uniqueValues[0];
 }
 
 async function hasOriginalSteamPortrait(appId) {
@@ -139,13 +130,9 @@ async function resolveArtwork(name, cache) {
 }
 
 const listsRaw = await getJson(trelloUrl(`/boards/${BOARD_ID}/lists`, { fields: "id,name,pos,closed", filter: "open" }));
-const customFieldsRaw = await getJson(trelloUrl(`/boards/${BOARD_ID}/customFields`));
-const steamAppIdField = findSteamAppIdField(customFieldsRaw);
-if (steamAppIdField) console.log(`Trello: usando o campo personalizado "${steamAppIdField.name}" para overrides Steam.`);
 const cardsRaw = await getJson(trelloUrl(`/boards/${BOARD_ID}/cards`, {
-  fields: "id,name,idList,pos,closed",
-  filter: "open",
-  customFieldItems: "true"
+  fields: "id,name,idList,pos,closed,desc",
+  filter: "open"
 }));
 const lists = listsRaw.filter(item => !item.closed).sort((a, b) => a.pos - b.pos).map(item => ({ id: item.id, name: item.name, pos: item.pos }));
 const listMap = new Map(lists.map(item => [item.id, item]));
@@ -159,15 +146,15 @@ const games = [];
 for (const card of cards) {
   const list = listMap.get(card.idList);
   let artwork = null;
-  let steamAppId = getSteamAppIdFromCard(card, steamAppIdField);
+  let steamAppId = getSteamAppIdFromDescription(card);
 
   if (steamAppId) {
     try {
       const url = await hasOriginalSteamPortrait(steamAppId);
       if (url) artwork = { provider: "steam-original", steamAppId, url };
-      console.log(`Steam via Trello: ${card.name} -> ${steamAppId}${url ? " (capa original)" : " (sem capa vertical original)"}`);
+      console.log(`Steam via descrição do Trello: ${card.name} -> ${steamAppId}${url ? " (capa original)" : " (sem capa vertical original)"}`);
     } catch (error) {
-      console.warn(`Steam via Trello: ${card.name}: ${error.message}`);
+      console.warn(`Steam via descrição do Trello: ${card.name}: ${error.message}`);
     }
   } else {
     try {

@@ -1801,20 +1801,28 @@ def validate_architecture() -> None:
         if token not in horizontal_scroll_js:
             error(f"js/core/horizontal-scroll.js: contrato de setas/fades V48.3.21 ausente: {token}")
 
-    # V48.3.21: o Trello pode fornecer um Steam App ID por Custom Field, sem
-    # expor os demais campos no JSON. Campo vazio/inválido mantém resolução automática.
+    # V48.3.23: override gratuito pelo marcador SteamAppID na descrição do card.
+    # A descrição é consultada somente pelo Action e nunca entra no JSON público.
     for token in (
-        'const STEAM_FIELD_NAMES = new Set(["steam app id", "steam id", "steamid"]);',
-        "function findSteamAppIdField(customFields)",
-        "function getSteamAppIdFromCard(card, field)",
-        'trelloUrl(`/boards/${BOARD_ID}/customFields`)',
-        'customFieldItems: "true"',
-        "let steamAppId = getSteamAppIdFromCard(card, steamAppIdField);",
+        "function getSteamAppIdFromDescription(card)",
+        '.split(/\\r?\\n/)',
+        '/^steam\\s*app\\s*id\\s*:/i',
+        'fields: "id,name,idList,pos,closed,desc"',
+        "let steamAppId = getSteamAppIdFromDescription(card);",
         "if (steamAppId) {",
-        "Steam via Trello:",
+        "Steam via descrição do Trello:",
     ):
         if token not in sync_jogos_js:
-            error(f".github/scripts/sync-jogos.mjs: override Steam/Trello V48.3.21 ausente: {token}")
+            error(f".github/scripts/sync-jogos.mjs: override Steam/Trello V48.3.23 ausente: {token}")
+
+    for obsolete in (
+        "findSteamAppIdField(customFields)",
+        "getSteamAppIdFromCard(card, field)",
+        'trelloUrl(`/boards/${BOARD_ID}/customFields`)',
+        'customFieldItems: "true"',
+    ):
+        if obsolete in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: dependência paga de Custom Fields ainda presente: {obsolete}")
 
     for token in (
         'datetime="2026-09-17"',

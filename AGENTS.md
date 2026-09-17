@@ -77,12 +77,13 @@ por `.github/scripts/sync-jogos.mjs`. O Trello é a fonte editorial de listas,
 nomes, ordem e cards; o navegador do visitante não consulta a API do Trello nem
 a API do SteamGridDB.
 
-A sincronização pode usar o campo personalizado opcional do Trello
-`Steam App ID` (tipos Texto ou Número). Quando preenchido com um inteiro positivo,
-esse valor tem prioridade sobre a resolução automática pelo nome e determina o
-link da Steam e a tentativa de carregar `library_600x900.jpg`. Campo ausente,
-vazio ou inválido mantém o fallback automático já existente. Não copiar outros
-Custom Fields, descrições, comentários, membros ou anexos para o JSON público.
+A sincronização pode usar uma linha opcional na descrição do card no formato
+`SteamAppID: 123456`. O marcador é lido somente no GitHub Actions; quando contém
+um inteiro positivo, tem prioridade sobre a resolução automática pelo nome e
+determina o link da Steam e a tentativa de carregar `library_600x900.jpg`. Linha
+ausente, vazia, inválida ou com IDs conflitantes mantém o fallback automático.
+A descrição completa nunca deve ser copiada para `jogos.json`; comentários,
+membros, anexos e outros metadados do Trello também permanecem fora do JSON público.
 
 Capas automáticas continuam limitadas ao asset vertical original da Steam. Na
 ausência desse asset, preservar o placeholder local de interface mesmo quando
