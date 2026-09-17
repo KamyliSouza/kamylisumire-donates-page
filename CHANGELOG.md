@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.18 — Hotfix: filtros roláveis, paginação compacta e transições
+
+- mantém categorias/listas de Jogos em uma única linha horizontal rolável, impedindo que o painel de ferramentas cresça verticalmente quando o Trello ganha novas listas;
+- aplica o mesmo padrão aos filtros de tags do Blog e de categorias da Galeria, preservando consistência visual entre as três páginas;
+- limita o seletor de Jogos a cinco números visíveis por vez: primeira e última página permanecem fixas, enquanto as páginas intermediárias acompanham a posição atual;
+- acrescenta setas de página anterior/próxima nas laterais, desabilitadas quando não há navegação possível, e reticências para indicar saltos entre faixas;
+- adiciona uma transição curta ao trocar categoria/tag ou página, além de realce suave no controle selecionado, sempre respeitando `prefers-reduced-motion`;
+- em telas menores, filtros e busca continuam ocupando linhas próprias e a paginação fica mais compacta para evitar estouro horizontal;
+- não altera dados editoriais, cards, Worker ou integrações externas.
+
 ## V48.3.17 — Hotfix: resolução Steam e paginação de Jogos
 
 - desacopla `steamAppId`/`steamUrl` da existência de capa: jogos identificados com segurança na Steam passam a exibir **Ver na Steam ↗** mesmo quando usam o placeholder;

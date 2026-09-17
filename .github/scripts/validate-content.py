@@ -1144,10 +1144,13 @@ def validate_architecture() -> None:
     donations = read_text("doacoes/index.html")
     blog_index = read_text("blog/index.html")
     artes_index = read_text("artes/index.html")
+    jogos_index = read_text("jogos/index.html")
     artes_css = read_text("css/pages/artes.css")
     blog_css = read_text("css/pages/blog.css")
+    jogos_css = read_text("css/pages/jogos.css")
     blog_js = read_text("js/pages/blog/blog.js")
     artes_js = read_text("js/pages/artes/artes.js")
+    jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
     lives_js = read_text("js/pages/home/lives.js")
@@ -1606,14 +1609,88 @@ def validate_architecture() -> None:
     if "js/pages/doacoes/content.js?v=47" not in donations:
         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
 
-    if "js/pages/blog/blog.js?v=48.3.5" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.5 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.10" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.10 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.13" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.13 ausente para css/pages/artes.css.")
+    if "js/pages/blog/blog.js?v=48.3.18" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.18 ausente para js/pages/blog/blog.js.")
+    if "css/pages/blog.css?v=48.3.18" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.18 ausente para css/pages/blog.css.")
+    if "js/pages/artes/artes.js?v=48.3.18" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.18 ausente para js/pages/artes/artes.js.")
+    if "css/pages/artes.css?v=48.3.18" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.18 ausente para css/pages/artes.css.")
+
+    if "css/pages/jogos.css?v=48.3.18" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.18 ausente para css/pages/jogos.css.")
+    if "js/pages/jogos/jogos.js?v=48.3.18" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.18 ausente para js/pages/jogos/jogos.js.")
+
+    # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
+    # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
+    scrollable_filter_contracts = (
+        ("Jogos", jogos_css, ".jogos-filters", ".jogos-filter"),
+        ("Blog", blog_css, ".blog-filters", ".blog-filter"),
+        ("Galeria", artes_css, ".artes-filters", ".artes-filter"),
+    )
+    for label, css, container_selector, item_selector in scrollable_filter_contracts:
+        container_match = re.search(
+            rf"{re.escape(container_selector)}\s*\{{(?P<body>.*?)\}}",
+            css,
+            re.DOTALL,
+        )
+        item_match = re.search(
+            rf"{re.escape(item_selector)}\s*\{{(?P<body>.*?)\}}",
+            css,
+            re.DOTALL,
+        )
+        if not container_match or not item_match:
+            error(f"css/pages: contrato V48.3.18 de filtros ausente em {label}.")
+            continue
+
+        container_body = container_match.group("body")
+        item_body = item_match.group("body")
+        for declaration in (
+            "min-width: 0;",
+            "max-width: 100%;",
+            "flex-wrap: nowrap;",
+            "overflow-x: auto;",
+            "overscroll-behavior-inline: contain;",
+            "scrollbar-width: none;",
+        ):
+            if declaration not in container_body:
+                error(f"css/pages: {label} sem '{declaration}' no filtro rolável V48.3.18.")
+        if "flex: 0 0 auto;" not in item_body:
+            error(f"css/pages: {label} permite encolher tags/categorias no filtro V48.3.18.")
+
+    # V48.3.18: paginação de Jogos usa no máximo cinco páginas numéricas visíveis,
+    # preserva primeira/última e oferece navegação anterior/próxima. Filtros e
+    # trocas de página usam transição curta, respeitando prefers-reduced-motion.
+    for token in (
+        "const MAX_VISIBLE_PAGES = 5;",
+        "function getVisiblePages(totalPages)",
+        "function makeArrow(direction, totalPages)",
+        'className = "jogos-pagination-gap"',
+        'renderGames({ animate: true })',
+        'window.matchMedia("(prefers-reduced-motion: reduce)")',
+    ):
+        if token not in jogos_js:
+            error(f"js/pages/jogos/jogos.js: contrato V48.3.18 ausente: {token}")
+
+    for token in (
+        ".jogos-pagination-arrow",
+        ".jogos-pagination-gap",
+        ".jogos-page-button:disabled",
+        "@media (prefers-reduced-motion: reduce)",
+    ):
+        if token not in jogos_css:
+            error(f"css/pages/jogos.css: paginação/transição V48.3.18 ausente: {token}")
+
+    for label, script, trigger in (
+        ("Galeria", artes_js, "applyFilters({ animate: true })"),
+        ("Blog", blog_js, "renderList(data, { animate: true })"),
+    ):
+        if "function animateResults(node)" not in script or trigger not in script:
+            error(f"{label}: transição de filtro V48.3.18 ausente ou incompleta.")
+        if 'window.matchMedia("(prefers-reduced-motion: reduce)")' not in script:
+            error(f"{label}: transição V48.3.18 não respeita prefers-reduced-motion.")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (

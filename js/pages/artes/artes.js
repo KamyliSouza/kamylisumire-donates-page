@@ -26,6 +26,18 @@
     let items = [];
     let activeCategory = "todas";
     let activeSearchField = "todos";
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function animateResults(node) {
+        if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
+        node.animate(
+            [
+                { opacity: .58, transform: "translateY(6px)" },
+                { opacity: 1, transform: "translateY(0)" }
+            ],
+            { duration: 180, easing: "cubic-bezier(.2,.7,.3,1)" }
+        );
+    }
 
     function ready(detail = {}) {
         window.KAMYLI_PAGE_CONTENT_READY = true;
@@ -238,7 +250,12 @@
                 filters.querySelectorAll(".artes-filter").forEach(node => {
                     node.classList.toggle("is-active", node === button);
                 });
-                applyFilters();
+                button.scrollIntoView({
+                    behavior: reducedMotion.matches ? "auto" : "smooth",
+                    block: "nearest",
+                    inline: "nearest"
+                });
+                applyFilters({ animate: true });
             });
             filters.appendChild(button);
         }
@@ -260,7 +277,7 @@
         }
     }
 
-    function applyFilters() {
+    function applyFilters({ animate = false } = {}) {
         const { field, query } = parseSearch(search?.value);
         let visible = 0;
         grid.querySelectorAll(".arte-item").forEach(node => {
@@ -275,6 +292,7 @@
         } else if (items.length) {
             state.hidden = true;
         }
+        if (animate) animateResults(grid);
     }
 
     function positionSearchFieldMenu() {
@@ -458,7 +476,7 @@
         }
     }
 
-    search?.addEventListener("input", applyFilters);
+    search?.addEventListener("input", () => applyFilters());
     setupSearchFieldMenu();
     dialogClose?.addEventListener("click", () => dialog?.close());
     dialog?.addEventListener("click", event => {

@@ -30,6 +30,18 @@
     let activeTag = "";
     let activeSearchField = "todos";
     const searchFieldMenuHome = elements.searchFieldMenu?.parentElement || null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function animateResults(node) {
+        if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
+        node.animate(
+            [
+                { opacity: .58, transform: "translateY(6px)" },
+                { opacity: 1, transform: "translateY(0)" }
+            ],
+            { duration: 180, easing: "cubic-bezier(.2,.7,.3,1)" }
+        );
+    }
 
     const SEARCH_PREFIXES = Object.freeze({
         "titulo:": "titulo",
@@ -124,7 +136,7 @@
         return empty;
     }
 
-    function renderList(data) {
+    function renderList(data, { animate = false } = {}) {
         const { field, query } = parseSearch(elements.search?.value);
 
         const visible = posts.filter(post => {
@@ -143,12 +155,14 @@
             elements.list.appendChild(
                 createEmpty(data.page?.vazio || "Nenhuma publicação encontrada.")
             );
+            if (animate) animateResults(elements.list);
             return;
         }
 
         const fragment = document.createDocumentFragment();
         visible.forEach(post => fragment.appendChild(createPostRow(post)));
         elements.list.appendChild(fragment);
+        if (animate) animateResults(elements.list);
     }
 
     function renderFilters(data) {
@@ -195,7 +209,12 @@
                     item === button
                 ));
 
-            renderList(data);
+            button.scrollIntoView({
+                behavior: reducedMotion.matches ? "auto" : "smooth",
+                block: "nearest",
+                inline: "nearest"
+            });
+            renderList(data, { animate: true });
         });
     }
 

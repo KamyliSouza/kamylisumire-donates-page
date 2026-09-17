@@ -1,5 +1,5 @@
 /* =========================================================
-   BLOG — PÁGINA DE LISTAGEM — V48.3.10
+   BLOG — PÁGINA DE LISTAGEM — V48.3.18
    Mantém o mesmo shell/glass/tokens do restante do site.
    ========================================================= */
 
@@ -275,12 +275,22 @@
 .blog-filters {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-
+    flex: 1 1 420px;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
     gap: 7px;
 }
 
+.blog-filters::-webkit-scrollbar {
+    display: none;
+}
+
 .blog-filter {
+    flex: 0 0 auto;
     min-height: 38px;
     padding: 8px 11px;
 
@@ -305,7 +315,8 @@
         color .18s ease,
         background-color .18s ease,
         border-color .18s ease,
-        transform .18s ease;
+        transform .18s ease,
+        box-shadow .18s ease;
 }
 
 .blog-filter:hover,
@@ -320,6 +331,8 @@
     color: #fff;
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+    box-shadow: 0 6px 18px var(--primary-soft);
+    transform: translateY(-1px);
 }
 
 :root[data-blur="off"] .blog-filter {
@@ -338,6 +351,11 @@
 
     .blog-tools {
         align-items: stretch;
+    }
+
+    .blog-filters {
+        width: 100%;
+        flex-basis: 100%;
     }
 
     .blog-search-controls {

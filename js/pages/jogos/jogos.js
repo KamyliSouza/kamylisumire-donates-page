@@ -3,6 +3,8 @@
 
     const DATA_URL = "/data/content/jogos.json";
     const PAGE_SIZE = 12;
+    const MAX_VISIBLE_PAGES = 5;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const state = { data: null, listId: "all", query: "", page: 1 };
     const els = {
         tools: document.getElementById("jogosTools"),
@@ -15,6 +17,17 @@
 
     const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
 
+    function animateResults(node) {
+        if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
+        node.animate(
+            [
+                { opacity: .58, transform: "translateY(6px)" },
+                { opacity: 1, transform: "translateY(0)" }
+            ],
+            { duration: 180, easing: "cubic-bezier(.2,.7,.3,1)" }
+        );
+    }
+
     function makeFilter(id, label, count) {
         const button = document.createElement("button");
         button.type = "button";
@@ -23,10 +36,18 @@
         button.setAttribute("aria-pressed", String(state.listId === id));
         button.textContent = `${label} (${count})`;
         button.addEventListener("click", () => {
+            if (state.listId === id) return;
             state.listId = id;
             state.page = 1;
-            renderFilters();
-            renderGames();
+            els.filters.querySelectorAll(".jogos-filter").forEach(node => {
+                node.setAttribute("aria-pressed", String(node === button));
+            });
+            button.scrollIntoView({
+                behavior: reducedMotion.matches ? "auto" : "smooth",
+                block: "nearest",
+                inline: "nearest"
+            });
+            renderGames({ animate: true });
         });
         return button;
     }
@@ -94,6 +115,53 @@
         return article;
     }
 
+    function getVisiblePages(totalPages) {
+        if (totalPages <= MAX_VISIBLE_PAGES) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        const middleCount = MAX_VISIBLE_PAGES - 2;
+        const maxStart = totalPages - middleCount;
+        const start = Math.min(Math.max(state.page - 1, 2), maxStart);
+        const middle = Array.from({ length: middleCount }, (_, index) => start + index);
+        return [1, ...middle, totalPages];
+    }
+
+    function changePage(page) {
+        if (state.page === page) return;
+        state.page = page;
+        renderGames({ animate: true });
+        els.pagination.querySelector('[aria-current="page"]')?.focus({ preventScroll: true });
+        els.grid.scrollIntoView({
+            behavior: reducedMotion.matches ? "auto" : "smooth",
+            block: "start"
+        });
+    }
+
+    function makePageButton(page) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "jogos-page-button";
+        button.textContent = String(page);
+        button.setAttribute("aria-label", `Ir para a página ${page}`);
+        button.setAttribute("aria-current", state.page === page ? "page" : "false");
+        button.addEventListener("click", () => changePage(page));
+        return button;
+    }
+
+    function makeArrow(direction, totalPages) {
+        const previous = direction === "previous";
+        const target = previous ? state.page - 1 : state.page + 1;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "jogos-page-button jogos-pagination-arrow";
+        button.textContent = previous ? "‹" : "›";
+        button.setAttribute("aria-label", previous ? "Página anterior" : "Próxima página");
+        button.disabled = target < 1 || target > totalPages;
+        button.addEventListener("click", () => changePage(target));
+        return button;
+    }
+
     function renderPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / PAGE_SIZE);
         els.pagination.replaceChildren();
@@ -103,26 +171,25 @@
         const label = document.createElement("span");
         label.className = "jogos-pagination-label";
         label.textContent = "Página";
-        els.pagination.append(label);
+        els.pagination.append(label, makeArrow("previous", totalPages));
 
-        for (let page = 1; page <= totalPages; page += 1) {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "jogos-page-button";
-            button.textContent = String(page);
-            button.setAttribute("aria-label", `Ir para a página ${page}`);
-            button.setAttribute("aria-current", state.page === page ? "page" : "false");
-            button.addEventListener("click", () => {
-                if (state.page === page) return;
-                state.page = page;
-                renderGames();
-                els.grid.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
-            els.pagination.append(button);
-        }
+        const pages = getVisiblePages(totalPages);
+        pages.forEach((page, index) => {
+            const previousPage = pages[index - 1];
+            if (index > 0 && page - previousPage > 1) {
+                const gap = document.createElement("span");
+                gap.className = "jogos-pagination-gap";
+                gap.textContent = "…";
+                gap.setAttribute("aria-hidden", "true");
+                els.pagination.append(gap);
+            }
+            els.pagination.append(makePageButton(page));
+        });
+
+        els.pagination.append(makeArrow("next", totalPages));
     }
 
-    function renderGames() {
+    function renderGames({ animate = false } = {}) {
         const query = normalize(state.query.trim());
         const games = (state.data?.games || []).filter(game => {
             if (state.listId !== "all" && game.listId !== state.listId) return false;
@@ -134,6 +201,7 @@
         const visibleGames = games.slice(start, start + PAGE_SIZE);
         els.grid.replaceChildren(...visibleGames.map(makeCard));
         renderPagination(games.length);
+        if (animate) animateResults(els.grid);
         els.status.hidden = games.length > 0;
         if (!games.length) {
             els.status.textContent = state.data?.games?.length ? "Nenhum jogo encontrado com esses filtros." : "A lista de jogos ainda não foi sincronizada.";

@@ -1,5 +1,5 @@
 /* =========================================================
-   GALERIA DE ARTES — V48.3.13
+   GALERIA DE ARTES — V48.3.18
    Página estática/editorial; imagens externas, sem Worker.
    ========================================================= */
 
@@ -67,10 +67,21 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
+    flex: 1 1 420px;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+}
+
+.artes-filters::-webkit-scrollbar {
+    display: none;
 }
 
 .artes-filter {
+    flex: 0 0 auto;
     min-height: 44px;
     padding: 9px 14px;
     color: var(--text-color);
@@ -79,7 +90,7 @@
     border-radius: 14px;
     font-weight: 800;
     cursor: pointer;
-    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .artes-filter:hover,
@@ -91,7 +102,14 @@
     outline: none;
 }
 
-.artes-filter:hover { transform: translateY(-1px); }
+.artes-filter:hover,
+.artes-filter.is-active {
+    transform: translateY(-1px);
+}
+
+.artes-filter.is-active {
+    box-shadow: 0 6px 18px var(--primary-soft);
+}
 
 
 .artes-search-controls {
@@ -577,9 +595,7 @@
     .artes-intro { padding: 24px 20px; }
     .artes-intro h1 { font-size: 2.15rem; }
     .artes-tools { align-items: stretch; }
-    .artes-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-    .artes-filters::-webkit-scrollbar { display: none; }
-    .artes-filter { flex: 0 0 auto; }
+    .artes-filters { width: 100%; flex-basis: 100%; }
     .artes-search-controls { width: 100%; flex: 1 1 100%; flex-direction: column; }
     .artes-search-field { width: 100%; min-width: 0; justify-content: space-between; }
     .artes-search-field-toggle { font-size: 16px; }
@@ -597,5 +613,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .arte-card, .arte-media img, .arte-image-loader, .arte-dialog-image { transition-duration: .01ms !important; }
+    .artes-filter, .arte-card, .arte-media img, .arte-image-loader, .arte-dialog-image { transition-duration: .01ms !important; }
 }
