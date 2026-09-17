@@ -32,11 +32,14 @@ REQUIRED_FILES = (
     "doacoes/index.html",
     "blog/index.html",
     "artes/index.html",
+    "jogos/index.html",
     "privacidade/index.html",
     "uso-de-ia/index.html",
     "data/blog/config.json",
     "data/blog/posts.json",
     "data/content/artes.json",
+    "data/content/jogos.json",
+    "data/content/jogos-artwork-cache.json",
     "data/content/buttons.json",
     "data/content/home-cards.json",
     "js/core/button-icons.js",
@@ -58,12 +61,14 @@ REQUIRED_FILES = (
     "js/pages/home/home-interactions.js",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
+    "js/pages/jogos/jogos.js",
     "js/pages/doacoes/doacoes.js",
     "js/pages/doacoes/content.js",
     "js/pages/doacoes/ranking.js",
     "css/pages/home.css",
     "css/pages/blog.css",
     "css/pages/artes.css",
+    "css/pages/jogos.css",
     "css/pages/doacoes.css",
     "css/components/blog.css",
     "css/components/carousels.css",
@@ -790,6 +795,56 @@ def validate_navbar() -> None:
             error(f"{label}: HTML/SVG bruto não é permitido.")
 
 
+
+def validate_jogos() -> None:
+    data = load_json("data/content/jogos.json")
+    if not isinstance(data, dict):
+        return
+    if data.get("version") != 1:
+        error("data/content/jogos.json: version deve permanecer 1.")
+    board = data.get("board")
+    if not isinstance(board, dict) or board.get("id") != "IfgV0jXS":
+        error("data/content/jogos.json: board.id deve permanecer IfgV0jXS.")
+    lists = data.get("lists")
+    games = data.get("games")
+    if not isinstance(lists, list) or not isinstance(games, list):
+        error("data/content/jogos.json: lists e games devem ser listas.")
+        return
+    list_ids = set()
+    for item in lists:
+        if not isinstance(item, dict) or not all(k in item for k in ("id", "name", "pos")):
+            error("data/content/jogos.json: cada lista deve ter id, name e pos.")
+            continue
+        if item["id"] in list_ids:
+            error("data/content/jogos.json: IDs de listas não podem se repetir.")
+        list_ids.add(item["id"])
+    game_ids = set()
+    for game in games:
+        if not isinstance(game, dict) or not all(k in game for k in ("id", "name", "listId", "listName", "pos", "artwork")):
+            error("data/content/jogos.json: jogo com contrato incompleto.")
+            continue
+        if game["id"] in game_ids:
+            error("data/content/jogos.json: IDs de jogos não podem se repetir.")
+        game_ids.add(game["id"])
+        if game["listId"] not in list_ids:
+            error(f"data/content/jogos.json: jogo {game['id']} referencia lista inexistente.")
+        artwork = game.get("artwork")
+        if artwork is not None:
+            if not isinstance(artwork, dict) or artwork.get("provider") != "steamgriddb":
+                error(f"data/content/jogos.json: artwork inválido em {game['id']}.")
+            elif not isinstance(artwork.get("url"), str) or not artwork["url"].startswith("https://"):
+                error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
+
+    navbar = load_json("data/content/navbar.json")
+    jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}
+    if jogos_link.get("url") != "/jogos/" or jogos_link.get("icone") != "none":
+        error("data/content/navbar.json: Jogos deve apontar internamente para /jogos/ sem ícone externo.")
+
+    navbar_js = read_text("js/core/navbar.js")
+    if 'data-nav-key="jogos" data-nav-page="jogos"' not in navbar_js or 'sitePath("/jogos/")' not in navbar_js:
+        error("js/core/navbar.js: link Jogos deve permanecer interno e reconhecido como página.")
+
+
 def validate_blog() -> None:
     legacy_sources = sorted((ROOT / "data/blog/posts").glob("*.json"))
     for source in legacy_sources:
@@ -1510,7 +1565,7 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.6",
-            "js/core/navbar.js?v=48.3.2",
+            "js/core/navbar.js?v=48.3.14",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
             "css/core/navbar.css?v=48.3.7",
@@ -2212,6 +2267,7 @@ def main() -> int:
     validate_home_cards()
     validate_home_content()
     validate_artes()
+    validate_jogos()
     validate_lives()
     validate_blog()
     validate_agenda()

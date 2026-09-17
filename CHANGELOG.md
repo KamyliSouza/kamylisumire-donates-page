@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.14 — Jogos das Lives
+
+- adiciona `/jogos/` sem alterar o sistema visual global, reutilizando Navbar, footer, tokens, glass, preferências e padrões de acessibilidade existentes;
+- troca somente o destino do item **Jogos** da Navbar para a nova página interna;
+- adiciona sincronização somente-leitura Trello → `jogos.json` via GitHub Actions, com listas/cards dinâmicos e preservação de ordem;
+- usa SteamGridDB apenas como enriquecimento visual, com cache, filtros 600×900/estático/sem NSFW/humor, fallback local e sem expor chaves no frontend;
+- mantém o Worker fora do fluxo de Jogos e inclui validações de contrato na CI.
+
 ## V48.3.11 — Hotfix: nomes longos no ranking
 
 - impede identificadores de exibição muito longos de aumentarem a largura do card de ranking ou da página;

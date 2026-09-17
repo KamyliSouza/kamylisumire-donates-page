@@ -42,8 +42,8 @@
     },
     "jogos": {
       "texto": "Jogos",
-      "icone": "external-link",
-      "url": "https://trello.com/b/IfgV0jXS/jogos-das-lives"
+      "icone": "none",
+      "url": "/jogos/"
     },
     "regras": {
       "texto": "Regras",

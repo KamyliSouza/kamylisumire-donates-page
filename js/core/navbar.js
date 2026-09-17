@@ -5,6 +5,7 @@
     const path = window.location.pathname;
     const onDonations = path.includes("/doacoes");
     const onArts = /\/artes(?:\/|$)/.test(path);
+    const onGames = /\/jogos(?:\/|$)/.test(path);
     const onHome = Boolean(document.getElementById("inicio"));
     const sitePath = window.KAMYLI_SITE_PATH || (value => value);
 
@@ -50,7 +51,7 @@
                         <span data-nav-label>Blog</span>
                     </a>
 
-                    <a class="site-nav-link" data-nav-key="jogos" href="https://trello.com/b/IfgV0jXS/jogos-das-lives" target="_blank" rel="noopener noreferrer">
+                    <a class="site-nav-link" data-nav-key="jogos" data-nav-page="jogos" href="${sitePath("/jogos/")}">
                         <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
                         <span data-nav-label>Jogos</span>
                     </a>
@@ -99,6 +100,9 @@
     const blogLink = mount.querySelector(
         '[data-nav-page="blog"]'
     );
+    const gamesLink = mount.querySelector(
+        '[data-nav-page="jogos"]'
+    );
 
     function keepActiveLinkVisible(link, behavior = "smooth") {
         if (
@@ -135,7 +139,8 @@
                     "aria-current",
                     (onDonations && item === donationsLink) ||
                     (onArts && item === artsLink) ||
-                    (/\/blog(?:\/|$)/.test(path) && item === blogLink)
+                    (/\/blog(?:\/|$)/.test(path) && item === blogLink) ||
+                    (onGames && item === gamesLink)
                         ? "page"
                         : "location"
                 );
@@ -527,6 +532,8 @@
 
     if (onArts) {
         setActiveLink(artsLink, "auto");
+    } else if (onGames) {
+        setActiveLink(gamesLink, "auto");
     } else if (/\/blog(?:\/|$)/.test(path)) {
         setActiveLink(blogLink, "auto");
     } else if (onDonations) {

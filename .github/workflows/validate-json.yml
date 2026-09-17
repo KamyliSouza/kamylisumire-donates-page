@@ -23,7 +23,9 @@ on:
       - "CHANGELOG.md"
       - "docs/**"
       - ".github/scripts/validate-content.py"
+      - ".github/scripts/sync-jogos.mjs"
       - ".github/workflows/validate-json.yml"
+      - ".github/workflows/sync-jogos.yml"
 
   pull_request:
     paths:
@@ -44,7 +46,9 @@ on:
       - "CHANGELOG.md"
       - "docs/**"
       - ".github/scripts/validate-content.py"
+      - ".github/scripts/sync-jogos.mjs"
       - ".github/workflows/validate-json.yml"
+      - ".github/workflows/sync-jogos.yml"
 
 permissions:
   contents: read

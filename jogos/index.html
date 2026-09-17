@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-0T+Do/pSyzJGHMNTiXouDeLdR1qW0WmqeDDMpMCJGXs=' 'sha256-JX5fgFpRIg5gqUx/S73Ul0kb4Yyg27IuJ1qoxbAUpYo=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
 
-    <title>Galeria de Artes | Kamyli Sumire</title>
-    <meta name="description" content="Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.">
+    <title>Jogos das Lives | Kamyli Sumire</title>
+    <meta name="description" content="Veja os jogos das lives da Kamyli Sumire, organizados por status e sincronizados com o quadro público.">
     <meta
         name="robots"
-        content="noindex, follow"
+        content="index, follow"
     >
     <meta name="theme-color" content="#B35EAF">
 
-    <link rel="canonical" href="https://kamylisumire.com/artes/">
+    <link rel="canonical" href="https://kamylisumire.com/jogos/">
 
     <link rel="preconnect" href="https://assets.kamylisumire.com">
 
@@ -25,22 +25,22 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pt_BR">
     <meta property="og:site_name" content="Kamyli Sumire">
-    <meta property="og:title" content="Galeria de Artes da Kamyli Sumire">
-    <meta property="og:description" content="Um espaço para reunir fanarts, ilustrações e artes da comunidade da Kamyli Sumire.">
-    <meta property="og:url" content="https://kamylisumire.com/artes/">
+    <meta property="og:title" content="Jogos das Lives da Kamyli Sumire">
+    <meta property="og:description" content="Jogos que passaram, passarão ou podem aparecer nas lives da Kamyli Sumire.">
+    <meta property="og:url" content="https://kamylisumire.com/jogos/">
     <meta property="og:image" content="https://assets.kamylisumire.com/preview.png">
     <meta property="og:image:secure_url" content="https://assets.kamylisumire.com/preview.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/png">
-    <meta property="og:image:alt" content="Galeria de Artes da Kamyli Sumire">
+    <meta property="og:image:alt" content="Jogos das Lives da Kamyli Sumire">
 
     <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Galeria de Artes da Kamyli Sumire">
-    <meta name="twitter:description" content="Um espaço para reunir fanarts, ilustrações e artes da comunidade da Kamyli Sumire.">
+    <meta name="twitter:title" content="Jogos das Lives da Kamyli Sumire">
+    <meta name="twitter:description" content="Jogos que passaram, passarão ou podem aparecer nas lives da Kamyli Sumire.">
     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
-    <meta name="twitter:image:alt" content="Galeria de Artes da Kamyli Sumire">
+    <meta name="twitter:image:alt" content="Jogos das Lives da Kamyli Sumire">
 
     <script>
         (() => {
@@ -246,17 +246,17 @@
     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.13">
+    <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.14">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "@id": "https://kamylisumire.com/artes/#galeria",
-      "url": "https://kamylisumire.com/artes/",
-      "name": "Galeria de Artes | Kamyli Sumire",
-      "description": "Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.",
+      "@id": "https://kamylisumire.com/jogos/#catalogo",
+      "url": "https://kamylisumire.com/jogos/",
+      "name": "Jogos das Lives | Kamyli Sumire",
+      "description": "Jogos que passaram, passarão ou podem aparecer nas lives da Kamyli Sumire.",
       "inLanguage": "pt-BR",
       "isPartOf": { "@id": "https://kamylisumire.com/#website" }
     }
@@ -283,76 +283,26 @@
 
     <header id="site-navbar"></header>
 
-    <main class="artes-shell" id="artesPage">
-        <header class="glass-panel artes-intro">
-            <span class="eyebrow" id="artesEyebrow">Galeria de Artes</span>
-            <h1 id="artesTitle">Artes da comunidade ✨</h1>
-            <p id="artesDescription">Um cantinho para reunir artes feitas com carinho pela comunidade, sempre mantendo os devidos créditos.</p>
+    <main class="jogos-shell" id="jogosPage">
+        <header class="glass-panel jogos-intro">
+            <span class="eyebrow">Jogos das Lives</span>
+            <h1>Jogos das lives 🎮</h1>
+            <p>Jogos que estão nas lives, estão na fila ou fazem parte do histórico do canal.</p>
         </header>
 
-        <section class="glass-panel artes-tools" id="artesTools" aria-label="Busca e filtros da galeria" hidden>
-            <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
-            <div class="artes-search-controls">
-                <div class="artes-search-field" data-artes-search-field>
-                    <span class="artes-search-field-label" id="artesSearchFieldLabel">Buscar em</span>
-                    <div class="artes-search-field-control">
-                        <button
-                            class="artes-search-field-toggle"
-                            id="artesSearchField"
-                            type="button"
-                            aria-labelledby="artesSearchFieldLabel artesSearchFieldValue"
-                            aria-haspopup="listbox"
-                            aria-expanded="false"
-                            aria-controls="artesSearchFieldMenu"
-                        >
-                            <span id="artesSearchFieldValue">Todos os campos</span>
-                            <span class="artes-search-field-chevron" aria-hidden="true"></span>
-                        </button>
-                        <div
-                            class="artes-search-field-menu"
-                            id="artesSearchFieldMenu"
-                            role="listbox"
-                            aria-labelledby="artesSearchFieldLabel"
-                            hidden
-                        >
-                            <button class="artes-search-field-option" type="button" role="option" aria-selected="true" data-value="todos">Todos os campos</button>
-                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="artista">Artista</button>
-                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="titulo">Título</button>
-                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="categoria">Categoria</button>
-                            <button class="artes-search-field-option" type="button" role="option" aria-selected="false" data-value="tags">Tags</button>
-                        </div>
-                    </div>
-                </div>
-                <input
-                    class="artes-search"
-                    id="artesSearch"
-                    type="search"
-                    placeholder="Buscar na galeria..."
-                    aria-label="Buscar na galeria"
-                    autocomplete="off"
-                >
-            </div>
+        <section class="glass-panel jogos-tools" id="jogosTools" aria-label="Busca e filtros dos jogos" hidden>
+            <div class="jogos-filters" id="jogosFilters" aria-label="Filtrar por lista"></div>
+            <input class="jogos-search" id="jogosSearch" type="search" placeholder="Buscar um jogo..." aria-label="Buscar jogos" autocomplete="off">
         </section>
 
-        <section class="artes-grid" id="artesGrid" aria-live="polite" aria-label="Galeria de artes"></section>
-        <p class="glass-panel artes-state" id="artesState">Carregando galeria...</p>
-    </main>
+        <section class="jogos-grid" id="jogosGrid" aria-live="polite" aria-label="Jogos das lives"></section>
+        <p class="glass-panel jogos-state" id="jogosState">Carregando jogos...</p>
 
-    <dialog class="arte-dialog" id="arteDialog" aria-label="Visualização da arte">
-        <div class="arte-dialog-media">
-            <button class="arte-dialog-close" id="arteDialogClose" type="button" aria-label="Fechar">×</button>
-            <img class="arte-dialog-image" id="arteDialogImage" alt="">
-            <span class="arte-dialog-loader" aria-hidden="true" hidden>
-                <span class="site-loader-logo"></span>
-            </span>
-            <div class="arte-dialog-info">
-                <strong id="arteDialogTitle"></strong>
-                <span id="arteDialogArtist"></span>
-                <div class="arte-dialog-meta" id="arteDialogMeta" aria-label="Detalhes da arte"></div>
-                <a id="arteDialogCredit" href="#" target="_blank" rel="noopener noreferrer" hidden></a>
-            </div>
-        </div>
-    </dialog>
+        <aside class="glass-panel jogos-notice" aria-labelledby="jogosNoticeTitle">
+            <h2 id="jogosNoticeTitle">Sobre nomes, marcas e imagens</h2>
+            <p>Os nomes, marcas e materiais visuais dos jogos pertencem aos seus respectivos titulares. A exibição nesta página tem finalidade de identificar os jogos relacionados às transmissões. Quando disponível, a arte é referenciada por meio do SteamGridDB.</p>
+        </aside>
+    </main>
 
     <footer
         class="site-footer"
@@ -370,7 +320,7 @@
     <script src="../js/core/page-transitions.js?v=46.3"></script>
     <script src="../js/core/sanitize.js?v=1"></script>
     <script src="../js/core/footer.js?v=47.4.2"></script>
-    <script src="../js/pages/artes/artes.js?v=48.3.5"></script>
+    <script src="../js/pages/jogos/jogos.js?v=48.3.14"></script>
     <script src="../js/core/loader.js?v=48.3.6"></script>
 </body>
 </html>
