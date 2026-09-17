@@ -65,6 +65,10 @@
             media.append(image);
         }
 
+        const shade = document.createElement("div");
+        shade.className = "jogo-card-shade";
+        shade.setAttribute("aria-hidden", "true");
+
         const content = document.createElement("div");
         content.className = "jogo-card-content";
         const title = document.createElement("h2");
@@ -73,7 +77,17 @@
         list.className = "jogo-card-status";
         list.textContent = game.listName;
         content.append(title, list);
-        article.append(media, content);
+        if (game.steamUrl) {
+            const steamLink = document.createElement("a");
+            steamLink.className = "jogo-card-steam";
+            steamLink.href = game.steamUrl;
+            steamLink.target = "_blank";
+            steamLink.rel = "noopener noreferrer";
+            steamLink.textContent = "Ver na Steam";
+            steamLink.setAttribute("aria-label", `Ver ${game.name} na Steam`);
+            content.append(steamLink);
+        }
+        article.append(media, shade, content);
         return article;
     }
 

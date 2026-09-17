@@ -107,7 +107,8 @@ for (const card of cards) {
   } catch (error) {
     console.warn(`SteamGridDB: ${card.name}: ${error.message}`);
   }
-  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork });
+  const steamUrl = artwork?.steamAppId ? `https://store.steampowered.com/app/${artwork.steamAppId}/` : null;
+  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork, steamUrl });
 }
 
 let previous = null;

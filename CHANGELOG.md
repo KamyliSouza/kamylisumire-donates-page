@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.16 — Hotfix: cards de Jogos e link Steam
+
+- aproxima os cards de `/jogos/` da linguagem visual da Galeria, com borda/sombra, elevação discreta e zoom suave da capa;
+- move título e categoria/lista para uma sobreposição no rodapé da imagem com gradiente/sombra, preservando legibilidade;
+- remove a borda interna do placeholder, mantendo apenas o fallback visual integrado ao site;
+- publica `steamUrl` somente quando a sincronização já confirmou um `steamAppId`, e exibe **Ver na Steam** apenas nesses casos;
+- mantém Trello, Original Steam Assets, Worker e demais páginas sem mudanças de contrato ou comportamento.
+
 ## V48.3.15 — Hotfix: assets originais e placeholder de Jogos
 
 - deixa de publicar automaticamente grids comunitários do SteamGridDB: a busca passa a servir somente para confirmar uma correspondência Steam exata e inequívoca;

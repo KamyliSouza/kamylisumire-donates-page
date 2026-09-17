@@ -836,6 +836,14 @@ def validate_jogos() -> None:
                 error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
             elif artwork.get("provider") == "steam-original" and not artwork["url"].startswith("https://cdn.cloudflare.steamstatic.com/steam/apps/"):
                 error(f"data/content/jogos.json: asset Steam original deve usar a Steam CDN em {game['id']}.")
+        steam_url = game.get("steamUrl")
+        if steam_url is not None:
+            if not isinstance(steam_url, str) or not re.fullmatch(r"https://store\.steampowered\.com/app/[0-9]+/", steam_url):
+                error(f"data/content/jogos.json: steamUrl inválida em {game['id']}.")
+            if not isinstance(artwork, dict) or artwork.get("provider") != "steam-original" or not isinstance(artwork.get("steamAppId"), int):
+                error(f"data/content/jogos.json: steamUrl exige steamAppId confirmado em {game['id']}.")
+            elif steam_url != f"https://store.steampowered.com/app/{artwork['steamAppId']}/":
+                error(f"data/content/jogos.json: steamUrl não corresponde ao steamAppId em {game['id']}.")
 
     navbar = load_json("data/content/navbar.json")
     jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}
