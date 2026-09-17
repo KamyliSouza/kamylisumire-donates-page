@@ -339,7 +339,7 @@
     },
     {
       "id": "69f6118542d883d1449008e2",
-      "name": "Blasphemous II",
+      "name": "Blasphemous II (2023)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488291840,
@@ -349,7 +349,7 @@
     },
     {
       "id": "69f61cb0d980238b4ceb5d8d",
-      "name": "Red Dead Redemption II",
+      "name": "Red Dead Redemption II (2018)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488293888,
@@ -1828,5 +1828,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-17T20:40:35.258Z"
+  "updatedAt": "2026-09-17T22:45:37.794Z"
 }
