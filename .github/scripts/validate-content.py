@@ -1537,8 +1537,8 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.3.10 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
         error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.10" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.10 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.12" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.12 ausente para css/pages/artes.css.")
 
     # V48.3.7: todo asset CSS/JS alterado pelo hardening precisa invalidar cache.
     v4837_assets = {

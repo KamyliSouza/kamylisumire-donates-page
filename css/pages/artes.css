@@ -1,5 +1,5 @@
 /* =========================================================
-   GALERIA DE ARTES — V48.3.10
+   GALERIA DE ARTES — V48.3.12
    Página estática/editorial; imagens externas, sem Worker.
    ========================================================= */
 
@@ -20,8 +20,9 @@
 .artes-intro h1 {
     margin: 0 0 10px;
     color: var(--primary-color);
-    font-size: clamp(2rem, 4.2vw, 3.45rem);
-    line-height: 1.02;
+    font-size: clamp(2.1rem, 5vw, 3.25rem);
+    font-weight: 900;
+    line-height: 1.05;
     letter-spacing: -.035em;
 }
 
@@ -577,6 +578,7 @@
 @media (max-width: 760px) {
     .artes-shell { width: min(100% - 24px, 1120px); margin-top: 20px; margin-bottom: 40px; }
     .artes-intro { padding: 24px 20px; }
+    .artes-intro h1 { font-size: 2.15rem; }
     .artes-tools { align-items: stretch; }
     .artes-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
     .artes-filters::-webkit-scrollbar { display: none; }
