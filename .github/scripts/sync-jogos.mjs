@@ -30,42 +30,58 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const sgdbHeaders = { Authorization: `Bearer ${SGDB_KEY}` };
 
+async function hasOriginalSteamPortrait(appId) {
+  const url = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/library_600x900.jpg`;
+  const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+  return response.ok ? url : null;
+}
+
 async function resolveArtwork(name, cache) {
   const key = normalize(name);
   const cached = cache.entries[key];
-  if (cached?.status === "resolved") return cached;
+  if (cached?.status === "resolved" && cached?.source === "steam-original") return cached;
   if (cached?.status === "unresolved" && cached.checkedAt && Date.now() - Date.parse(cached.checkedAt) < 7 * 86400000) return cached;
   await sleep(150);
 
+  // SteamGridDB continua sendo usado somente para confirmar uma correspondência
+  // exata/inequívoca do título. Grids comunitários não são mais publicados.
   const search = await getJson(`https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(name)}`, { headers: sgdbHeaders });
-  const exact = (search.data || []).filter(game => normalize(game.name) === key);
+  const exact = (search.data || []).filter(game => normalize(game.name) === key && (game.types || []).includes("steam"));
   if (exact.length !== 1) {
     const unresolved = { status: "unresolved", reason: exact.length ? "ambiguous" : "not-found", checkedAt: new Date().toISOString() };
     cache.entries[key] = unresolved;
     return unresolved;
   }
 
-  const game = exact[0];
-  const url = new URL(`https://www.steamgriddb.com/api/v2/grids/game/${game.id}`);
-  url.searchParams.set("dimensions", "600x900");
-  url.searchParams.set("types", "static");
-  url.searchParams.set("nsfw", "false");
-  url.searchParams.set("humor", "false");
-  const grids = await getJson(url, { headers: sgdbHeaders });
-  const candidates = (grids.data || []).filter(item => item.url && item.width === 600 && item.height === 900);
-  candidates.sort((a, b) => (b.score || 0) - (a.score || 0) || a.id - b.id);
-  if (!candidates.length) {
-    const unresolved = { status: "unresolved", reason: "no-600x900-grid", gameId: game.id, checkedAt: new Date().toISOString() };
+  // O catálogo normal de grids do SteamGridDB contém uploads comunitários. Para
+  // garantir o asset original, resolvemos o App ID por correspondência exata na
+  // loja Steam e usamos diretamente a cápsula vertical oficial da Steam CDN.
+  const storeUrl = new URL("https://store.steampowered.com/api/storesearch/");
+  storeUrl.searchParams.set("term", name);
+  storeUrl.searchParams.set("l", "portuguese");
+  storeUrl.searchParams.set("cc", "BR");
+  const store = await getJson(storeUrl);
+  const steamExact = (store.items || []).filter(item => normalize(item.name) === key && Number.isInteger(item.id));
+  if (steamExact.length !== 1) {
+    const unresolved = { status: "unresolved", reason: steamExact.length ? "steam-ambiguous" : "steam-not-found", gameId: exact[0].id, checkedAt: new Date().toISOString() };
     cache.entries[key] = unresolved;
     return unresolved;
   }
 
-  const grid = candidates[0];
+  const appId = steamExact[0].id;
+  const url = await hasOriginalSteamPortrait(appId);
+  if (!url) {
+    const unresolved = { status: "unresolved", reason: "no-original-steam-portrait", gameId: exact[0].id, steamAppId: appId, checkedAt: new Date().toISOString() };
+    cache.entries[key] = unresolved;
+    return unresolved;
+  }
+
   const resolved = {
     status: "resolved",
-    gameId: game.id,
-    artworkId: grid.id,
-    url: grid.url
+    source: "steam-original",
+    gameId: exact[0].id,
+    steamAppId: appId,
+    url
   };
   cache.entries[key] = resolved;
   return resolved;
@@ -78,8 +94,8 @@ const listMap = new Map(lists.map(item => [item.id, item]));
 const cards = cardsRaw.filter(item => !item.closed && listMap.has(item.idList)).sort((a, b) => a.pos - b.pos);
 
 let cache;
-try { cache = JSON.parse(await readFile(CACHE, "utf8")); } catch { cache = { version: 1, entries: {} }; }
-if (cache.version !== 1 || !cache.entries || typeof cache.entries !== "object") cache = { version: 1, entries: {} };
+try { cache = JSON.parse(await readFile(CACHE, "utf8")); } catch { cache = { version: 2, entries: {} }; }
+if (cache.version !== 2 || !cache.entries || typeof cache.entries !== "object") cache = { version: 2, entries: {} };
 
 const games = [];
 for (const card of cards) {
@@ -87,7 +103,7 @@ for (const card of cards) {
   let artwork = null;
   try {
     const match = await resolveArtwork(card.name, cache);
-    if (match.status === "resolved") artwork = { provider: "steamgriddb", gameId: match.gameId, artworkId: match.artworkId, url: match.url };
+    if (match.status === "resolved") artwork = { provider: "steam-original", gameId: match.gameId, steamAppId: match.steamAppId, url: match.url };
   } catch (error) {
     console.warn(`SteamGridDB: ${card.name}: ${error.message}`);
   }

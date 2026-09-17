@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.15 — Hotfix: assets originais e placeholder de Jogos
+
+- deixa de publicar automaticamente grids comunitários do SteamGridDB: a busca passa a servir somente para confirmar uma correspondência Steam exata e inequívoca;
+- usa a cápsula vertical `library_600x900.jpg` da Steam CDN quando o título também possui uma correspondência exata e única na loja Steam; na ausência de confirmação ou do asset original, mantém o jogo sem imagem;
+- invalida o cache de artwork V48.3.14 para impedir que grids comunitários já resolvidos continuem sendo reutilizados;
+- substitui o emoji genérico do fallback por um placeholder integrado ao design do site, usando tokens existentes e a marca já hospedada em `assets.kamylisumire.com`;
+- não altera Trello, Navbar, Worker, Blog, Galeria, Ranking nem contratos editoriais alheios à página Jogos.
+
 ## V48.3.14 — Jogos das Lives
 
 - adiciona `/jogos/` sem alterar o sistema visual global, reutilizando Navbar, footer, tokens, glass, preferências e padrões de acessibilidade existentes;

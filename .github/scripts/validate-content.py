@@ -830,10 +830,12 @@ def validate_jogos() -> None:
             error(f"data/content/jogos.json: jogo {game['id']} referencia lista inexistente.")
         artwork = game.get("artwork")
         if artwork is not None:
-            if not isinstance(artwork, dict) or artwork.get("provider") != "steamgriddb":
+            if not isinstance(artwork, dict) or artwork.get("provider") not in {"steamgriddb", "steam-original"}:
                 error(f"data/content/jogos.json: artwork inválido em {game['id']}.")
             elif not isinstance(artwork.get("url"), str) or not artwork["url"].startswith("https://"):
                 error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
+            elif artwork.get("provider") == "steam-original" and not artwork["url"].startswith("https://cdn.cloudflare.steamstatic.com/steam/apps/"):
+                error(f"data/content/jogos.json: asset Steam original deve usar a Steam CDN em {game['id']}.")
 
     navbar = load_json("data/content/navbar.json")
     jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}

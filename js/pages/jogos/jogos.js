@@ -44,6 +44,16 @@
 
         const media = document.createElement("div");
         media.className = "jogo-card-media";
+        const placeholder = document.createElement("div");
+        placeholder.className = "jogo-card-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        const placeholderMark = document.createElement("span");
+        placeholderMark.className = "jogo-card-placeholder-mark";
+        const placeholderText = document.createElement("span");
+        placeholderText.className = "jogo-card-placeholder-text";
+        placeholderText.textContent = "Imagem indisponível";
+        placeholder.append(placeholderMark, placeholderText);
+        media.append(placeholder);
         if (game.artwork?.url) {
             const image = document.createElement("img");
             image.src = game.artwork.url;
