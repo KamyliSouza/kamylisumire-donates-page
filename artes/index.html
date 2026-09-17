@@ -246,7 +246,7 @@
     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
-    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.19">
+    <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.20">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -291,7 +291,25 @@
         </header>
 
         <section class="glass-panel artes-tools" id="artesTools" aria-label="Busca e filtros da galeria" hidden>
-            <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
+            <div class="artes-filter-scroll" data-horizontal-scroll-shell>
+                <button
+                    class="artes-filter-arrow artes-filter-arrow-prev"
+                    type="button"
+                    data-horizontal-scroll-prev
+                    aria-label="Mostrar categorias anteriores"
+                    aria-controls="artesFilters"
+                    hidden
+                >‹</button>
+                <div class="artes-filters" id="artesFilters" aria-label="Filtrar por categoria"></div>
+                <button
+                    class="artes-filter-arrow artes-filter-arrow-next"
+                    type="button"
+                    data-horizontal-scroll-next
+                    aria-label="Mostrar próximas categorias"
+                    aria-controls="artesFilters"
+                    hidden
+                >›</button>
+            </div>
             <div class="artes-search-controls">
                 <div class="artes-search-field" data-artes-search-field>
                     <span class="artes-search-field-label" id="artesSearchFieldLabel">Buscar em</span>
@@ -370,7 +388,7 @@
     <script src="../js/core/page-transitions.js?v=46.3"></script>
     <script src="../js/core/sanitize.js?v=1"></script>
     <script src="../js/core/footer.js?v=47.4.2"></script>
-    <script src="../js/core/horizontal-scroll.js?v=48.3.19"></script>
+    <script src="../js/core/horizontal-scroll.js?v=48.3.20"></script>
     <script src="../js/pages/artes/artes.js?v=48.3.19"></script>
     <script src="../js/core/loader.js?v=48.3.6"></script>
 </body>

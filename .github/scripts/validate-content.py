@@ -1612,15 +1612,15 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.19" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.19 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.20" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.20 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.19" not in artes_index:
         error("artes/index.html: cache-buster V48.3.19 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.19" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.19 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.20" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.20 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.3.19" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.19 ausente para css/pages/jogos.css.")
+    if "css/pages/jogos.css?v=48.3.20" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.20 ausente para css/pages/jogos.css.")
     if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
 
@@ -1696,8 +1696,8 @@ def validate_architecture() -> None:
     # V48.3.19: a faixa rolável preserva a geometria mobile e reutiliza o
     # padrão click + arrasta de Lives/Agenda sem mover a viewport inteira.
     for label, html in (("Jogos", jogos_index), ("Blog", blog_index), ("Galeria", artes_index)):
-        if "js/core/horizontal-scroll.js?v=48.3.19" not in html:
-            error(f"{label}: helper horizontal V48.3.19 ausente do HTML.")
+        if "js/core/horizontal-scroll.js?v=48.3.20" not in html:
+            error(f"{label}: helper horizontal V48.3.20 ausente do HTML.")
 
     for token in (
         "const DRAG_THRESHOLD = 5;",
@@ -1737,12 +1737,47 @@ def validate_architecture() -> None:
             error(f"{label}: faixa V48.3.19 ausente.")
             continue
         body = container_match.group("body")
-        for declaration in ("padding: 4px;", "overflow-y: hidden;", "scroll-padding-inline: 4px;"):
-            if declaration not in body:
-                error(f"{label}: proteção contra corte/mobile V48.3.19 ausente: {declaration}")
+        if "overflow-y: hidden;" not in body:
+            error(f"{label}: contenção vertical da faixa V48.3.19 ausente.")
         for token in (".is-click-dragging", ".horizontal-click-drag"):
             if token not in css:
                 error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
+
+    # V48.3.20: chips ativos ganham respiro suficiente para a sombra e as três
+    # páginas compartilham setas laterais contextuais, sem perder click + arrasta.
+    filter_arrow_contracts = (
+        ("Jogos", jogos_index, jogos_css, ".jogos-filter-scroll", ".jogos-filter-arrow"),
+        ("Blog", blog_index, blog_css, ".blog-filter-scroll", ".blog-filter-arrow"),
+        ("Galeria", artes_index, artes_css, ".artes-filter-scroll", ".artes-filter-arrow"),
+    )
+    for label, html, css, shell_selector, arrow_selector in filter_arrow_contracts:
+        for token in (
+            "data-horizontal-scroll-shell",
+            "data-horizontal-scroll-prev",
+            "data-horizontal-scroll-next",
+        ):
+            if token not in html:
+                error(f"{label}: controle lateral V48.3.20 ausente do HTML: {token}.")
+        if shell_selector not in css or arrow_selector not in css:
+            error(f"{label}: shell/setas V48.3.20 ausentes do CSS.")
+        for declaration in (
+            "padding-block: 10px;",
+            "padding-inline: 6px;",
+            "scroll-padding-inline: 6px;",
+        ):
+            if declaration not in css:
+                error(f"{label}: respiro de sombra V48.3.20 ausente: {declaration}")
+
+    for token in (
+        "function enableOverflowControls(track)",
+        'track.closest("[data-horizontal-scroll-shell]")',
+        'shell.classList.toggle("has-horizontal-overflow", hasOverflow)',
+        "track.scrollBy({ left: amount * direction, behavior })",
+        'enableOverflowControls(track);',
+        "enableOverflowControls,",
+    ):
+        if token not in horizontal_scroll_js:
+            error(f"js/core/horizontal-scroll.js: contrato de setas V48.3.20 ausente: {token}")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (

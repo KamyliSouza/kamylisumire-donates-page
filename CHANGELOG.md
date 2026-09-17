@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.20 — Hotfix: sombras e setas dos filtros horizontais
+
+- amplia o respiro interno das faixas de filtros para que a sombra do chip selecionado não seja recortada;
+- adiciona setas laterais contextuais em Jogos, Blog e Galeria, exibidas somente quando há mais filtros ocultos naquela direção;
+- as setas rolam apenas a própria faixa horizontal e desaparecem quando não há overflow, preservando o layout quando todos os filtros cabem;
+- mantém click + arrasta com mouse/caneta, touch nativo, teclado, seleção animada e `prefers-reduced-motion`;
+- aplica o mesmo padrão visual e funcional às listas de Jogos, tags do Blog e categorias da Galeria;
+- não altera busca, paginação de Jogos, cards, Trello, Steam, Worker nem dados editoriais.
+
 ## V48.3.19 — Hotfix: filtros móveis e click + arrasta
 
 - corrige a faixa horizontal de filtros de Jogos, Blog e Galeria para preservar respiro interno dos chips, evitando que bordas/realces sejam cortados nas extremidades;
