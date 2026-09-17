@@ -867,6 +867,150 @@
       "gameId": 5454468,
       "steamAppId": 2377280,
       "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2377280/library_600x900.jpg"
+    },
+    "okami hd": {
+      "status": "resolved",
+      "source": "steam-original",
+      "gameId": 16575,
+      "steamAppId": 587620,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/587620/library_600x900.jpg"
+    },
+    "star wars jedi survivor": {
+      "status": "resolved",
+      "source": "steam-original",
+      "gameId": 5330917,
+      "steamAppId": 1774580,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1774580/library_600x900.jpg"
+    },
+    "sea of stars 2022": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:28.735Z"
+    },
+    "dead space 2023": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:28.990Z"
+    },
+    "pragmata 2026": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:29.245Z"
+    },
+    "baldur s gate iii 2023": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:29.491Z"
+    },
+    "elden ring shadow of the erdtree 2024": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:29.747Z"
+    },
+    "sekiro shadows die twice 2019": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:30.020Z"
+    },
+    "the posthumous investigation 2025": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:30.273Z"
+    },
+    "cuphead the delicious last course 2022": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:30.541Z"
+    },
+    "restory chill electronics repairs": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:30.794Z"
+    },
+    "resident evil village 2021": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:31.080Z"
+    },
+    "slay the princess 2023": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:31.357Z"
+    },
+    "oneshot 2020": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:31.621Z"
+    },
+    "ender lilies 2021": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:31.911Z"
+    },
+    "to the moon 2011": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:32.162Z"
+    },
+    "dark souls iii 2016": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:32.443Z"
+    },
+    "ratchet clank rift apart 2021": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:32.697Z"
+    },
+    "outlast 2013": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:32.946Z"
+    },
+    "minecraft java edition 2011": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:33.195Z"
+    },
+    "keeper 2025": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:33.458Z"
+    },
+    "nioh complete edition 2017": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:33.721Z"
+    },
+    "the elder scrolls v skyrim special edition 2016": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:33.969Z"
+    },
+    "windrose 2026": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:34.238Z"
+    },
+    "portal 2007": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:34.502Z"
+    },
+    "enigma of fear 2024": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:34.755Z"
+    },
+    "half life 2 episode one 2006": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:35.005Z"
+    },
+    "half life 2 episode two 2007": {
+      "status": "unresolved",
+      "reason": "not-found",
+      "checkedAt": "2026-09-17T20:40:35.257Z"
     }
   }
 }

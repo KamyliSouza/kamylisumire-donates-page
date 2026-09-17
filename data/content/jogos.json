@@ -44,13 +44,18 @@
   "games": [
     {
       "id": "69f61ec0b8ae2c6aa8a42099",
-      "name": "Okami",
+      "name": "Ōkami HD",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488109568,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "gameId": 16575,
+        "steamAppId": 587620,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/587620/library_600x900.jpg"
+      },
+      "steamAppId": 587620,
+      "steamUrl": "https://store.steampowered.com/app/587620/"
     },
     {
       "id": "69f610cb34db20f09f320c51",
@@ -189,13 +194,18 @@
     },
     {
       "id": "69f612306dd0c50e4a5772ff",
-      "name": "Jedi: Survivor",
+      "name": "Star Wars Jedi: Survivor",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488252928,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "gameId": 5330917,
+        "steamAppId": 1774580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1774580/library_600x900.jpg"
+      },
+      "steamAppId": 1774580,
+      "steamUrl": "https://store.steampowered.com/app/1774580/"
     },
     {
       "id": "69f610ec5a1036adfa304a2e",
@@ -214,7 +224,7 @@
     },
     {
       "id": "69f611c779707a69a3e1f2ef",
-      "name": "BOKURA",
+      "name": "Bokura (違う冬のぼくら)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488273408,
@@ -281,16 +291,6 @@
       },
       "steamAppId": 774361,
       "steamUrl": "https://store.steampowered.com/app/774361/"
-    },
-    {
-      "id": "69f8cc2d3a8fb6cb53c6b04a",
-      "name": "Sea of Stars: Throes of the Watchmaker",
-      "listId": "69f610396e6fb0d017a97829",
-      "listName": "Finalizados",
-      "pos": 140737488289792,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
     },
     {
       "id": "69f61e2a0f370053f7be5177",
@@ -389,7 +389,7 @@
     },
     {
       "id": "69f6102989c646e4cddfb1e6",
-      "name": "Sea of Stars",
+      "name": "Sea of Stars (2022)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488306176,
@@ -399,7 +399,7 @@
     },
     {
       "id": "69f61b3b8d6ada9cf173608d",
-      "name": "Dead Space",
+      "name": "Dead Space (2023)",
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488306176,
@@ -449,13 +449,13 @@
     },
     {
       "id": "69f611c14461a574d405309d",
-      "name": "Pragmata",
+      "name": "Pragmata (2026)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488322560,
       "artwork": null,
-      "steamAppId": 3357650,
-      "steamUrl": "https://store.steampowered.com/app/3357650/"
+      "steamAppId": null,
+      "steamUrl": null
     },
     {
       "id": "69f620158edec48ad68debbe",
@@ -534,7 +534,7 @@
     },
     {
       "id": "6a45076724ceaca4cb34ad3a",
-      "name": "Baldurs Gate 3",
+      "name": "Baldur's Gate III (2023)",
       "listId": "6a8c261ebc3d1ca81f06e55b",
       "listName": "Em Espera",
       "pos": 140737488338944,
@@ -574,17 +574,17 @@
     },
     {
       "id": "69f8d1bd38682b8b0af8e5d1",
-      "name": "ELDEN RING Shadow of the Erdtree",
+      "name": "Elden Ring: Shadow of the Erdtree (2024)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488343040,
       "artwork": null,
-      "steamAppId": 2778580,
-      "steamUrl": "https://store.steampowered.com/app/2778580/"
+      "steamAppId": null,
+      "steamUrl": null
     },
     {
       "id": "69f610465bf55bcb7a7bee91",
-      "name": "Sekiro: Shadows Die Twice",
+      "name": "Sekiro: Shadows Die Twice (2019)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488347136,
@@ -754,7 +754,7 @@
     },
     {
       "id": "69f611998c887a8989552793",
-      "name": "Investigação Póstuma",
+      "name": "The Posthumous Investigation (2025)",
       "listId": "69f611e83d599afb6522f751",
       "listName": "Engavetados",
       "pos": 140737488379904,
@@ -809,7 +809,7 @@
     },
     {
       "id": "69f61dfa2f0cd4c4dd56054f",
-      "name": "Cuphead - The Delicious Last Course",
+      "name": "Cuphead: The Delicious Last Course (2022)",
       "listId": "69f611e83d599afb6522f751",
       "listName": "Engavetados",
       "pos": 140737488388096,
@@ -849,7 +849,7 @@
     },
     {
       "id": "6a8c26bf1c7224def8a39d5e",
-      "name": "ReStory",
+      "name": "ReStory: Chill Electronics Repairs",
       "listId": "69f61020cf0e4ae8a9494226",
       "listName": "Em Andamento",
       "pos": 140737488412672,
@@ -874,7 +874,7 @@
     },
     {
       "id": "69f6104d876da8da83de9dab",
-      "name": "Resident Evil 8: Village",
+      "name": "Resident Evil Village (2021)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488420864,
@@ -929,7 +929,7 @@
     },
     {
       "id": "69f6105c61af12baa459745d",
-      "name": "Slay the princess",
+      "name": "Slay the Princess (2023)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488470016,
@@ -1029,7 +1029,7 @@
     },
     {
       "id": "69f61c0c2609069b16f5227b",
-      "name": "OneShot",
+      "name": "OneShot (2020)",
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488502784,
@@ -1039,7 +1039,7 @@
     },
     {
       "id": "69f610e9c8bb97409422c527",
-      "name": "ENDER LILIES",
+      "name": "ENDER LILIES (2021)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488519168,
@@ -1049,7 +1049,7 @@
     },
     {
       "id": "69f6106579fa3546c8c66277",
-      "name": "To The Moon",
+      "name": "To the Moon (2011)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488519168,
@@ -1119,7 +1119,7 @@
     },
     {
       "id": "69f61072624b42dcb4de09c3",
-      "name": "DARK SOULS III DELUX EDITION ",
+      "name": "Dark Souls III (2016)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488568320,
@@ -1129,7 +1129,7 @@
     },
     {
       "id": "69f61d3fb998b5a49327e017",
-      "name": "Ratchet & Clank: Rift Apart",
+      "name": "Ratchet & Clank: Rift Apart (2021)",
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488568320,
@@ -1139,7 +1139,7 @@
     },
     {
       "id": "69f610f9c6fff0cd86b05507",
-      "name": "Outlast",
+      "name": "Outlast (2013)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488584704,
@@ -1209,7 +1209,7 @@
     },
     {
       "id": "69f610feeb05bbe980d0fac2",
-      "name": "Minecraft",
+      "name": "Minecraft: Java Edition (2011)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488617472,
@@ -1279,7 +1279,7 @@
     },
     {
       "id": "69f61ddd844ef76e07090c53",
-      "name": "Keeper",
+      "name": "Keeper (2025)",
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488633856,
@@ -1289,7 +1289,7 @@
     },
     {
       "id": "69f6110492dea8bd22b85ce6",
-      "name": "Nioh",
+      "name": "Nioh: Complete Edition (2017)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488650240,
@@ -1299,7 +1299,7 @@
     },
     {
       "id": "69f61080edb2643367d7abbb",
-      "name": "The Elder Scrolls V: Skyrim - Special Edition",
+      "name": "The Elder Scrolls V: Skyrim - Special Edition (2016)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488650240,
@@ -1319,7 +1319,7 @@
     },
     {
       "id": "69f61de7aa0538aa3badd8d8",
-      "name": "Windrose",
+      "name": "Windrose (2026)",
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488666624,
@@ -1434,7 +1434,7 @@
     },
     {
       "id": "69f610e39e83454dc5afc77b",
-      "name": "Portal 1",
+      "name": "Portal (2007)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488748544,
@@ -1459,7 +1459,7 @@
     },
     {
       "id": "69f611185c8e5370bb7545a8",
-      "name": "Enigma do Medo",
+      "name": "Enigma of Fear (2024)",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488764928,
@@ -1528,16 +1528,6 @@
       "steamUrl": "https://store.steampowered.com/app/1859280/"
     },
     {
-      "id": "69f8ce6687bd5b8860a15330",
-      "name": "Outer Wilds: Echoes of the Eye",
-      "listId": "69f610396e6fb0d017a97829",
-      "listName": "Finalizados",
-      "pos": 140737488797696,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
-    },
-    {
       "id": "69f610855ae632679d138fbd",
       "name": "Black Mesa",
       "listId": "69f610396e6fb0d017a97829",
@@ -1584,7 +1574,7 @@
     },
     {
       "id": "69f8cfc355864927d2c5c38a",
-      "name": "Half Life 2: Episode One",
+      "name": "Half-Life 2: Episode One (2006)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488814080,
@@ -1609,7 +1599,7 @@
     },
     {
       "id": "69f8d037326d319caae25b0e",
-      "name": "Half Life 2: Episode Two",
+      "name": "Half-Life 2: Episode Two (2007)",
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488830464,
@@ -1838,5 +1828,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-17T20:16:47.375Z"
+  "updatedAt": "2026-09-17T20:40:35.258Z"
 }
