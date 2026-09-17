@@ -5,6 +5,7 @@
     const PAGE_SIZE = 12;
     const MAX_VISIBLE_PAGES = 5;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const horizontalScroll = window.KamyliHorizontalScroll;
     const state = { data: null, listId: "all", query: "", page: 1 };
     const els = {
         tools: document.getElementById("jogosTools"),
@@ -42,10 +43,8 @@
             els.filters.querySelectorAll(".jogos-filter").forEach(node => {
                 node.setAttribute("aria-pressed", String(node === button));
             });
-            button.scrollIntoView({
-                behavior: reducedMotion.matches ? "auto" : "smooth",
-                block: "nearest",
-                inline: "nearest"
+            horizontalScroll?.revealItem(els.filters, button, {
+                behavior: reducedMotion.matches ? "auto" : "smooth"
             });
             renderGames({ animate: true });
         });
@@ -217,6 +216,7 @@
             state.data = data;
             els.tools.hidden = false;
             renderFilters();
+            horizontalScroll?.enableClickDrag(els.filters);
             renderGames();
         } catch (error) {
             console.error("Falha ao carregar jogos:", error);

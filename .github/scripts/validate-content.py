@@ -1150,6 +1150,7 @@ def validate_architecture() -> None:
     jogos_css = read_text("css/pages/jogos.css")
     blog_js = read_text("js/pages/blog/blog.js")
     artes_js = read_text("js/pages/artes/artes.js")
+    horizontal_scroll_js = read_text("js/core/horizontal-scroll.js")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1609,19 +1610,19 @@ def validate_architecture() -> None:
     if "js/pages/doacoes/content.js?v=47" not in donations:
         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
 
-    if "js/pages/blog/blog.js?v=48.3.18" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.18 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.18" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.18 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.18" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.18 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.18" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.18 ausente para css/pages/artes.css.")
+    if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
+    if "css/pages/blog.css?v=48.3.19" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.19 ausente para css/pages/blog.css.")
+    if "js/pages/artes/artes.js?v=48.3.19" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.19 ausente para js/pages/artes/artes.js.")
+    if "css/pages/artes.css?v=48.3.19" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.19 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.3.18" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.18 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.18" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.18 ausente para js/pages/jogos/jogos.js.")
+    if "css/pages/jogos.css?v=48.3.19" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.19 ausente para css/pages/jogos.css.")
+    if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
@@ -1691,6 +1692,57 @@ def validate_architecture() -> None:
             error(f"{label}: transição de filtro V48.3.18 ausente ou incompleta.")
         if 'window.matchMedia("(prefers-reduced-motion: reduce)")' not in script:
             error(f"{label}: transição V48.3.18 não respeita prefers-reduced-motion.")
+
+    # V48.3.19: a faixa rolável preserva a geometria mobile e reutiliza o
+    # padrão click + arrasta de Lives/Agenda sem mover a viewport inteira.
+    for label, html in (("Jogos", jogos_index), ("Blog", blog_index), ("Galeria", artes_index)):
+        if "js/core/horizontal-scroll.js?v=48.3.19" not in html:
+            error(f"{label}: helper horizontal V48.3.19 ausente do HTML.")
+
+    for token in (
+        "const DRAG_THRESHOLD = 5;",
+        "event.pointerType === \"touch\"",
+        'track.classList.add("horizontal-click-drag")',
+        'track.classList.add("is-click-dragging")',
+        "suppressClickUntil",
+        "function revealItem(track, item",
+        "track.scrollTo({ left: target, behavior })",
+    ):
+        if token not in horizontal_scroll_js:
+            error(f"js/core/horizontal-scroll.js: contrato V48.3.19 ausente: {token}")
+
+    for label, script, container in (
+        ("Jogos", jogos_js, "els.filters"),
+        ("Blog", blog_js, "elements.filters"),
+        ("Galeria", artes_js, "filters"),
+    ):
+        if f"horizontalScroll?.enableClickDrag({container})" not in script:
+            error(f"{label}: click + arrasta V48.3.19 não foi habilitado na faixa de filtros.")
+        if f"horizontalScroll?.revealItem({container}, button" not in script:
+            error(f"{label}: seleção ainda pode deslocar a viewport em vez da faixa V48.3.19.")
+        if "scrollIntoView({" in script and f"revealItem({container}, button" not in script:
+            error(f"{label}: scrollIntoView regressivo detectado nos filtros V48.3.19.")
+
+    for label, css, container_selector in (
+        ("Jogos", jogos_css, ".jogos-filters"),
+        ("Blog", blog_css, ".blog-filters"),
+        ("Galeria", artes_css, ".artes-filters"),
+    ):
+        container_match = re.search(
+            rf"{re.escape(container_selector)}\s*\{{(?P<body>.*?)\}}",
+            css,
+            re.DOTALL,
+        )
+        if not container_match:
+            error(f"{label}: faixa V48.3.19 ausente.")
+            continue
+        body = container_match.group("body")
+        for declaration in ("padding: 4px;", "overflow-y: hidden;", "scroll-padding-inline: 4px;"):
+            if declaration not in body:
+                error(f"{label}: proteção contra corte/mobile V48.3.19 ausente: {declaration}")
+        for token in (".is-click-dragging", ".horizontal-click-drag"):
+            if token not in css:
+                error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (

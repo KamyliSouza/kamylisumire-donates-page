@@ -1,5 +1,5 @@
 /* =========================================================
-   GALERIA DE ARTES — V48.3.18
+   GALERIA DE ARTES — V48.3.19
    Página estática/editorial; imagens externas, sem Worker.
    ========================================================= */
 
@@ -47,6 +47,8 @@
     padding: 14px;
     margin-bottom: 18px;
     overflow: visible;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .artes-tools::before {
@@ -71,8 +73,11 @@
     min-width: 0;
     max-width: 100%;
     flex-wrap: nowrap;
+    padding: 4px;
     overflow-x: auto;
+    overflow-y: hidden;
     overscroll-behavior-inline: contain;
+    scroll-padding-inline: 4px;
     scrollbar-width: none;
 }
 
@@ -108,7 +113,22 @@
 }
 
 .artes-filter.is-active {
-    box-shadow: 0 6px 18px var(--primary-soft);
+    box-shadow: 0 4px 12px var(--primary-soft);
+}
+
+.artes-filters.is-click-dragging,
+.artes-filters.is-click-dragging * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.artes-filters.is-click-dragging {
+    scroll-behavior: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .artes-filters.horizontal-click-drag { cursor: grab; }
+    .artes-filters.is-click-dragging { cursor: grabbing; }
 }
 
 

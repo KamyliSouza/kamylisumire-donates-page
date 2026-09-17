@@ -1,14 +1,17 @@
-/* JOGOS — V48.3.18. Cards da Galeria, paginação e filtros horizontais. */
+/* JOGOS — V48.3.19. Cards da Galeria, paginação e filtros horizontais. */
 .jogos-shell { width: min(1120px, calc(100% - 32px)); margin: 28px auto 56px; display: grid; gap: 14px; }
 .jogos-intro { padding: 30px; }
 .jogos-intro h1 { margin: 10px 0 7px; color: var(--primary-color); font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 900; line-height: 1.05; letter-spacing: -.035em; }
 .jogos-intro p { max-width: 720px; margin: 0; color: var(--subtitle-color); font-size: .96rem; font-weight: 600; line-height: 1.62; }
-.jogos-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px; margin-bottom: 18px; }
-.jogos-filters { display: flex; align-items: center; flex: 1 1 520px; min-width: 0; max-width: 100%; flex-wrap: nowrap; gap: 8px; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: none; }
+.jogos-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; min-width: 0; max-width: 100%; padding: 14px; margin-bottom: 18px; }
+.jogos-filters { display: flex; align-items: center; flex: 1 1 520px; min-width: 0; max-width: 100%; flex-wrap: nowrap; gap: 8px; padding: 4px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scroll-padding-inline: 4px; scrollbar-width: none; }
 .jogos-filters::-webkit-scrollbar { display: none; }
 .jogos-filter { flex: 0 0 auto; min-height: 40px; padding: 8px 13px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 999px; font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
 .jogos-filter[aria-pressed="true"], .jogos-filter:hover, .jogos-filter:focus-visible { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); transform: translateY(-1px); outline: none; }
-.jogos-filter[aria-pressed="true"] { box-shadow: 0 6px 18px var(--primary-soft); }
+.jogos-filter[aria-pressed="true"] { box-shadow: 0 4px 12px var(--primary-soft); }
+.jogos-filters.is-click-dragging, .jogos-filters.is-click-dragging * { user-select: none; -webkit-user-select: none; }
+.jogos-filters.is-click-dragging { scroll-behavior: auto; }
+@media (hover: hover) and (pointer: fine) { .jogos-filters.horizontal-click-drag { cursor: grab; } .jogos-filters.is-click-dragging { cursor: grabbing; } }
 .jogos-search { flex: 1 1 250px; min-height: 44px; min-width: 0; padding: 0 14px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 14px; font: inherit; font-size: .9rem; font-weight: 700; }
 .jogos-search:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-soft); outline: none; }
 .jogos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }

@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.19 — Hotfix: filtros móveis e click + arrasta
+
+- corrige a faixa horizontal de filtros de Jogos, Blog e Galeria para preservar respiro interno dos chips, evitando que bordas/realces sejam cortados nas extremidades;
+- reforça a contenção de largura do painel de ferramentas no mobile e evita que a própria faixa horizontal desloque/alargue o layout da página;
+- substitui `scrollIntoView()` dos chips por rolagem horizontal local, mantendo o item escolhido visível sem movimentar ancestrais ou a viewport;
+- aplica às três faixas o mesmo padrão de click + arrasta com mouse/caneta usado em Lives e Agenda, preservando touch nativo, teclado e clique comum;
+- suprime o clique imediatamente após um arraste para impedir seleção acidental de tag/categoria;
+- não altera busca, paginação, cards, Trello, Steam, Worker nem dados editoriais.
+
 ## V48.3.18 — Hotfix: filtros roláveis, paginação compacta e transições
 
 - mantém categorias/listas de Jogos em uma única linha horizontal rolável, impedindo que o painel de ferramentas cresça verticalmente quando o Trello ganha novas listas;

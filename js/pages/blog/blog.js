@@ -31,6 +31,7 @@
     let activeSearchField = "todos";
     const searchFieldMenuHome = elements.searchFieldMenu?.parentElement || null;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const horizontalScroll = window.KamyliHorizontalScroll;
 
     function animateResults(node) {
         if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
@@ -197,6 +198,8 @@
             elements.filters.appendChild(button);
         });
 
+        horizontalScroll?.enableClickDrag(elements.filters);
+
         elements.filters.addEventListener("click", event => {
             const button = event.target.closest("button[data-tag]");
             if (!button) return;
@@ -209,10 +212,8 @@
                     item === button
                 ));
 
-            button.scrollIntoView({
-                behavior: reducedMotion.matches ? "auto" : "smooth",
-                block: "nearest",
-                inline: "nearest"
+            horizontalScroll?.revealItem(elements.filters, button, {
+                behavior: reducedMotion.matches ? "auto" : "smooth"
             });
             renderList(data, { animate: true });
         });

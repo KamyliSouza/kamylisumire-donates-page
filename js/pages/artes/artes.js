@@ -27,6 +27,7 @@
     let activeCategory = "todas";
     let activeSearchField = "todos";
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const horizontalScroll = window.KamyliHorizontalScroll;
 
     function animateResults(node) {
         if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
@@ -237,6 +238,7 @@
     function renderFilters() {
         if (!filters) return;
         filters.textContent = "";
+        horizontalScroll?.enableClickDrag(filters);
         const categories = [...new Set(items.map(item => item.categoria).filter(Boolean))]
             .sort((a, b) => a.localeCompare(b, "pt-BR"));
         const values = ["Todas", ...categories];
@@ -250,10 +252,8 @@
                 filters.querySelectorAll(".artes-filter").forEach(node => {
                     node.classList.toggle("is-active", node === button);
                 });
-                button.scrollIntoView({
-                    behavior: reducedMotion.matches ? "auto" : "smooth",
-                    block: "nearest",
-                    inline: "nearest"
+                horizontalScroll?.revealItem(filters, button, {
+                    behavior: reducedMotion.matches ? "auto" : "smooth"
                 });
                 applyFilters({ animate: true });
             });
