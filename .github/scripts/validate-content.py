@@ -1537,8 +1537,24 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.3.10 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.5" not in artes_index:
         error("artes/index.html: cache-buster V48.3.5 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.12" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.12 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.13" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.13 ausente para css/pages/artes.css.")
+
+    # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
+    artes_header_rules = (
+        "padding: 30px;",
+        "margin: 10px 0 7px;",
+        "font-size: clamp(2.1rem, 5vw, 3.25rem);",
+        "font-weight: 900;",
+        "line-height: 1.05;",
+        "max-width: 720px;",
+        "font-size: .96rem;",
+        "line-height: 1.62;",
+        ".artes-intro h1 { font-size: 2.15rem; }",
+    )
+    for declaration in artes_header_rules:
+        if declaration not in artes_css:
+            error(f"css/pages/artes.css: paridade visual V48.3.13 ausente: {declaration}")
 
     # V48.3.7: todo asset CSS/JS alterado pelo hardening precisa invalidar cache.
     v4837_assets = {
