@@ -5,7 +5,8 @@
  * - touch permanece nativo;
  * - impede clique acidental depois de um arraste;
  * - mantém o item selecionado visível sem deslocar a página inteira;
- * - mostra setas laterais apenas quando há conteúdo oculto na direção.
+ * - mostra setas laterais apenas quando há conteúdo oculto na direção;
+ * - usa fades nas bordas para indicar continuidade sem recorte brusco.
  */
 (() => {
     "use strict";
@@ -13,6 +14,7 @@
     const DRAG_THRESHOLD = 5;
     const CLICK_SUPPRESSION_MS = 300;
     const SAFE_INLINE_INSET = 6;
+    const OVERLAY_SAFE_INLINE_INSET = 48;
     const OVERFLOW_TOLERANCE = 2;
     const SCROLL_STEP_RATIO = 0.72;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -34,18 +36,16 @@
             const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
             const hasOverflow = maxScroll > OVERFLOW_TOLERANCE;
 
+            const canScrollPrevious = hasOverflow && track.scrollLeft > OVERFLOW_TOLERANCE;
+            const canScrollNext = hasOverflow && track.scrollLeft < maxScroll - OVERFLOW_TOLERANCE;
+
             shell.classList.toggle("has-horizontal-overflow", hasOverflow);
+            shell.classList.toggle("can-scroll-prev", canScrollPrevious);
+            shell.classList.toggle("can-scroll-next", canScrollNext);
             previous.hidden = !hasOverflow;
             next.hidden = !hasOverflow;
-
-            if (!hasOverflow) {
-                previous.disabled = true;
-                next.disabled = true;
-                return;
-            }
-
-            previous.disabled = track.scrollLeft <= OVERFLOW_TOLERANCE;
-            next.disabled = track.scrollLeft >= maxScroll - OVERFLOW_TOLERANCE;
+            previous.disabled = !canScrollPrevious;
+            next.disabled = !canScrollNext;
         }
 
         function scheduleDirectionSync() {
@@ -171,16 +171,23 @@
 
         const trackRect = track.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
-        const viewportLeft = track.scrollLeft + SAFE_INLINE_INSET;
-        const viewportRight = track.scrollLeft + track.clientWidth - SAFE_INLINE_INSET;
+        const shell = track.closest("[data-horizontal-scroll-shell]");
+        const leftInset = shell?.classList.contains("can-scroll-prev")
+            ? OVERLAY_SAFE_INLINE_INSET
+            : SAFE_INLINE_INSET;
+        const rightInset = shell?.classList.contains("can-scroll-next")
+            ? OVERLAY_SAFE_INLINE_INSET
+            : SAFE_INLINE_INSET;
+        const viewportLeft = track.scrollLeft + leftInset;
+        const viewportRight = track.scrollLeft + track.clientWidth - rightInset;
         const itemLeft = track.scrollLeft + itemRect.left - trackRect.left;
         const itemRight = track.scrollLeft + itemRect.right - trackRect.left;
         let target = track.scrollLeft;
 
         if (itemLeft < viewportLeft) {
-            target = itemLeft - SAFE_INLINE_INSET;
+            target = itemLeft - leftInset;
         } else if (itemRight > viewportRight) {
-            target = itemRight - track.clientWidth + SAFE_INLINE_INSET;
+            target = itemRight - track.clientWidth + rightInset;
         }
 
         const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);

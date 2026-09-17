@@ -70,6 +70,25 @@ Cada item editorial usa `id`, `titulo`, `artista`, `imagem`, `alt`, `data`,
 da Galeria não devem criar, remover ou renomear campos em `data/content/artes.json`;
 a compatibilidade com Helpers depende desse contrato permanecer estável.
 
+### Jogos das Lives
+
+`/jogos/` é uma página pública alimentada por `data/content/jogos.json`, gerado
+por `.github/scripts/sync-jogos.mjs`. O Trello é a fonte editorial de listas,
+nomes, ordem e cards; o navegador do visitante não consulta a API do Trello nem
+a API do SteamGridDB.
+
+A sincronização pode usar o campo personalizado opcional do Trello
+`Steam App ID` (tipos Texto ou Número). Quando preenchido com um inteiro positivo,
+esse valor tem prioridade sobre a resolução automática pelo nome e determina o
+link da Steam e a tentativa de carregar `library_600x900.jpg`. Campo ausente,
+vazio ou inválido mantém o fallback automático já existente. Não copiar outros
+Custom Fields, descrições, comentários, membros ou anexos para o JSON público.
+
+Capas automáticas continuam limitadas ao asset vertical original da Steam. Na
+ausência desse asset, preservar o placeholder local de interface mesmo quando
+o App ID estiver confirmado. `steamAppId` e `steamUrl` pertencem ao jogo e não
+devem depender da existência de capa.
+
 ### Doações
 
 `/doacoes/` contém LivePix, Pixie e ranking.

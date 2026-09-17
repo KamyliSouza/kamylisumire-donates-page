@@ -1151,6 +1151,7 @@ def validate_architecture() -> None:
     blog_js = read_text("js/pages/blog/blog.js")
     artes_js = read_text("js/pages/artes/artes.js")
     horizontal_scroll_js = read_text("js/core/horizontal-scroll.js")
+    sync_jogos_js = read_text(".github/scripts/sync-jogos.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1612,15 +1613,15 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.20" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.20 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.21" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.21 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.19" not in artes_index:
         error("artes/index.html: cache-buster V48.3.19 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.20" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.20 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.21" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.21 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.3.20" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.20 ausente para css/pages/jogos.css.")
+    if "css/pages/jogos.css?v=48.3.21" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.21 ausente para css/pages/jogos.css.")
     if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
 
@@ -1696,8 +1697,8 @@ def validate_architecture() -> None:
     # V48.3.19: a faixa rolável preserva a geometria mobile e reutiliza o
     # padrão click + arrasta de Lives/Agenda sem mover a viewport inteira.
     for label, html in (("Jogos", jogos_index), ("Blog", blog_index), ("Galeria", artes_index)):
-        if "js/core/horizontal-scroll.js?v=48.3.20" not in html:
-            error(f"{label}: helper horizontal V48.3.20 ausente do HTML.")
+        if "js/core/horizontal-scroll.js?v=48.3.21" not in html:
+            error(f"{label}: helper horizontal V48.3.21 ausente do HTML.")
 
     for token in (
         "const DRAG_THRESHOLD = 5;",
@@ -1743,8 +1744,8 @@ def validate_architecture() -> None:
             if token not in css:
                 error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
 
-    # V48.3.20: chips ativos ganham respiro suficiente para a sombra e as três
-    # páginas compartilham setas laterais contextuais, sem perder click + arrasta.
+    # V48.3.21: chips ativos ganham respiro vertical suficiente e as setas
+    # ficam sobrepostas à faixa, com fades contextuais e sem reservar espaço.
     filter_arrow_contracts = (
         ("Jogos", jogos_index, jogos_css, ".jogos-filter-scroll", ".jogos-filter-arrow"),
         ("Blog", blog_index, blog_css, ".blog-filter-scroll", ".blog-filter-arrow"),
@@ -1757,27 +1758,68 @@ def validate_architecture() -> None:
             "data-horizontal-scroll-next",
         ):
             if token not in html:
-                error(f"{label}: controle lateral V48.3.20 ausente do HTML: {token}.")
+                error(f"{label}: controle lateral V48.3.21 ausente do HTML: {token}.")
         if shell_selector not in css or arrow_selector not in css:
-            error(f"{label}: shell/setas V48.3.20 ausentes do CSS.")
+            error(f"{label}: shell/setas V48.3.21 ausentes do CSS.")
         for declaration in (
-            "padding-block: 10px;",
+            "padding-block: 14px;",
             "padding-inline: 6px;",
-            "scroll-padding-inline: 6px;",
+            "scroll-padding-inline: 48px;",
         ):
             if declaration not in css:
-                error(f"{label}: respiro de sombra V48.3.20 ausente: {declaration}")
+                error(f"{label}: respiro de sombra V48.3.21 ausente: {declaration}")
+        for token in (
+            f"{shell_selector}::before",
+            f"{shell_selector}::after",
+            f"{shell_selector}.can-scroll-prev::before",
+            f"{shell_selector}.can-scroll-next::after",
+            "linear-gradient(",
+            "position: absolute;",
+        ):
+            if token not in css:
+                error(f"{label}: fade/seta sobreposta V48.3.21 ausente: {token}")
 
     for token in (
         "function enableOverflowControls(track)",
         'track.closest("[data-horizontal-scroll-shell]")',
         'shell.classList.toggle("has-horizontal-overflow", hasOverflow)',
+        'shell.classList.toggle("can-scroll-prev", canScrollPrevious)',
+        'shell.classList.toggle("can-scroll-next", canScrollNext)',
+        "const OVERLAY_SAFE_INLINE_INSET = 48;",
         "track.scrollBy({ left: amount * direction, behavior })",
         'enableOverflowControls(track);',
         "enableOverflowControls,",
     ):
         if token not in horizontal_scroll_js:
-            error(f"js/core/horizontal-scroll.js: contrato de setas V48.3.20 ausente: {token}")
+            error(f"js/core/horizontal-scroll.js: contrato de setas/fades V48.3.21 ausente: {token}")
+
+    # V48.3.21: o Trello pode fornecer um Steam App ID por Custom Field, sem
+    # expor os demais campos no JSON. Campo vazio/inválido mantém resolução automática.
+    for token in (
+        'const STEAM_FIELD_NAMES = new Set(["steam app id", "steam id", "steamid"]);',
+        "function findSteamAppIdField(customFields)",
+        "function getSteamAppIdFromCard(card, field)",
+        'trelloUrl(`/boards/${BOARD_ID}/customFields`)',
+        'customFieldItems: "true"',
+        "let steamAppId = getSteamAppIdFromCard(card, steamAppIdField);",
+        "if (steamAppId) {",
+        "Steam via Trello:",
+    ):
+        if token not in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: override Steam/Trello V48.3.21 ausente: {token}")
+
+    for token in (
+        'datetime="2026-09-17"',
+        "Última atualização: 17 de setembro de 2026 · V48.3.21",
+        "A página de Jogos é preparada por uma sincronização automatizada no GitHub",
+        "não são feitas pelo navegador do visitante",
+        "referenciador",
+    ):
+        if token not in privacy_html:
+            error(f"privacidade/index.html: transparência de Jogos V48.3.21 ausente: {token}")
+
+    if "A identificação automática pode consultar o SteamGridDB; quando disponível, a capa exibida usa o asset vertical original da Steam." not in jogos_index:
+        error("jogos/index.html: aviso de proveniência Steam V48.3.21 ausente ou desatualizado.")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (

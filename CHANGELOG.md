@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.21 — Hotfix: fades dos filtros, Steam App ID no Trello e privacidade
+
+- transforma as setas laterais de Jogos, Blog e Galeria em controles sobrepostos, sem reservar espaço quando uma direção deixa de estar disponível;
+- adiciona degradês contextuais nas extremidades das faixas para indicar conteúdo oculto sem recorte brusco entre tag e seta;
+- amplia o respiro vertical das faixas para preservar por completo a sombra do chip selecionado e mantém click + arrasta, touch, teclado e `prefers-reduced-motion`;
+- permite usar o Custom Field opcional `Steam App ID` do Trello como override prioritário por card, mantendo a resolução automática pelo nome quando o campo estiver ausente, vazio ou inválido;
+- usa o App ID informado no Trello para o link **Ver na Steam** e para a capa vertical original quando ela existir, sem publicar outros Custom Fields no JSON;
+- atualiza a Política de Privacidade para explicar a sincronização server-side de Jogos e o carregamento direto de capas pela infraestrutura da Steam com `no-referrer`;
+- corrige o aviso da página Jogos para refletir que o SteamGridDB auxilia a identificação, enquanto as capas exibidas são assets originais da Steam.
+
 ## V48.3.20 — Hotfix: sombras e setas dos filtros horizontais
 
 - amplia o respiro interno das faixas de filtros para que a sombra do chip selecionado não seja recortada;

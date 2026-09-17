@@ -275,14 +275,42 @@
 }
 
 .blog-filter-scroll {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 5px;
+    position: relative;
+    isolation: isolate;
+    display: block;
     flex: 1 1 420px;
     min-width: 0;
     max-width: 100%;
 }
+
+.blog-filter-scroll::before,
+.blog-filter-scroll::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 64px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+}
+
+.blog-filter-scroll::before {
+    left: 0;
+    background: linear-gradient(90deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 34%, transparent) 54%, transparent 100%);
+}
+
+.blog-filter-scroll::after {
+    right: 0;
+    background: linear-gradient(270deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 34%, transparent) 54%, transparent 100%);
+}
+
+.blog-filter-scroll.can-scroll-prev::before,
+.blog-filter-scroll.can-scroll-next::after {
+    opacity: 1;
+}
+
 
 .blog-filters {
     width: 100%;
@@ -291,12 +319,12 @@
     min-width: 0;
     max-width: 100%;
     flex-wrap: nowrap;
-    padding-block: 10px;
+    padding-block: 14px;
     padding-inline: 6px;
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-inline: contain;
-    scroll-padding-inline: 6px;
+    scroll-padding-inline: 48px;
     scrollbar-width: none;
     gap: 7px;
 }
@@ -353,13 +381,16 @@
 
 
 .blog-filter-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
     width: 36px;
     height: 36px;
     display: inline-grid;
     place-items: center;
     padding: 0;
     color: var(--text-color);
-    background: var(--nav-bg);
+    background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 999px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
@@ -368,6 +399,7 @@
     font-weight: 900;
     line-height: 1;
     cursor: pointer;
+    transform: translateY(-50%);
     transition:
         color .18s ease,
         background-color .18s ease,
@@ -375,6 +407,9 @@
         transform .18s ease,
         opacity .18s ease;
 }
+
+.blog-filter-arrow-prev { left: 3px; }
+.blog-filter-arrow-next { right: 3px; }
 
 .blog-filter-arrow[hidden] {
     display: none;
@@ -392,11 +427,11 @@
     background: var(--primary-soft);
     border-color: var(--primary-color);
     outline: none;
-    transform: scale(1.04);
+    transform: translateY(-50%) scale(1.04);
 }
 
 .blog-filter-arrow:active:not(:disabled) {
-    transform: scale(.94);
+    transform: translateY(-50%) scale(.94);
 }
 
 :root[data-blur="off"] .blog-filter {
@@ -468,6 +503,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .blog-filter-scroll::before,
+    .blog-filter-scroll::after,
     .blog-filter,
     .blog-filter-arrow,
     .blog-search-field,
