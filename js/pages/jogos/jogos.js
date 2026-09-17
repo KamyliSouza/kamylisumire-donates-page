@@ -2,12 +2,14 @@
     "use strict";
 
     const DATA_URL = "/data/content/jogos.json";
-    const state = { data: null, listId: "all", query: "" };
+    const PAGE_SIZE = 12;
+    const state = { data: null, listId: "all", query: "", page: 1 };
     const els = {
         tools: document.getElementById("jogosTools"),
         filters: document.getElementById("jogosFilters"),
         search: document.getElementById("jogosSearch"),
         grid: document.getElementById("jogosGrid"),
+        pagination: document.getElementById("jogosPagination"),
         status: document.getElementById("jogosState")
     };
 
@@ -22,6 +24,7 @@
         button.textContent = `${label} (${count})`;
         button.addEventListener("click", () => {
             state.listId = id;
+            state.page = 1;
             renderFilters();
             renderGames();
         });
@@ -83,12 +86,40 @@
             steamLink.href = game.steamUrl;
             steamLink.target = "_blank";
             steamLink.rel = "noopener noreferrer";
-            steamLink.textContent = "Ver na Steam";
+            steamLink.textContent = "Ver na Steam ↗";
             steamLink.setAttribute("aria-label", `Ver ${game.name} na Steam`);
             content.append(steamLink);
         }
         article.append(media, shade, content);
         return article;
+    }
+
+    function renderPagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+        els.pagination.replaceChildren();
+        els.pagination.hidden = totalPages <= 1;
+        if (totalPages <= 1) return;
+
+        const label = document.createElement("span");
+        label.className = "jogos-pagination-label";
+        label.textContent = "Página";
+        els.pagination.append(label);
+
+        for (let page = 1; page <= totalPages; page += 1) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "jogos-page-button";
+            button.textContent = String(page);
+            button.setAttribute("aria-label", `Ir para a página ${page}`);
+            button.setAttribute("aria-current", state.page === page ? "page" : "false");
+            button.addEventListener("click", () => {
+                if (state.page === page) return;
+                state.page = page;
+                renderGames();
+                els.grid.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            els.pagination.append(button);
+        }
     }
 
     function renderGames() {
@@ -97,7 +128,12 @@
             if (state.listId !== "all" && game.listId !== state.listId) return false;
             return !query || normalize(game.name).includes(query) || normalize(game.listName).includes(query);
         });
-        els.grid.replaceChildren(...games.map(makeCard));
+        const totalPages = Math.max(1, Math.ceil(games.length / PAGE_SIZE));
+        state.page = Math.min(state.page, totalPages);
+        const start = (state.page - 1) * PAGE_SIZE;
+        const visibleGames = games.slice(start, start + PAGE_SIZE);
+        els.grid.replaceChildren(...visibleGames.map(makeCard));
+        renderPagination(games.length);
         els.status.hidden = games.length > 0;
         if (!games.length) {
             els.status.textContent = state.data?.games?.length ? "Nenhum jogo encontrado com esses filtros." : "A lista de jogos ainda não foi sincronizada.";
@@ -123,6 +159,7 @@
 
     els.search?.addEventListener("input", event => {
         state.query = event.currentTarget.value;
+        state.page = 1;
         renderGames();
     });
 

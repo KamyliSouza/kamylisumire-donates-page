@@ -101,14 +101,16 @@ const games = [];
 for (const card of cards) {
   const list = listMap.get(card.idList);
   let artwork = null;
+  let steamAppId = null;
   try {
     const match = await resolveArtwork(card.name, cache);
+    if (Number.isInteger(match.steamAppId)) steamAppId = match.steamAppId;
     if (match.status === "resolved") artwork = { provider: "steam-original", gameId: match.gameId, steamAppId: match.steamAppId, url: match.url };
   } catch (error) {
     console.warn(`SteamGridDB: ${card.name}: ${error.message}`);
   }
-  const steamUrl = artwork?.steamAppId ? `https://store.steampowered.com/app/${artwork.steamAppId}/` : null;
-  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork, steamUrl });
+  const steamUrl = steamAppId ? `https://store.steampowered.com/app/${steamAppId}/` : null;
+  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork, steamAppId, steamUrl });
 }
 
 let previous = null;

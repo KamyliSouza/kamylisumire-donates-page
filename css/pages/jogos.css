@@ -1,4 +1,4 @@
-/* JOGOS — V48.3.16. Cards aproximados da linguagem visual da Galeria. */
+/* JOGOS — V48.3.17. Cards da Galeria, link Steam e paginação local. */
 .jogos-shell { width: min(1120px, calc(100% - 32px)); margin: 28px auto 56px; display: grid; gap: 14px; }
 .jogos-intro { padding: 30px; }
 .jogos-intro h1 { margin: 10px 0 7px; color: var(--primary-color); font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 900; line-height: 1.05; letter-spacing: -.035em; }
@@ -22,8 +22,13 @@
 .jogo-card-content { position: absolute; inset: auto 0 0; z-index: 3; display: grid; gap: 5px; padding: 44px 14px 13px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .82); pointer-events: none; }
 .jogo-card-content h2 { margin: 0; overflow: hidden; color: #fff; font-size: clamp(.96rem, 1.7vw, 1.12rem); font-weight: 900; line-height: 1.18; letter-spacing: -.012em; text-overflow: ellipsis; white-space: nowrap; }
 .jogo-card-status { overflow: hidden; color: rgba(255, 255, 255, .9); font-size: .78rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.jogo-card-steam { width: fit-content; margin-top: 5px; color: #fff; font-size: .76rem; font-weight: 900; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; pointer-events: auto; }
-.jogo-card-steam:hover, .jogo-card-steam:focus-visible { color: #fff; text-decoration-thickness: 2px; outline: none; }
+.jogo-card-steam { width: fit-content; min-height: 30px; display: inline-flex; align-items: center; margin-top: 6px; padding: 5px 9px; color: #fff; background: rgba(10, 7, 14, .42); border: 1px solid rgba(255, 255, 255, .28); border-radius: 999px; font-size: .76rem; font-weight: 900; line-height: 1; text-decoration: none; pointer-events: auto; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.jogo-card-steam:hover, .jogo-card-steam:focus-visible { color: #fff; background: rgba(10, 7, 14, .62); border-color: rgba(255, 255, 255, .62); outline: none; }
+.jogos-pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 18px auto 4px; padding: 10px 12px; width: fit-content; max-width: 100%; }
+.jogos-pagination[hidden] { display: none; }
+.jogos-pagination-label { margin-right: 2px; color: var(--subtitle-color); font-size: .82rem; font-weight: 800; }
+.jogos-page-button { min-width: 36px; min-height: 36px; padding: 6px 10px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 12px; font: inherit; font-size: .82rem; font-weight: 900; cursor: pointer; }
+.jogos-page-button:hover, .jogos-page-button:focus-visible, .jogos-page-button[aria-current="page"] { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); outline: none; }
 .jogos-state, .jogos-notice { padding: 18px 20px; }
 .jogos-state { margin: 0; color: var(--subtitle-color); font-weight: 700; text-align: center; }
 .jogos-state[hidden] { display: none; }

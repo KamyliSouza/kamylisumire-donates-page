@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.17 — Hotfix: resolução Steam e paginação de Jogos
+
+- desacopla `steamAppId`/`steamUrl` da existência de capa: jogos identificados com segurança na Steam passam a exibir **Ver na Steam ↗** mesmo quando usam o placeholder;
+- mantém o Original Steam Asset somente quando a cápsula vertical oficial está disponível, sem reintroduzir grids comunitários;
+- torna o link Steam mais perceptível e acessível dentro da sobreposição do card;
+- limita a grade a 12 jogos por página e adiciona paginação local abaixo dos cards, respeitando busca e filtros sem novas chamadas externas;
+- ao alterar busca ou categoria, retorna à página 1; o seletor some quando há no máximo uma página de resultados.
+
 ## V48.3.16 — Hotfix: cards de Jogos e link Steam
 
 - aproxima os cards de `/jogos/` da linguagem visual da Galeria, com borda/sombra, elevação discreta e zoom suave da capa;

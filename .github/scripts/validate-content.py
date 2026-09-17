@@ -836,14 +836,24 @@ def validate_jogos() -> None:
                 error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
             elif artwork.get("provider") == "steam-original" and not artwork["url"].startswith("https://cdn.cloudflare.steamstatic.com/steam/apps/"):
                 error(f"data/content/jogos.json: asset Steam original deve usar a Steam CDN em {game['id']}.")
+        steam_app_id = game.get("steamAppId")
         steam_url = game.get("steamUrl")
+        if steam_app_id is not None and (not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0):
+            error(f"data/content/jogos.json: steamAppId inválido em {game['id']}.")
+        legacy_artwork_app_id = artwork.get("steamAppId") if isinstance(artwork, dict) and artwork.get("provider") == "steam-original" else None
+        effective_app_id = steam_app_id if isinstance(steam_app_id, int) and not isinstance(steam_app_id, bool) else legacy_artwork_app_id
         if steam_url is not None:
             if not isinstance(steam_url, str) or not re.fullmatch(r"https://store\.steampowered\.com/app/[0-9]+/", steam_url):
                 error(f"data/content/jogos.json: steamUrl inválida em {game['id']}.")
-            if not isinstance(artwork, dict) or artwork.get("provider") != "steam-original" or not isinstance(artwork.get("steamAppId"), int):
+            if not isinstance(effective_app_id, int) or isinstance(effective_app_id, bool):
                 error(f"data/content/jogos.json: steamUrl exige steamAppId confirmado em {game['id']}.")
-            elif steam_url != f"https://store.steampowered.com/app/{artwork['steamAppId']}/":
+            elif steam_url != f"https://store.steampowered.com/app/{effective_app_id}/":
                 error(f"data/content/jogos.json: steamUrl não corresponde ao steamAppId em {game['id']}.")
+        if isinstance(artwork, dict) and artwork.get("provider") == "steam-original":
+            if not isinstance(legacy_artwork_app_id, int):
+                error(f"data/content/jogos.json: artwork Steam exige steamAppId em {game['id']}.")
+            elif steam_app_id is not None and legacy_artwork_app_id != steam_app_id:
+                error(f"data/content/jogos.json: artwork Steam deve corresponder ao steamAppId do jogo em {game['id']}.")
 
     navbar = load_json("data/content/navbar.json")
     jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}
