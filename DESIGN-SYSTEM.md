@@ -100,6 +100,7 @@ Regras visuais e de interação:
 - links de desktop são icon-only com tooltip visual e nome acessível; o menu mobile mostra ícone + nome;
 - nenhuma rede define cor própria no JSON e nenhum SVG/HTML bruto é editorial;
 - a cápsula mobile `@ Redes` evita a semântica ambígua de compartilhamento, respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
+- no mobile/touch, o estado aberto/foco mantém superfície legível e o efeito de `:hover` só é habilitado para dispositivos com `(hover: hover) and (pointer: fine)`, evitando hover persistente em Chromium/Brave no Android;
 - loader e transições de página ocultam temporariamente o componente para evitar sobreposição visual.
 
 ## Navbar

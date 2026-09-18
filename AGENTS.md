@@ -43,7 +43,9 @@ dock vertical fixo à esquerda; no mobile usar uma única cápsula expansível
 sociais hardcoded no Hero/Navbar. URLs editoriais devem ser HTTPS, ícones devem
 vir da allowlist segura de `button-icons.js` e HTML/SVG/CSS arbitrário não entra
 no JSON. O componente deve permanecer abaixo da Navbar/listboxes em z-index e
-respeitar teclado, safe area e `prefers-reduced-motion`.
+respeitar teclado, safe area e `prefers-reduced-motion`. No gatilho mobile, efeitos
+de `:hover` devem ficar restritos a `(hover: hover) and (pointer: fine)`; dispositivos
+touch não podem depender de hover persistente para representar o estado aberto.
 
 ### Blog
 

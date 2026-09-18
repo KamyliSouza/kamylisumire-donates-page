@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.35 — Hotfix: estado touch do botão de redes no Android
+
+- corrige o gatilho mobile `@ Redes` que podia permanecer visualmente translúcido após toque em navegadores Chromium/Brave no Android por causa de `:hover` persistente;
+- restringe o efeito de hover do gatilho a dispositivos que realmente suportam hover e ponteiro fino, sem alterar o hover de desktop;
+- mantém o estado aberto/foco do botão sobre a superfície `--card-bg`, preservando borda de destaque e legibilidade enquanto o menu está aberto;
+- adiciona `touch-action: manipulation` e remove o highlight de toque do WebKit/Chromium para estabilizar a resposta visual sem JavaScript adicional;
+- atualiza cache-buster do CSS social e amplia a CI para impedir o retorno do hover mobile global.
+
 ## V48.3.34 — Hotfix: posição do dock social e clareza no mobile
 
 - move o dock social de desktop/tablet da direita para a esquerda da viewport, preservando safe area, posição fixa e independência da geometria do conteúdo;

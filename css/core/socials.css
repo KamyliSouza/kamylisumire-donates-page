@@ -1,5 +1,5 @@
 /* =========================================================
-   REDES SOCIAIS GLOBAIS — V48.3.34
+   REDES SOCIAIS GLOBAIS — V48.3.35
    Dock à esquerda em desktop/tablet; cápsula "@ Redes" no mobile.
    ========================================================= */
 
@@ -98,9 +98,6 @@
 
 .site-social-link:hover,
 .site-social-link:focus-visible,
-.site-socials-mobile-trigger:hover,
-.site-socials-mobile-trigger:focus-visible,
-.site-socials-mobile[open] > .site-socials-mobile-trigger,
 .site-socials-mobile-link:hover,
 .site-socials-mobile-link:focus-visible {
     color: var(--primary-color);
@@ -173,6 +170,17 @@ html.site-page-leaving .site-socials {
 
         cursor: pointer;
         list-style: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .site-socials-mobile-trigger:focus-visible,
+    .site-socials-mobile[open] > .site-socials-mobile-trigger {
+        color: var(--primary-color);
+        background-color: var(--card-bg);
+        border-color: var(--primary-color);
+        box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+        outline: none;
     }
 
     .site-socials-mobile-trigger::-webkit-details-marker {
@@ -235,6 +243,18 @@ html.site-page-leaving .site-socials {
 
     .site-socials-mobile-link .site-social-icon {
         color: var(--primary-color);
+    }
+}
+
+/* Hover visual do gatilho mobile só existe quando o dispositivo realmente
+   suporta hover. Evita :hover persistente após toque no Chromium/Brave Android. */
+@media (max-width: 767px) and (hover: hover) and (pointer: fine) {
+    .site-socials-mobile-trigger:hover {
+        color: var(--primary-color);
+        background-color: var(--notice-bg);
+        border-color: var(--primary-color);
+        box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+        outline: none;
     }
 }
 

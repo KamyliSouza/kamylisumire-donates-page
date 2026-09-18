@@ -2527,14 +2527,29 @@ def validate_architecture() -> None:
     if "right: max(12px, env(safe-area-inset-right))" in socials_css:
         error("V48.3.34: dock social desktop/tablet não deve voltar para a lateral direita.")
 
+    # V48.3.35: no mobile/touch, hover persistente não pode tornar o gatilho translúcido.
+    for token in (
+        "(hover: hover) and (pointer: fine)",
+        "touch-action: manipulation",
+        "-webkit-tap-highlight-color: transparent",
+        ".site-socials-mobile[open] > .site-socials-mobile-trigger",
+        "background-color: var(--card-bg)",
+    ):
+        if token not in socials_css:
+            error(f"V48.3.35: proteção touch do gatilho de redes ausente: {token}.")
+
+    shared_state = socials_css.split("@media (max-width: 767px)", 1)[0]
+    if ".site-socials-mobile-trigger:hover" in shared_state:
+        error("V48.3.35: hover do gatilho mobile não pode ser aplicado globalmente em dispositivos touch.")
+
     for rel in (
         "index.html", "404.html", "doacoes/index.html", "blog/index.html",
         "artes/index.html", "jogos/index.html", "privacidade/index.html",
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
-        if "css/core/socials.css?v=48.3.34" not in html:
-            error(f"{rel}: CSS global de redes V48.3.34 ausente.")
+        if "css/core/socials.css?v=48.3.35" not in html:
+            error(f"{rel}: CSS global de redes V48.3.35 ausente.")
         if "js/core/socials.js?v=48.3.34" not in html:
             error(f"{rel}: runtime global de redes V48.3.34 ausente.")
         if "js/core/button-icons.js?v=48.3.33" not in html:
