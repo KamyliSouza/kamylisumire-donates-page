@@ -393,3 +393,13 @@ A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `ap
 4. alternar `apoioFixoNoFim` e confirmar que a ordem/slot do CTA continuam corretos;
 5. confirmar que botões inseridos pelo Footer e diálogo externo recebem seus ícones/textos;
 6. verificar que o console não mostra loop contínuo de mutações/reaplicações.
+
+
+### Navegação mobile — V48.3.36
+
+1. em viewport de até 767 px, confirmar `Logo / título atual / Apoiar` no topo quando `apoioFixoNoFim` estiver ativo;
+2. confirmar `Menu` flutuante à esquerda e `@ Redes` à direita, ambos respeitando safe area e sem scroll horizontal da Navbar;
+3. abrir Menu e confirmar todos os links na ordem editorial, item atual destacado, fechamento por seleção, clique externo e Escape;
+4. abrir Redes com Menu aberto (e o inverso) e confirmar exclusividade entre os painéis;
+5. testar `apoioFixoNoFim: false` e confirmar que Apoiar entra no Menu na posição definida por `ordem`;
+6. acima de 767 px, confirmar que a Navbar tradicional e o dock social de desktop permanecem inalterados.

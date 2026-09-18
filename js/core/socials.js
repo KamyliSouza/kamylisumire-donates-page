@@ -84,6 +84,11 @@
 
         const mobile = document.createElement("details");
         mobile.className = "site-socials-mobile";
+        mobile.addEventListener("toggle", () => {
+            if (mobile.open) {
+                document.querySelector("#site-navbar .site-nav.is-mobile-menu-open .site-nav-mobile-trigger")?.click();
+            }
+        });
 
         const summary = document.createElement("summary");
         summary.className = "site-socials-mobile-trigger";

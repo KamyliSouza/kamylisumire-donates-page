@@ -3,7 +3,7 @@
    - Barra fixa no topo
    - Grupo completo centralizado
    - Logo + divisória + links
-   - Scroll horizontal no mobile
+   - Mobile: título no topo + Menu flutuante inferior
    ========================================================= */
 
 /*
@@ -227,13 +227,19 @@
     background-color: var(--primary-hover);
 }
 
+/* Elementos exclusivos do layout mobile. */
+.site-nav-mobile-title,
+.site-nav-mobile-trigger {
+    display: none;
+}
+
 /* =========================================================
-   MOBILE
-   O bloco continua centralizado enquanto couber.
-   Quando ultrapassar a largura, a lista passa a rolar.
+   MOBILE — V48.3.36
+   Topo: Logo / título da página / Apoiar.
+   Base: Menu flutuante à esquerda; Redes é o par à direita.
    ========================================================= */
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
     #site-navbar {
         height: 62px;
     }
@@ -241,13 +247,14 @@
     .site-nav-inner {
         width: calc(100% - 16px);
         min-height: 62px;
-
-        justify-content: flex-start;
-
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        align-items: center;
         gap: 8px;
     }
 
     .site-brand {
+        grid-column: 1;
         width: 40px;
         height: 40px;
     }
@@ -258,21 +265,144 @@
     }
 
     .site-nav-divider {
-        height: 28px;
-        margin-right: 0;
+        display: none;
+    }
+
+    .site-nav-mobile-title {
+        grid-column: 2;
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        color: var(--text-color);
+        font-size: .9rem;
+        font-weight: 900;
+        line-height: 1.2;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .site-nav-support-wrap:not([hidden]) {
+        grid-column: 3;
+        display: flex;
+        justify-content: flex-end;
+        min-width: 0;
+    }
+
+    .site-nav-support-wrap .site-nav-link {
+        min-height: 38px;
+        padding: 8px 10px;
+        font-size: .82rem;
+    }
+
+    .site-nav-mobile-trigger {
+        position: fixed;
+        left: max(14px, env(safe-area-inset-left));
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        z-index: 851;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        min-width: 92px;
+        min-height: 48px;
+        padding: 0 14px;
+
+        color: var(--text-color);
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 999px;
+        box-shadow: var(--shadow-card);
+
+        backdrop-filter: blur(var(--blur-card));
+        -webkit-backdrop-filter: blur(var(--blur-card));
+
+        font: inherit;
+        font-size: .82rem;
+        font-weight: 800;
+        line-height: 1;
+
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+
+        transition:
+            color .18s ease,
+            background-color .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .site-nav-mobile-trigger-mark {
+        color: var(--primary-color);
+        font-size: 1rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .site-nav-mobile-trigger:focus-visible,
+    .site-nav.is-mobile-menu-open .site-nav-mobile-trigger {
+        color: var(--text-color);
+        background-color: var(--card-bg);
+        border-color: var(--primary-color);
+        box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+        outline: none;
     }
 
     .site-nav-links {
-        flex: 1 1 auto;
+        position: fixed;
+        left: max(14px, env(safe-area-inset-left));
+        bottom: calc(74px + env(safe-area-inset-bottom));
+        z-index: 850;
 
-        justify-content: flex-start;
+        display: none;
+        width: min(232px, calc(100vw - 28px));
+        max-height: min(60vh, 430px);
+        padding: 8px;
+
+        background-color: var(--nav-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        box-shadow: var(--shadow-card);
+
+        backdrop-filter: blur(var(--blur-card));
+        -webkit-backdrop-filter: blur(var(--blur-card));
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
-    .site-nav-link {
-        min-height: 38px;
-        padding: 8px 10px;
+    .site-nav.is-mobile-menu-open .site-nav-links {
+        display: grid;
+        gap: 6px;
+    }
 
-        font-size: .84rem;
+    .site-nav-links .site-nav-link {
+        width: 100%;
+        min-height: 42px;
+        justify-content: flex-start;
+        padding: 8px 11px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        font-size: .86rem;
+    }
+
+    .site-nav-links .site-nav-link.is-active {
+        border-color: var(--primary-color);
+    }
+}
+
+/* Assim como em @ Redes, hover só é aplicado quando há hover real. */
+@media (max-width: 767px) and (hover: hover) and (pointer: fine) {
+    .site-nav-mobile-trigger:hover {
+        color: var(--text-color);
+        background-color: var(--notice-bg);
+        border-color: var(--primary-color);
+        box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+        outline: none;
     }
 }
 
@@ -465,5 +595,11 @@
     .site-nav-support-icon {
         width: 14px;
         height: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-nav-mobile-trigger {
+        transition: none;
     }
 }

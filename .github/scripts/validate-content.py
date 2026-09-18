@@ -1420,6 +1420,7 @@ def validate_architecture() -> None:
     carousel_js = read_text("js/pages/home/carousel.js")
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
+    navbar_css = read_text("css/core/navbar.css")
     content_js = read_text("js/core/content.js")
     page_transitions = read_text("js/core/page-transitions.js")
     buttons_js = read_text("js/core/buttons.js")
@@ -1877,10 +1878,10 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.31",
-            "js/core/navbar.js?v=48.3.30",
+            "js/core/navbar.js?v=48.3.36",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.7",
+            "css/core/navbar.css?v=48.3.36",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1907,7 +1908,7 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.30" not in html:
+        if "js/core/navbar.js?v=48.3.36" not in html:
             error(f"{rel}: cache-buster V48.3.30 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.31" not in html:
             error(f"{rel}: cache-buster V48.3.31 ausente para js/core/content.js.")
@@ -2488,6 +2489,36 @@ def validate_architecture() -> None:
     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
         error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
 
+    # V48.3.36: no mobile, a navegação deixa de depender de scroll horizontal.
+    # Os mesmos links editoriais são apresentados num menu flutuante à esquerda,
+    # enquanto o topo comunica a página atual e preserva o slot de Apoiar.
+    for token in (
+        'class="site-nav-mobile-title"',
+        'class="site-nav-mobile-trigger"',
+        'aria-controls="site-nav-mobile-menu"',
+        'id="site-nav-mobile-menu"',
+        'function updateMobileTitle(link)',
+        'function closeMobileMenu',
+        'is-mobile-menu-open',
+        'document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open")',
+    ):
+        if token not in navbar:
+            error(f"V48.3.36: runtime da navegação mobile incompleto: {token}.")
+
+    for token in (
+        'MOBILE — V48.3.36',
+        '.site-nav-mobile-title',
+        '.site-nav-mobile-trigger',
+        'left: max(14px, env(safe-area-inset-left))',
+        'bottom: calc(16px + env(safe-area-inset-bottom))',
+        '.site-nav.is-mobile-menu-open .site-nav-links',
+        '(hover: hover) and (pointer: fine)',
+        'touch-action: manipulation',
+    ):
+        if token not in navbar_css:
+            error(f"V48.3.36: CSS da navegação mobile incompleto: {token}.")
+
+
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
@@ -2548,9 +2579,9 @@ def validate_architecture() -> None:
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
-        if "css/core/socials.css?v=48.3.35" not in html:
+        if "css/core/socials.css?v=48.3.36" not in html:
             error(f"{rel}: CSS global de redes V48.3.35 ausente.")
-        if "js/core/socials.js?v=48.3.34" not in html:
+        if "js/core/socials.js?v=48.3.36" not in html:
             error(f"{rel}: runtime global de redes V48.3.34 ausente.")
         if "js/core/button-icons.js?v=48.3.33" not in html:
             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")

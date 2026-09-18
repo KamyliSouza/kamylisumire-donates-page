@@ -25,7 +25,19 @@
 
                 <span class="site-nav-divider" aria-hidden="true"></span>
 
-                <div class="site-nav-links">
+                <span class="site-nav-mobile-title" aria-live="polite">Início</span>
+
+                <button
+                    class="site-nav-mobile-trigger"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="site-nav-mobile-menu"
+                >
+                    <span class="site-nav-mobile-trigger-mark" aria-hidden="true">☰</span>
+                    <span>Menu</span>
+                </button>
+
+                <div class="site-nav-links" id="site-nav-mobile-menu">
                     <a class="site-nav-link" data-nav-key="inicio" data-nav-section="inicio" href="${sitePath("/")}">
                         <span class="site-nav-item-icon" data-nav-icon aria-hidden="true" hidden></span>
                         <span data-nav-label>Início</span>
@@ -87,7 +99,73 @@
         </nav>
     `;
 
+    const nav = mount.querySelector(".site-nav");
     const navLinksContainer = mount.querySelector(".site-nav-links");
+    const mobileTrigger = mount.querySelector(".site-nav-mobile-trigger");
+    const mobileTitle = mount.querySelector(".site-nav-mobile-title");
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+
+    function fallbackMobileTitle() {
+        const title = document.title
+            .split(/\s*[|·—]\s*/)[0]
+            .trim();
+        return title || "Kamyli Sumire";
+    }
+
+    function updateMobileTitle(link) {
+        const label = link?.querySelector("[data-nav-label]")?.textContent?.trim();
+        if (mobileTitle) mobileTitle.textContent = label || fallbackMobileTitle();
+    }
+
+    function closeMobileMenu({ restoreFocus = false } = {}) {
+        if (!nav || !mobileTrigger) return;
+        nav.classList.remove("is-mobile-menu-open");
+        mobileTrigger.setAttribute("aria-expanded", "false");
+        if (restoreFocus) mobileTrigger.focus();
+    }
+
+    function setMobileMenuOpen(open) {
+        if (!nav || !mobileTrigger) return;
+        nav.classList.toggle("is-mobile-menu-open", open);
+        mobileTrigger.setAttribute("aria-expanded", String(open));
+        if (open) {
+            document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open");
+        }
+    }
+
+    mobileTrigger?.addEventListener("click", () => {
+        setMobileMenuOpen(!nav?.classList.contains("is-mobile-menu-open"));
+    });
+
+    document.addEventListener("click", event => {
+        if (
+            nav?.classList.contains("is-mobile-menu-open") &&
+            event.target instanceof Node &&
+            !nav.contains(event.target) &&
+            !mobileTrigger?.contains(event.target)
+        ) {
+            closeMobileMenu();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && nav?.classList.contains("is-mobile-menu-open")) {
+            closeMobileMenu({ restoreFocus: true });
+        }
+    });
+
+    mobileQuery.addEventListener?.("change", event => {
+        if (!event.matches) closeMobileMenu();
+    });
+
+    navLinksContainer?.addEventListener("click", event => {
+        if (mobileQuery.matches && event.target.closest(".site-nav-link")) {
+            closeMobileMenu();
+        }
+    });
+
+    updateMobileTitle(null);
+
     function getNavSectionLinks() {
         return [...mount.querySelectorAll("[data-nav-section]")];
     }
@@ -149,6 +227,8 @@
             }
         });
 
+        updateMobileTitle(link);
+
         if (link) {
             keepActiveLinkVisible(link, behavior);
         }
@@ -168,7 +248,10 @@
             );
 
             if (activeLink) {
+                updateMobileTitle(activeLink);
                 keepActiveLinkVisible(activeLink, "auto");
+            } else {
+                updateMobileTitle(null);
             }
         });
     }

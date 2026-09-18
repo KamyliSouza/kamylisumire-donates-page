@@ -512,3 +512,8 @@ A Navbar marca a página ativa antes de `navbar.json` terminar de carregar. Como
 - Imagens HTTPS editoriais da Galeria devem usar `referrerPolicy = "no-referrer"` tanto na grade quanto no dialog/preload; mudanças no fluxo de mídia externa exigem revisão da Política de Privacidade.
 - `sitemap.xml` não deve conter `lastmod` mantido manualmente. A CI exige as rotas estáveis, cruza Blog/Galeria com o conteúdo publicado e rejeita URLs obsoletas.
 - Totais internos do ranking devem continuar normalizados em objetos sem protótipo antes de usar identificadores autodeclarados como chaves.
+
+
+### Navbar mobile V48.3.36
+
+No mobile, não restaurar a faixa horizontal rolável nem duplicar os links editoriais. `Menu` reutiliza `.site-nav-links`, fica no canto inferior esquerdo e é mutuamente exclusivo com `@ Redes`. O topo preserva logo, contexto atual e o slot de Apoiar conforme `apoioFixoNoFim`; desktop mantém a Navbar tradicional.

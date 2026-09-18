@@ -203,6 +203,10 @@ A V47.4.1 também publica `/uso-de-ia/`, com proibição expressa do uso de cont
 ### Apoiar no slot histórico — V48.3.2
 
 `apoioFixoNoFim: true` agora restaura literalmente o layout histórico: o CTA **Apoiar** sai do grupo central reordenável e volta ao slot dedicado à direita, separado pelo divisor. Com `false`, o CTA entra em `.site-nav-links` e respeita sua posição em `ordem`.
+### Navegação mobile sem scroll — V48.3.36
+
+Até 767 px, a Navbar mantém logo e contexto da página no topo e reaproveita os próprios links editoriais em um menu flutuante `Menu` no canto inferior esquerdo. O componente `@ Redes` permanece à direita e os dois painéis são mutuamente exclusivos. Quando `apoioFixoNoFim: true`, **Apoiar** continua no slot superior direito; com `false`, continua participando da ordem editorial dentro do menu. Desktop/tablet largo preservam a Navbar tradicional.
+
 ### Blur dos seletores — V48.3.5
 
 O menu aberto de **Buscar em** da Galeria e do Blog é portado temporariamente para `document.body` e posicionado sob o controle. Assim o `backdrop-filter` do listbox desfoca a página real, sem depender da composição do `glass-panel` ancestral. O mesmo nó retorna ao seu wrapper ao fechar; ARIA, teclado e preferência **Blur desligado** são preservados.

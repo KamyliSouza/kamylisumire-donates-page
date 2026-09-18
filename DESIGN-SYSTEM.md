@@ -113,7 +113,7 @@ Regras visuais:
 - texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
 - o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
 - alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
-- no mobile, a lista central continua horizontalmente rolável e o CTA Apoiar permanece fora desse scroll.
+- no mobile (até 767 px), a lista horizontal é substituída por um botão flutuante `Menu` no canto inferior esquerdo; o mesmo conjunto de links editoriais abre acima dele, enquanto o topo mostra logo, título/contexto atual e o CTA Apoiar quando `apoioFixoNoFim` está ativo; `@ Redes` permanece como contraponto flutuante à direita.
 
 ## Blog
 

@@ -198,6 +198,10 @@ O Blog não depende mais da existência de posts para aparecer. `/blog/` permane
 
 `data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
 
+### Navegação mobile — V48.3.36
+
+Abaixo de 768 px, `navbar.js` não duplica links: `.site-nav-links` é o mesmo contêiner editorial do desktop e passa a funcionar como painel flutuante acionado por `Menu`. O título superior acompanha o link ativo (ou usa o título documental nas páginas sem item próprio), e Menu/Redes fecham um ao outro. O slot histórico de Apoiar continua condicionado por `apoioFixoNoFim`.
+
 ### Navbar dual-mode — V48.3.2
 
 O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.

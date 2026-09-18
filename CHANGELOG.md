@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.36 — Navegação mobile por menu flutuante
+
+- substitui apenas no mobile a antiga faixa horizontal rolável por um botão flutuante `Menu` no canto inferior esquerdo, reaproveitando os mesmos links e a mesma ordem editorial da Navbar;
+- reorganiza o topo mobile para `Logo / título da página atual / Apoiar`, mantendo o CTA no slot superior quando `apoioFixoNoFim: true` e preservando o modo livre quando `false`;
+- mantém `@ Redes` flutuante à direita e torna Menu/Redes mutuamente exclusivos, com fechamento por seleção, clique externo, Escape e mudança para viewport desktop;
+- preserva scroll animado/estabilizado das seções da Home, estado ativo, transições, links externos, ícones/URLs editoriais, safe areas, teclado, touch e `prefers-reduced-motion`;
+- mantém desktop/tablet largo com a Navbar tradicional e atualiza cache-busters, documentação e CI para proteger o novo contrato responsivo.
+
 ## V48.3.35 — Hotfix: estado touch do botão de redes no Android
 
 - corrige o gatilho mobile `@ Redes` que podia permanecer visualmente translúcido após toque em navegadores Chromium/Brave no Android por causa de `:hover` persistente;
