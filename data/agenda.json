@@ -49,10 +49,10 @@
             "Twitch"
           ],
           "steamAppId": 1954200,
-          "artwork": {
+          "icon": {
             "provider": "steam-original",
             "steamAppId": 1954200,
-            "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
           }
         }
       ]
@@ -93,10 +93,10 @@
             "Twitch"
           ],
           "steamAppId": 552500,
-          "artwork": {
+          "icon": {
             "provider": "steam-original",
             "steamAppId": 552500,
-            "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/552500/a671f2ddf7359beba9702ac097baf6d50cb07202.jpg"
           }
         }
       ]
@@ -137,10 +137,10 @@
             "Twitch"
           ],
           "steamAppId": 3812600,
-          "artwork": {
+          "icon": {
             "provider": "steam-original",
             "steamAppId": 3812600,
-            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1789419445"
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
           }
         }
       ]
