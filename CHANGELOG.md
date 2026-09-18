@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.33 — Redes sociais globais editoriais
+
+- centraliza as redes sociais em `data/content/redes.json`, com ordem, nome, URL, ícone e visibilidade editoriais;
+- adiciona um dock vertical fixo para desktop/tablet e um botão expansível nativo no mobile, disponível em todas as páginas públicas;
+- remove a lista social hardcoded do Hero para evitar duplicidade visual e manter uma única fonte editorial global;
+- amplia a biblioteca segura de ícones com Twitch, TikTok, X, Instagram, Discord e o glyph genérico de compartilhamento, sem aceitar SVG/HTML bruto no JSON;
+- mantém links externos em HTTPS, `noopener noreferrer`, foco por teclado, fechamento por Escape/clique externo e `prefers-reduced-motion`;
+- mantém o dock abaixo da Navbar/listboxes no empilhamento e oculta o componente durante loader/transição de página;
+- amplia CI, documentação e cache-busters para proteger o novo contrato editorial e garantir o carregamento do componente em todas as páginas públicas.
+
 ## V48.3.32 — Paginação editorial de Jogos
 
 - altera a página de Jogos de 12 para 15 cards por página;

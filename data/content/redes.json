@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "ariaLabel": "Redes sociais da Kamyli",
+  "mobileButtonAriaLabel": "Abrir redes sociais",
+  "redes": [
+    {
+      "id": "youtube",
+      "nome": "YouTube",
+      "url": "https://youtube.com/kamyli",
+      "icone": "youtube",
+      "visivel": true
+    },
+    {
+      "id": "twitch",
+      "nome": "Twitch",
+      "url": "https://www.twitch.tv/kamyli",
+      "icone": "twitch",
+      "visivel": true
+    },
+    {
+      "id": "tiktok",
+      "nome": "TikTok",
+      "url": "https://www.tiktok.com/@kamylisumire",
+      "icone": "tiktok",
+      "visivel": true
+    },
+    {
+      "id": "x",
+      "nome": "X",
+      "url": "https://twitter.com/kamylisumire",
+      "icone": "x-social",
+      "visivel": true
+    },
+    {
+      "id": "instagram",
+      "nome": "Instagram",
+      "url": "https://www.instagram.com/kamylisumire/",
+      "icone": "instagram",
+      "visivel": true
+    },
+    {
+      "id": "discord",
+      "nome": "Discord",
+      "url": "https://discord.gg/KchjDTUUFf",
+      "icone": "discord",
+      "visivel": true
+    }
+  ]
+}

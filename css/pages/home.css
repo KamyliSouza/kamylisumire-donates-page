@@ -44,7 +44,7 @@
 }
 
 /* =========================================================
-   AVATAR + REDES SOCIAIS
+   AVATAR
    ========================================================= */
 
 .hero-profile {
@@ -100,62 +100,6 @@
     -webkit-user-drag: none;
 }
 
-.hero-socials {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-
-    gap: 9px;
-
-    max-width: 270px;
-    margin-top: 18px;
-}
-
-.social-bubble {
-    display: grid;
-    place-items: center;
-
-    width: 44px;
-    height: 44px;
-    flex: 0 0 auto;
-
-    color: var(--primary-color);
-    background-color: var(--card-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: 50%;
-
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
-
-    text-decoration: none;
-
-    transition:
-        transform .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease;
-}
-
-.social-bubble:hover,
-.social-bubble:focus-visible {
-    color: var(--primary-color);
-    background-color: var(--notice-bg);
-
-    border-color: var(--primary-color);
-
-    transform: translateY(-3px) scale(1.04);
-    box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
-
-    outline: none;
-}
-
-.social-bubble svg {
-    width: 21px;
-    height: 21px;
-
-    fill: currentColor;
-}
 
 /* =========================================================
    HOME — LAYOUT EDITORIAL DE CARDS (V48.2.0)
@@ -902,10 +846,6 @@
         width: clamp(112px, 31vw, 150px);
     }
 
-    .hero-socials {
-        margin-top: 14px;
-    }
-
     .hero-copy {
         text-align: center;
     }
@@ -955,11 +895,6 @@
 
     .hero-actions .button {
         width: 100%;
-    }
-
-    .social-bubble {
-        width: 42px;
-        height: 42px;
     }
 
     .agenda-card {

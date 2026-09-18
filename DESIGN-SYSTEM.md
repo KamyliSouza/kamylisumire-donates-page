@@ -86,6 +86,22 @@ Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da 
 Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
 altera apenas dimensões/posicionamento local.
 
+## Redes sociais globais
+
+Desde a V48.3.33, as redes não pertencem à Navbar nem ao Hero: são um componente
+global independente alimentado por `data/content/redes.json`. Em larguras de
+768 px ou mais, o componente usa um dock vertical fixo à direita; abaixo disso,
+usa um único botão circular com menu expansível nativo.
+
+Regras visuais e de interação:
+
+- o dock usa os mesmos tokens de superfície, borda, sombra, blur e cor primária do site;
+- `z-index` permanece abaixo da Navbar e dos listboxes portados para `body`;
+- links de desktop são icon-only com tooltip visual e nome acessível; o menu mobile mostra ícone + nome;
+- nenhuma rede define cor própria no JSON e nenhum SVG/HTML bruto é editorial;
+- o botão mobile respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
+- loader e transições de página ocultam temporariamente o componente para evitar sobreposição visual.
+
 ## Navbar
 
 Desde a V48.2.0, todos os itens clicáveis da Navbar compartilham um único contrato editorial em `data/content/navbar.json`. Cada item possui texto, ícone e URL, mas o desenho continua sendo responsabilidade do frontend.

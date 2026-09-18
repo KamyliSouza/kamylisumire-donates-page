@@ -1,0 +1,1213 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index ca049e7..9bdbbe7 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -40,10 +40,12 @@ REQUIRED_FILES = (
+     "data/content/artes.json",
+     "data/content/jogos.json",
+     "data/content/jogos-config.json",
++    "data/content/redes.json",
+     "data/content/jogos-artwork-cache.json",
+     "data/content/buttons.json",
+     "data/content/home-cards.json",
+     "js/core/button-icons.js",
++    "js/core/socials.js",
+     "js/core/sanitize.js",
+     "js/core/buttons.js",
+     "404.html",
+@@ -70,6 +72,7 @@ REQUIRED_FILES = (
+     "js/pages/doacoes/doacoes.js",
+     "js/pages/doacoes/content.js",
+     "js/pages/doacoes/ranking.js",
++    "css/core/socials.css",
+     "css/pages/home.css",
+     "css/pages/blog.css",
+     "css/pages/artes.css",
+@@ -140,6 +143,11 @@ BUTTON_ICON_NAMES = {
+     "none", "heart", "youtube", "arrow-right", "arrow-left",
+     "chevron-left", "chevron-right", "home", "pix", "globe",
+     "calendar", "trophy", "tag", "x", "external-link", "settings",
++    "twitch", "tiktok", "x-social", "instagram", "discord", "share",
++}
++
++SOCIAL_ICON_NAMES = {
++    "youtube", "twitch", "tiktok", "x-social", "instagram", "discord",
+ }
+ 
+ REQUIRED_BUTTON_KEYS = {
+@@ -716,6 +724,84 @@ def validate_buttons() -> None:
+             error(f"{label}: HTML/SVG bruto não é permitido.")
+ 
+ 
++
++def validate_socials() -> None:
++    data = load_json("data/content/redes.json")
++    if not isinstance(data, dict):
++        return
++
++    allowed_root = {"version", "ariaLabel", "mobileButtonAriaLabel", "redes"}
++    unknown_root = set(data) - allowed_root
++    if unknown_root:
++        error(
++            "data/content/redes.json: chaves raiz desconhecidas: "
++            + ", ".join(sorted(unknown_root))
++        )
++
++    if data.get("version") != 1:
++        error("data/content/redes.json: version deve permanecer 1.")
++
++    for key in ("ariaLabel", "mobileButtonAriaLabel"):
++        value = data.get(key)
++        if not isinstance(value, str) or not value.strip():
++            error(f"data/content/redes.json: {key} deve ser texto não vazio.")
++
++    redes = data.get("redes")
++    if not isinstance(redes, list):
++        error("data/content/redes.json: redes deve ser lista.")
++        return
++    if not 1 <= len(redes) <= 12:
++        error("data/content/redes.json: redes deve conter entre 1 e 12 itens.")
++
++    ids = set()
++    visible = 0
++    for index, item in enumerate(redes):
++        label = f"data/content/redes.json: redes[{index}]"
++        if not isinstance(item, dict):
++            error(f"{label} deve ser objeto.")
++            continue
++
++        allowed = {"id", "nome", "url", "icone", "visivel"}
++        unknown = set(item) - allowed
++        if unknown:
++            error(f"{label}: chaves desconhecidas: {', '.join(sorted(unknown))}.")
++
++        item_id = item.get("id")
++        if not isinstance(item_id, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", item_id):
++            error(f"{label}.id deve usar minúsculas, números e hífens.")
++        elif item_id in ids:
++            error(f"{label}.id duplicado: {item_id}.")
++        else:
++            ids.add(item_id)
++
++        nome = item.get("nome")
++        if not isinstance(nome, str) or not nome.strip():
++            error(f"{label}.nome deve ser texto não vazio.")
++
++        url = item.get("url")
++        if not isinstance(url, str) or not url.strip():
++            error(f"{label}.url deve ser texto não vazio.")
++        else:
++            parsed = urlparse(url)
++            if parsed.scheme != "https" or not parsed.netloc:
++                error(f"{label}.url deve usar URL HTTPS absoluta.")
++
++        if item.get("icone") not in SOCIAL_ICON_NAMES:
++            error(f"{label}.icone inválido para rede social: {item.get('icone')!r}.")
++
++        if not isinstance(item.get("visivel"), bool):
++            error(f"{label}.visivel deve ser booleano.")
++        elif item["visivel"]:
++            visible += 1
++
++        serialized = json.dumps(item, ensure_ascii=False)
++        if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
++            error(f"{label}: HTML/SVG bruto não é permitido.")
++
++    if visible == 0:
++        error("data/content/redes.json: pelo menos uma rede deve permanecer visível.")
++
++
+ def validate_navbar() -> None:
+     data = load_json("data/content/navbar.json")
+     if not isinstance(data, dict):
+@@ -1338,6 +1424,8 @@ def validate_architecture() -> None:
+     page_transitions = read_text("js/core/page-transitions.js")
+     buttons_js = read_text("js/core/buttons.js")
+     button_icons_js = read_text("js/core/button-icons.js")
++    socials_js = read_text("js/core/socials.js")
++    socials_css = read_text("css/core/socials.css")
+     worker_js = read_text("workers.js")
+     ranking_js = read_text("js/pages/doacoes/ranking.js")
+     privacy_html = read_text("privacidade/index.html")
+@@ -1453,7 +1541,7 @@ def validate_architecture() -> None:
+     if "css/components/blog.css" not in index:
+         error("index.html: blog.css compartilhado não está carregado.")
+ 
+-    if "css/pages/home.css?v=48.3.30" not in index:
++    if "css/pages/home.css?v=48.3.33" not in index:
+         error("index.html: cache-buster V48.3.30 ausente para css/pages/home.css.")
+     if "js/pages/home/content.js?v=48.2.0" not in index:
+         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
+@@ -1783,7 +1871,7 @@ def validate_architecture() -> None:
+         )
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+-        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.3.6" not in html:
++        if "js/core/button-icons.js?v=48.3.33" not in html or "js/core/buttons.js?v=48.3.6" not in html:
+             error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+@@ -2301,7 +2389,7 @@ def validate_architecture() -> None:
+     v4837_assets = {
+         "index.html": (
+             "css/core/variables.css?v=48.3.7",
+-            "css/pages/home.css?v=48.3.30",
++            "css/pages/home.css?v=48.3.33",
+             "css/components/lives.css?v=48.3.7",
+             "css/components/blog.css?v=48.3.7",
+             "js/pages/home/twitch-live.js?v=48.3.7",
+@@ -2400,6 +2488,45 @@ def validate_architecture() -> None:
+     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
+         error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
+ 
++    # V48.3.33: redes sociais são editoriais e globais, fora do Hero/Navbar.
++    if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
++        error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
++
++    for token in (
++        'const DATA_PATH = "/data/content/redes.json"',
++        'site-socials-desktop',
++        'site-socials-mobile',
++        'url.protocol === "https:"',
++        'link.rel = "noopener noreferrer"',
++        'iconLibrary.create("share"',
++        'event.key === "Escape"',
++    ):
++        if token not in socials_js:
++            error(f"V48.3.33: runtime global de redes incompleto: {token}.")
++
++    for token in (
++        "position: fixed",
++        "z-index: 850",
++        "@media (max-width: 767px)",
++        "env(safe-area-inset-right)",
++        "prefers-reduced-motion",
++    ):
++        if token not in socials_css:
++            error(f"V48.3.33: CSS global de redes incompleto: {token}.")
++
++    for rel in (
++        "index.html", "404.html", "doacoes/index.html", "blog/index.html",
++        "artes/index.html", "jogos/index.html", "privacidade/index.html",
++        "uso-de-ia/index.html",
++    ):
++        html = read_text(rel)
++        if "css/core/socials.css?v=48.3.33" not in html:
++            error(f"{rel}: CSS global de redes V48.3.33 ausente.")
++        if "js/core/socials.js?v=48.3.33" not in html:
++            error(f"{rel}: runtime global de redes V48.3.33 ausente.")
++        if "js/core/button-icons.js?v=48.3.33" not in html:
++            error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
++
+     # V47.2: o ícone de configurações usa engrenagem geométrica simétrica.
+     legacy_settings_path = "M19.4 15a1.7 1.7 0 0 0 .34 1.88"
+     if legacy_settings_path in button_icons_js:
+@@ -2993,6 +3120,7 @@ def main() -> int:
+     validate_required_and_forbidden()
+     validate_all_json()
+     validate_buttons()
++    validate_socials()
+     validate_navbar()
+     validate_home_cards()
+     validate_home_content()
+diff --git a/404.html b/404.html
+index 8bae9ad..f9fe611 100644
+--- a/404.html
++++ b/404.html
+@@ -234,6 +234,7 @@
+     <link rel="stylesheet" href="css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="css/pages/404.css">
+ </head>
+ 
+@@ -289,10 +290,11 @@
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+     <script src="js/core/content.js?v=48.3.31"></script>
+-    <script src="js/core/button-icons.js?v=47.2"></script>
++    <script src="js/core/button-icons.js?v=48.3.33"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/navbar.js?v=48.3.30"></script>
+     <script src="js/core/external-links.js?v=47"></script>
++    <script src="js/core/socials.js?v=48.3.33"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+     <script src="js/core/footer.js?v=47.4.2"></script>
+     <script>
+diff --git a/AGENTS.md b/AGENTS.md
+index 712ae58..ecf55bf 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -19,7 +19,7 @@ regra atual.
+ 
+ A Home carrega conteúdo local e inclui os sete cards nativos:
+ 
+-- Hero e redes;
++- Hero;
+ - Lives recentes;
+ - Agenda;
+ - Blog;
+@@ -33,6 +33,17 @@ A Home carrega `js/core/api.js` somente para as integrações públicas da Twitc
+ a aba Twitch de Lives e o status ao vivo do Hero. Não deve carregar `ranking.js`;
+ falha do Worker deve manter o Hero padrão e as demais seções locais funcionando.
+ 
++### Redes sociais globais
++
++Desde V48.3.33, `data/content/redes.json` é a fonte única das redes sociais. O
++frontend compartilhado fica em `js/core/socials.js` + `css/core/socials.css` e deve
++ser carregado por todas as páginas públicas. Em desktop/tablet (>= 768 px) usar
++dock vertical fixo; no mobile usar um único botão expansível. Não recolocar links
++sociais hardcoded no Hero/Navbar. URLs editoriais devem ser HTTPS, ícones devem
++vir da allowlist segura de `button-icons.js` e HTML/SVG/CSS arbitrário não entra
++no JSON. O componente deve permanecer abaixo da Navbar/listboxes em z-index e
++respeitar teclado, safe area e `prefers-reduced-motion`.
++
+ ### Blog
+ 
+ `/blog/` é estático e textual. Desde V48.2.0, o Blog é rota pública permanente: permanece na Navbar, no sitemap e como card da Home mesmo quando `data/blog/posts.json` não possui posts publicados. A seção da Home deve exibir seu estado vazio, salvo quando o próprio card `blog` estiver editorialmente oculto por `home-cards.json`.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 09b55ec..0f5cdd2 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,15 @@
+ # Changelog
+ 
++## V48.3.33 — Redes sociais globais editoriais
++
++- centraliza as redes sociais em `data/content/redes.json`, com ordem, nome, URL, ícone e visibilidade editoriais;
++- adiciona um dock vertical fixo para desktop/tablet e um botão expansível nativo no mobile, disponível em todas as páginas públicas;
++- remove a lista social hardcoded do Hero para evitar duplicidade visual e manter uma única fonte editorial global;
++- amplia a biblioteca segura de ícones com Twitch, TikTok, X, Instagram, Discord e o glyph genérico de compartilhamento, sem aceitar SVG/HTML bruto no JSON;
++- mantém links externos em HTTPS, `noopener noreferrer`, foco por teclado, fechamento por Escape/clique externo e `prefers-reduced-motion`;
++- mantém o dock abaixo da Navbar/listboxes no empilhamento e oculta o componente durante loader/transição de página;
++- amplia CI, documentação e cache-busters para proteger o novo contrato editorial e garantir o carregamento do componente em todas as páginas públicas.
++
+ ## V48.3.32 — Paginação editorial de Jogos
+ 
+ - altera a página de Jogos de 12 para 15 cards por página;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index a9ae05e..6a617d5 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -86,6 +86,22 @@ Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da
+ Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
+ altera apenas dimensões/posicionamento local.
+ 
++## Redes sociais globais
++
++Desde a V48.3.33, as redes não pertencem à Navbar nem ao Hero: são um componente
++global independente alimentado por `data/content/redes.json`. Em larguras de
++768 px ou mais, o componente usa um dock vertical fixo à direita; abaixo disso,
++usa um único botão circular com menu expansível nativo.
++
++Regras visuais e de interação:
++
++- o dock usa os mesmos tokens de superfície, borda, sombra, blur e cor primária do site;
++- `z-index` permanece abaixo da Navbar e dos listboxes portados para `body`;
++- links de desktop são icon-only com tooltip visual e nome acessível; o menu mobile mostra ícone + nome;
++- nenhuma rede define cor própria no JSON e nenhum SVG/HTML bruto é editorial;
++- o botão mobile respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
++- loader e transições de página ocultam temporariamente o componente para evitar sobreposição visual.
++
+ ## Navbar
+ 
+ Desde a V48.2.0, todos os itens clicáveis da Navbar compartilham um único contrato editorial em `data/content/navbar.json`. Cada item possui texto, ícone e URL, mas o desenho continua sendo responsabilidade do frontend.
+diff --git a/README.md b/README.md
+index 6e6f83f..8064a04 100644
+--- a/README.md
++++ b/README.md
+@@ -33,6 +33,13 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
+ 
+ Os textos e listas ficam em `data/content/*.json`.
+ 
++As redes sociais globais ficam em `data/content/redes.json`. A ordem do array é a
++ordem visual; cada entrada possui `id`, `nome`, `url`, `icone` e `visivel`. Em
++desktop/tablet (a partir de 768 px) elas aparecem em um dock vertical fixo; no
++mobile aparecem atrás de um botão expansível. URLs devem usar HTTPS e os ícones
++precisam existir na biblioteca segura `js/core/button-icons.js`. A Home não mantém
++mais uma segunda lista hardcoded de redes.
++
+ A paginação de `/jogos/` é editorial e fica em `data/content/jogos-config.json`.
+ O campo `jogosPorPagina` define quantos cards aparecem em cada página; a V48.3.32
+ usa `15`. Valores válidos vão de 1 a 60. Essa configuração é independente do
+diff --git a/artes/index.html b/artes/index.html
+index 038c86c..97fd4b6 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -246,6 +246,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.22">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+@@ -381,10 +382,11 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+diff --git a/blog/index.html b/blog/index.html
+index 2cb20f0..e85f0f3 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -246,6 +246,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/components/blog.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.22">
+ 
+@@ -382,10 +383,11 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+diff --git a/css/core/socials.css b/css/core/socials.css
+new file mode 100644
+index 0000000..80cfd34
+--- /dev/null
++++ b/css/core/socials.css
+@@ -0,0 +1,234 @@
++/* =========================================================
++   REDES SOCIAIS GLOBAIS — V48.3.33
++   Dock em desktop/tablet; botão expansível no mobile.
++   ========================================================= */
++
++.site-socials {
++    position: fixed;
++    z-index: 850;
++
++    pointer-events: none;
++
++    transition: opacity .18s ease;
++}
++
++.site-socials-desktop {
++    position: fixed;
++    top: 50%;
++    right: max(12px, env(safe-area-inset-right));
++
++    display: flex;
++    flex-direction: column;
++    gap: 7px;
++
++    padding: 7px;
++
++    background-color: var(--nav-bg);
++    border: 1px solid var(--card-border);
++    border-radius: 999px;
++    box-shadow: var(--shadow-card);
++
++    backdrop-filter: blur(var(--blur-card));
++    -webkit-backdrop-filter: blur(var(--blur-card));
++
++    transform: translateY(-50%);
++    pointer-events: auto;
++}
++
++.site-social-link,
++.site-socials-mobile-trigger,
++.site-socials-mobile-link {
++    color: var(--primary-color);
++    background-color: var(--card-bg);
++    border: 1px solid var(--card-border);
++
++    text-decoration: none;
++
++    transition:
++        color .18s ease,
++        background-color .18s ease,
++        border-color .18s ease,
++        transform .18s ease,
++        box-shadow .18s ease;
++}
++
++.site-social-link {
++    position: relative;
++
++    display: grid;
++    place-items: center;
++
++    width: 42px;
++    height: 42px;
++
++    border-radius: 50%;
++}
++
++.site-social-link::after {
++    content: attr(aria-label);
++
++    position: absolute;
++    top: 50%;
++    right: calc(100% + 10px);
++
++    width: max-content;
++    max-width: 180px;
++    padding: 6px 9px;
++
++    color: var(--text-color);
++    background-color: var(--nav-bg);
++    border: 1px solid var(--card-border);
++    border-radius: 10px;
++    box-shadow: var(--shadow-card);
++
++    font-size: .74rem;
++    font-weight: 800;
++    line-height: 1.2;
++
++    opacity: 0;
++    visibility: hidden;
++    transform: translate(5px, -50%);
++    pointer-events: none;
++
++    transition:
++        opacity .15s ease,
++        visibility .15s ease,
++        transform .15s ease;
++}
++
++.site-social-link:hover,
++.site-social-link:focus-visible,
++.site-socials-mobile-trigger:hover,
++.site-socials-mobile-trigger:focus-visible,
++.site-socials-mobile[open] > .site-socials-mobile-trigger,
++.site-socials-mobile-link:hover,
++.site-socials-mobile-link:focus-visible {
++    color: var(--primary-color);
++    background-color: var(--notice-bg);
++    border-color: var(--primary-color);
++    box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
++
++    outline: none;
++}
++
++.site-social-link:hover,
++.site-social-link:focus-visible {
++    transform: translateX(-2px) scale(1.04);
++}
++
++.site-social-link:hover::after,
++.site-social-link:focus-visible::after {
++    opacity: 1;
++    visibility: visible;
++    transform: translate(0, -50%);
++}
++
++.site-social-icon,
++.site-socials-mobile-trigger-icon {
++    width: 21px;
++    height: 21px;
++}
++
++.site-socials-mobile {
++    display: none;
++}
++
++html.site-loading-pending .site-socials,
++html.site-loading-visible .site-socials,
++html.site-navigation-loading .site-socials,
++html.site-page-leaving .site-socials {
++    opacity: 0;
++    pointer-events: none;
++}
++
++@media (max-width: 767px) {
++    .site-socials-desktop {
++        display: none;
++    }
++
++    .site-socials-mobile {
++        position: fixed;
++        right: max(14px, env(safe-area-inset-right));
++        bottom: calc(16px + env(safe-area-inset-bottom));
++
++        display: block;
++
++        pointer-events: auto;
++    }
++
++    .site-socials-mobile-trigger {
++        display: grid;
++        place-items: center;
++
++        width: 50px;
++        height: 50px;
++        padding: 0;
++
++        border-radius: 50%;
++        box-shadow: var(--shadow-card);
++
++        backdrop-filter: blur(var(--blur-card));
++        -webkit-backdrop-filter: blur(var(--blur-card));
++
++        cursor: pointer;
++        list-style: none;
++    }
++
++    .site-socials-mobile-trigger::-webkit-details-marker {
++        display: none;
++    }
++
++    .site-socials-mobile-trigger::marker {
++        content: "";
++    }
++
++    .site-socials-mobile-menu {
++        position: absolute;
++        right: 0;
++        bottom: calc(100% + 10px);
++
++        display: grid;
++        gap: 6px;
++
++        min-width: 188px;
++        padding: 8px;
++
++        background-color: var(--nav-bg);
++        border: 1px solid var(--card-border);
++        border-radius: 18px;
++        box-shadow: var(--shadow-card);
++
++        backdrop-filter: blur(var(--blur-card));
++        -webkit-backdrop-filter: blur(var(--blur-card));
++    }
++
++    .site-socials-mobile-link {
++        display: grid;
++        grid-template-columns: 24px minmax(0, 1fr);
++        align-items: center;
++        gap: 10px;
++
++        min-height: 42px;
++        padding: 8px 11px;
++
++        border-radius: 12px;
++
++        color: var(--text-color);
++        font-size: .86rem;
++        font-weight: 800;
++    }
++
++    .site-socials-mobile-link .site-social-icon {
++        color: var(--primary-color);
++    }
++}
++
++@media (prefers-reduced-motion: reduce) {
++    .site-socials,
++    .site-social-link,
++    .site-social-link::after,
++    .site-socials-mobile-trigger,
++    .site-socials-mobile-link {
++        transition: none;
++    }
++}
+diff --git a/css/pages/home.css b/css/pages/home.css
+index 845baa2..27a5f5f 100644
+--- a/css/pages/home.css
++++ b/css/pages/home.css
+@@ -44,7 +44,7 @@
+ }
+ 
+ /* =========================================================
+-   AVATAR + REDES SOCIAIS
++   AVATAR
+    ========================================================= */
+ 
+ .hero-profile {
+@@ -100,62 +100,6 @@
+     -webkit-user-drag: none;
+ }
+ 
+-.hero-socials {
+-    display: flex;
+-    flex-wrap: wrap;
+-    align-items: center;
+-    justify-content: center;
+-
+-    gap: 9px;
+-
+-    max-width: 270px;
+-    margin-top: 18px;
+-}
+-
+-.social-bubble {
+-    display: grid;
+-    place-items: center;
+-
+-    width: 44px;
+-    height: 44px;
+-    flex: 0 0 auto;
+-
+-    color: var(--primary-color);
+-    background-color: var(--card-bg);
+-
+-    border: 1px solid var(--card-border);
+-    border-radius: 50%;
+-
+-    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+-
+-    text-decoration: none;
+-
+-    transition:
+-        transform .18s ease,
+-        background-color .18s ease,
+-        border-color .18s ease,
+-        box-shadow .18s ease;
+-}
+-
+-.social-bubble:hover,
+-.social-bubble:focus-visible {
+-    color: var(--primary-color);
+-    background-color: var(--notice-bg);
+-
+-    border-color: var(--primary-color);
+-
+-    transform: translateY(-3px) scale(1.04);
+-    box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+-
+-    outline: none;
+-}
+-
+-.social-bubble svg {
+-    width: 21px;
+-    height: 21px;
+-
+-    fill: currentColor;
+-}
+ 
+ /* =========================================================
+    HOME — LAYOUT EDITORIAL DE CARDS (V48.2.0)
+@@ -902,10 +846,6 @@
+         width: clamp(112px, 31vw, 150px);
+     }
+ 
+-    .hero-socials {
+-        margin-top: 14px;
+-    }
+-
+     .hero-copy {
+         text-align: center;
+     }
+@@ -957,11 +897,6 @@
+         width: 100%;
+     }
+ 
+-    .social-bubble {
+-        width: 42px;
+-        height: 42px;
+-    }
+-
+     .agenda-card {
+         flex-basis: min(82vw, 270px);
+         min-height: 210px;
+diff --git a/data/content/README.md b/data/content/README.md
+index c2579f9..9a99aa4 100644
+--- a/data/content/README.md
++++ b/data/content/README.md
+@@ -15,6 +15,7 @@ alterar HTML.
+ - `artes.json` — textos e entradas da Galeria de Artes.
+ - `navbar.json` — Navbar compartilhada (`version: 2`), com texto, ícone e URL de cada item.
+ - `buttons.json` — botões globais fora da Navbar.
++- `redes.json` — redes sociais globais, incluindo ordem, URL, ícone e visibilidade.
+ 
+ A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
+ 
+@@ -35,6 +36,27 @@ Desde a V48.2.0, `navbar.json` usa `version: 2`. As chaves de `links` são está
+ `icone` deve ser um nome aceito por `js/core/button-icons.js`. `url` aceita caminho interno iniciado por `/` ou URL HTTP(S). Não inserir HTML, SVG bruto ou caminhos de assets no JSON. O botão Apoiar também pertence a este arquivo; `buttons.json` não controla mais a Navbar.
+ 
+ 
++## Redes sociais globais
++
++`redes.json` usa `version: 1` e é a única fonte editorial das redes sociais do
++site. A ordem do array `redes` é a ordem visual do dock/menu. Exemplo:
++
++```json
++{
++  "id": "youtube",
++  "nome": "YouTube",
++  "url": "https://youtube.com/kamyli",
++  "icone": "youtube",
++  "visivel": true
++}
++```
++
++`id` deve ser único em kebab-case, `url` deve ser HTTPS e `visivel` deve ser
++booleano. `icone` usa somente glyphs sociais aprovados em
++`js/core/button-icons.js`; não inserir SVG/HTML bruto, CSS, cor ou asset no JSON.
++O dock é global: desktop/tablet usam a barra vertical fixa; no mobile o mesmo
++conteúdo aparece em um botão expansível.
++
+ ## Cards da Home
+ 
+ Desde a V48.2.0, `home-cards.json` usa `version: 1`. A ordem de `cards` é a ordem visual da Home. Os sete tipos nativos são obrigatórios e aparecem exatamente uma vez:
+diff --git a/data/content/redes.json b/data/content/redes.json
+new file mode 100644
+index 0000000..78afc5a
+--- /dev/null
++++ b/data/content/redes.json
+@@ -0,0 +1,49 @@
++{
++  "version": 1,
++  "ariaLabel": "Redes sociais da Kamyli",
++  "mobileButtonAriaLabel": "Abrir redes sociais",
++  "redes": [
++    {
++      "id": "youtube",
++      "nome": "YouTube",
++      "url": "https://youtube.com/kamyli",
++      "icone": "youtube",
++      "visivel": true
++    },
++    {
++      "id": "twitch",
++      "nome": "Twitch",
++      "url": "https://www.twitch.tv/kamyli",
++      "icone": "twitch",
++      "visivel": true
++    },
++    {
++      "id": "tiktok",
++      "nome": "TikTok",
++      "url": "https://www.tiktok.com/@kamylisumire",
++      "icone": "tiktok",
++      "visivel": true
++    },
++    {
++      "id": "x",
++      "nome": "X",
++      "url": "https://twitter.com/kamylisumire",
++      "icone": "x-social",
++      "visivel": true
++    },
++    {
++      "id": "instagram",
++      "nome": "Instagram",
++      "url": "https://www.instagram.com/kamylisumire/",
++      "icone": "instagram",
++      "visivel": true
++    },
++    {
++      "id": "discord",
++      "nome": "Discord",
++      "url": "https://discord.gg/KchjDTUUFf",
++      "icone": "discord",
++      "visivel": true
++    }
++  ]
++}
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 545241b..c2e4d09 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -246,6 +246,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.11">
+ 
+@@ -459,11 +460,12 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/api.js?v=47.3"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+diff --git a/index.html b/index.html
+index 0313618..d29307a 100644
+--- a/index.html
++++ b/index.html
+@@ -255,7 +255,8 @@
+     <link rel="stylesheet" href="css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/navbar.css?v=48.3.7">
+-    <link rel="stylesheet" href="css/pages/home.css?v=48.3.30">
++    <link rel="stylesheet" href="css/core/socials.css?v=48.3.33">
++    <link rel="stylesheet" href="css/pages/home.css?v=48.3.33">
+     <link rel="stylesheet" href="css/components/lives.css?v=48.3.7">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
+@@ -469,86 +470,6 @@
+                         >
+                     </picture>
+                 </div>
+-
+-                <nav class="hero-socials" id="redes" aria-label="Redes sociais da Kamyli">
+-                    <a
+-                        class="social-bubble"
+-                        href="https://youtube.com/kamyli"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="YouTube"
+-                        title="YouTube"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M21.6 7.2a2.9 2.9 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.9 2.9 0 0 0-2 2A30 30 0 0 0 2 12a30 30 0 0 0 .4 4.8 2.9 2.9 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.9 2.9 0 0 0 2-2A30 30 0 0 0 22 12a30 30 0 0 0-.4-4.8ZM10 15.2V8.8l5.5 3.2-5.5 3.2Z"/>
+-                        </svg>
+-                    </a>
+-
+-                    <a
+-                        class="social-bubble"
+-                        href="https://www.twitch.tv/kamyli"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="Twitch"
+-                        title="Twitch"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M4 3h17v11.2l-4.7 4.7h-3.6L10 21.5v-2.6H5.8L4 17.1V3Zm2.3 2.3v10.4h4.6v2.2l2.2-2.2h3l2.6-2.6V5.3H6.3Zm4 2.2h2.1v5.4h-2.1V7.5Zm5 0h2.1v5.4h-2.1V7.5Z"/>
+-                        </svg>
+-                    </a>
+-
+-                    <a
+-                        class="social-bubble"
+-                        href="https://www.tiktok.com/@kamylisumire"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="TikTok"
+-                        title="TikTok"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M14.1 3h3a5.2 5.2 0 0 0 3.1 3.1v3a8 8 0 0 1-3.1-.8v6.4a6 6 0 1 1-5.2-5.9v3.1a3 3 0 1 0 2.2 2.8V3Z"/>
+-                        </svg>
+-                    </a>
+-
+-                    <a
+-                        class="social-bubble"
+-                        href="https://twitter.com/kamylisumire"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="X"
+-                        title="X"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M5.3 4h3.8l3.5 4.7L16.5 4h2.2l-5.1 6.2L19 20h-3.8l-3.9-5.3L6.9 20H4.7l5.6-6.8L5.3 4Zm2.8 1.7 8 12.6h1.4l-8-12.6H8.1Z"/>
+-                        </svg>
+-                    </a>
+-
+-                    <a
+-                        class="social-bubble"
+-                        href="https://www.instagram.com/kamylisumire/"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="Instagram"
+-                        title="Instagram"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M7.4 3h9.2A4.4 4.4 0 0 1 21 7.4v9.2a4.4 4.4 0 0 1-4.4 4.4H7.4A4.4 4.4 0 0 1 3 16.6V7.4A4.4 4.4 0 0 1 7.4 3Zm0 2A2.4 2.4 0 0 0 5 7.4v9.2A2.4 2.4 0 0 0 7.4 19h9.2a2.4 2.4 0 0 0 2.4-2.4V7.4A2.4 2.4 0 0 0 16.6 5H7.4Zm9.7 1.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4ZM12 7.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 2a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2Z"/>
+-                        </svg>
+-                    </a>
+-
+-                    <a
+-                        class="social-bubble"
+-                        href="https://discord.gg/KchjDTUUFf"
+-                        target="_blank"
+-                        rel="noopener noreferrer"
+-                        aria-label="Discord"
+-                        title="Discord"
+-                    >
+-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+-                            <path d="M18.9 5.3A16 16 0 0 0 15.4 4l-.4.9a13 13 0 0 0-6 0L8.6 4a16 16 0 0 0-3.5 1.3A14.8 14.8 0 0 0 2.7 15a13.9 13.9 0 0 0 4.3 2.2l1.1-1.5a9.5 9.5 0 0 1-1.7-.8l.4-.3a10.9 10.9 0 0 0 10.4 0l.4.3a9.5 9.5 0 0 1-1.7.8l1.1 1.5a13.9 13.9 0 0 0 4.3-2.2 14.8 14.8 0 0 0-2.4-9.7ZM9.1 13.7c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm5.8 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/>
+-                        </svg>
+-                    </a>
+-                </nav>
+             </div>
+         </section>
+ 
+@@ -824,10 +745,11 @@
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+     <script src="js/core/content.js?v=48.3.31"></script>
+-    <script src="js/core/button-icons.js?v=47.2"></script>
++    <script src="js/core/button-icons.js?v=48.3.33"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/navbar.js?v=48.3.30"></script>
+     <script src="js/core/external-links.js?v=47"></script>
++    <script src="js/core/socials.js?v=48.3.33"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+     <script src="js/core/footer.js?v=47.4.2"></script>
+diff --git a/jogos/index.html b/jogos/index.html
+index d6f725d..49d517a 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -246,6 +246,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.22">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+@@ -333,10 +334,11 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+diff --git a/js/core/button-icons.js b/js/core/button-icons.js
+index 9f46209..575c7e3 100644
+--- a/js/core/button-icons.js
++++ b/js/core/button-icons.js
+@@ -11,6 +11,27 @@
+         youtube: [
+             ["path", { d: "M21.6 7.2a2.9 2.9 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.9 2.9 0 0 0-2 2A30 30 0 0 0 2 12a30 30 0 0 0 .4 4.8 2.9 2.9 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.9 2.9 0 0 0 2-2A30 30 0 0 0 22 12a30 30 0 0 0-.4-4.8ZM10 15.2V8.8l5.5 3.2-5.5 3.2Z", fill: "currentColor", stroke: "none" }]
+         ],
++        twitch: [
++            ["path", { d: "M4 3h17v11.2l-4.7 4.7h-3.6L10 21.5v-2.6H5.8L4 17.1V3Zm2.3 2.3v10.4h4.6v2.2l2.2-2.2h3l2.6-2.6V5.3H6.3Zm4 2.2h2.1v5.4h-2.1V7.5Zm5 0h2.1v5.4h-2.1V7.5Z", fill: "currentColor", stroke: "none" }]
++        ],
++        tiktok: [
++            ["path", { d: "M14.1 3h3a5.2 5.2 0 0 0 3.1 3.1v3a8 8 0 0 1-3.1-.8v6.4a6 6 0 1 1-5.2-5.9v3.1a3 3 0 1 0 2.2 2.8V3Z", fill: "currentColor", stroke: "none" }]
++        ],
++        "x-social": [
++            ["path", { d: "M5.3 4h3.8l3.5 4.7L16.5 4h2.2l-5.1 6.2L19 20h-3.8l-3.9-5.3L6.9 20H4.7l5.6-6.8L5.3 4Zm2.8 1.7 8 12.6h1.4l-8-12.6H8.1Z", fill: "currentColor", stroke: "none" }]
++        ],
++        instagram: [
++            ["path", { d: "M7.4 3h9.2A4.4 4.4 0 0 1 21 7.4v9.2a4.4 4.4 0 0 1-4.4 4.4H7.4A4.4 4.4 0 0 1 3 16.6V7.4A4.4 4.4 0 0 1 7.4 3Zm0 2A2.4 2.4 0 0 0 5 7.4v9.2A2.4 2.4 0 0 0 7.4 19h9.2a2.4 2.4 0 0 0 2.4-2.4V7.4A2.4 2.4 0 0 0 16.6 5H7.4Zm9.7 1.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4ZM12 7.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 2a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2Z", fill: "currentColor", stroke: "none" }]
++        ],
++        discord: [
++            ["path", { d: "M18.9 5.3A16 16 0 0 0 15.4 4l-.4.9a13 13 0 0 0-6 0L8.6 4a16 16 0 0 0-3.5 1.3A14.8 14.8 0 0 0 2.7 15a13.9 13.9 0 0 0 4.3 2.2l1.1-1.5a9.5 9.5 0 0 1-1.7-.8l.4-.3a10.9 10.9 0 0 0 10.4 0l.4.3a9.5 9.5 0 0 1-1.7.8l1.1 1.5a13.9 13.9 0 0 0 4.3-2.2 14.8 14.8 0 0 0-2.4-9.7ZM9.1 13.7c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm5.8 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z", fill: "currentColor", stroke: "none" }]
++        ],
++        share: [
++            ["circle", { cx: "18", cy: "5", r: "2.2" }],
++            ["circle", { cx: "6", cy: "12", r: "2.2" }],
++            ["circle", { cx: "18", cy: "19", r: "2.2" }],
++            ["path", { d: "m8 11 7.9-4.6M8 13l7.9 4.6" }]
++        ],
+         "arrow-right": [["path", { d: "M5 12h14M14 7l5 5-5 5" }]],
+         "arrow-left": [["path", { d: "M19 12H5m5-5-5 5 5 5" }]],
+         "chevron-left": [["path", { d: "m15 18-6-6 6-6" }]],
+diff --git a/js/core/socials.js b/js/core/socials.js
+new file mode 100644
+index 0000000..41b00e8
+--- /dev/null
++++ b/js/core/socials.js
+@@ -0,0 +1,143 @@
++(() => {
++    "use strict";
++
++    const DATA_PATH = "/data/content/redes.json";
++    const sitePath = window.KAMYLI_SITE_PATH || (value => value);
++    const iconLibrary = window.KamyliButtonIcons;
++
++    if (!iconLibrary || typeof iconLibrary.create !== "function") return;
++
++    function safeHttpsUrl(value) {
++        try {
++            const url = new URL(String(value || ""), window.location.href);
++            return url.protocol === "https:" ? url.href : null;
++        } catch {
++            return null;
++        }
++    }
++
++    function normalizeConfig(data) {
++        if (!data || typeof data !== "object" || Array.isArray(data)) return null;
++        if (!Array.isArray(data.redes)) return null;
++
++        const seen = new Set();
++        const redes = data.redes.flatMap(item => {
++            if (!item || typeof item !== "object" || item.visivel !== true) return [];
++
++            const id = String(item.id || "").trim();
++            const nome = String(item.nome || "").trim();
++            const icone = String(item.icone || "").trim();
++            const url = safeHttpsUrl(item.url);
++
++            if (!id || seen.has(id) || !nome || !url || !iconLibrary.allowed.includes(icone)) {
++                return [];
++            }
++
++            seen.add(id);
++            return [{ id, nome, icone, url }];
++        });
++
++        if (!redes.length) return null;
++
++        return {
++            ariaLabel: String(data.ariaLabel || "Redes sociais").trim() || "Redes sociais",
++            mobileButtonAriaLabel:
++                String(data.mobileButtonAriaLabel || "Abrir redes sociais").trim() ||
++                "Abrir redes sociais",
++            redes
++        };
++    }
++
++    function socialLink(item, mobile = false) {
++        const link = document.createElement("a");
++        link.className = mobile
++            ? "site-socials-mobile-link"
++            : "site-social-link";
++        link.href = item.url;
++        link.target = "_blank";
++        link.rel = "noopener noreferrer";
++        link.setAttribute("aria-label", item.nome);
++        link.title = item.nome;
++        link.dataset.socialId = item.id;
++
++        const icon = iconLibrary.create(item.icone, "site-social-icon");
++        if (icon) link.appendChild(icon);
++
++        if (mobile) {
++            const label = document.createElement("span");
++            label.textContent = item.nome;
++            link.appendChild(label);
++        }
++
++        return link;
++    }
++
++    function buildSocials(config) {
++        const root = document.createElement("aside");
++        root.id = "site-socials";
++        root.className = "site-socials";
++
++        const desktop = document.createElement("nav");
++        desktop.className = "site-socials-desktop";
++        desktop.setAttribute("aria-label", config.ariaLabel);
++        config.redes.forEach(item => desktop.appendChild(socialLink(item)));
++
++        const mobile = document.createElement("details");
++        mobile.className = "site-socials-mobile";
++
++        const summary = document.createElement("summary");
++        summary.className = "site-socials-mobile-trigger";
++        summary.setAttribute("aria-label", config.mobileButtonAriaLabel);
++        summary.title = "Redes sociais";
++
++        const shareIcon = iconLibrary.create("share", "site-socials-mobile-trigger-icon");
++        if (shareIcon) summary.appendChild(shareIcon);
++
++        const menu = document.createElement("nav");
++        menu.className = "site-socials-mobile-menu";
++        menu.setAttribute("aria-label", config.ariaLabel);
++        config.redes.forEach(item => {
++            const link = socialLink(item, true);
++            link.addEventListener("click", () => mobile.removeAttribute("open"));
++            menu.appendChild(link);
++        });
++
++        mobile.append(summary, menu);
++        root.append(desktop, mobile);
++        document.body.appendChild(root);
++
++        document.addEventListener("click", event => {
++            if (mobile.open && event.target instanceof Node && !mobile.contains(event.target)) {
++                mobile.removeAttribute("open");
++            }
++        });
++
++        document.addEventListener("keydown", event => {
++            if (event.key === "Escape" && mobile.open) {
++                mobile.removeAttribute("open");
++                summary.focus();
++            }
++        });
++
++        const mobileQuery = window.matchMedia("(max-width: 767px)");
++        mobileQuery.addEventListener?.("change", event => {
++            if (!event.matches) mobile.removeAttribute("open");
++        });
++    }
++
++    fetch(sitePath(DATA_PATH), {
++        cache: "no-cache",
++        headers: { "Accept": "application/json" }
++    })
++        .then(response => {
++            if (!response.ok) throw new Error(`HTTP ${response.status}`);
++            return response.json();
++        })
++        .then(normalizeConfig)
++        .then(config => {
++            if (config) buildSocials(config);
++        })
++        .catch(error => {
++            console.warn("Redes sociais editoriais indisponíveis; componente global ocultado.", error);
++        });
++})();
+diff --git a/privacidade/index.html b/privacidade/index.html
+index d6a8163..a1118c4 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -235,6 +235,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+ </head>
+ 
+@@ -540,10 +541,11 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 4e03dfe..9703840 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -235,6 +235,7 @@
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.7">
++    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.33">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+ </head>
+ 
+@@ -342,10 +343,11 @@
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.31"></script>
+-    <script src="../js/core/button-icons.js?v=47.2"></script>
++    <script src="../js/core/button-icons.js?v=48.3.33"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/navbar.js?v=48.3.30"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
++    <script src="../js/core/socials.js?v=48.3.33"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script>

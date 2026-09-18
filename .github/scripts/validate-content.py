@@ -40,10 +40,12 @@ REQUIRED_FILES = (
     "data/content/artes.json",
     "data/content/jogos.json",
     "data/content/jogos-config.json",
+    "data/content/redes.json",
     "data/content/jogos-artwork-cache.json",
     "data/content/buttons.json",
     "data/content/home-cards.json",
     "js/core/button-icons.js",
+    "js/core/socials.js",
     "js/core/sanitize.js",
     "js/core/buttons.js",
     "404.html",
@@ -70,6 +72,7 @@ REQUIRED_FILES = (
     "js/pages/doacoes/doacoes.js",
     "js/pages/doacoes/content.js",
     "js/pages/doacoes/ranking.js",
+    "css/core/socials.css",
     "css/pages/home.css",
     "css/pages/blog.css",
     "css/pages/artes.css",
@@ -140,6 +143,11 @@ BUTTON_ICON_NAMES = {
     "none", "heart", "youtube", "arrow-right", "arrow-left",
     "chevron-left", "chevron-right", "home", "pix", "globe",
     "calendar", "trophy", "tag", "x", "external-link", "settings",
+    "twitch", "tiktok", "x-social", "instagram", "discord", "share",
+}
+
+SOCIAL_ICON_NAMES = {
+    "youtube", "twitch", "tiktok", "x-social", "instagram", "discord",
 }
 
 REQUIRED_BUTTON_KEYS = {
@@ -714,6 +722,84 @@ def validate_buttons() -> None:
         serialized = json.dumps(entry, ensure_ascii=False)
         if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
             error(f"{label}: HTML/SVG bruto não é permitido.")
+
+
+
+def validate_socials() -> None:
+    data = load_json("data/content/redes.json")
+    if not isinstance(data, dict):
+        return
+
+    allowed_root = {"version", "ariaLabel", "mobileButtonAriaLabel", "redes"}
+    unknown_root = set(data) - allowed_root
+    if unknown_root:
+        error(
+            "data/content/redes.json: chaves raiz desconhecidas: "
+            + ", ".join(sorted(unknown_root))
+        )
+
+    if data.get("version") != 1:
+        error("data/content/redes.json: version deve permanecer 1.")
+
+    for key in ("ariaLabel", "mobileButtonAriaLabel"):
+        value = data.get(key)
+        if not isinstance(value, str) or not value.strip():
+            error(f"data/content/redes.json: {key} deve ser texto não vazio.")
+
+    redes = data.get("redes")
+    if not isinstance(redes, list):
+        error("data/content/redes.json: redes deve ser lista.")
+        return
+    if not 1 <= len(redes) <= 12:
+        error("data/content/redes.json: redes deve conter entre 1 e 12 itens.")
+
+    ids = set()
+    visible = 0
+    for index, item in enumerate(redes):
+        label = f"data/content/redes.json: redes[{index}]"
+        if not isinstance(item, dict):
+            error(f"{label} deve ser objeto.")
+            continue
+
+        allowed = {"id", "nome", "url", "icone", "visivel"}
+        unknown = set(item) - allowed
+        if unknown:
+            error(f"{label}: chaves desconhecidas: {', '.join(sorted(unknown))}.")
+
+        item_id = item.get("id")
+        if not isinstance(item_id, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", item_id):
+            error(f"{label}.id deve usar minúsculas, números e hífens.")
+        elif item_id in ids:
+            error(f"{label}.id duplicado: {item_id}.")
+        else:
+            ids.add(item_id)
+
+        nome = item.get("nome")
+        if not isinstance(nome, str) or not nome.strip():
+            error(f"{label}.nome deve ser texto não vazio.")
+
+        url = item.get("url")
+        if not isinstance(url, str) or not url.strip():
+            error(f"{label}.url deve ser texto não vazio.")
+        else:
+            parsed = urlparse(url)
+            if parsed.scheme != "https" or not parsed.netloc:
+                error(f"{label}.url deve usar URL HTTPS absoluta.")
+
+        if item.get("icone") not in SOCIAL_ICON_NAMES:
+            error(f"{label}.icone inválido para rede social: {item.get('icone')!r}.")
+
+        if not isinstance(item.get("visivel"), bool):
+            error(f"{label}.visivel deve ser booleano.")
+        elif item["visivel"]:
+            visible += 1
+
+        serialized = json.dumps(item, ensure_ascii=False)
+        if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
+            error(f"{label}: HTML/SVG bruto não é permitido.")
+
+    if visible == 0:
+        error("data/content/redes.json: pelo menos uma rede deve permanecer visível.")
 
 
 def validate_navbar() -> None:
@@ -1338,6 +1424,8 @@ def validate_architecture() -> None:
     page_transitions = read_text("js/core/page-transitions.js")
     buttons_js = read_text("js/core/buttons.js")
     button_icons_js = read_text("js/core/button-icons.js")
+    socials_js = read_text("js/core/socials.js")
+    socials_css = read_text("css/core/socials.css")
     worker_js = read_text("workers.js")
     ranking_js = read_text("js/pages/doacoes/ranking.js")
     privacy_html = read_text("privacidade/index.html")
@@ -1453,7 +1541,7 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.30" not in index:
+    if "css/pages/home.css?v=48.3.33" not in index:
         error("index.html: cache-buster V48.3.30 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
@@ -1783,7 +1871,7 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=47.2" not in html or "js/core/buttons.js?v=48.3.6" not in html:
+        if "js/core/button-icons.js?v=48.3.33" not in html or "js/core/buttons.js?v=48.3.6" not in html:
             error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
@@ -2301,7 +2389,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.30",
+            "css/pages/home.css?v=48.3.33",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",
@@ -2399,6 +2487,45 @@ def validate_architecture() -> None:
         error("V48.2.0: seção do Blog na Home não deve ser ocultada quando não há posts.")
     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
         error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
+
+    # V48.3.33: redes sociais são editoriais e globais, fora do Hero/Navbar.
+    if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
+        error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
+
+    for token in (
+        'const DATA_PATH = "/data/content/redes.json"',
+        'site-socials-desktop',
+        'site-socials-mobile',
+        'url.protocol === "https:"',
+        'link.rel = "noopener noreferrer"',
+        'iconLibrary.create("share"',
+        'event.key === "Escape"',
+    ):
+        if token not in socials_js:
+            error(f"V48.3.33: runtime global de redes incompleto: {token}.")
+
+    for token in (
+        "position: fixed",
+        "z-index: 850",
+        "@media (max-width: 767px)",
+        "env(safe-area-inset-right)",
+        "prefers-reduced-motion",
+    ):
+        if token not in socials_css:
+            error(f"V48.3.33: CSS global de redes incompleto: {token}.")
+
+    for rel in (
+        "index.html", "404.html", "doacoes/index.html", "blog/index.html",
+        "artes/index.html", "jogos/index.html", "privacidade/index.html",
+        "uso-de-ia/index.html",
+    ):
+        html = read_text(rel)
+        if "css/core/socials.css?v=48.3.33" not in html:
+            error(f"{rel}: CSS global de redes V48.3.33 ausente.")
+        if "js/core/socials.js?v=48.3.33" not in html:
+            error(f"{rel}: runtime global de redes V48.3.33 ausente.")
+        if "js/core/button-icons.js?v=48.3.33" not in html:
+            error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
 
     # V47.2: o ícone de configurações usa engrenagem geométrica simétrica.
     legacy_settings_path = "M19.4 15a1.7 1.7 0 0 0 .34 1.88"
@@ -2993,6 +3120,7 @@ def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
     validate_buttons()
+    validate_socials()
     validate_navbar()
     validate_home_cards()
     validate_home_content()

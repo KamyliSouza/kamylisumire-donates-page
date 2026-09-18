@@ -15,6 +15,7 @@ alterar HTML.
 - `artes.json` — textos e entradas da Galeria de Artes.
 - `navbar.json` — Navbar compartilhada (`version: 2`), com texto, ícone e URL de cada item.
 - `buttons.json` — botões globais fora da Navbar.
+- `redes.json` — redes sociais globais, incluindo ordem, URL, ícone e visibilidade.
 
 A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
 
@@ -34,6 +35,27 @@ Desde a V48.2.0, `navbar.json` usa `version: 2`. As chaves de `links` são está
 
 `icone` deve ser um nome aceito por `js/core/button-icons.js`. `url` aceita caminho interno iniciado por `/` ou URL HTTP(S). Não inserir HTML, SVG bruto ou caminhos de assets no JSON. O botão Apoiar também pertence a este arquivo; `buttons.json` não controla mais a Navbar.
 
+
+## Redes sociais globais
+
+`redes.json` usa `version: 1` e é a única fonte editorial das redes sociais do
+site. A ordem do array `redes` é a ordem visual do dock/menu. Exemplo:
+
+```json
+{
+  "id": "youtube",
+  "nome": "YouTube",
+  "url": "https://youtube.com/kamyli",
+  "icone": "youtube",
+  "visivel": true
+}
+```
+
+`id` deve ser único em kebab-case, `url` deve ser HTTPS e `visivel` deve ser
+booleano. `icone` usa somente glyphs sociais aprovados em
+`js/core/button-icons.js`; não inserir SVG/HTML bruto, CSS, cor ou asset no JSON.
+O dock é global: desktop/tablet usam a barra vertical fixa; no mobile o mesmo
+conteúdo aparece em um botão expansível.
 
 ## Cards da Home
 

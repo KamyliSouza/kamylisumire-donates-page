@@ -33,6 +33,13 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
 
 Os textos e listas ficam em `data/content/*.json`.
 
+As redes sociais globais ficam em `data/content/redes.json`. A ordem do array é a
+ordem visual; cada entrada possui `id`, `nome`, `url`, `icone` e `visivel`. Em
+desktop/tablet (a partir de 768 px) elas aparecem em um dock vertical fixo; no
+mobile aparecem atrás de um botão expansível. URLs devem usar HTTPS e os ícones
+precisam existir na biblioteca segura `js/core/button-icons.js`. A Home não mantém
+mais uma segunda lista hardcoded de redes.
+
 A paginação de `/jogos/` é editorial e fica em `data/content/jogos-config.json`.
 O campo `jogosPorPagina` define quantos cards aparecem em cada página; a V48.3.32
 usa `15`. Valores válidos vão de 1 a 60. Essa configuração é independente do

@@ -19,7 +19,7 @@ regra atual.
 
 A Home carrega conteúdo local e inclui os sete cards nativos:
 
-- Hero e redes;
+- Hero;
 - Lives recentes;
 - Agenda;
 - Blog;
@@ -32,6 +32,17 @@ Desde V48.2.0, `data/content/home-cards.json` controla a ordem, visibilidade, ta
 A Home carrega `js/core/api.js` somente para as integrações públicas da Twitch:
 a aba Twitch de Lives e o status ao vivo do Hero. Não deve carregar `ranking.js`;
 falha do Worker deve manter o Hero padrão e as demais seções locais funcionando.
+
+### Redes sociais globais
+
+Desde V48.3.33, `data/content/redes.json` é a fonte única das redes sociais. O
+frontend compartilhado fica em `js/core/socials.js` + `css/core/socials.css` e deve
+ser carregado por todas as páginas públicas. Em desktop/tablet (>= 768 px) usar
+dock vertical fixo; no mobile usar um único botão expansível. Não recolocar links
+sociais hardcoded no Hero/Navbar. URLs editoriais devem ser HTTPS, ícones devem
+vir da allowlist segura de `button-icons.js` e HTML/SVG/CSS arbitrário não entra
+no JSON. O componente deve permanecer abaixo da Navbar/listboxes em z-index e
+respeitar teclado, safe area e `prefers-reduced-motion`.
 
 ### Blog
 
