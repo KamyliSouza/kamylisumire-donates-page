@@ -38,6 +38,14 @@ function trelloUrl(path, params = {}) {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const sgdbHeaders = { Authorization: `Bearer ${SGDB_KEY}` };
+const STEAM_STORE_ASSET_BASE = "https://shared.fastly.steamstatic.com/store_item_assets/";
+const STEAM_LEGACY_ASSET_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
+
+function getSteamLookupNames(name) {
+  const original = String(name || "").trim();
+  const withoutEditorialYear = original.replace(/\s*\((?:19|20)\d{2}\)\s*$/, "").trim();
+  return [...new Set([original, withoutEditorialYear].filter(Boolean))];
+}
 
 function getSteamAppIdFromDescription(card) {
   const description = String(card?.desc || "");
@@ -72,38 +80,112 @@ function getSteamAppIdFromDescription(card) {
   return uniqueValues[0];
 }
 
+async function urlExists(url) {
+  try {
+    const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function buildSteamStoreAssetUrl(appId, assets, filename) {
+  const file = String(filename || "").trim().replace(/^\/+/, "");
+  if (!file) return null;
+
+  const fallbackFormat = "steam/apps/" + appId + "/${FILENAME}";
+  const format = String(assets?.asset_url_format || fallbackFormat);
+  const expanded = format.includes("${FILENAME}") ? format.replace("${FILENAME}", file) : fallbackFormat.replace("${FILENAME}", file);
+  const appPath = `steam/apps/${appId}/`;
+  const offset = expanded.indexOf(appPath);
+  if (offset < 0) return null;
+
+  const url = new URL(expanded.slice(offset), STEAM_STORE_ASSET_BASE);
+  if (url.protocol !== "https:" || url.hostname !== "shared.fastly.steamstatic.com") return null;
+  if (!url.pathname.startsWith(`/store_item_assets/${appPath}`)) return null;
+  return url.toString();
+}
+
+async function getStoreBrowsePortrait(appId) {
+  const endpoint = new URL("https://api.steampowered.com/IStoreBrowseService/GetItems/v1/");
+  endpoint.searchParams.set("input_json", JSON.stringify({
+    ids: [{ appid: appId }],
+    context: { language: "english", country_code: "BR" },
+    data_request: { include_assets: true }
+  }));
+
+  const payload = await getJson(endpoint);
+  const item = (payload?.response?.store_items || []).find(entry => Number(entry?.appid) === appId);
+  if (!item || (item.success != null && Number(item.success) !== 1)) return null;
+
+  const assets = item.assets || {};
+  for (const filename of [assets.library_capsule_2x, assets.library_capsule]) {
+    const url = buildSteamStoreAssetUrl(appId, assets, filename);
+    if (url && await urlExists(url)) return url;
+  }
+  return null;
+}
+
 async function hasOriginalSteamPortrait(appId) {
-  const url = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/library_600x900.jpg`;
-  const response = await fetch(url, { method: "HEAD", redirect: "follow" });
-  return response.ok ? url : null;
+  try {
+    const modernUrl = await getStoreBrowsePortrait(appId);
+    if (modernUrl) return modernUrl;
+  } catch (error) {
+    console.warn(`Steam StoreBrowse: app ${appId}: ${error.message}; tentando CDN legada.`);
+  }
+
+  for (const filename of ["library_600x900_2x.jpg", "library_600x900.jpg"]) {
+    const url = `${STEAM_LEGACY_ASSET_BASE}${appId}/${filename}`;
+    if (await urlExists(url)) return url;
+  }
+  return null;
 }
 
 async function resolveArtwork(name, cache) {
   const key = normalize(name);
+  const lookupNames = getSteamLookupNames(name);
   const cached = cache.entries[key];
+  const retryLegacyMiss = cached?.reason === "no-original-steam-portrait";
+  const retryEditorialYearMiss = cached?.reason === "not-found" && lookupNames.length > 1;
   if (cached?.status === "resolved" && cached?.source === "steam-original") return cached;
-  if (cached?.status === "unresolved" && cached.checkedAt && Date.now() - Date.parse(cached.checkedAt) < 7 * 86400000) return cached;
+  if (cached?.status === "unresolved" && !retryLegacyMiss && !retryEditorialYearMiss && cached.checkedAt && Date.now() - Date.parse(cached.checkedAt) < 7 * 86400000) return cached;
   await sleep(150);
 
   // SteamGridDB continua sendo usado somente para confirmar uma correspondência
-  // exata/inequívoca do título. Grids comunitários não são mais publicados.
-  const search = await getJson(`https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(name)}`, { headers: sgdbHeaders });
-  const exact = (search.data || []).filter(game => normalize(game.name) === key && (game.types || []).includes("steam"));
+  // exata/inequívoca do título. Um ano editorial final, como "(2026)", pode ser
+  // ignorado apenas durante a busca; o nome publicado no Trello não é alterado.
+  let exact = [];
+  let ambiguous = false;
+  for (const lookupName of lookupNames) {
+    const lookupKey = normalize(lookupName);
+    const search = await getJson(`https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(lookupName)}`, { headers: sgdbHeaders });
+    const matches = (search.data || []).filter(game => normalize(game.name) === lookupKey && (game.types || []).includes("steam"));
+    if (matches.length > 1) {
+      ambiguous = true;
+      break;
+    }
+    if (matches.length === 1) {
+      exact = matches;
+      break;
+    }
+  }
   if (exact.length !== 1) {
-    const unresolved = { status: "unresolved", reason: exact.length ? "ambiguous" : "not-found", checkedAt: new Date().toISOString() };
+    const unresolved = { status: "unresolved", reason: ambiguous ? "ambiguous" : "not-found", checkedAt: new Date().toISOString() };
     cache.entries[key] = unresolved;
     return unresolved;
   }
 
   // O catálogo normal de grids do SteamGridDB contém uploads comunitários. Para
   // garantir o asset original, resolvemos o App ID por correspondência exata na
-  // loja Steam e usamos diretamente a cápsula vertical oficial da Steam CDN.
+  // loja Steam e consultamos a Library Capsule oficial publicada pela própria Steam.
+  const canonicalName = String(exact[0].name || name).trim();
+  const canonicalKey = normalize(canonicalName);
   const storeUrl = new URL("https://store.steampowered.com/api/storesearch/");
-  storeUrl.searchParams.set("term", name);
+  storeUrl.searchParams.set("term", canonicalName);
   storeUrl.searchParams.set("l", "portuguese");
   storeUrl.searchParams.set("cc", "BR");
   const store = await getJson(storeUrl);
-  const steamExact = (store.items || []).filter(item => normalize(item.name) === key && Number.isInteger(item.id));
+  const steamExact = (store.items || []).filter(item => normalize(item.name) === canonicalKey && Number.isInteger(item.id));
   if (steamExact.length !== 1) {
     const unresolved = { status: "unresolved", reason: steamExact.length ? "steam-ambiguous" : "steam-not-found", gameId: exact[0].id, checkedAt: new Date().toISOString() };
     cache.entries[key] = unresolved;
@@ -113,7 +195,7 @@ async function resolveArtwork(name, cache) {
   const appId = steamExact[0].id;
   const url = await hasOriginalSteamPortrait(appId);
   if (!url) {
-    const unresolved = { status: "unresolved", reason: "no-original-steam-portrait", gameId: exact[0].id, steamAppId: appId, checkedAt: new Date().toISOString() };
+    const unresolved = { status: "unresolved", reason: "no-steam-library-capsule", gameId: exact[0].id, steamAppId: appId, checkedAt: new Date().toISOString() };
     cache.entries[key] = unresolved;
     return unresolved;
   }

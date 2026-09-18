@@ -834,8 +834,6 @@ def validate_jogos() -> None:
                 error(f"data/content/jogos.json: artwork inválido em {game['id']}.")
             elif not isinstance(artwork.get("url"), str) or not artwork["url"].startswith("https://"):
                 error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
-            elif artwork.get("provider") == "steam-original" and not artwork["url"].startswith("https://cdn.cloudflare.steamstatic.com/steam/apps/"):
-                error(f"data/content/jogos.json: asset Steam original deve usar a Steam CDN em {game['id']}.")
         steam_app_id = game.get("steamAppId")
         steam_url = game.get("steamUrl")
         if steam_app_id is not None and (not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0):
@@ -854,6 +852,27 @@ def validate_jogos() -> None:
                 error(f"data/content/jogos.json: artwork Steam exige steamAppId em {game['id']}.")
             elif steam_app_id is not None and legacy_artwork_app_id != steam_app_id:
                 error(f"data/content/jogos.json: artwork Steam deve corresponder ao steamAppId do jogo em {game['id']}.")
+            else:
+                parsed_artwork = urlparse(artwork.get("url", ""))
+                legacy_prefix = f"/steam/apps/{legacy_artwork_app_id}/"
+                modern_prefix = f"/store_item_assets/steam/apps/{legacy_artwork_app_id}/"
+                valid_legacy = (
+                    parsed_artwork.scheme == "https"
+                    and parsed_artwork.hostname == "cdn.cloudflare.steamstatic.com"
+                    and parsed_artwork.path.startswith(legacy_prefix)
+                    and parsed_artwork.path.rsplit("/", 1)[-1] in {"library_600x900.jpg", "library_600x900_2x.jpg"}
+                )
+                valid_modern = (
+                    parsed_artwork.scheme == "https"
+                    and parsed_artwork.hostname == "shared.fastly.steamstatic.com"
+                    and parsed_artwork.path.startswith(modern_prefix)
+                    and parsed_artwork.path.rsplit("/", 1)[-1] in {
+                        "library_capsule.jpg", "library_capsule_2x.jpg",
+                        "library_600x900.jpg", "library_600x900_2x.jpg",
+                    }
+                )
+                if not (valid_legacy or valid_modern):
+                    error(f"data/content/jogos.json: asset Steam original deve usar uma Library Capsule oficial em {game['id']}.")
 
     navbar = load_json("data/content/navbar.json")
     jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}
@@ -1823,6 +1842,22 @@ def validate_architecture() -> None:
     ):
         if obsolete in sync_jogos_js:
             error(f".github/scripts/sync-jogos.mjs: dependência paga de Custom Fields ainda presente: {obsolete}")
+
+    # V48.3.24: Library Capsules modernas usam o asset_url_format retornado pela
+    # StoreBrowse API; a URL legada permanece somente como fallback oficial.
+    for token in (
+        'IStoreBrowseService/GetItems/v1/',
+        'data_request: { include_assets: true }',
+        'assets.library_capsule_2x',
+        'assets.library_capsule',
+        'shared.fastly.steamstatic.com/store_item_assets/',
+        '"library_600x900_2x.jpg", "library_600x900.jpg"',
+        'cached?.reason === "no-original-steam-portrait"',
+        'reason: "no-steam-library-capsule"',
+        'function getSteamLookupNames(name)',
+    ):
+        if token not in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: resolução de Library Capsule V48.3.24 ausente: {token}")
 
     for token in (
         'datetime="2026-09-17"',

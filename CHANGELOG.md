@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.24 — Hotfix: Library Capsules modernas da Steam
+
+- passa a consultar os metadados oficiais de assets da Steam antes do caminho CDN legado, suportando Library Capsules recentes armazenadas em caminhos versionados/hash;
+- prefere a variante vertical 2x quando publicada e mantém `library_600x900_2x.jpg`/`library_600x900.jpg` como fallback para jogos no formato legado;
+- preserva a política de usar somente assets originais da Steam, sem voltar a selecionar grids comunitários do SteamGridDB;
+- invalida apenas falhas antigas de `no-original-steam-portrait` para que jogos afetados sejam reavaliados na próxima sincronização, sem limpar todo o cache;
+- permite ignorar somente um ano editorial final, como `(2026)`, durante a identificação automática, preservando integralmente o nome exibido vindo do Trello;
+- amplia a validação de `jogos.json` para aceitar somente Library Capsules oficiais nos hosts/caminhos esperados da Steam.
+
 ## V48.3.23 — Hotfix: Steam App ID gratuito pela descrição do Trello
 
 - substitui o override por Custom Field pago por uma linha opcional `SteamAppID: 123456` na descrição do card do Trello;
