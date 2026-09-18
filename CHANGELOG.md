@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.39 — Hotfix: proporção do Menu e alinhamento do título mobile
+
+- reduz o painel `Menu` mobile para a mesma largura-base de `@ Redes` e usa a mesma grade `ícone + texto`, deixando a escala dos controles coerente;
+- força os rótulos dos itens do Menu a permanecerem alinhados à esquerda, com truncamento seguro quando necessário;
+- alinha novamente à esquerda o título contextual entre as divisórias de Logo e Apoiar, mantendo cor, tamanho, truncamento e animação vertical da V48.3.38;
+- mantém `Apoiar` fixo no rodapé do Menu, agora com a mesma altura-base dos demais itens, sem alterar Navbar desktop ou o contrato editorial.
+
 ## V48.3.38 — Menu mobile refinado e título animado
 
 - harmoniza a escala do botão/painel `Menu` com `@ Redes`, incluindo dimensões, cartões internos, ícones, bordas e estados de interação;

@@ -411,3 +411,7 @@ No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-
 ### Refinamento mobile — V48.3.38
 
 No viewport <= 767 px, conferir: (1) `Logo | título | Apoiar` com as duas divisórias e título centralizado; (2) troca vertical do título ao alternar seções e entre páginas iniciadas pela Navbar; (3) com movimento reduzido, troca imediata sem animação; (4) Menu e Redes com escala equivalente; (5) lista do Menu rolando sem mover o CTA Apoiar do rodapé; (6) Android/Brave mantendo Menu preso ao canto inferior esquerdo. Acima de 767 px, confirmar que a Navbar tradicional não mudou.
+
+### Hotfix de proporção — V48.3.39
+
+No mobile, conferir que `Menu` e `@ Redes` compartilham largura-base de 188 px e métricas de item, que os rótulos do Menu ficam alinhados à esquerda e que o título contextual também fica alinhado à esquerda entre as divisórias. Confirmar que a animação vertical, o CTA `Apoiar` fixo e o desktop permanecem inalterados.

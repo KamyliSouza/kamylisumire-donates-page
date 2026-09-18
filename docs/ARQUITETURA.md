@@ -217,3 +217,7 @@ No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-
 ### Camada mobile refinada — V48.3.38
 
 `navbar.js` mantém os links editoriais reais em `.site-nav-links`, mas no breakpoint mobile os monta dentro de `.site-nav-mobile-panel`; `content.js` consulta `#site-navbar` como raiz para que `navbar.json` continue alcançando esses nós fora de `.site-nav`; apenas o CTA de rodapé é clonado de `Apoiar` e ressincronizado após `kamyli:global-ui-ready`. Isso permite que a lista role independentemente do rodapé. O título contextual usa dois estados temporários para a animação vertical e `sessionStorage` apenas para transportar o rótulo anterior durante navegação iniciada pela Navbar entre páginas.
+
+### Ajuste visual da camada mobile — V48.3.39
+
+A geometria do painel `Menu` passa a espelhar a largura-base de `@ Redes` (188 px) e seus itens usam grade `24px + minmax(0, 1fr)`, garantindo alinhamento estável dos rótulos. O título contextual permanece animado, mas volta ao alinhamento à esquerda dentro da coluna entre as divisórias.

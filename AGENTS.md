@@ -525,3 +525,7 @@ No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-
 ### Navbar mobile V48.3.38
 
 Preservar no mobile a composição `Logo | título | Apoiar` com as duas divisórias visíveis e título centralizado. `Menu` e `@ Redes` devem manter escala equivalente. Dentro de Menu, `.site-nav-links` é a única área rolável e `.site-nav-mobile-footer` mantém uma cópia sincronizada de Apoiar fora do scroll. A troca de título usa animação vertical e deve respeitar `prefers-reduced-motion`; não reintroduzir links duplicados como fonte editorial nem alterar a Navbar desktop.
+
+### Navbar mobile V48.3.39
+
+Preservar a largura-base de 188 px do `Menu`, equivalente a `@ Redes`, com itens em grade `24px + texto`, rótulos alinhados à esquerda e `Apoiar` fixo fora da área rolável. O título contextual deve permanecer alinhado à esquerda entre as divisórias, sem remover a animação vertical nem alterar o layout desktop.

@@ -239,3 +239,7 @@ No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-
 ### Refinamento mobile — V48.3.38
 
 No mobile, Logo, título contextual e Apoiar permanecem no topo separados por divisórias; o título volta a ser centralizado e usa uma transição vertical ao mudar de seção/página, desativada por `prefers-reduced-motion`. O painel `Menu` acompanha a escala visual de `@ Redes`: os links ficam numa área rolável e uma cópia sincronizada de Apoiar permanece fixa no rodapé. Desktop/tablet largo continuam com a Navbar tradicional.
+
+### Hotfix mobile — V48.3.39
+
+O painel `Menu` usa a mesma largura-base e a mesma grade visual do painel `@ Redes`; rótulos ficam alinhados à esquerda. O título contextual continua entre as duas divisórias, porém alinhado à esquerda para não parecer deslocado pela largura variável de `Apoiar`. A animação vertical e o rodapé fixo de apoio permanecem.

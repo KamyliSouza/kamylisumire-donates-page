@@ -240,8 +240,8 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.38
-   Topo: Logo | título central | Apoiar, com divisórias preservadas.
+   MOBILE — V48.3.39
+   Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.
    Base: Menu e Redes compartilham escala; Apoiar fica fixo no rodapé.
    ========================================================= */
 
@@ -300,7 +300,7 @@
         font-weight: 900;
         line-height: 1.15;
         letter-spacing: -.015em;
-        text-align: center;
+        text-align: left;
         white-space: nowrap;
     }
 
@@ -309,6 +309,7 @@
         display: block;
         min-width: 0;
         overflow: hidden;
+        text-align: left;
         text-overflow: ellipsis;
         white-space: nowrap;
         will-change: transform, opacity;
@@ -406,7 +407,7 @@
         z-index: 850;
 
         display: none;
-        width: min(220px, calc(100vw - 28px));
+        width: min(188px, calc(100vw - 28px));
         max-height: min(62vh, 440px);
 
         background-color: var(--nav-bg);
@@ -444,9 +445,9 @@
     }
 
     .site-nav-links .site-nav-link {
-        display: flex;
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
         align-items: center;
-        justify-content: flex-start;
         gap: 10px;
 
         width: 100%;
@@ -468,6 +469,14 @@
         width: 24px;
         height: 24px;
         color: var(--primary-color);
+    }
+
+    .site-nav-links [data-nav-label] {
+        min-width: 0;
+        overflow: hidden;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .site-nav-links .site-nav-link.is-active {
@@ -492,7 +501,7 @@
 
     .site-nav-mobile-support {
         width: 100%;
-        min-height: 44px;
+        min-height: 42px;
         justify-content: center;
         gap: 8px;
         padding: 8px 11px;
