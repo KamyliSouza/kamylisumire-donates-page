@@ -228,9 +228,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488273408,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1801110,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1801110/library_600x900.jpg"
+      },
+      "steamAppId": 1801110,
+      "steamUrl": "https://store.steampowered.com/app/1801110/"
     },
     {
       "id": "69f61e232c5170bd3197b66d",
@@ -343,9 +347,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488291840,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2114740,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2114740/library_600x900.jpg"
+      },
+      "steamAppId": 2114740,
+      "steamUrl": "https://store.steampowered.com/app/2114740/"
     },
     {
       "id": "69f61cb0d980238b4ceb5d8d",
@@ -353,9 +361,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488293888,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1174180,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
+      },
+      "steamAppId": 1174180,
+      "steamUrl": "https://store.steampowered.com/app/1174180/"
     },
     {
       "id": "69f803c6bc8f6fae77d6a82e",
@@ -393,9 +405,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488306176,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1244090,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/library_600x900.jpg"
+      },
+      "steamAppId": 1244090,
+      "steamUrl": "https://store.steampowered.com/app/1244090/"
     },
     {
       "id": "69f61b3b8d6ada9cf173608d",
@@ -403,9 +419,13 @@
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488306176,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1693980,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1693980/library_600x900.jpg"
+      },
+      "steamAppId": 1693980,
+      "steamUrl": "https://store.steampowered.com/app/1693980/"
     },
     {
       "id": "69f6110c5b06b1debf173cc8",
@@ -454,8 +474,8 @@
       "listName": "Finalizados",
       "pos": 140737488322560,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 3357650,
+      "steamUrl": "https://store.steampowered.com/app/3357650/"
     },
     {
       "id": "69f620158edec48ad68debbe",
@@ -538,9 +558,13 @@
       "listId": "6a8c261ebc3d1ca81f06e55b",
       "listName": "Em Espera",
       "pos": 140737488338944,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1086940,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+      },
+      "steamAppId": 1086940,
+      "steamUrl": "https://store.steampowered.com/app/1086940/"
     },
     {
       "id": "69f61042fcdfa31f8baf4458",
@@ -579,8 +603,8 @@
       "listName": "Finalizados",
       "pos": 140737488343040,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 2778580,
+      "steamUrl": "https://store.steampowered.com/app/2778580/"
     },
     {
       "id": "69f610465bf55bcb7a7bee91",
@@ -588,9 +612,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488347136,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 814380,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/814380/library_600x900.jpg"
+      },
+      "steamAppId": 814380,
+      "steamUrl": "https://store.steampowered.com/app/814380/"
     },
     {
       "id": "6a7f02a2285a3842d8553534",
@@ -644,8 +672,8 @@
       "listName": "Em Espera",
       "pos": 140737488371712,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 3552140,
+      "steamUrl": "https://store.steampowered.com/app/3552140/"
     },
     {
       "id": "69f610c9ae51721ed73594b2",
@@ -758,9 +786,13 @@
       "listId": "69f611e83d599afb6522f751",
       "listName": "Engavetados",
       "pos": 140737488379904,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2466900,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2466900/library_600x900.jpg"
+      },
+      "steamAppId": 2466900,
+      "steamUrl": "https://store.steampowered.com/app/2466900/"
     },
     {
       "id": "69f611b23512ada964ce76be",
@@ -814,8 +846,8 @@
       "listName": "Engavetados",
       "pos": 140737488388096,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 1117850,
+      "steamUrl": "https://store.steampowered.com/app/1117850/"
     },
     {
       "id": "69f6102c3c7cf7092c6dfb53",
@@ -854,8 +886,8 @@
       "listName": "Em Andamento",
       "pos": 140737488412672,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 3812600,
+      "steamUrl": "https://store.steampowered.com/app/3812600/"
     },
     {
       "id": "69f610d35f5aad6dfec9359c",
@@ -878,9 +910,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488420864,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1196590,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1196590/library_600x900.jpg"
+      },
+      "steamAppId": 1196590,
+      "steamUrl": "https://store.steampowered.com/app/1196590/"
     },
     {
       "id": "6a8c27dec02f32f6e36cbb39",
@@ -933,9 +969,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488470016,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1989270,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1989270/library_600x900.jpg"
+      },
+      "steamAppId": 1989270,
+      "steamUrl": "https://store.steampowered.com/app/1989270/"
     },
     {
       "id": "69f61b6d546cea8de287ea0b",
@@ -1033,9 +1073,13 @@
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488502784,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2915460,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900.jpg"
+      },
+      "steamAppId": 2915460,
+      "steamUrl": "https://store.steampowered.com/app/2915460/"
     },
     {
       "id": "69f610e9c8bb97409422c527",
@@ -1043,9 +1087,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488519168,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1369630,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1369630/library_600x900.jpg"
+      },
+      "steamAppId": 1369630,
+      "steamUrl": "https://store.steampowered.com/app/1369630/"
     },
     {
       "id": "69f6106579fa3546c8c66277",
@@ -1053,9 +1101,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488519168,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 206440,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/206440/library_600x900.jpg"
+      },
+      "steamAppId": 206440,
+      "steamUrl": "https://store.steampowered.com/app/206440/"
     },
     {
       "id": "69f6106814793469b172c233",
@@ -1123,9 +1175,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488568320,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 374320,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/374320/library_600x900.jpg"
+      },
+      "steamAppId": 374320,
+      "steamUrl": "https://store.steampowered.com/app/374320/"
     },
     {
       "id": "69f61d3fb998b5a49327e017",
@@ -1133,9 +1189,13 @@
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488568320,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1895880,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1895880/library_600x900.jpg"
+      },
+      "steamAppId": 1895880,
+      "steamUrl": "https://store.steampowered.com/app/1895880/"
     },
     {
       "id": "69f610f9c6fff0cd86b05507",
@@ -1143,9 +1203,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488584704,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 238320,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/238320/library_600x900.jpg"
+      },
+      "steamAppId": 238320,
+      "steamUrl": "https://store.steampowered.com/app/238320/"
     },
     {
       "id": "69f61075a999aa6c143108dd",
@@ -1284,8 +1348,8 @@
       "listName": "Comprar",
       "pos": 140737488633856,
       "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "steamAppId": 3043580,
+      "steamUrl": "https://store.steampowered.com/app/3043580/"
     },
     {
       "id": "69f6110492dea8bd22b85ce6",
@@ -1293,9 +1357,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488650240,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 485510,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/485510/library_600x900.jpg"
+      },
+      "steamAppId": 485510,
+      "steamUrl": "https://store.steampowered.com/app/485510/"
     },
     {
       "id": "69f61080edb2643367d7abbb",
@@ -1303,9 +1371,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488650240,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 489830,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/489830/library_600x900.jpg"
+      },
+      "steamAppId": 489830,
+      "steamUrl": "https://store.steampowered.com/app/489830/"
     },
     {
       "id": "69f61083e995944fd0c28f31",
@@ -1323,9 +1395,13 @@
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488666624,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3041230,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/3041230/library_600x900.jpg"
+      },
+      "steamAppId": 3041230,
+      "steamUrl": "https://store.steampowered.com/app/3041230/"
     },
     {
       "id": "69f61dedf87ac65553515b86",
@@ -1438,9 +1514,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488748544,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 400,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/400/library_600x900.jpg"
+      },
+      "steamAppId": 400,
+      "steamUrl": "https://store.steampowered.com/app/400/"
     },
     {
       "id": "69f61e37d6e950d118695a2f",
@@ -1463,9 +1543,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488764928,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1507580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1507580/library_600x900.jpg"
+      },
+      "steamAppId": 1507580,
+      "steamUrl": "https://store.steampowered.com/app/1507580/"
     },
     {
       "id": "69f6121fad2af601b30102fc",
@@ -1578,9 +1662,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488814080,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 380,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/380/library_600x900.jpg"
+      },
+      "steamAppId": 380,
+      "steamUrl": "https://store.steampowered.com/app/380/"
     },
     {
       "id": "69f61e4c972447e3e93f94a3",
@@ -1603,9 +1691,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488830464,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 420,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/420/library_600x900.jpg"
+      },
+      "steamAppId": 420,
+      "steamUrl": "https://store.steampowered.com/app/420/"
     },
     {
       "id": "69f61e50840961e28f1efaa7",
@@ -1748,9 +1840,13 @@
       "listId": "6a3eeff29abc42268c0088ef",
       "listName": "Pedidos",
       "pos": 140737488896000,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1782460,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1782460/library_600x900.jpg"
+      },
+      "steamAppId": 1782460,
+      "steamUrl": "https://store.steampowered.com/app/1782460/"
     },
     {
       "id": "69f61e78735bc993518e3c1b",
@@ -1828,5 +1924,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-17T22:45:37.794Z"
+  "updatedAt": "2026-09-18T01:40:14.585Z"
 }
