@@ -448,9 +448,13 @@
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
       "pos": 140737488307520,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 972660,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/972660/library_600x900.jpg"
+      },
+      "steamAppId": 972660,
+      "steamUrl": "https://store.steampowered.com/app/972660/"
     },
     {
       "id": "69f61c33e8c727444bd93758",
@@ -1924,5 +1928,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-18T01:40:14.585Z"
+  "updatedAt": "2026-09-18T01:45:33.884Z"
 }
