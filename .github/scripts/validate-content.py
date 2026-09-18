@@ -1877,11 +1877,11 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.39",
-            "js/core/navbar.js?v=48.3.39",
+            "js/core/content.js?v=48.3.40",
+            "js/core/navbar.js?v=48.3.40",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.39",
+            "css/core/navbar.css?v=48.3.40",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,9 +1908,9 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.39" not in html:
+        if "js/core/navbar.js?v=48.3.40" not in html:
             error(f"{rel}: cache-buster V48.3.39 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.39" not in html:
+        if "js/core/content.js?v=48.3.40" not in html:
             error(f"{rel}: cache-buster V48.3.39 ausente para js/core/content.js.")
 
     for asset in (
@@ -2547,10 +2547,13 @@ def validate_architecture() -> None:
             error(f"V48.3.38: conteúdo editorial da Navbar não cobre a camada mobile: {token}.")
 
     for token in (
-        'MOBILE — V48.3.39',
+        'MOBILE — V48.3.40',
         'grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto',
-        'width: min(188px, calc(100vw - 28px))',
+        'width: min(220px, calc(100vw - 28px))',
         'grid-template-columns: 24px minmax(0, 1fr)',
+        'grid-template-columns: minmax(0, 1fr)',
+        'justify-items: stretch',
+        '.site-nav-links .site-nav-item',
         '.site-nav-links [data-nav-label]',
         'text-align: left',
         '.site-nav-mobile-title-text.is-leaving',
@@ -2565,7 +2568,7 @@ def validate_architecture() -> None:
         '.site-nav-links [data-nav-key="apoio"]',
     ):
         if token not in navbar_css:
-            error(f"V48.3.39: CSS mobile incompleto: {token}.")
+            error(f"V48.3.40: CSS mobile incompleto: {token}.")
 
 
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.

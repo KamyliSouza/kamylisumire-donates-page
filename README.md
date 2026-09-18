@@ -243,3 +243,7 @@ No mobile, Logo, título contextual e Apoiar permanecem no topo separados por di
 ### Hotfix mobile — V48.3.39
 
 O painel `Menu` usa a mesma largura-base e a mesma grade visual do painel `@ Redes`; rótulos ficam alinhados à esquerda. O título contextual continua entre as duas divisórias, porém alinhado à esquerda para não parecer deslocado pela largura variável de `Apoiar`. A animação vertical e o rodapé fixo de apoio permanecem.
+
+### Hotfix mobile — V48.3.40
+
+O Menu volta a 220 px de largura-base e sua grade força cada item a preencher toda a largura útil, preservando apenas a margem interna de 8 px compartilhada com o CTA `Apoiar`.

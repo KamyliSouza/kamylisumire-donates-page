@@ -529,3 +529,7 @@ Preservar no mobile a composição `Logo | título | Apoiar` com as duas divisó
 ### Navbar mobile V48.3.39
 
 Preservar a largura-base de 188 px do `Menu`, equivalente a `@ Redes`, com itens em grade `24px + texto`, rótulos alinhados à esquerda e `Apoiar` fixo fora da área rolável. O título contextual deve permanecer alinhado à esquerda entre as divisórias, sem remover a animação vertical nem alterar o layout desktop.
+
+### Navbar mobile V48.3.40
+
+Preservar `Menu` com largura-base de 220 px e itens esticados por toda a largura útil (`justify-items: stretch` + wrapper em 100%); não reintroduzir largura intrínseca/centralização dos itens.

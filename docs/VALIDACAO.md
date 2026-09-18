@@ -415,3 +415,7 @@ No viewport <= 767 px, conferir: (1) `Logo | título | Apoiar` com as duas divis
 ### Hotfix de proporção — V48.3.39
 
 No mobile, conferir que `Menu` e `@ Redes` compartilham largura-base de 188 px e métricas de item, que os rótulos do Menu ficam alinhados à esquerda e que o título contextual também fica alinhado à esquerda entre as divisórias. Confirmar que a animação vertical, o CTA `Apoiar` fixo e o desktop permanecem inalterados.
+
+### Geometria do Menu — V48.3.40
+
+No mobile, conferir painel com largura-base de 220 px e todos os itens comuns ocupando a mesma largura útil do CTA `Apoiar`, separados da borda externa apenas pelo padding de 8 px.

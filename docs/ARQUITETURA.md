@@ -221,3 +221,7 @@ No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-
 ### Ajuste visual da camada mobile — V48.3.39
 
 A geometria do painel `Menu` passa a espelhar a largura-base de `@ Redes` (188 px) e seus itens usam grade `24px + minmax(0, 1fr)`, garantindo alinhamento estável dos rótulos. O título contextual permanece animado, mas volta ao alinhamento à esquerda dentro da coluna entre as divisórias.
+
+### Geometria mobile — V48.3.40
+
+A área rolável do Menu usa uma coluna `minmax(0, 1fr)`, `justify-items: stretch` e wrappers `.site-nav-item` em 100%, impedindo que regras de largura intrínseca da Navbar desktop comprimam os botões no painel.

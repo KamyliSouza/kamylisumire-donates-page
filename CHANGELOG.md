@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.40 — Hotfix: largura útil dos itens do Menu mobile
+
+- restaura o painel `Menu` para 220 px de largura-base, mantendo limite responsivo pela viewport;
+- força a grade rolável e cada `.site-nav-item` a ocupar toda a largura útil do painel, eliminando o aspecto de botões estreitos/centralizados;
+- mantém a margem interna de 8 px, fazendo os botões comuns acompanharem a mesma geometria lateral do CTA `Apoiar`;
+- preserva alinhamento esquerdo, animação do título, rodapé fixo, comportamento Android/Brave e Navbar desktop.
+
 ## V48.3.39 — Hotfix: proporção do Menu e alinhamento do título mobile
 
 - reduz o painel `Menu` mobile para a mesma largura-base de `@ Redes` e usa a mesma grade `ícone + texto`, deixando a escala dos controles coerente;
