@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.38 — Menu mobile refinado e título animado
+
+- harmoniza a escala do botão/painel `Menu` com `@ Redes`, incluindo dimensões, cartões internos, ícones, bordas e estados de interação;
+- separa o painel mobile em uma área de navegação rolável e um rodapé fixo, mantendo uma representação sincronizada de `Apoiar` sempre acessível no fim do Menu;
+- centraliza novamente o título contextual no topo e preserva as divisórias visuais entre Logo, título e Apoiar;
+- anima verticalmente a troca do título entre seções e, ao navegar pela Navbar entre páginas, transporta temporariamente o título anterior via `sessionStorage` para completar a transição no destino;
+- mantém `navbar.json` funcional mesmo com os nós mobile fora de `.site-nav`, respeita `prefers-reduced-motion`, preserva o workaround de viewport para Chromium/Brave Android e não altera a Navbar de desktop.
+
 ## V48.3.37 — Hotfix: Menu mobile no viewport e título contextual
 
 - corrige no Chromium/Brave Android o botão `Menu` que podia aparecer junto ao topo porque `backdrop-filter` da Navbar cria um containing block para descendentes com `position: fixed`;

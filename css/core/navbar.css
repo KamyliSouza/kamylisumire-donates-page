@@ -229,7 +229,9 @@
 
 /* Elementos exclusivos do layout mobile. */
 .site-nav-mobile-title,
-.site-nav-mobile-trigger {
+.site-nav-mobile-trigger,
+.site-nav-mobile-panel,
+.site-nav-mobile-footer {
     display: none;
 }
 
@@ -238,9 +240,9 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.37
-   Topo: Logo / título da página / Apoiar.
-   Base: Menu flutuante à esquerda; Redes é o par à direita.
+   MOBILE — V48.3.38
+   Topo: Logo | título central | Apoiar, com divisórias preservadas.
+   Base: Menu e Redes compartilham escala; Apoiar fica fixo no rodapé.
    ========================================================= */
 
 @media (max-width: 767px) {
@@ -257,9 +259,9 @@
         width: calc(100% - 16px);
         min-height: 62px;
         display: grid;
-        grid-template-columns: 44px minmax(0, 1fr) auto;
+        grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto;
         align-items: center;
-        gap: 8px;
+        column-gap: 8px;
     }
 
     .site-brand {
@@ -273,27 +275,59 @@
         height: 34px;
     }
 
-    .site-nav-divider {
-        display: none;
+    .site-nav-inner > .site-nav-divider {
+        display: block;
+        width: 1px;
+        height: 28px;
+        margin: 0;
+        justify-self: center;
+    }
+
+    .site-nav-inner > .site-nav-divider:not(.site-nav-support-divider) {
+        grid-column: 2;
     }
 
     .site-nav-mobile-title {
-        grid-column: 2;
-        display: block;
+        grid-column: 3;
+        position: relative;
+        display: grid;
         min-width: 0;
+        height: 1.35em;
+        align-items: center;
         overflow: hidden;
         color: var(--primary-color);
-        font-size: 1.08rem;
+        font-size: 1.12rem;
         font-weight: 900;
         line-height: 1.15;
         letter-spacing: -.015em;
-        text-align: left;
-        text-overflow: ellipsis;
+        text-align: center;
         white-space: nowrap;
     }
 
+    .site-nav-mobile-title-text {
+        grid-area: 1 / 1;
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        will-change: transform, opacity;
+    }
+
+    .site-nav-mobile-title-text.is-leaving {
+        animation: site-nav-title-scroll-out .28s cubic-bezier(.4, 0, .2, 1) both;
+    }
+
+    .site-nav-mobile-title-text.is-entering {
+        animation: site-nav-title-scroll-in .28s cubic-bezier(.4, 0, .2, 1) both;
+    }
+
+    .site-nav-support-divider:not([hidden]) {
+        grid-column: 4;
+    }
+
     .site-nav-support-wrap:not([hidden]) {
-        grid-column: 3;
+        grid-column: 5;
         display: flex;
         justify-content: flex-end;
         min-width: 0;
@@ -320,7 +354,7 @@
         min-height: 48px;
         padding: 0 14px;
 
-        color: var(--text-color);
+        color: var(--primary-color);
         background-color: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 999px;
@@ -330,10 +364,6 @@
         -webkit-backdrop-filter: blur(var(--blur-card));
 
         font: inherit;
-        font-size: .82rem;
-        font-weight: 800;
-        line-height: 1;
-
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
@@ -342,35 +372,42 @@
             color .18s ease,
             background-color .18s ease,
             border-color .18s ease,
+            transform .18s ease,
             box-shadow .18s ease;
-    }
-
-    .site-nav-mobile-trigger-mark {
-        color: var(--primary-color);
-        font-size: 1rem;
-        font-weight: 900;
-        line-height: 1;
     }
 
     .site-nav-mobile-trigger:focus-visible,
     .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger {
-        color: var(--text-color);
+        color: var(--primary-color);
         background-color: var(--card-bg);
         border-color: var(--primary-color);
         box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
         outline: none;
     }
 
-    .site-nav-links {
+    .site-nav-mobile-trigger-mark {
+        color: var(--primary-color);
+        font-size: 1.05rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .site-nav-mobile-trigger-label {
+        color: var(--text-color);
+        font-size: .82rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .site-nav-mobile-panel {
         position: fixed;
         left: max(14px, env(safe-area-inset-left));
         bottom: calc(74px + env(safe-area-inset-bottom));
         z-index: 850;
 
         display: none;
-        width: min(232px, calc(100vw - 28px));
-        max-height: min(60vh, 430px);
-        padding: 8px;
+        width: min(220px, calc(100vw - 28px));
+        max-height: min(62vh, 440px);
 
         background-color: var(--nav-bg);
         border: 1px solid var(--card-border);
@@ -380,39 +417,132 @@
         backdrop-filter: blur(var(--blur-card));
         -webkit-backdrop-filter: blur(var(--blur-card));
 
+        overflow: hidden;
+    }
+
+    .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .site-nav-links {
+        position: static;
+        display: grid;
+        flex: 1 1 auto;
+        gap: 6px;
+        width: 100%;
+        min-height: 0;
+        padding: 8px;
+
+        background: transparent;
+        border: 0;
+
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
-    }
-
-    .site-nav-mobile-layer.is-mobile-menu-open .site-nav-links {
-        display: grid;
-        gap: 6px;
+        scrollbar-width: thin;
     }
 
     .site-nav-links .site-nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+
         width: 100%;
         min-height: 42px;
-        justify-content: flex-start;
         padding: 8px 11px;
-        border: 1px solid transparent;
+
+        color: var(--text-color);
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
         border-radius: 12px;
+
         font-size: .86rem;
+        font-weight: 800;
+        text-align: left;
+        transform: none;
+    }
+
+    .site-nav-links .site-nav-item-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--primary-color);
     }
 
     .site-nav-links .site-nav-link.is-active {
+        color: var(--primary-color);
+        background-color: var(--notice-bg);
         border-color: var(--primary-color);
     }
+
+    /* Apoiar pode estar no fluxo editorial quando apoioFixoNoFim=false.
+       No mobile, a representação fixa do rodapé é sempre a usada no painel. */
+    .site-nav-links [data-nav-key="apoio"] {
+        display: none;
+    }
+
+    .site-nav-mobile-footer {
+        display: block;
+        flex: 0 0 auto;
+        padding: 8px;
+        border-top: 1px solid var(--card-border);
+        background-color: var(--nav-bg);
+    }
+
+    .site-nav-mobile-support {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 11px;
+
+        color: #fff;
+        background-color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 12px;
+
+        font-size: .86rem;
+        font-weight: 900;
+    }
+
+    .site-nav-mobile-support .site-nav-item-icon {
+        width: 20px;
+        height: 20px;
+        color: currentColor;
+    }
+}
+
+@keyframes site-nav-title-scroll-out {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-115%); opacity: 0; }
+}
+
+@keyframes site-nav-title-scroll-in {
+    from { transform: translateY(115%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* Assim como em @ Redes, hover só é aplicado quando há hover real. */
 @media (max-width: 767px) and (hover: hover) and (pointer: fine) {
-    .site-nav-mobile-trigger:hover {
-        color: var(--text-color);
+    .site-nav-mobile-trigger:hover,
+    .site-nav-links .site-nav-link:hover,
+    .site-nav-links .site-nav-link:focus-visible {
+        color: var(--primary-color);
         background-color: var(--notice-bg);
         border-color: var(--primary-color);
         box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
         outline: none;
+        transform: none;
+    }
+
+    .site-nav-mobile-support:hover,
+    .site-nav-mobile-support:focus-visible {
+        color: #fff;
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        outline: none;
+        transform: none;
     }
 }
 
@@ -611,5 +741,10 @@
 @media (prefers-reduced-motion: reduce) {
     .site-nav-mobile-trigger {
         transition: none;
+    }
+
+    .site-nav-mobile-title-text.is-leaving,
+    .site-nav-mobile-title-text.is-entering {
+        animation: none;
     }
 }

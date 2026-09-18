@@ -235,3 +235,7 @@ Os fallbacks de `navbar` e `blogConfig` em `js/core/content.js` devem espelhar e
 ### Hotfix mobile — V48.3.37
 
 No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.
+
+### Refinamento mobile — V48.3.38
+
+No mobile, Logo, título contextual e Apoiar permanecem no topo separados por divisórias; o título volta a ser centralizado e usa uma transição vertical ao mudar de seção/página, desativada por `prefers-reduced-motion`. O painel `Menu` acompanha a escala visual de `@ Redes`: os links ficam numa área rolável e uma cópia sincronizada de Apoiar permanece fixa no rodapé. Desktop/tablet largo continuam com a Navbar tradicional.

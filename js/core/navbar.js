@@ -25,16 +25,18 @@
 
                 <span class="site-nav-divider" aria-hidden="true"></span>
 
-                <span class="site-nav-mobile-title" aria-live="polite">Início</span>
+                <span class="site-nav-mobile-title" aria-live="polite" aria-atomic="true">
+                    <span class="site-nav-mobile-title-text">Início</span>
+                </span>
 
                 <button
                     class="site-nav-mobile-trigger"
                     type="button"
                     aria-expanded="false"
-                    aria-controls="site-nav-mobile-menu"
+                    aria-controls="site-nav-mobile-panel"
                 >
                     <span class="site-nav-mobile-trigger-mark" aria-hidden="true">☰</span>
-                    <span>Menu</span>
+                    <span class="site-nav-mobile-trigger-label">Menu</span>
                 </button>
 
                 <div class="site-nav-links" id="site-nav-mobile-menu">
@@ -79,6 +81,8 @@
                     </a>
                 </div>
 
+                <div class="site-nav-mobile-footer" aria-label="Ação de apoio"></div>
+
                 <span
                     class="site-nav-divider site-nav-support-divider"
                     aria-hidden="true"
@@ -104,6 +108,8 @@
     const navLinksContainer = mount.querySelector(".site-nav-links");
     const mobileTrigger = mount.querySelector(".site-nav-mobile-trigger");
     const mobileTitle = mount.querySelector(".site-nav-mobile-title");
+    const mobileFooter = mount.querySelector(".site-nav-mobile-footer");
+    const supportLink = mount.querySelector('[data-nav-key="apoio"]');
     const mobileQuery = window.matchMedia("(max-width: 767px)");
 
     /*
@@ -114,16 +120,40 @@
      */
     const mobileLayer = document.createElement("div");
     mobileLayer.className = "site-nav-mobile-layer";
+
+    const mobilePanel = document.createElement("div");
+    mobilePanel.className = "site-nav-mobile-panel";
+    mobilePanel.id = "site-nav-mobile-panel";
+    mobilePanel.setAttribute("aria-label", "Menu principal");
+    mobileLayer.appendChild(mobilePanel);
     mount.appendChild(mobileLayer);
 
     const linksHome = document.createComment("site-nav-links-home");
     navLinksContainer?.before(linksHome);
 
+    const MOBILE_TITLE_MEMORY_KEY = "kamyli:mobile-nav-title";
+    let mobileTitleAnimationTimer = null;
+    let deferMobileTitleUntilReveal = false;
+    let pendingRevealedMobileTitle = "";
+
+    function syncMobileSupport() {
+        if (!mobileFooter || !supportLink) return;
+
+        const mobileSupport = supportLink.cloneNode(true);
+        mobileSupport.classList.add("site-nav-mobile-support");
+        mobileSupport.classList.remove("is-active");
+        mobileSupport.removeAttribute("aria-current");
+        mobileSupport.removeAttribute("data-nav-key");
+        mobileSupport.removeAttribute("data-nav-page");
+        mobileFooter.replaceChildren(mobileSupport);
+    }
+
     function syncMobileLayer() {
-        if (!navLinksContainer || !mobileTrigger || !navInner) return;
+        if (!navLinksContainer || !mobileTrigger || !navInner || !mobileFooter) return;
 
         if (mobileQuery.matches) {
-            mobileLayer.append(mobileTrigger, navLinksContainer);
+            mobileLayer.appendChild(mobileTrigger);
+            mobilePanel.append(navLinksContainer, mobileFooter);
             return;
         }
 
@@ -131,6 +161,7 @@
         mobileTrigger.setAttribute("aria-expanded", "false");
         linksHome.after(navLinksContainer);
         navLinksContainer.before(mobileTrigger);
+        navLinksContainer.after(mobileFooter);
     }
 
     function fallbackMobileTitle() {
@@ -140,9 +171,137 @@
         return title || "Kamyli Sumire";
     }
 
-    function updateMobileTitle(link) {
-        const label = link?.querySelector("[data-nav-label]")?.textContent?.trim();
-        if (mobileTitle) mobileTitle.textContent = label || fallbackMobileTitle();
+    function createMobileTitleText(label, state = "") {
+        const text = document.createElement("span");
+        text.className = "site-nav-mobile-title-text";
+        if (state) text.classList.add(state);
+        text.textContent = label;
+        return text;
+    }
+
+    function currentMobileTitleText() {
+        return mobileTitle?.querySelector(
+            ".site-nav-mobile-title-text:last-child"
+        ) || null;
+    }
+
+    function updateMobileTitle(link, { animate = true } = {}) {
+        if (!mobileTitle) return;
+
+        const label =
+            link?.querySelector("[data-nav-label]")?.textContent?.trim() ||
+            fallbackMobileTitle();
+
+        const current = currentMobileTitleText();
+        if (current?.textContent === label) return;
+
+        if (animate && deferMobileTitleUntilReveal) {
+            pendingRevealedMobileTitle = label;
+            return;
+        }
+
+        if (mobileTitleAnimationTimer !== null) {
+            window.clearTimeout(mobileTitleAnimationTimer);
+            mobileTitleAnimationTimer = null;
+        }
+
+        if (!current || !animate || !mobileQuery.matches || prefersReducedMotion()) {
+            mobileTitle.replaceChildren(createMobileTitleText(label));
+            return;
+        }
+
+        const outgoing = createMobileTitleText(
+            current.textContent || fallbackMobileTitle(),
+            "is-leaving"
+        );
+        outgoing.setAttribute("aria-hidden", "true");
+
+        const incoming = createMobileTitleText(label, "is-entering");
+        mobileTitle.replaceChildren(outgoing, incoming);
+
+        mobileTitleAnimationTimer = window.setTimeout(() => {
+            mobileTitle.replaceChildren(createMobileTitleText(label));
+            mobileTitleAnimationTimer = null;
+        }, 300);
+    }
+
+    function initializeMobileTitle() {
+        let previousTitle = "";
+
+        try {
+            previousTitle = sessionStorage.getItem(MOBILE_TITLE_MEMORY_KEY) || "";
+            sessionStorage.removeItem(MOBILE_TITLE_MEMORY_KEY);
+        } catch {
+            previousTitle = "";
+        }
+
+        if (mobileQuery.matches && previousTitle) {
+            mobileTitle?.replaceChildren(createMobileTitleText(previousTitle));
+
+            if (!document.documentElement.classList.contains("site-ready")) {
+                deferMobileTitleUntilReveal = true;
+
+                let revealFallback = window.setTimeout(() => {
+                    revealFallback = null;
+                    finishDeferredMobileTitle();
+                }, 5500);
+
+                window.addEventListener(
+                    "kamyli:site-revealed",
+                    () => {
+                        if (revealFallback !== null) {
+                            window.clearTimeout(revealFallback);
+                            revealFallback = null;
+                        }
+                        finishDeferredMobileTitle();
+                    },
+                    { once: true }
+                );
+            }
+            return;
+        }
+
+        updateMobileTitle(null, { animate: false });
+    }
+
+    function finishDeferredMobileTitle() {
+        if (!deferMobileTitleUntilReveal) return;
+
+        deferMobileTitleUntilReveal = false;
+        const label = pendingRevealedMobileTitle;
+        pendingRevealedMobileTitle = "";
+
+        if (!label) return;
+        const pseudoLink = document.createElement("span");
+        const pseudoLabel = document.createElement("span");
+        pseudoLabel.dataset.navLabel = "";
+        pseudoLabel.textContent = label;
+        pseudoLink.appendChild(pseudoLabel);
+        updateMobileTitle(pseudoLink);
+    }
+
+    function rememberMobileTitleForNavigation(anchor) {
+        if (!mobileQuery.matches || !anchor?.href) return;
+
+        let target;
+        try {
+            target = new URL(anchor.href, window.location.href);
+        } catch {
+            return;
+        }
+
+        if (target.origin !== window.location.origin || target.pathname === window.location.pathname) {
+            return;
+        }
+
+        const title = currentMobileTitleText()?.textContent?.trim();
+        if (!title) return;
+
+        try {
+            sessionStorage.setItem(MOBILE_TITLE_MEMORY_KEY, title);
+        } catch {
+            // sessionStorage pode estar indisponível em modos restritos.
+        }
     }
 
     function closeMobileMenu({ restoreFocus = false } = {}) {
@@ -186,7 +345,13 @@
         syncMobileLayer();
     });
 
+    syncMobileSupport();
     syncMobileLayer();
+
+    mount.addEventListener("click", event => {
+        const anchor = event.target.closest("a[href]");
+        if (anchor) rememberMobileTitleForNavigation(anchor);
+    });
 
     navLinksContainer?.addEventListener("click", event => {
         if (mobileQuery.matches && event.target.closest(".site-nav-link")) {
@@ -194,7 +359,13 @@
         }
     });
 
-    updateMobileTitle(null);
+    mobileFooter?.addEventListener("click", event => {
+        if (mobileQuery.matches && event.target.closest("a[href]")) {
+            closeMobileMenu();
+        }
+    });
+
+    initializeMobileTitle();
 
     function getNavSectionLinks() {
         return [...mount.querySelectorAll("[data-nav-section]")];
@@ -273,6 +444,7 @@
      */
     function realignActiveLinkAfterEditorialNavbar() {
         requestAnimationFrame(() => {
+            syncMobileSupport();
             const activeLink = mount.querySelector(
                 ".site-nav-link.is-active"
             );

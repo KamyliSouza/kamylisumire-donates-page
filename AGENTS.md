@@ -521,3 +521,7 @@ No mobile, não restaurar a faixa horizontal rolável nem duplicar os links edit
 ### Navbar mobile V48.3.37
 
 No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.
+
+### Navbar mobile V48.3.38
+
+Preservar no mobile a composição `Logo | título | Apoiar` com as duas divisórias visíveis e título centralizado. `Menu` e `@ Redes` devem manter escala equivalente. Dentro de Menu, `.site-nav-links` é a única área rolável e `.site-nav-mobile-footer` mantém uma cópia sincronizada de Apoiar fora do scroll. A troca de título usa animação vertical e deve respeitar `prefers-reduced-motion`; não reintroduzir links duplicados como fonte editorial nem alterar a Navbar desktop.

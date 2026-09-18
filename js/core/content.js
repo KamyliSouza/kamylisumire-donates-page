@@ -269,13 +269,13 @@
         );
     }
 
-    function applyNavbarOrder(nav, data) {
-        const container = nav?.querySelector(".site-nav-links");
+    function applyNavbarOrder(navRoot, data) {
+        const container = navRoot?.querySelector(".site-nav-links");
         if (!container) return;
 
-        const support = nav.querySelector('[data-nav-key="apoio"]');
-        const supportWrap = nav.querySelector(".site-nav-support-wrap");
-        const supportDivider = nav.querySelector(".site-nav-support-divider");
+        const support = navRoot.querySelector('[data-nav-key="apoio"]');
+        const supportWrap = navRoot.querySelector(".site-nav-support-wrap");
+        const supportDivider = navRoot.querySelector(".site-nav-support-divider");
         const order = normalizeNavbarOrder(data);
         const pinSupport = data?.apoioFixoNoFim !== false;
         const expectedCentralOrder = pinSupport
@@ -289,7 +289,7 @@
          */
         if (!sameOrder(navKeysIn(container), expectedCentralOrder)) {
             for (const key of expectedCentralOrder) {
-                const link = nav.querySelector(`[data-nav-key="${key}"]`);
+                const link = navRoot.querySelector(`[data-nav-key="${key}"]`);
                 if (link) container.appendChild(link);
             }
         }
@@ -313,7 +313,7 @@
              * para inseri-lo na posição editorial correta.
              */
             for (const key of expectedCentralOrder) {
-                const link = nav.querySelector(`[data-nav-key="${key}"]`);
+                const link = navRoot.querySelector(`[data-nav-key="${key}"]`);
                 if (link) container.appendChild(link);
             }
         }
@@ -328,12 +328,13 @@
     }
 
     function applyNavbar(data) {
-        const nav = document.querySelector("#site-navbar .site-nav");
-        if (!nav) return false;
+        const navRoot = document.getElementById("site-navbar");
+        const nav = navRoot?.querySelector(".site-nav");
+        if (!navRoot || !nav) return false;
 
         setAttribute(nav, "aria-label", data.ariaLabel);
         setAttribute(
-            nav.querySelector(".site-brand"),
+            navRoot.querySelector(".site-brand"),
             "aria-label",
             data.brandAriaLabel
         );
@@ -344,16 +345,16 @@
 
         for (const key of NAVBAR_LINK_KEYS) {
             configureNavbarLink(
-                nav.querySelector(`[data-nav-key="${key}"]`),
+                navRoot.querySelector(`[data-nav-key="${key}"]`),
                 key,
                 links[key]
             );
         }
 
-        applyNavbarOrder(nav, data);
+        applyNavbarOrder(navRoot, data);
 
         if (!document.getElementById("inicio")) {
-            nav.querySelectorAll(".site-nav-link").forEach(link => {
+            navRoot.querySelectorAll(".site-nav-link").forEach(link => {
                 let target;
                 try {
                     target = new URL(link.href, window.location.href);
