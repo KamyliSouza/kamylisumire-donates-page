@@ -41,6 +41,7 @@ const steamApiHeaders = { "x-webapi-key": STEAM_WEB_API_KEY };
 const STEAM_API_BASE = "https://api.steampowered.com/";
 const STEAM_STORE_ASSET_BASE = "https://shared.fastly.steamstatic.com/store_item_assets/";
 const STEAM_LEGACY_ASSET_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
+const STEAM_COMMUNITY_ICON_BASE = "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/";
 
 function getSteamLookupNames(name) {
   const original = String(name || "").trim();
@@ -125,6 +126,43 @@ async function getStoreBrowsePortrait(appId) {
     if (url && await urlExists(url)) return url;
   }
   return null;
+}
+
+function buildSteamCommunityIconUrl(appId, hash) {
+  const iconHash = String(hash || "").trim().toLowerCase();
+  if (!Number.isSafeInteger(appId) || appId <= 0 || !/^[a-f0-9]{40}$/.test(iconHash)) return null;
+  return `${STEAM_COMMUNITY_ICON_BASE}${appId}/${iconHash}.jpg`;
+}
+
+async function getSteamCommunityIcons(appIds) {
+  const uniqueAppIds = [...new Set(appIds.filter(appId => Number.isSafeInteger(appId) && appId > 0))];
+  const icons = new Map();
+  const batchSize = 50;
+
+  for (let offset = 0; offset < uniqueAppIds.length; offset += batchSize) {
+    const batch = uniqueAppIds.slice(offset, offset + batchSize);
+    const endpoint = new URL("IStoreBrowseService/GetItems/v1/", STEAM_API_BASE);
+    endpoint.searchParams.set("input_json", JSON.stringify({
+      ids: batch.map(appid => ({ appid })),
+      context: { language: "english", country_code: "BR" },
+      data_request: { include_assets: true }
+    }));
+
+    try {
+      const payload = await getJson(endpoint, { headers: steamApiHeaders });
+      for (const item of payload?.response?.store_items || []) {
+        const appId = Number(item?.appid);
+        const url = buildSteamCommunityIconUrl(appId, item?.assets?.community_icon);
+        if (url) icons.set(appId, { provider: "steam-original", steamAppId: appId, url });
+      }
+    } catch (error) {
+      console.warn(`Steam community icons: lote ${Math.floor(offset / batchSize) + 1}: ${error.message}; continuando sem ícone.`);
+    }
+
+    if (offset + batchSize < uniqueAppIds.length) await sleep(100);
+  }
+
+  return icons;
 }
 
 async function hasOriginalSteamPortrait(appId) {
@@ -316,7 +354,14 @@ for (const card of cards) {
   }
 
   const steamUrl = steamAppId ? `https://store.steampowered.com/app/${steamAppId}/` : null;
-  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork, steamAppId, steamUrl });
+  games.push({ id: card.id, name: card.name, listId: list.id, listName: list.name, pos: card.pos, artwork, icon: null, steamAppId, steamUrl });
+}
+
+const steamCommunityIcons = await getSteamCommunityIcons(games.map(game => game.steamAppId));
+for (const game of games) {
+  if (Number.isSafeInteger(game.steamAppId) && game.steamAppId > 0) {
+    game.icon = steamCommunityIcons.get(game.steamAppId) || null;
+  }
 }
 
 let previous = null;

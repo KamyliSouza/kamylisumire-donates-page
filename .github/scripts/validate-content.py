@@ -840,6 +840,28 @@ def validate_jogos() -> None:
         steam_url = game.get("steamUrl")
         if steam_app_id is not None and (not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0):
             error(f"data/content/jogos.json: steamAppId inválido em {game['id']}.")
+
+        icon = game.get("icon")
+        if icon is not None:
+            if not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0:
+                error(f"data/content/jogos.json: icon exige steamAppId confirmado em {game['id']}.")
+            elif not isinstance(icon, dict) or icon.get("provider") != "steam-original":
+                error(f"data/content/jogos.json: icon inválido em {game['id']}.")
+            elif icon.get("steamAppId") != steam_app_id:
+                error(f"data/content/jogos.json: icon.steamAppId deve corresponder ao steamAppId em {game['id']}.")
+            elif not isinstance(icon.get("url"), str):
+                error(f"data/content/jogos.json: icon.url deve ser texto HTTPS em {game['id']}.")
+            else:
+                parsed_icon = urlparse(icon["url"])
+                icon_filename = parsed_icon.path.rsplit("/", 1)[-1]
+                valid_icon = (
+                    parsed_icon.scheme == "https"
+                    and parsed_icon.hostname == "cdn.cloudflare.steamstatic.com"
+                    and parsed_icon.path.startswith(f"/steamcommunity/public/images/apps/{steam_app_id}/")
+                    and re.fullmatch(r"[a-f0-9]{40}\.jpg", icon_filename, flags=re.I) is not None
+                )
+                if not valid_icon:
+                    error(f"data/content/jogos.json: icon deve usar o ícone oficial da Steam em {game['id']}.")
         legacy_artwork_app_id = artwork.get("steamAppId") if isinstance(artwork, dict) and artwork.get("provider") == "steam-original" else None
         effective_app_id = steam_app_id if isinstance(steam_app_id, int) and not isinstance(steam_app_id, bool) else legacy_artwork_app_id
         if steam_url is not None:
@@ -1127,6 +1149,30 @@ def validate_agenda() -> None:
                 ):
                     error(f"{live_label}.steamAppId deve ser inteiro positivo quando informado.")
 
+                icon = live.get("icon")
+                if icon is not None:
+                    if not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0:
+                        error(f"{live_label}.icon exige steamAppId válido.")
+                    elif not isinstance(icon, dict) or icon.get("provider") != "steam-original":
+                        error(f"{live_label}.icon deve ser um asset steam-original.")
+                    elif icon.get("steamAppId") != steam_app_id:
+                        error(f"{live_label}.icon.steamAppId deve corresponder ao steamAppId da live.")
+                    elif not isinstance(icon.get("url"), str):
+                        error(f"{live_label}.icon.url deve ser texto HTTPS.")
+                    else:
+                        parsed_icon = urlparse(icon["url"])
+                        icon_filename = parsed_icon.path.rsplit("/", 1)[-1]
+                        valid_icon = (
+                            parsed_icon.scheme == "https"
+                            and parsed_icon.hostname == "cdn.cloudflare.steamstatic.com"
+                            and parsed_icon.path.startswith(f"/steamcommunity/public/images/apps/{steam_app_id}/")
+                            and re.fullmatch(r"[a-f0-9]{40}\.jpg", icon_filename, flags=re.I) is not None
+                        )
+                        if not valid_icon:
+                            error(f"{live_label}.icon deve usar o ícone oficial da Steam.")
+
+                # Compatibilidade transitória com agendas geradas antes da V48.3.28.
+                # A Home não renderiza mais essa capa, e o próximo sync a remove.
                 artwork = live.get("artwork")
                 if artwork is not None:
                     if not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0:
@@ -1358,12 +1404,12 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.27" not in index:
-        error("index.html: cache-buster V48.3.27 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.28" not in index:
+        error("index.html: cache-buster V48.3.28 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
-    if "js/pages/home/home.js?v=48.3.27" not in index:
-        error("index.html: cache-buster V48.3.27 ausente para js/pages/home/home.js.")
+    if "js/pages/home/home.js?v=48.3.28" not in index:
+        error("index.html: cache-buster V48.3.28 ausente para js/pages/home/home.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
     for rel, html, field_id in (
@@ -1977,17 +2023,31 @@ def validate_architecture() -> None:
         if token not in sync_jogos_js:
             error(f".github/scripts/sync-jogos.mjs: resolução de Library Capsule V48.3.25 ausente: {token}")
 
+    # V48.3.28: o catálogo publica o ícone quadrado oficial da Steam como
+    # enriquecimento opcional para a Agenda, sem alterar a Library Capsule de Jogos.
+    for token in (
+        'const STEAM_COMMUNITY_ICON_BASE = "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/";',
+        'function buildSteamCommunityIconUrl(appId, hash)',
+        'async function getSteamCommunityIcons(appIds)',
+        'item?.assets?.community_icon',
+        'icon: null',
+        'game.icon = steamCommunityIcons.get(game.steamAppId) || null;',
+    ):
+        if token not in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: ícone Steam V48.3.28 ausente: {token}")
+
     for token in (
         'datetime="2026-09-18"',
-        "Última atualização: 18 de setembro de 2026 · V48.3.26",
+        "Última atualização: 18 de setembro de 2026 · V48.3.28",
         "Steam Web API",
         "A Agenda e a página de Jogos são preparadas",
         "não são feitas pelo navegador do visitante",
         "da Steam permanece somente no ambiente protegido do GitHub Actions",
+        "pode exibir o ícone oficial do jogo",
         "referenciador",
     ):
         if token not in privacy_html:
-            error(f"privacidade/index.html: transparência Trello/Steam V48.3.26 ausente: {token}")
+            error(f"privacidade/index.html: transparência Trello/Steam V48.3.28 ausente: {token}")
 
     for token in (
         "A identificação automática e as capas disponíveis usam dados e assets oficiais da Steam.",
@@ -2005,12 +2065,12 @@ def validate_architecture() -> None:
         'fields: "id,name,idList,pos,closed,desc"',
         'Semana: YYYY-MM-DD',
         'function parseSteamAppId(value, cardName)',
-        'function loadGameArtworkIndex()',
-        'function officialSteamArtwork(artwork, appId)',
+        'function loadGameIconIndex()',
+        'function officialSteamIcon(icon, appId)',
         'function parseCard(card)',
         'function compareLives(a, b)',
         'if (item.steamAppId) live.steamAppId = item.steamAppId;',
-        'if (item.artwork) live.artwork = item.artwork;',
+        'if (item.icon) live.icon = item.icon;',
         'lives,',
         'horario: first?.horario || ""',
         'titulo: first?.titulo || ""',
@@ -2029,19 +2089,20 @@ def validate_architecture() -> None:
             error(f".github/workflows/sync-agenda.yml: configuração V48.3.26 ausente: {token}")
 
     for token in (
-        "function normalizeAgendaArtwork(value, steamAppId)",
+        "function normalizeAgendaIcon(value, steamAppId)",
         "function legacyLiveFromDay(dia)",
         "function storedLivesFromDay(dia)",
         "function getDayLives(dia)",
         "if (legacy.titulo !== stored[0].titulo)",
-        "first.artwork = null",
+        "first.icon = null",
         "return [first, ...stored.slice(1)]",
         "function renderLiveContent(live, { showTime = false } = {})",
         'referrerpolicy="no-referrer"',
         "has-multiple-lives",
         "agenda-live-list",
         "agenda-live-layout",
-        "agenda-game-cover",
+        "has-icon",
+        "agenda-game-icon",
         "agenda-live-time",
     ):
         if token not in home_js and token not in home_css:
@@ -2064,6 +2125,26 @@ def validate_architecture() -> None:
     if 'tabindex="0" aria-label="Lives de ${escapeHtml(dia.nome)}"' not in home_js:
         error("Agenda V48.3.27: região rolável de múltiplas lives precisa permanecer acessível por teclado.")
 
+    # V48.3.28: Agenda usa ícone quadrado oficial da Steam em vez da capa
+    # vertical, preservando a geometria compacta dos cards.
+    for token in (
+        "function normalizeAgendaIcon(value, steamAppId)",
+        'url.pathname.startsWith(`/steamcommunity/public/images/apps/${steamAppId}/`)',
+        'class="agenda-game-icon"',
+        'width="48"',
+        'height="48"',
+        'image.classList.contains("agenda-game-icon")',
+        '.agenda-live-layout.has-icon',
+        'grid-template-columns: 48px minmax(0, 1fr);',
+        '.agenda-game-icon',
+        'aspect-ratio: 1;',
+    ):
+        if token not in home_js and token not in home_css:
+            error(f"Agenda V48.3.28: ícone compacto Steam ausente: {token}")
+
+    if "agenda-game-cover" in home_js or ".agenda-game-cover" in home_css or "has-artwork" in home_css:
+        error("Agenda V48.3.28: capa vertical antiga não deve continuar no frontend da Agenda.")
+
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
         "padding: 30px;",
@@ -2084,7 +2165,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.27",
+            "css/pages/home.css?v=48.3.28",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",

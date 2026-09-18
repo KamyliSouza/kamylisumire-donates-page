@@ -96,7 +96,9 @@ sincronização tenta primeiro os caminhos oficiais determinísticos e, para Lib
 Capsules modernas em caminhos versionados/hash, consulta apenas metadados de assets
 na infraestrutura oficial da Steam. Na ausência de asset oficial, preservar o
 placeholder local mesmo quando o App ID estiver confirmado. `steamAppId` e
-`steamUrl` pertencem ao jogo e não devem depender da existência de capa.
+`steamUrl` pertencem ao jogo e não devem depender da existência de capa. O catálogo
+pode publicar também `icon`, derivado do `community_icon` oficial da Steam, para
+uso compacto pela Agenda; isso não substitui a Library Capsule exibida em Jogos.
 
 ### Doações
 
@@ -168,8 +170,8 @@ da semana publicada e `Observacao: ...`. Em cada card, `Horario:` pode ser HH:MM
 ou `A definir`, `Plataformas:` aceita YouTube/Twitch e `Descricao:` é opcional;
 `Data:` também é opcional e, quando presente, deve coincidir com o dia/lista da
 semana publicada. `SteamAppID:` é opcional e serve somente para associar a live
-a uma capa já resolvida em `data/content/jogos.json`. O sync da Agenda não deve
-consultar a Steam diretamente nem manter um segundo cache de artwork. Cards
+a um ícone oficial já resolvido em `data/content/jogos.json`. O sync da Agenda não
+deve consultar a Steam diretamente nem manter um segundo cache de assets. Cards
 arquivados não entram na agenda.
 
 Dias podem ter zero, uma ou várias lives. O campo aditivo `lives` contém todos os
@@ -178,11 +180,11 @@ desempate/fallback. Para compatibilidade com Helpers antigos, `temLive`, `horari
 `titulo`, `descricao` e `plataformas` continuam obrigatórios no nível do dia e,
 quando há live, espelham a primeira entrada de `lives`. O frontend também continua
 aceitando arquivos legados sem `lives`. Dentro de cada entrada de `lives`,
-`steamAppId` e `artwork` são opcionais; `artwork` só pode reutilizar uma Library
-Capsule `steam-original` do catálogo de Jogos e a Home deve carregá-la com
+`steamAppId` e `icon` são opcionais; `icon` só pode reutilizar o ícone oficial
+`steam-original` do catálogo de Jogos e a Home deve carregá-lo com
 `referrerpolicy="no-referrer"`. Helpers antigos continuam controlando os campos
-legados da primeira live; a Home preserva a capa enquanto o título legado continuar
-igual ao de `lives[0]` e a omite se esse título for alterado, evitando associação
+legados da primeira live; a Home preserva o ícone enquanto o título legado continuar
+igual ao de `lives[0]` e o omite se esse título for alterado, evitando associação
 visual incorreta até a próxima sincronização pelo Trello. Um dia com horário vazio
 deve aparecer como “A definir”.
 

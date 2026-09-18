@@ -52,9 +52,9 @@ Descricao: Vamos jogar alguma coisa!
 `Horario: A definir` também é aceito. `Data: YYYY-MM-DD` é opcional e funciona
 como validação extra: quando informada, precisa corresponder à lista e à semana.
 `SteamAppID:` também é opcional; quando presente, a Agenda procura esse App ID no
-catálogo local `data/content/jogos.json` e reutiliza somente a Library Capsule
-oficial já resolvida pelo sync de Jogos. A Agenda não faz uma segunda consulta à
-Steam; se o catálogo ainda não tiver capa para o ID, a live é publicada normalmente
+catálogo local `data/content/jogos.json` e reutiliza somente o ícone oficial da
+Steam já resolvido pelo sync de Jogos. A Agenda não faz uma segunda consulta à
+Steam; se o catálogo ainda não tiver ícone para o ID, a live é publicada normalmente
 sem imagem. Cards no mesmo dia são ordenados pelo horário; empates e horários
 indefinidos preservam a ordem do Trello. O ID/short link do quadro deve ficar na Repository
 Variable `TRELLO_AGENDA_BOARD_ID`; os secrets `TRELLO_API_KEY` e `TRELLO_TOKEN`

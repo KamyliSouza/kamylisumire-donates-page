@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.28 — Hotfix: ícones da Steam na Agenda
+
+- troca a miniatura vertical da Library Capsule na Agenda por um ícone quadrado oficial da Steam, mantendo as capas verticais exclusivamente na página de Jogos;
+- enriquece `data/content/jogos.json` com `icon` opcional derivado de `community_icon` nos metadados oficiais da Steam, sem expor novas credenciais no frontend;
+- faz o sincronizador da Agenda reutilizar somente esse ícone pelo `SteamAppID:`, sem realizar chamadas próprias à Steam e sem duplicar cache;
+- mantém compatibilidade transitória com `agenda.json` anterior, mas deixa de renderizar a capa vertical antiga na Home após a migração;
+- reduz a mídia da Agenda para 48 × 48 px, preservando o hotfix de altura fixa de 210 px e removendo o ícone visualmente caso o asset externo falhe;
+- atualiza validação, documentação, privacidade e cache-busters da Home para o novo asset compacto.
+
 ## V48.3.27 — Hotfix: tamanho estável dos cards da Agenda
 
 - fixa os cards da Agenda na altura visual original de 210 px, evitando que um dia com várias lives aumente a altura dos demais cards do carrossel;

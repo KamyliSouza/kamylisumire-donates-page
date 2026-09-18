@@ -47,29 +47,34 @@ function setupAgendaCarousel() {
     });
 }
 
+if (agendaGrid) {
+    agendaGrid.addEventListener("error", event => {
+        const image = event.target;
+        if (!(image instanceof HTMLImageElement) || !image.classList.contains("agenda-game-icon")) return;
+        const layout = image.closest(".agenda-live-layout");
+        image.remove();
+        layout?.classList.remove("has-icon");
+    }, true);
+}
+
 function normalizePlatforms(value) {
     return Array.isArray(value) ? value.filter(Boolean) : [];
 }
 
-function normalizeAgendaArtwork(value, steamAppId) {
+function normalizeAgendaIcon(value, steamAppId) {
     if (!value || value.provider !== "steam-original") return null;
     if (!Number.isInteger(steamAppId) || steamAppId <= 0 || value.steamAppId !== steamAppId) return null;
     if (typeof value.url !== "string") return null;
 
     try {
         const url = new URL(value.url);
-        const filename = url.pathname.split("/").pop();
-        const legacy =
+        const filename = url.pathname.split("/").pop() || "";
+        const valid =
             url.protocol === "https:" &&
             url.hostname === "cdn.cloudflare.steamstatic.com" &&
-            url.pathname.startsWith(`/steam/apps/${steamAppId}/`) &&
-            ["library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
-        const modern =
-            url.protocol === "https:" &&
-            url.hostname === "shared.fastly.steamstatic.com" &&
-            url.pathname.startsWith(`/store_item_assets/steam/apps/${steamAppId}/`) &&
-            ["library_capsule.jpg", "library_capsule_2x.jpg", "library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
-        return legacy || modern ? { url: url.toString() } : null;
+            url.pathname.startsWith(`/steamcommunity/public/images/apps/${steamAppId}/`) &&
+            /^[a-f0-9]{40}\.jpg$/i.test(filename);
+        return valid ? { url: url.toString() } : null;
     } catch {
         return null;
     }
@@ -99,7 +104,7 @@ function storedLivesFromDay(dia) {
                 descricao: typeof live.descricao === "string" ? live.descricao : "",
                 plataformas: normalizePlatforms(live.plataformas),
                 steamAppId,
-                artwork: normalizeAgendaArtwork(live.artwork, steamAppId)
+                icon: normalizeAgendaIcon(live.icon, steamAppId)
             };
         });
 }
@@ -121,12 +126,12 @@ function getDayLives(dia) {
     if (!legacyHasContent) return stored;
 
     // Helpers antigos continuam editando somente os campos legados do dia.
-    // Eles prevalecem na primeira live; metadados da capa permanecem apenas
+    // Eles prevalecem na primeira live; metadados do ícone permanecem apenas
     // enquanto o título não mudar, evitando associar uma imagem ao jogo errado.
     const first = { ...stored[0], ...legacy };
     if (legacy.titulo !== stored[0].titulo) {
         first.steamAppId = null;
-        first.artwork = null;
+        first.icon = null;
     }
     return [first, ...stored.slice(1)];
 }
@@ -135,17 +140,17 @@ function renderLiveContent(live, { showTime = false } = {}) {
     const plataformas = Array.isArray(live.plataformas)
         ? live.plataformas.filter(Boolean).join(" • ")
         : "";
-    const artworkUrl = live.artwork?.url || "";
+    const iconUrl = live.icon?.url || "";
 
     return `
-        <div class="agenda-live-layout${artworkUrl ? " has-artwork" : ""}">
-            ${artworkUrl ? `
+        <div class="agenda-live-layout${iconUrl ? " has-icon" : ""}">
+            ${iconUrl ? `
                 <img
-                    class="agenda-game-cover"
-                    src="${escapeHtml(artworkUrl)}"
+                    class="agenda-game-icon"
+                    src="${escapeHtml(iconUrl)}"
                     alt=""
-                    width="600"
-                    height="900"
+                    width="48"
+                    height="48"
                     loading="lazy"
                     decoding="async"
                     referrerpolicy="no-referrer"

@@ -150,34 +150,29 @@ function parseSteamAppId(value, cardName) {
   return appId;
 }
 
-function officialSteamArtwork(artwork, appId) {
-  if (!artwork || artwork.provider !== "steam-original" || artwork.steamAppId !== appId) return null;
-  if (typeof artwork.url !== "string") return null;
+function officialSteamIcon(icon, appId) {
+  if (!icon || icon.provider !== "steam-original" || icon.steamAppId !== appId) return null;
+  if (typeof icon.url !== "string") return null;
 
   let url;
   try {
-    url = new URL(artwork.url);
+    url = new URL(icon.url);
   } catch {
     return null;
   }
 
-  const lastPart = url.pathname.split("/").pop();
-  const legacy =
+  const filename = url.pathname.split("/").pop() || "";
+  const valid =
     url.protocol === "https:" &&
     url.hostname === "cdn.cloudflare.steamstatic.com" &&
-    url.pathname.startsWith(`/steam/apps/${appId}/`) &&
-    ["library_600x900.jpg", "library_600x900_2x.jpg"].includes(lastPart);
-  const modern =
-    url.protocol === "https:" &&
-    url.hostname === "shared.fastly.steamstatic.com" &&
-    url.pathname.startsWith(`/store_item_assets/steam/apps/${appId}/`) &&
-    ["library_capsule.jpg", "library_capsule_2x.jpg", "library_600x900.jpg", "library_600x900_2x.jpg"].includes(lastPart);
+    url.pathname.startsWith(`/steamcommunity/public/images/apps/${appId}/`) &&
+    /^[a-f0-9]{40}\.jpg$/i.test(filename);
 
-  if (!legacy && !modern) return null;
+  if (!valid) return null;
   return { provider: "steam-original", steamAppId: appId, url: url.toString() };
 }
 
-async function loadGameArtworkIndex() {
+async function loadGameIconIndex() {
   let catalog;
   try {
     catalog = JSON.parse(await readFile(GAMES, "utf8"));
@@ -193,10 +188,10 @@ async function loadGameArtworkIndex() {
   for (const game of catalog.games) {
     const appId = game?.steamAppId;
     if (!Number.isSafeInteger(appId) || appId <= 0) continue;
-    const artwork = officialSteamArtwork(game.artwork, appId);
+    const icon = officialSteamIcon(game.icon, appId);
     const current = index.get(appId);
-    if (!current || (!current.artwork && artwork)) {
-      index.set(appId, { artwork });
+    if (!current || (!current.icon && icon)) {
+      index.set(appId, { icon });
     }
   }
   return index;
@@ -276,7 +271,7 @@ function parseCard(card) {
     description: description.trim(),
     platforms,
     steamAppId,
-    artwork: null,
+    icon: null,
     pos: Number(card?.pos) || 0,
   };
 }
@@ -319,7 +314,7 @@ for (const day of DAY_DEFINITIONS) {
 }
 
 const settings = parseBoardSettings(boardRaw?.desc);
-const gameArtworkIndex = await loadGameArtworkIndex();
+const gameIconIndex = await loadGameIconIndex();
 const parsedCards = [];
 for (const card of cardsRaw.filter(item => !item.closed)) {
   const day = listById.get(card.idList);
@@ -327,11 +322,11 @@ for (const card of cardsRaw.filter(item => !item.closed)) {
 
   const parsed = parseCard(card);
   if (parsed.steamAppId) {
-    const catalogGame = gameArtworkIndex.get(parsed.steamAppId);
-    if (catalogGame?.artwork) {
-      parsed.artwork = catalogGame.artwork;
+    const catalogGame = gameIconIndex.get(parsed.steamAppId);
+    if (catalogGame?.icon) {
+      parsed.icon = catalogGame.icon;
     } else {
-      console.warn(`Agenda: SteamAppID ${parsed.steamAppId} em "${parsed.title}" não possui Library Capsule oficial resolvida em ${GAMES}; publicando sem capa.`);
+      console.warn(`Agenda: SteamAppID ${parsed.steamAppId} em "${parsed.title}" não possui ícone oficial resolvido em ${GAMES}; publicando sem ícone.`);
     }
   }
   parsedCards.push({ day, card: parsed });
@@ -375,7 +370,7 @@ const days = DAY_DEFINITIONS.map(day => {
       plataformas: item.platforms,
     };
     if (item.steamAppId) live.steamAppId = item.steamAppId;
-    if (item.artwork) live.artwork = item.artwork;
+    if (item.icon) live.icon = item.icon;
     return live;
   });
   const first = lives[0] || null;
