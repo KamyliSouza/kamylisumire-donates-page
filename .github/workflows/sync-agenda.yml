@@ -1,0 +1,47 @@
+name: Sync agenda from Trello
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "29 9,21 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-agenda
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository_owner == 'KamyliSouza'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync agenda from Trello
+        env:
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_AGENDA_BOARD_ID: ${{ vars.TRELLO_AGENDA_BOARD_ID }}
+        run: node .github/scripts/sync-agenda.mjs
+
+      - name: Validate generated content
+        run: |
+          python .github/scripts/validate-content.py
+          find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
+          node --check workers.js
+          node --check .github/scripts/sync-agenda.mjs
+
+      - name: Commit only when agenda changed
+        run: |
+          if git diff --quiet -- data/agenda.json; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/agenda.json
+          git commit -m "chore: sync agenda from Trello"
+          git push

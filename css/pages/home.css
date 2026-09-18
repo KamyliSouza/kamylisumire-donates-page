@@ -538,6 +538,73 @@
     overflow-wrap: anywhere;
 }
 
+.agenda-live-list {
+    display: grid;
+    gap: 16px;
+}
+
+.agenda-live-layout {
+    flex: 1;
+    min-width: 0;
+}
+
+.agenda-live-layout.has-artwork {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: start;
+
+    gap: 12px;
+}
+
+.agenda-live-copy {
+    min-width: 0;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.agenda-game-cover {
+    display: block;
+
+    width: 56px;
+    aspect-ratio: 2 / 3;
+
+    object-fit: cover;
+
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+}
+
+.agenda-live-item {
+    min-width: 0;
+}
+
+.agenda-live-item + .agenda-live-item {
+    padding-top: 16px;
+
+    border-top: 1px solid var(--card-border);
+}
+
+.agenda-live-time {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--primary-text);
+
+    font-size: .78rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.has-multiple-lives .agenda-platforms {
+    margin-top: 9px;
+    padding-top: 0;
+}
+
 .loading-message {
     flex: 1 0 100%;
 

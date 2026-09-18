@@ -18,7 +18,7 @@ alterar HTML.
 
 A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
 
-A agenda semanal fica em `../agenda.json`.
+A agenda semanal fica em `../agenda.json`; desde V48.3.26, esse arquivo pode ser sincronizado de um quadro Trello dedicado e aceitar múltiplas lives por dia sem remover os campos legados usados pelos Helpers. Um `SteamAppID:` opcional no card reaproveita a Library Capsule oficial já presente em `jogos.json`; a Agenda não consulta a Steam separadamente.
 
 ## Navbar
 

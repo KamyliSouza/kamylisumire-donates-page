@@ -1,5 +1,17 @@
 # Changelog
 
+## V48.3.26 — Agenda no Trello e múltiplas lives por dia
+
+- adiciona sincronização independente da Agenda por GitHub Actions usando um quadro Trello dedicado, sem chamadas à API do Trello feitas pelo navegador;
+- usa sete listas de dias da semana e um card por live, permitindo zero, uma ou várias transmissões no mesmo dia;
+- introduz o campo aditivo `lives` em cada dia de `data/agenda.json`, preservando `temLive`, `horario`, `titulo`, `descricao` e `plataformas` como espelho da primeira live para compatibilidade com Helpers antigos;
+- mantém o frontend compatível com o JSON legado sem `lives` e passa a exibir várias lives dentro do mesmo card diário, em ordem cronológica e com fallback para a ordem do Trello;
+- permite `Semana: YYYY-MM-DD` e `Observacao:` na descrição do quadro, além de `Horario:`, `Plataformas:`, `Descricao:`, `Data:` e `SteamAppID:` opcionais/estruturados nos cards, com validação estrita antes de qualquer commit;
+- quando `SteamAppID:` é informado, reutiliza exclusivamente a Library Capsule oficial já resolvida em `data/content/jogos.json`, sem fazer uma segunda consulta à Steam e sem duplicar cache/credenciais; a ausência de capa não impede a publicação da live;
+- exibe a capa opcional ao lado da live na Agenda, inclusive quando há várias transmissões no mesmo dia, usando `loading=lazy` e `referrerpolicy=no-referrer`;
+- adiciona o workflow `Sync agenda from Trello`, reutiliza `TRELLO_API_KEY`/`TRELLO_TOKEN` e lê o quadro pela Repository Variable `TRELLO_AGENDA_BOARD_ID`;
+- atualiza README, regras de manutenção, validação CI, cache-busters da Home e Política de Privacidade para refletir a nova sincronização server-side.
+
 ## V48.3.25 — Migração: catálogo de Jogos com Steam Web API
 
 - remove o SteamGridDB da sincronização e substitui a identificação automática pelo método documentado `IStoreService/GetAppList` da Steam Web API;

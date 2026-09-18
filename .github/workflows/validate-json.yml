@@ -24,8 +24,10 @@ on:
       - "docs/**"
       - ".github/scripts/validate-content.py"
       - ".github/scripts/sync-jogos.mjs"
+      - ".github/scripts/sync-agenda.mjs"
       - ".github/workflows/validate-json.yml"
       - ".github/workflows/sync-jogos.yml"
+      - ".github/workflows/sync-agenda.yml"
 
   pull_request:
     paths:
@@ -47,8 +49,10 @@ on:
       - "docs/**"
       - ".github/scripts/validate-content.py"
       - ".github/scripts/sync-jogos.mjs"
+      - ".github/scripts/sync-agenda.mjs"
       - ".github/workflows/validate-json.yml"
       - ".github/workflows/sync-jogos.yml"
+      - ".github/workflows/sync-agenda.yml"
 
 permissions:
   contents: read
@@ -68,6 +72,7 @@ jobs:
         run: |
           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
           node --check workers.js
+          node --check .github/scripts/sync-agenda.mjs
 
       - name: Reject generated Python cache
         run: |

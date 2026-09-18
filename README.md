@@ -32,7 +32,33 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
 
 
 Os textos e listas ficam em `data/content/*.json`.
-A agenda semanal fica em `data/agenda.json`.
+A agenda semanal continua publicada em `data/agenda.json`. Desde a V48.3.26, ela
+pode ser sincronizada de um quadro Trello dedicado por GitHub Actions sem expor
+a API ao navegador. O contrato legado de cada dia é preservado e o campo aditivo
+`lives` permite zero, uma ou várias transmissões no mesmo dia.
+
+Para o quadro da Agenda, use exatamente sete listas (`Domingo`, `Segunda-feira`,
+`Terça-feira`, `Quarta-feira`, `Quinta-feira`, `Sexta-feira`, `Sábado`) e um card
+por live. Na descrição do quadro, defina `Semana: YYYY-MM-DD` usando o domingo da
+semana publicada; `Observacao: ...` é opcional. Em cada card, use por exemplo:
+
+```text
+Horario: 20:00
+Plataformas: YouTube, Twitch
+SteamAppID: 3357650
+Descricao: Vamos jogar alguma coisa!
+```
+
+`Horario: A definir` também é aceito. `Data: YYYY-MM-DD` é opcional e funciona
+como validação extra: quando informada, precisa corresponder à lista e à semana.
+`SteamAppID:` também é opcional; quando presente, a Agenda procura esse App ID no
+catálogo local `data/content/jogos.json` e reutiliza somente a Library Capsule
+oficial já resolvida pelo sync de Jogos. A Agenda não faz uma segunda consulta à
+Steam; se o catálogo ainda não tiver capa para o ID, a live é publicada normalmente
+sem imagem. Cards no mesmo dia são ordenados pelo horário; empates e horários
+indefinidos preservam a ordem do Trello. O ID/short link do quadro deve ficar na Repository
+Variable `TRELLO_AGENDA_BOARD_ID`; os secrets `TRELLO_API_KEY` e `TRELLO_TOKEN`
+já usados pela sincronização de Jogos são reutilizados.
 
 As Lives usam duas abas no mesmo componente visual. **Twitch é a aba padrão** e
 recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twitch/videos`.

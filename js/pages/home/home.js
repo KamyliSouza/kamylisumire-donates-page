@@ -47,6 +47,120 @@ function setupAgendaCarousel() {
     });
 }
 
+function normalizePlatforms(value) {
+    return Array.isArray(value) ? value.filter(Boolean) : [];
+}
+
+function normalizeAgendaArtwork(value, steamAppId) {
+    if (!value || value.provider !== "steam-original") return null;
+    if (!Number.isInteger(steamAppId) || steamAppId <= 0 || value.steamAppId !== steamAppId) return null;
+    if (typeof value.url !== "string") return null;
+
+    try {
+        const url = new URL(value.url);
+        const filename = url.pathname.split("/").pop();
+        const legacy =
+            url.protocol === "https:" &&
+            url.hostname === "cdn.cloudflare.steamstatic.com" &&
+            url.pathname.startsWith(`/steam/apps/${steamAppId}/`) &&
+            ["library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
+        const modern =
+            url.protocol === "https:" &&
+            url.hostname === "shared.fastly.steamstatic.com" &&
+            url.pathname.startsWith(`/store_item_assets/steam/apps/${steamAppId}/`) &&
+            ["library_capsule.jpg", "library_capsule_2x.jpg", "library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
+        return legacy || modern ? { url: url.toString() } : null;
+    } catch {
+        return null;
+    }
+}
+
+function legacyLiveFromDay(dia) {
+    return {
+        horario: typeof dia?.horario === "string" ? dia.horario : "",
+        titulo: typeof dia?.titulo === "string" ? dia.titulo : "",
+        descricao: typeof dia?.descricao === "string" ? dia.descricao : "",
+        plataformas: normalizePlatforms(dia?.plataformas)
+    };
+}
+
+function storedLivesFromDay(dia) {
+    if (!Array.isArray(dia?.lives)) return [];
+
+    return dia.lives
+        .filter(live => live && typeof live === "object")
+        .map(live => {
+            const steamAppId = Number.isInteger(live.steamAppId) && live.steamAppId > 0
+                ? live.steamAppId
+                : null;
+            return {
+                horario: typeof live.horario === "string" ? live.horario : "",
+                titulo: typeof live.titulo === "string" ? live.titulo : "",
+                descricao: typeof live.descricao === "string" ? live.descricao : "",
+                plataformas: normalizePlatforms(live.plataformas),
+                steamAppId,
+                artwork: normalizeAgendaArtwork(live.artwork, steamAppId)
+            };
+        });
+}
+
+function getDayLives(dia) {
+    if (!dia?.temLive) return [];
+
+    const legacy = legacyLiveFromDay(dia);
+    const stored = storedLivesFromDay(dia);
+
+    if (!stored.length) return [legacy];
+
+    const legacyHasContent = Boolean(
+        legacy.horario ||
+        legacy.titulo ||
+        legacy.descricao
+    );
+
+    if (!legacyHasContent) return stored;
+
+    // Helpers antigos continuam editando somente os campos legados do dia.
+    // Eles prevalecem na primeira live; metadados da capa permanecem apenas
+    // enquanto o título não mudar, evitando associar uma imagem ao jogo errado.
+    const first = { ...stored[0], ...legacy };
+    if (legacy.titulo !== stored[0].titulo) {
+        first.steamAppId = null;
+        first.artwork = null;
+    }
+    return [first, ...stored.slice(1)];
+}
+
+function renderLiveContent(live, { showTime = false } = {}) {
+    const plataformas = Array.isArray(live.plataformas)
+        ? live.plataformas.filter(Boolean).join(" • ")
+        : "";
+    const artworkUrl = live.artwork?.url || "";
+
+    return `
+        <div class="agenda-live-layout${artworkUrl ? " has-artwork" : ""}">
+            ${artworkUrl ? `
+                <img
+                    class="agenda-game-cover"
+                    src="${escapeHtml(artworkUrl)}"
+                    alt=""
+                    width="600"
+                    height="900"
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                >
+            ` : ""}
+            <div class="agenda-live-copy">
+                ${showTime ? `<strong class="agenda-live-time">${escapeHtml(live.horario || "A definir")}</strong>` : ""}
+                <h3 class="agenda-title">${escapeHtml(live.titulo || "Live")}</h3>
+                ${live.descricao ? `<p class="agenda-description">${escapeHtml(live.descricao)}</p>` : ""}
+                ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
+            </div>
+        </div>
+    `;
+}
+
 function renderAgenda(data) {
     const dias = Array.isArray(data.dias) ? data.dias : [];
 
@@ -69,12 +183,31 @@ function renderAgenda(data) {
         document.createDocumentFragment();
 
     dias.forEach(dia => {
+        const lives = getDayLives(dia);
+        const hasLive = lives.length > 0;
+        const hasMultipleLives = lives.length > 1;
         const card = document.createElement("article");
-        card.className = `agenda-card ${dia.temLive ? "has-live" : "no-live"}`;
+        card.className = `agenda-card ${hasLive ? "has-live" : "no-live"}${hasMultipleLives ? " has-multiple-lives" : ""}`;
 
-        const plataformas = Array.isArray(dia.plataformas)
-            ? dia.plataformas.filter(Boolean).join(" • ")
+        const statusText = hasMultipleLives
+            ? `● ${lives.length} LIVES`
+            : (hasLive ? "● TEM LIVE" : "○ SEM LIVE");
+        const headerTime = hasLive && !hasMultipleLives
+            ? lives[0].horario || "A definir"
             : "";
+
+        const liveContent = hasMultipleLives
+            ? `<div class="agenda-live-list">${lives.map(live => `
+                    <section class="agenda-live-item">
+                        ${renderLiveContent(live, { showTime: true })}
+                    </section>
+                `).join("")}</div>`
+            : (hasLive
+                ? renderLiveContent(lives[0])
+                : `
+                    <h3 class="agenda-title agenda-title-off">Sem live</h3>
+                    <p class="agenda-description">Sem transmissão programada.</p>
+                `);
 
         card.innerHTML = `
             <div class="agenda-card-top">
@@ -85,10 +218,10 @@ function renderAgenda(data) {
                         <span class="agenda-date">${formatDate(dia.data)}</span>
 
                         ${
-                            dia.temLive
+                            headerTime
                                 ? `
                                     <span class="agenda-date-time-separator" aria-hidden="true">•</span>
-                                    <strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>
+                                    <strong class="agenda-time">${escapeHtml(headerTime)}</strong>
                                 `
                                 : ""
                         }
@@ -96,25 +229,12 @@ function renderAgenda(data) {
                 </div>
 
                 <div class="agenda-card-live">
-                    <span class="agenda-status">
-                        ${dia.temLive ? "● TEM LIVE" : "○ SEM LIVE"}
-                    </span>
+                    <span class="agenda-status">${statusText}</span>
                 </div>
             </div>
 
             <div class="agenda-card-content">
-                ${
-                    dia.temLive
-                        ? `
-                            <h3 class="agenda-title">${escapeHtml(dia.titulo || "Live")}</h3>
-                            ${dia.descricao ? `<p class="agenda-description">${escapeHtml(dia.descricao)}</p>` : ""}
-                            ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
-                        `
-                        : `
-                            <h3 class="agenda-title agenda-title-off">Sem live</h3>
-                            <p class="agenda-description">Sem transmissão programada.</p>
-                        `
-                }
+                ${liveContent}
             </div>
         `;
 

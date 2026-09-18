@@ -1,0 +1,1188 @@
+diff --git a/.github/scripts/sync-agenda.mjs b/.github/scripts/sync-agenda.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..aa6e5c9a459d0c3943f6beeb03a3b57a425b8e14
+--- /dev/null
++++ b/.github/scripts/sync-agenda.mjs
+@@ -0,0 +1,410 @@
++import { readFile, writeFile } from "node:fs/promises";
++
++const BOARD_ID = process.env.TRELLO_AGENDA_BOARD_ID;
++const TRELLO_KEY = process.env.TRELLO_API_KEY;
++const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
++const OUT = "data/agenda.json";
++const GAMES = "data/content/jogos.json";
++
++if (!BOARD_ID || !TRELLO_KEY || !TRELLO_TOKEN) {
++  throw new Error("TRELLO_AGENDA_BOARD_ID, TRELLO_API_KEY e TRELLO_TOKEN são obrigatórios.");
++}
++
++const DAY_DEFINITIONS = [
++  { id: "domingo", name: "Domingo", offset: 0, aliases: ["domingo"] },
++  { id: "segunda", name: "Segunda-feira", offset: 1, aliases: ["segunda", "segunda feira"] },
++  { id: "terca", name: "Terça-feira", offset: 2, aliases: ["terca", "terca feira"] },
++  { id: "quarta", name: "Quarta-feira", offset: 3, aliases: ["quarta", "quarta feira"] },
++  { id: "quinta", name: "Quinta-feira", offset: 4, aliases: ["quinta", "quinta feira"] },
++  { id: "sexta", name: "Sexta-feira", offset: 5, aliases: ["sexta", "sexta feira"] },
++  { id: "sabado", name: "Sábado", offset: 6, aliases: ["sabado"] },
++];
++
++const PLATFORM_NAMES = new Map([
++  ["youtube", "YouTube"],
++  ["twitch", "Twitch"],
++]);
++
++function safeUrlLabel(value) {
++  try {
++    const url = new URL(value);
++    return `${url.origin}${url.pathname}`;
++  } catch {
++    return "requisição externa";
++  }
++}
++
++async function getJson(url) {
++  const response = await fetch(url);
++  if (!response.ok) throw new Error(`${safeUrlLabel(url)}: HTTP ${response.status}`);
++  return response.json();
++}
++
++function trelloUrl(path, params = {}) {
++  const url = new URL(`https://api.trello.com/1${path}`);
++  url.searchParams.set("key", TRELLO_KEY);
++  url.searchParams.set("token", TRELLO_TOKEN);
++  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
++  return url;
++}
++
++function normalize(value) {
++  return String(value || "")
++    .normalize("NFD")
++    .replace(/[\u0300-\u036f]/g, "")
++    .toLowerCase()
++    .replace(/[^a-z0-9]+/g, " ")
++    .trim();
++}
++
++function parseIsoDate(value, label) {
++  const text = String(value || "").trim();
++  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`${label}: data deve usar YYYY-MM-DD.`);
++  const date = new Date(`${text}T00:00:00Z`);
++  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== text) {
++    throw new Error(`${label}: data inválida.`);
++  }
++  return date;
++}
++
++function formatIsoDate(date) {
++  return date.toISOString().slice(0, 10);
++}
++
++function addDays(date, amount) {
++  const next = new Date(date.getTime());
++  next.setUTCDate(next.getUTCDate() + amount);
++  return next;
++}
++
++function weekStartFor(date) {
++  return addDays(date, -date.getUTCDay());
++}
++
++function parseBoardSettings(description) {
++  let weekStart = null;
++  let observation = null;
++
++  for (const rawLine of String(description || "").split(/\r?\n/)) {
++    const line = rawLine.trim();
++    if (!line) continue;
++
++    const weekMatch = line.match(/^semana\s*:\s*(\d{4}-\d{2}-\d{2})\s*$/i);
++    if (weekMatch) {
++      if (weekStart) throw new Error("Trello Agenda: mais de uma linha Semana: na descrição do quadro.");
++      weekStart = parseIsoDate(weekMatch[1], "Trello Agenda: Semana");
++      if (weekStart.getUTCDay() !== 0) throw new Error("Trello Agenda: Semana: deve apontar para um domingo.");
++      continue;
++    }
++
++    const observationMatch = line.match(/^observa[cç][aã]o\s*:\s*(.*)$/i);
++    if (observationMatch) {
++      if (observation !== null) throw new Error("Trello Agenda: mais de uma linha Observacao: na descrição do quadro.");
++      observation = observationMatch[1].trim();
++    }
++  }
++
++  return { weekStart, observation };
++}
++
++function getDayDefinition(listName) {
++  const key = normalize(listName);
++  return DAY_DEFINITIONS.find(day => day.aliases.includes(key)) || null;
++}
++
++function parseTime(value, cardName) {
++  const text = String(value || "").trim();
++  if (!text || normalize(text) === "a definir") return "";
++  if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(text)) {
++    throw new Error(`Trello Agenda: Horario inválido em "${cardName}"; use HH:MM ou A definir.`);
++  }
++  return text;
++}
++
++function parsePlatforms(value, cardName) {
++  const raw = String(value || "").trim();
++  if (!raw) throw new Error(`Trello Agenda: Plataformas: é obrigatório em "${cardName}".`);
++
++  const platforms = [];
++  for (const part of raw.split(/[,;•|]/)) {
++    const canonical = PLATFORM_NAMES.get(normalize(part));
++    if (!canonical) {
++      throw new Error(`Trello Agenda: plataforma inválida em "${cardName}": "${part.trim()}". Use YouTube e/ou Twitch.`);
++    }
++    if (!platforms.includes(canonical)) platforms.push(canonical);
++  }
++
++  if (!platforms.length) throw new Error(`Trello Agenda: nenhuma plataforma válida em "${cardName}".`);
++  return platforms;
++}
++
++function parseSteamAppId(value, cardName) {
++  const text = String(value || "").trim();
++  if (!/^[1-9][0-9]*$/.test(text)) {
++    throw new Error(`Trello Agenda: SteamAppID inválido em "${cardName}"; use apenas o App ID numérico da Steam.`);
++  }
++  const appId = Number(text);
++  if (!Number.isSafeInteger(appId) || appId <= 0) {
++    throw new Error(`Trello Agenda: SteamAppID fora do intervalo válido em "${cardName}".`);
++  }
++  return appId;
++}
++
++function officialSteamArtwork(artwork, appId) {
++  if (!artwork || artwork.provider !== "steam-original" || artwork.steamAppId !== appId) return null;
++  if (typeof artwork.url !== "string") return null;
++
++  let url;
++  try {
++    url = new URL(artwork.url);
++  } catch {
++    return null;
++  }
++
++  const lastPart = url.pathname.split("/").pop();
++  const legacy =
++    url.protocol === "https:" &&
++    url.hostname === "cdn.cloudflare.steamstatic.com" &&
++    url.pathname.startsWith(`/steam/apps/${appId}/`) &&
++    ["library_600x900.jpg", "library_600x900_2x.jpg"].includes(lastPart);
++  const modern =
++    url.protocol === "https:" &&
++    url.hostname === "shared.fastly.steamstatic.com" &&
++    url.pathname.startsWith(`/store_item_assets/steam/apps/${appId}/`) &&
++    ["library_capsule.jpg", "library_capsule_2x.jpg", "library_600x900.jpg", "library_600x900_2x.jpg"].includes(lastPart);
++
++  if (!legacy && !modern) return null;
++  return { provider: "steam-original", steamAppId: appId, url: url.toString() };
++}
++
++async function loadGameArtworkIndex() {
++  let catalog;
++  try {
++    catalog = JSON.parse(await readFile(GAMES, "utf8"));
++  } catch (error) {
++    throw new Error(`Agenda: não foi possível ler ${GAMES}: ${error.message}`);
++  }
++
++  if (!Array.isArray(catalog?.games)) {
++    throw new Error(`Agenda: ${GAMES} não possui uma lista games válida.`);
++  }
++
++  const index = new Map();
++  for (const game of catalog.games) {
++    const appId = game?.steamAppId;
++    if (!Number.isSafeInteger(appId) || appId <= 0) continue;
++    const artwork = officialSteamArtwork(game.artwork, appId);
++    const current = index.get(appId);
++    if (!current || (!current.artwork && artwork)) {
++      index.set(appId, { artwork });
++    }
++  }
++  return index;
++}
++
++function parseCard(card) {
++  const title = String(card?.name || "").trim();
++  if (!title) throw new Error("Trello Agenda: card sem título.");
++
++  let date = null;
++  let time = null;
++  let platforms = null;
++  let steamAppId = null;
++  let description = "";
++  let descriptionContinuation = false;
++
++  for (const rawLine of String(card?.desc || "").split(/\r?\n/)) {
++    const line = rawLine.trim();
++    if (!line) {
++      if (descriptionContinuation && description) description += "\n";
++      continue;
++    }
++
++    const marker = line.match(/^([^:]+)\s*:\s*(.*)$/);
++    if (marker) {
++      const key = normalize(marker[1]);
++      const value = marker[2].trim();
++
++      if (key === "data") {
++        if (date) throw new Error(`Trello Agenda: Data: duplicada em "${title}".`);
++        date = formatIsoDate(parseIsoDate(value, `Trello Agenda: Data de "${title}"`));
++        descriptionContinuation = false;
++        continue;
++      }
++
++      if (key === "horario") {
++        if (time !== null) throw new Error(`Trello Agenda: Horario: duplicado em "${title}".`);
++        time = parseTime(value, title);
++        descriptionContinuation = false;
++        continue;
++      }
++
++      if (key === "plataformas") {
++        if (platforms !== null) throw new Error(`Trello Agenda: Plataformas: duplicada em "${title}".`);
++        platforms = parsePlatforms(value, title);
++        descriptionContinuation = false;
++        continue;
++      }
++
++      if (key === "steamappid" || key === "steam app id") {
++        if (steamAppId !== null) throw new Error(`Trello Agenda: SteamAppID: duplicado em "${title}".`);
++        steamAppId = parseSteamAppId(value, title);
++        descriptionContinuation = false;
++        continue;
++      }
++
++      if (key === "descricao") {
++        if (description) throw new Error(`Trello Agenda: Descricao: duplicada em "${title}".`);
++        description = value;
++        descriptionContinuation = true;
++        continue;
++      }
++    }
++
++    if (descriptionContinuation) {
++      description += `${description ? "\n" : ""}${line}`;
++    }
++  }
++
++  if (time === null) time = "";
++  if (platforms === null) throw new Error(`Trello Agenda: falta Plataformas: em "${title}".`);
++
++  return {
++    title,
++    date,
++    time,
++    description: description.trim(),
++    platforms,
++    steamAppId,
++    artwork: null,
++    pos: Number(card?.pos) || 0,
++  };
++}
++
++function compareLives(a, b) {
++  const aTimed = Boolean(a.time);
++  const bTimed = Boolean(b.time);
++  if (aTimed && bTimed && a.time !== b.time) return a.time.localeCompare(b.time);
++  if (aTimed !== bTimed) return aTimed ? -1 : 1;
++  return a.pos - b.pos;
++}
++
++function formatUpdateDate(date = new Date()) {
++  return new Intl.DateTimeFormat("pt-BR", {
++    timeZone: "America/Sao_Paulo",
++    day: "2-digit",
++    month: "2-digit",
++    year: "numeric",
++  }).format(date);
++}
++
++const [boardRaw, listsRaw, cardsRaw] = await Promise.all([
++  getJson(trelloUrl(`/boards/${BOARD_ID}`, { fields: "id,name,desc,shortUrl" })),
++  getJson(trelloUrl(`/boards/${BOARD_ID}/lists`, { fields: "id,name,pos,closed", filter: "open" })),
++  getJson(trelloUrl(`/boards/${BOARD_ID}/cards`, { fields: "id,name,idList,pos,closed,desc", filter: "open" })),
++]);
++
++const listByDay = new Map();
++const listById = new Map();
++for (const list of listsRaw.filter(item => !item.closed)) {
++  const day = getDayDefinition(list.name);
++  if (!day) throw new Error(`Trello Agenda: lista aberta não reconhecida: "${list.name}".`);
++  if (listByDay.has(day.id)) throw new Error(`Trello Agenda: mais de uma lista representa ${day.name}.`);
++  listByDay.set(day.id, list);
++  listById.set(list.id, day);
++}
++
++for (const day of DAY_DEFINITIONS) {
++  if (!listByDay.has(day.id)) throw new Error(`Trello Agenda: lista obrigatória ausente: ${day.name}.`);
++}
++
++const settings = parseBoardSettings(boardRaw?.desc);
++const gameArtworkIndex = await loadGameArtworkIndex();
++const parsedCards = [];
++for (const card of cardsRaw.filter(item => !item.closed)) {
++  const day = listById.get(card.idList);
++  if (!day) throw new Error(`Trello Agenda: card "${card.name}" pertence a uma lista não reconhecida.`);
++
++  const parsed = parseCard(card);
++  if (parsed.steamAppId) {
++    const catalogGame = gameArtworkIndex.get(parsed.steamAppId);
++    if (catalogGame?.artwork) {
++      parsed.artwork = catalogGame.artwork;
++    } else {
++      console.warn(`Agenda: SteamAppID ${parsed.steamAppId} em "${parsed.title}" não possui Library Capsule oficial resolvida em ${GAMES}; publicando sem capa.`);
++    }
++  }
++  parsedCards.push({ day, card: parsed });
++}
++
++let weekStart = settings.weekStart;
++if (!weekStart) {
++  const datedCards = parsedCards.filter(item => item.card.date);
++  if (!datedCards.length) {
++    throw new Error("Trello Agenda: informe Semana: YYYY-MM-DD (domingo) na descrição do quadro ou Data: em pelo menos um card.");
++  }
++  const inferred = weekStartFor(parseIsoDate(datedCards[0].card.date, "Trello Agenda"));
++  for (const item of datedCards) {
++    const candidate = weekStartFor(parseIsoDate(item.card.date, `Trello Agenda: Data de "${item.card.title}"`));
++    if (candidate.getTime() !== inferred.getTime()) {
++      throw new Error("Trello Agenda: existem cards de semanas diferentes; ajuste Semana:/Data: antes de publicar.");
++    }
++  }
++  weekStart = inferred;
++}
++
++const liveBuckets = new Map(DAY_DEFINITIONS.map(day => [day.id, []]));
++for (const item of parsedCards) {
++  const expectedDate = formatIsoDate(addDays(weekStart, item.day.offset));
++  if (item.card.date && item.card.date !== expectedDate) {
++    throw new Error(`Trello Agenda: "${item.card.title}" está em ${item.day.name}, mas Data: ${item.card.date} não corresponde a ${expectedDate}.`);
++  }
++  liveBuckets.get(item.day.id).push(item.card);
++}
++
++let previous = null;
++try { previous = JSON.parse(await readFile(OUT, "utf8")); } catch {}
++
++const days = DAY_DEFINITIONS.map(day => {
++  const sorted = liveBuckets.get(day.id).sort(compareLives);
++  const lives = sorted.map(item => {
++    const live = {
++      horario: item.time,
++      titulo: item.title,
++      descricao: item.description,
++      plataformas: item.platforms,
++    };
++    if (item.steamAppId) live.steamAppId = item.steamAppId;
++    if (item.artwork) live.artwork = item.artwork;
++    return live;
++  });
++  const first = lives[0] || null;
++
++  return {
++    id: day.id,
++    nome: day.name,
++    data: formatIsoDate(addDays(weekStart, day.offset)),
++    temLive: Boolean(first),
++    horario: first?.horario || "",
++    titulo: first?.titulo || "",
++    descricao: first?.descricao || "",
++    plataformas: first?.plataformas || ["YouTube", "Twitch"],
++    lives,
++  };
++});
++
++const previousObservation = typeof previous?.observacao === "string" ? previous.observacao : "";
++const observation = settings.observation !== null ? settings.observation : previousObservation;
++const previousStable = previous ? { observacao: previous.observacao || "", dias: previous.dias } : null;
++const stable = { observacao: observation, dias: days };
++const changed = JSON.stringify(stable) !== JSON.stringify(previousStable);
++
++const output = {
++  ultimaAtualizacao: changed ? formatUpdateDate() : (previous?.ultimaAtualizacao || formatUpdateDate()),
++  observacao: observation,
++  dias: days,
++};
++
++await writeFile(OUT, `${JSON.stringify(output, null, 2)}\n`);
++const totalLives = days.reduce((sum, day) => sum + day.lives.length, 0);
++console.log(`Agenda sincronizada: semana ${formatIsoDate(weekStart)}, ${totalLives} live(s), quadro ${boardRaw?.shortUrl || BOARD_ID}.`);
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 573464b0a977234811176a2070125a1938d632cb..6fc818393d9cf6dc2932c63c57f3b245930bca11 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -59,6 +59,8 @@ REQUIRED_FILES = (
+     "js/pages/home/lives.js",
+     "js/pages/home/twitch-live.js",
+     "js/pages/home/home-interactions.js",
++    ".github/scripts/sync-agenda.mjs",
++    ".github/workflows/sync-agenda.yml",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -1078,16 +1080,93 @@ def validate_agenda() -> None:
+         if not isinstance(item.get("temLive"), bool):
+             error(f"{label}.temLive deve ser booleano.")
+ 
++        schedule = item.get("horario", "")
++        if schedule and not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", schedule):
++            error(f"{label}.horario deve ser HH:MM ou vazio.")
++
++        platforms = item.get("plataformas")
++        allowed_platforms = {"YouTube", "Twitch"}
++        if not isinstance(platforms, list) or not all(isinstance(value, str) and value.strip() for value in platforms):
++            error(f"{label}.plataformas deve ser uma lista de textos não vazios.")
++        elif any(value not in allowed_platforms for value in platforms):
++            error(f"{label}.plataformas aceita somente YouTube e Twitch.")
++
++        lives = item.get("lives")
++        if lives is not None:
++            if not isinstance(lives, list):
++                error(f"{label}.lives deve ser uma lista quando presente.")
++                continue
++
++            if item.get("temLive") is False and lives:
++                warn(f"{label}.lives será ignorado porque temLive=false; isso pode ocorrer após edição por Helper legado.")
++
++            for live_index, live in enumerate(lives):
++                live_label = f"{label}.lives[{live_index}]"
++                if not isinstance(live, dict):
++                    error(f"{live_label} deve ser objeto.")
++                    continue
++
++                live_schedule = live.get("horario", "")
++                if live_schedule and not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", live_schedule):
++                    error(f"{live_label}.horario deve ser HH:MM ou vazio.")
++                if not isinstance(live.get("titulo"), str) or not live.get("titulo", "").strip():
++                    error(f"{live_label}.titulo deve ser texto não vazio.")
++                if not isinstance(live.get("descricao", ""), str):
++                    error(f"{live_label}.descricao deve ser texto.")
++                live_platforms = live.get("plataformas")
++                if not isinstance(live_platforms, list) or not live_platforms or not all(isinstance(value, str) and value.strip() for value in live_platforms):
++                    error(f"{live_label}.plataformas deve conter ao menos uma plataforma.")
++                elif len(set(live_platforms)) != len(live_platforms):
++                    error(f"{live_label}.plataformas não deve conter duplicatas.")
++                elif any(value not in allowed_platforms for value in live_platforms):
++                    error(f"{live_label}.plataformas aceita somente YouTube e Twitch.")
++
++                steam_app_id = live.get("steamAppId")
++                if steam_app_id is not None and (
++                    not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0
++                ):
++                    error(f"{live_label}.steamAppId deve ser inteiro positivo quando informado.")
++
++                artwork = live.get("artwork")
++                if artwork is not None:
++                    if not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0:
++                        error(f"{live_label}.artwork exige steamAppId válido.")
++                    elif not isinstance(artwork, dict) or artwork.get("provider") != "steam-original":
++                        error(f"{live_label}.artwork deve ser um asset steam-original.")
++                    elif artwork.get("steamAppId") != steam_app_id:
++                        error(f"{live_label}.artwork.steamAppId deve corresponder ao steamAppId da live.")
++                    elif not isinstance(artwork.get("url"), str):
++                        error(f"{live_label}.artwork.url deve ser texto HTTPS.")
++                    else:
++                        parsed_artwork = urlparse(artwork["url"])
++                        filename = parsed_artwork.path.rsplit("/", 1)[-1]
++                        valid_legacy = (
++                            parsed_artwork.scheme == "https"
++                            and parsed_artwork.hostname == "cdn.cloudflare.steamstatic.com"
++                            and parsed_artwork.path.startswith(f"/steam/apps/{steam_app_id}/")
++                            and filename in {"library_600x900.jpg", "library_600x900_2x.jpg"}
++                        )
++                        valid_modern = (
++                            parsed_artwork.scheme == "https"
++                            and parsed_artwork.hostname == "shared.fastly.steamstatic.com"
++                            and parsed_artwork.path.startswith(f"/store_item_assets/steam/apps/{steam_app_id}/")
++                            and filename in {
++                                "library_capsule.jpg", "library_capsule_2x.jpg",
++                                "library_600x900.jpg", "library_600x900_2x.jpg",
++                            }
++                        )
++                        if not (valid_legacy or valid_modern):
++                            error(f"{live_label}.artwork deve usar uma Library Capsule oficial da Steam.")
++
++            if lives and item.get("temLive") is True:
++                first = lives[0]
++                if any(item.get(field) != first.get(field) for field in ("horario", "titulo", "descricao", "plataformas")):
++                    warn(f"{label}: campos legados divergem da primeira entrada de lives; a Home prioriza os campos legados para compatibilidade com Helpers antigos.")
++
+         if item.get("temLive") is False:
+             for field in ("horario", "titulo", "descricao"):
+                 if item.get(field, "") not in ("", None):
+-                    error(
+-                        f"{label}.{field} deve ficar vazio quando temLive=false."
+-                    )
+-
+-        schedule = item.get("horario", "")
+-        if schedule and not re.fullmatch(r"[0-2]\d:[0-5]\d", schedule):
+-            error(f"{label}.horario deve ser HH:MM ou vazio.")
++                    error(f"{label}.{field} deve ficar vazio quando temLive=false.")
+ 
+     if tuple(ids) != EXPECTED_DAYS:
+         error(
+@@ -1172,6 +1251,8 @@ def validate_architecture() -> None:
+     horizontal_scroll_js = read_text("js/core/horizontal-scroll.js")
+     sync_jogos_js = read_text(".github/scripts/sync-jogos.mjs")
+     sync_jogos_workflow = read_text(".github/workflows/sync-jogos.yml")
++    sync_agenda_js = read_text(".github/scripts/sync-agenda.mjs")
++    sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
+     jogos_js = read_text("js/pages/jogos/jogos.js")
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+@@ -1217,6 +1298,7 @@ def validate_architecture() -> None:
+ 
+     home_css = read_text("css/pages/home.css")
+     home_content_js = read_text("js/pages/home/content.js")
++    home_js = read_text("js/pages/home/home.js")
+     for needle in (
+         '.home-layout {',
+         'grid-template-columns: repeat(2, minmax(0, 1fr))',
+@@ -1276,10 +1358,12 @@ def validate_architecture() -> None:
+     if "css/components/blog.css" not in index:
+         error("index.html: blog.css compartilhado não está carregado.")
+ 
+-    if "css/pages/home.css?v=48.3.7" not in index:
+-        error("index.html: cache-buster V48.3.7 ausente para css/pages/home.css.")
++    if "css/pages/home.css?v=48.3.26" not in index:
++        error("index.html: cache-buster V48.3.26 ausente para css/pages/home.css.")
+     if "js/pages/home/content.js?v=48.2.0" not in index:
+         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
++    if "js/pages/home/home.js?v=48.3.26" not in index:
++        error("index.html: cache-buster V48.3.26 ausente para js/pages/home/home.js.")
+ 
+     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
+     for rel, html, field_id in (
+@@ -1895,14 +1979,15 @@ def validate_architecture() -> None:
+ 
+     for token in (
+         'datetime="2026-09-18"',
+-        "Última atualização: 18 de setembro de 2026 · V48.3.25",
++        "Última atualização: 18 de setembro de 2026 · V48.3.26",
+         "Steam Web API",
++        "A Agenda e a página de Jogos são preparadas",
+         "não são feitas pelo navegador do visitante",
+         "da Steam permanece somente no ambiente protegido do GitHub Actions",
+         "referenciador",
+     ):
+         if token not in privacy_html:
+-            error(f"privacidade/index.html: transparência Steam V48.3.25 ausente: {token}")
++            error(f"privacidade/index.html: transparência Trello/Steam V48.3.26 ausente: {token}")
+ 
+     for token in (
+         "A identificação automática e as capas disponíveis usam dados e assets oficiais da Steam.",
+@@ -1912,6 +1997,56 @@ def validate_architecture() -> None:
+         if token not in jogos_index:
+             error(f"jogos/index.html: aviso Steam V48.3.25 ausente: {token}")
+ 
++    # V48.3.26: Agenda aceita múltiplas lives por dia e é sincronizada por
++    # Trello sem alterar os campos legados consumidos pelos Helpers antigos.
++    for token in (
++        'const BOARD_ID = process.env.TRELLO_AGENDA_BOARD_ID;',
++        'const GAMES = "data/content/jogos.json";',
++        'fields: "id,name,idList,pos,closed,desc"',
++        'Semana: YYYY-MM-DD',
++        'function parseSteamAppId(value, cardName)',
++        'function loadGameArtworkIndex()',
++        'function officialSteamArtwork(artwork, appId)',
++        'function parseCard(card)',
++        'function compareLives(a, b)',
++        'if (item.steamAppId) live.steamAppId = item.steamAppId;',
++        'if (item.artwork) live.artwork = item.artwork;',
++        'lives,',
++        'horario: first?.horario || ""',
++        'titulo: first?.titulo || ""',
++        'descricao: first?.descricao || ""',
++        'plataformas: first?.plataformas || ["YouTube", "Twitch"]',
++    ):
++        if token not in sync_agenda_js:
++            error(f".github/scripts/sync-agenda.mjs: contrato Trello/múltiplas lives V48.3.26 ausente: {token}")
++
++    for token in (
++        'TRELLO_AGENDA_BOARD_ID: ${{ vars.TRELLO_AGENDA_BOARD_ID }}',
++        '- name: Sync agenda from Trello',
++        'git add data/agenda.json',
++    ):
++        if token not in sync_agenda_workflow:
++            error(f".github/workflows/sync-agenda.yml: configuração V48.3.26 ausente: {token}")
++
++    for token in (
++        "function normalizeAgendaArtwork(value, steamAppId)",
++        "function legacyLiveFromDay(dia)",
++        "function storedLivesFromDay(dia)",
++        "function getDayLives(dia)",
++        "if (legacy.titulo !== stored[0].titulo)",
++        "first.artwork = null",
++        "return [first, ...stored.slice(1)]",
++        "function renderLiveContent(live, { showTime = false } = {})",
++        'referrerpolicy="no-referrer"',
++        "has-multiple-lives",
++        "agenda-live-list",
++        "agenda-live-layout",
++        "agenda-game-cover",
++        "agenda-live-time",
++    ):
++        if token not in home_js and token not in home_css:
++            error(f"Agenda V48.3.26: suporte de múltiplas lives ausente: {token}")
++
+     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
+     artes_header_rules = (
+         "padding: 30px;",
+@@ -1932,7 +2067,7 @@ def validate_architecture() -> None:
+     v4837_assets = {
+         "index.html": (
+             "css/core/variables.css?v=48.3.7",
+-            "css/pages/home.css?v=48.3.7",
++            "css/pages/home.css?v=48.3.26",
+             "css/components/lives.css?v=48.3.7",
+             "css/components/blog.css?v=48.3.7",
+             "js/pages/home/twitch-live.js?v=48.3.7",
+diff --git a/.github/workflows/sync-agenda.yml b/.github/workflows/sync-agenda.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..72b3b45b4e693d7b1e12263c4fb2f70bde2e8e32
+--- /dev/null
++++ b/.github/workflows/sync-agenda.yml
+@@ -0,0 +1,47 @@
++name: Sync agenda from Trello
++
++on:
++  workflow_dispatch:
++  schedule:
++    - cron: "29 9,21 * * *"
++
++permissions:
++  contents: write
++
++concurrency:
++  group: sync-agenda
++  cancel-in-progress: false
++
++jobs:
++  sync:
++    if: github.repository_owner == 'KamyliSouza'
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout repository
++        uses: actions/checkout@v4
++
++      - name: Sync agenda from Trello
++        env:
++          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
++          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
++          TRELLO_AGENDA_BOARD_ID: ${{ vars.TRELLO_AGENDA_BOARD_ID }}
++        run: node .github/scripts/sync-agenda.mjs
++
++      - name: Validate generated content
++        run: |
++          python .github/scripts/validate-content.py
++          find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
++          node --check workers.js
++          node --check .github/scripts/sync-agenda.mjs
++
++      - name: Commit only when agenda changed
++        run: |
++          if git diff --quiet -- data/agenda.json; then
++            echo "No changes to publish."
++            exit 0
++          fi
++          git config user.name "github-actions[bot]"
++          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
++          git add data/agenda.json
++          git commit -m "chore: sync agenda from Trello"
++          git push
+diff --git a/.github/workflows/validate-json.yml b/.github/workflows/validate-json.yml
+index 4facf1379dbab32436ee24778b04eb4e9021f805..9ab4caaf2fad52162d19b692516e001fed0a1117 100644
+--- a/.github/workflows/validate-json.yml
++++ b/.github/workflows/validate-json.yml
+@@ -24,8 +24,10 @@ on:
+       - "docs/**"
+       - ".github/scripts/validate-content.py"
+       - ".github/scripts/sync-jogos.mjs"
++      - ".github/scripts/sync-agenda.mjs"
+       - ".github/workflows/validate-json.yml"
+       - ".github/workflows/sync-jogos.yml"
++      - ".github/workflows/sync-agenda.yml"
+ 
+   pull_request:
+     paths:
+@@ -47,8 +49,10 @@ on:
+       - "docs/**"
+       - ".github/scripts/validate-content.py"
+       - ".github/scripts/sync-jogos.mjs"
++      - ".github/scripts/sync-agenda.mjs"
+       - ".github/workflows/validate-json.yml"
+       - ".github/workflows/sync-jogos.yml"
++      - ".github/workflows/sync-agenda.yml"
+ 
+ permissions:
+   contents: read
+@@ -68,6 +72,7 @@ jobs:
+         run: |
+           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
+           node --check workers.js
++          node --check .github/scripts/sync-agenda.mjs
+ 
+       - name: Reject generated Python cache
+         run: |
+diff --git a/AGENTS.md b/AGENTS.md
+index 40f2f5dd637ee4bbd65d158bd154b80ca3636926..ebc8f60fab88062747bf1952e86f2e16cfe38336 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -157,9 +157,39 @@ normalizados pelo Worker e não devem ser copiados manualmente para o JSON.
+ 
+ ## Agenda
+ 
+-`data/agenda.json` é local, contém sete dias e não depende de API.
+-Um dia com live pode ter horário vazio; a interface deve tratar como
+-“A definir”.
++`data/agenda.json` continua sendo o contrato público/local consumido pela Home e
++pelos Helpers existentes, com exatamente sete dias em ordem de domingo a sábado.
++Desde V48.3.26, o arquivo pode ser gerado por `.github/scripts/sync-agenda.mjs` a
++partir de um quadro Trello dedicado. O navegador nunca consulta a API do Trello.
++
++No quadro, cada lista representa um dia da semana e cada card representa uma live.
++A descrição do quadro pode declarar `Semana: YYYY-MM-DD` apontando para o domingo
++da semana publicada e `Observacao: ...`. Em cada card, `Horario:` pode ser HH:MM
++ou `A definir`, `Plataformas:` aceita YouTube/Twitch e `Descricao:` é opcional;
++`Data:` também é opcional e, quando presente, deve coincidir com o dia/lista da
++semana publicada. `SteamAppID:` é opcional e serve somente para associar a live
++a uma capa já resolvida em `data/content/jogos.json`. O sync da Agenda não deve
++consultar a Steam diretamente nem manter um segundo cache de artwork. Cards
++arquivados não entram na agenda.
++
++Dias podem ter zero, uma ou várias lives. O campo aditivo `lives` contém todos os
++eventos do dia em ordem de horário, usando a posição do card no Trello como
++desempate/fallback. Para compatibilidade com Helpers antigos, `temLive`, `horario`,
++`titulo`, `descricao` e `plataformas` continuam obrigatórios no nível do dia e,
++quando há live, espelham a primeira entrada de `lives`. O frontend também continua
++aceitando arquivos legados sem `lives`. Dentro de cada entrada de `lives`,
++`steamAppId` e `artwork` são opcionais; `artwork` só pode reutilizar uma Library
++Capsule `steam-original` do catálogo de Jogos e a Home deve carregá-la com
++`referrerpolicy="no-referrer"`. Helpers antigos continuam controlando os campos
++legados da primeira live; a Home preserva a capa enquanto o título legado continuar
++igual ao de `lives[0]` e a omite se esse título for alterado, evitando associação
++visual incorreta até a próxima sincronização pelo Trello. Um dia com horário vazio
++deve aparecer como “A definir”.
++
++O workflow `.github/workflows/sync-agenda.yml` usa os mesmos secrets do Trello já
++existentes e lê o ID do quadro em `vars.TRELLO_AGENDA_BOARD_ID`. Se o Trello estiver
++indisponível ou o quadro tiver estrutura/dados inválidos, a sincronização deve falhar
++antes do commit, preservando o último `data/agenda.json` válido.
+ 
+ ## CTAs de apoio e carrosséis
+ 
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 037a629505a0ec2f64fdeaab66b5ad659a7bc60b..aecf58ad683b1dbfb2d4951032e6c1dd635f662e 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,17 @@
+ # Changelog
+ 
++## V48.3.26 — Agenda no Trello e múltiplas lives por dia
++
++- adiciona sincronização independente da Agenda por GitHub Actions usando um quadro Trello dedicado, sem chamadas à API do Trello feitas pelo navegador;
++- usa sete listas de dias da semana e um card por live, permitindo zero, uma ou várias transmissões no mesmo dia;
++- introduz o campo aditivo `lives` em cada dia de `data/agenda.json`, preservando `temLive`, `horario`, `titulo`, `descricao` e `plataformas` como espelho da primeira live para compatibilidade com Helpers antigos;
++- mantém o frontend compatível com o JSON legado sem `lives` e passa a exibir várias lives dentro do mesmo card diário, em ordem cronológica e com fallback para a ordem do Trello;
++- permite `Semana: YYYY-MM-DD` e `Observacao:` na descrição do quadro, além de `Horario:`, `Plataformas:`, `Descricao:`, `Data:` e `SteamAppID:` opcionais/estruturados nos cards, com validação estrita antes de qualquer commit;
++- quando `SteamAppID:` é informado, reutiliza exclusivamente a Library Capsule oficial já resolvida em `data/content/jogos.json`, sem fazer uma segunda consulta à Steam e sem duplicar cache/credenciais; a ausência de capa não impede a publicação da live;
++- exibe a capa opcional ao lado da live na Agenda, inclusive quando há várias transmissões no mesmo dia, usando `loading=lazy` e `referrerpolicy=no-referrer`;
++- adiciona o workflow `Sync agenda from Trello`, reutiliza `TRELLO_API_KEY`/`TRELLO_TOKEN` e lê o quadro pela Repository Variable `TRELLO_AGENDA_BOARD_ID`;
++- atualiza README, regras de manutenção, validação CI, cache-busters da Home e Política de Privacidade para refletir a nova sincronização server-side.
++
+ ## V48.3.25 — Migração: catálogo de Jogos com Steam Web API
+ 
+ - remove o SteamGridDB da sincronização e substitui a identificação automática pelo método documentado `IStoreService/GetAppList` da Steam Web API;
+diff --git a/README.md b/README.md
+index 7dbf307972c8eea50c5c674142182e0db0a2e229..821f7ea5e9ac6175995746aebbb1132d7ebfe9b5 100644
+--- a/README.md
++++ b/README.md
+@@ -32,7 +32,33 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
+ 
+ 
+ Os textos e listas ficam em `data/content/*.json`.
+-A agenda semanal fica em `data/agenda.json`.
++A agenda semanal continua publicada em `data/agenda.json`. Desde a V48.3.26, ela
++pode ser sincronizada de um quadro Trello dedicado por GitHub Actions sem expor
++a API ao navegador. O contrato legado de cada dia é preservado e o campo aditivo
++`lives` permite zero, uma ou várias transmissões no mesmo dia.
++
++Para o quadro da Agenda, use exatamente sete listas (`Domingo`, `Segunda-feira`,
++`Terça-feira`, `Quarta-feira`, `Quinta-feira`, `Sexta-feira`, `Sábado`) e um card
++por live. Na descrição do quadro, defina `Semana: YYYY-MM-DD` usando o domingo da
++semana publicada; `Observacao: ...` é opcional. Em cada card, use por exemplo:
++
++```text
++Horario: 20:00
++Plataformas: YouTube, Twitch
++SteamAppID: 3357650
++Descricao: Vamos jogar alguma coisa!
++```
++
++`Horario: A definir` também é aceito. `Data: YYYY-MM-DD` é opcional e funciona
++como validação extra: quando informada, precisa corresponder à lista e à semana.
++`SteamAppID:` também é opcional; quando presente, a Agenda procura esse App ID no
++catálogo local `data/content/jogos.json` e reutiliza somente a Library Capsule
++oficial já resolvida pelo sync de Jogos. A Agenda não faz uma segunda consulta à
++Steam; se o catálogo ainda não tiver capa para o ID, a live é publicada normalmente
++sem imagem. Cards no mesmo dia são ordenados pelo horário; empates e horários
++indefinidos preservam a ordem do Trello. O ID/short link do quadro deve ficar na Repository
++Variable `TRELLO_AGENDA_BOARD_ID`; os secrets `TRELLO_API_KEY` e `TRELLO_TOKEN`
++já usados pela sincronização de Jogos são reutilizados.
+ 
+ As Lives usam duas abas no mesmo componente visual. **Twitch é a aba padrão** e
+ recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twitch/videos`.
+diff --git a/css/pages/home.css b/css/pages/home.css
+index 088cae119be2d7e7c44c4d5abe1956beb90e8b98..35a69e11897b262417d3f5f846a5f5db07c6cf6f 100644
+--- a/css/pages/home.css
++++ b/css/pages/home.css
+@@ -538,6 +538,73 @@
+     overflow-wrap: anywhere;
+ }
+ 
++.agenda-live-list {
++    display: grid;
++    gap: 16px;
++}
++
++.agenda-live-layout {
++    flex: 1;
++    min-width: 0;
++}
++
++.agenda-live-layout.has-artwork {
++    display: grid;
++    grid-template-columns: 56px minmax(0, 1fr);
++    align-items: start;
++
++    gap: 12px;
++}
++
++.agenda-live-copy {
++    min-width: 0;
++    height: 100%;
++
++    display: flex;
++    flex-direction: column;
++}
++
++.agenda-game-cover {
++    display: block;
++
++    width: 56px;
++    aspect-ratio: 2 / 3;
++
++    object-fit: cover;
++
++    background-color: var(--card-bg);
++
++    border: 1px solid var(--card-border);
++    border-radius: 8px;
++}
++
++.agenda-live-item {
++    min-width: 0;
++}
++
++.agenda-live-item + .agenda-live-item {
++    padding-top: 16px;
++
++    border-top: 1px solid var(--card-border);
++}
++
++.agenda-live-time {
++    display: block;
++
++    margin-bottom: 7px;
++
++    color: var(--primary-text);
++
++    font-size: .78rem;
++    font-weight: 900;
++    line-height: 1.2;
++}
++
++.has-multiple-lives .agenda-platforms {
++    margin-top: 9px;
++    padding-top: 0;
++}
++
+ .loading-message {
+     flex: 1 0 100%;
+ 
+diff --git a/data/content/README.md b/data/content/README.md
+index 0b595597a91e4c258af55e9d779b7aa176f12084..c2579f9d697a6a7cfc79f02544e588cd4b027998 100644
+--- a/data/content/README.md
++++ b/data/content/README.md
+@@ -18,7 +18,7 @@ alterar HTML.
+ 
+ A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
+ 
+-A agenda semanal fica em `../agenda.json`.
++A agenda semanal fica em `../agenda.json`; desde V48.3.26, esse arquivo pode ser sincronizado de um quadro Trello dedicado e aceitar múltiplas lives por dia sem remover os campos legados usados pelos Helpers. Um `SteamAppID:` opcional no card reaproveita a Library Capsule oficial já presente em `jogos.json`; a Agenda não consulta a Steam separadamente.
+ 
+ ## Navbar
+ 
+diff --git a/index.html b/index.html
+index de7293aed24ac6f9d1423d73ebf1430fd0b9b5a9..187f95280067c576d75cbbaa4e7f3fce591c796c 100644
+--- a/index.html
++++ b/index.html
+@@ -255,7 +255,7 @@
+     <link rel="stylesheet" href="css/core/variables.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/global.css?v=48.3.7">
+     <link rel="stylesheet" href="css/core/navbar.css?v=48.3.7">
+-    <link rel="stylesheet" href="css/pages/home.css?v=48.3.7">
++    <link rel="stylesheet" href="css/pages/home.css?v=48.3.26">
+     <link rel="stylesheet" href="css/components/lives.css?v=48.3.7">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=46.2">
+@@ -825,7 +825,7 @@
+     <script src="js/core/sanitize.js?v=1"></script>
+     <script src="js/core/footer.js?v=47.4.2"></script>
+     <script src="js/pages/home/carousel.js?v=46.2"></script>
+-    <script src="js/pages/home/home.js?v=46.3"></script>
++    <script src="js/pages/home/home.js?v=48.3.26"></script>
+     <script src="js/pages/home/content.js?v=48.2.0"></script>
+     <script src="js/core/api.js?v=47.3"></script>
+     <script src="js/pages/home/lives.js?v=47.4.3"></script>
+diff --git a/js/pages/home/home.js b/js/pages/home/home.js
+index aa761e7c597a36ebad71b5566fa479e3598f55c1..3c7a33044dca80ffb7a1b9a85a1f5b828c1dc7f1 100644
+--- a/js/pages/home/home.js
++++ b/js/pages/home/home.js
+@@ -47,6 +47,120 @@ function setupAgendaCarousel() {
+     });
+ }
+ 
++function normalizePlatforms(value) {
++    return Array.isArray(value) ? value.filter(Boolean) : [];
++}
++
++function normalizeAgendaArtwork(value, steamAppId) {
++    if (!value || value.provider !== "steam-original") return null;
++    if (!Number.isInteger(steamAppId) || steamAppId <= 0 || value.steamAppId !== steamAppId) return null;
++    if (typeof value.url !== "string") return null;
++
++    try {
++        const url = new URL(value.url);
++        const filename = url.pathname.split("/").pop();
++        const legacy =
++            url.protocol === "https:" &&
++            url.hostname === "cdn.cloudflare.steamstatic.com" &&
++            url.pathname.startsWith(`/steam/apps/${steamAppId}/`) &&
++            ["library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
++        const modern =
++            url.protocol === "https:" &&
++            url.hostname === "shared.fastly.steamstatic.com" &&
++            url.pathname.startsWith(`/store_item_assets/steam/apps/${steamAppId}/`) &&
++            ["library_capsule.jpg", "library_capsule_2x.jpg", "library_600x900.jpg", "library_600x900_2x.jpg"].includes(filename);
++        return legacy || modern ? { url: url.toString() } : null;
++    } catch {
++        return null;
++    }
++}
++
++function legacyLiveFromDay(dia) {
++    return {
++        horario: typeof dia?.horario === "string" ? dia.horario : "",
++        titulo: typeof dia?.titulo === "string" ? dia.titulo : "",
++        descricao: typeof dia?.descricao === "string" ? dia.descricao : "",
++        plataformas: normalizePlatforms(dia?.plataformas)
++    };
++}
++
++function storedLivesFromDay(dia) {
++    if (!Array.isArray(dia?.lives)) return [];
++
++    return dia.lives
++        .filter(live => live && typeof live === "object")
++        .map(live => {
++            const steamAppId = Number.isInteger(live.steamAppId) && live.steamAppId > 0
++                ? live.steamAppId
++                : null;
++            return {
++                horario: typeof live.horario === "string" ? live.horario : "",
++                titulo: typeof live.titulo === "string" ? live.titulo : "",
++                descricao: typeof live.descricao === "string" ? live.descricao : "",
++                plataformas: normalizePlatforms(live.plataformas),
++                steamAppId,
++                artwork: normalizeAgendaArtwork(live.artwork, steamAppId)
++            };
++        });
++}
++
++function getDayLives(dia) {
++    if (!dia?.temLive) return [];
++
++    const legacy = legacyLiveFromDay(dia);
++    const stored = storedLivesFromDay(dia);
++
++    if (!stored.length) return [legacy];
++
++    const legacyHasContent = Boolean(
++        legacy.horario ||
++        legacy.titulo ||
++        legacy.descricao
++    );
++
++    if (!legacyHasContent) return stored;
++
++    // Helpers antigos continuam editando somente os campos legados do dia.
++    // Eles prevalecem na primeira live; metadados da capa permanecem apenas
++    // enquanto o título não mudar, evitando associar uma imagem ao jogo errado.
++    const first = { ...stored[0], ...legacy };
++    if (legacy.titulo !== stored[0].titulo) {
++        first.steamAppId = null;
++        first.artwork = null;
++    }
++    return [first, ...stored.slice(1)];
++}
++
++function renderLiveContent(live, { showTime = false } = {}) {
++    const plataformas = Array.isArray(live.plataformas)
++        ? live.plataformas.filter(Boolean).join(" • ")
++        : "";
++    const artworkUrl = live.artwork?.url || "";
++
++    return `
++        <div class="agenda-live-layout${artworkUrl ? " has-artwork" : ""}">
++            ${artworkUrl ? `
++                <img
++                    class="agenda-game-cover"
++                    src="${escapeHtml(artworkUrl)}"
++                    alt=""
++                    width="600"
++                    height="900"
++                    loading="lazy"
++                    decoding="async"
++                    referrerpolicy="no-referrer"
++                >
++            ` : ""}
++            <div class="agenda-live-copy">
++                ${showTime ? `<strong class="agenda-live-time">${escapeHtml(live.horario || "A definir")}</strong>` : ""}
++                <h3 class="agenda-title">${escapeHtml(live.titulo || "Live")}</h3>
++                ${live.descricao ? `<p class="agenda-description">${escapeHtml(live.descricao)}</p>` : ""}
++                ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
++            </div>
++        </div>
++    `;
++}
++
+ function renderAgenda(data) {
+     const dias = Array.isArray(data.dias) ? data.dias : [];
+ 
+@@ -69,13 +183,32 @@ function renderAgenda(data) {
+         document.createDocumentFragment();
+ 
+     dias.forEach(dia => {
++        const lives = getDayLives(dia);
++        const hasLive = lives.length > 0;
++        const hasMultipleLives = lives.length > 1;
+         const card = document.createElement("article");
+-        card.className = `agenda-card ${dia.temLive ? "has-live" : "no-live"}`;
++        card.className = `agenda-card ${hasLive ? "has-live" : "no-live"}${hasMultipleLives ? " has-multiple-lives" : ""}`;
+ 
+-        const plataformas = Array.isArray(dia.plataformas)
+-            ? dia.plataformas.filter(Boolean).join(" • ")
++        const statusText = hasMultipleLives
++            ? `● ${lives.length} LIVES`
++            : (hasLive ? "● TEM LIVE" : "○ SEM LIVE");
++        const headerTime = hasLive && !hasMultipleLives
++            ? lives[0].horario || "A definir"
+             : "";
+ 
++        const liveContent = hasMultipleLives
++            ? `<div class="agenda-live-list">${lives.map(live => `
++                    <section class="agenda-live-item">
++                        ${renderLiveContent(live, { showTime: true })}
++                    </section>
++                `).join("")}</div>`
++            : (hasLive
++                ? renderLiveContent(lives[0])
++                : `
++                    <h3 class="agenda-title agenda-title-off">Sem live</h3>
++                    <p class="agenda-description">Sem transmissão programada.</p>
++                `);
++
+         card.innerHTML = `
+             <div class="agenda-card-top">
+                 <div class="agenda-card-date">
+@@ -85,10 +218,10 @@ function renderAgenda(data) {
+                         <span class="agenda-date">${formatDate(dia.data)}</span>
+ 
+                         ${
+-                            dia.temLive
++                            headerTime
+                                 ? `
+                                     <span class="agenda-date-time-separator" aria-hidden="true">•</span>
+-                                    <strong class="agenda-time">${escapeHtml(dia.horario || "A definir")}</strong>
++                                    <strong class="agenda-time">${escapeHtml(headerTime)}</strong>
+                                 `
+                                 : ""
+                         }
+@@ -96,25 +229,12 @@ function renderAgenda(data) {
+                 </div>
+ 
+                 <div class="agenda-card-live">
+-                    <span class="agenda-status">
+-                        ${dia.temLive ? "● TEM LIVE" : "○ SEM LIVE"}
+-                    </span>
++                    <span class="agenda-status">${statusText}</span>
+                 </div>
+             </div>
+ 
+             <div class="agenda-card-content">
+-                ${
+-                    dia.temLive
+-                        ? `
+-                            <h3 class="agenda-title">${escapeHtml(dia.titulo || "Live")}</h3>
+-                            ${dia.descricao ? `<p class="agenda-description">${escapeHtml(dia.descricao)}</p>` : ""}
+-                            ${plataformas ? `<div class="agenda-platforms">${escapeHtml(plataformas)}</div>` : ""}
+-                        `
+-                        : `
+-                            <h3 class="agenda-title agenda-title-off">Sem live</h3>
+-                            <p class="agenda-description">Sem transmissão programada.</p>
+-                        `
+-                }
++                ${liveContent}
+             </div>
+         `;
+ 
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 94e9e7cbab8528e87b33a8298c2705296d590a3c..fbf70cb01c35eb4ae96a746689418f47423a16c6 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -275,7 +275,7 @@
+                     funcionamento e como exercer direitos previstos na LGPD.
+                 </p>
+                 <time class="privacy-updated" datetime="2026-09-18">
+-                    Última atualização: 18 de setembro de 2026 · V48.3.25
++                    Última atualização: 18 de setembro de 2026 · V48.3.26
+                 </time>
+             </header>
+ 
+@@ -417,12 +417,14 @@
+                     com que o navegador solicite o recurso ao respectivo serviço.
+                 </p>
+                 <p>
+-                    A página de Jogos é preparada por uma sincronização automatizada no GitHub
+-                    Actions a partir de informações editoriais do Trello e da Steam Web API. Essas
++                    A Agenda e a página de Jogos são preparadas por sincronizações automatizadas
++                    no GitHub Actions a partir de informações editoriais do Trello; em Jogos, a
++                    Steam Web API também é usada para identificar títulos e assets oficiais. Essas
+                     consultas de sincronização não são feitas pelo navegador do visitante e a chave
+                     da Steam permanece somente no ambiente protegido do GitHub Actions. Quando
+-                    disponível, a capa de um jogo é carregada diretamente da infraestrutura da
+-                    Steam com política de referência que evita enviar a URL desta página como
++                    disponível, uma capa oficial de jogo pode aparecer tanto em Jogos quanto na
++                    Agenda e é carregada diretamente da infraestrutura da Steam com política de
++                    referência que evita enviar a URL desta página como
+                     referenciador. Ao escolher <strong>Ver na Steam</strong>, o visitante é
+                     direcionado ao serviço externo, que passa a tratar a navegação conforme suas
+                     próprias políticas.

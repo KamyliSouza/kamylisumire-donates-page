@@ -59,6 +59,8 @@ REQUIRED_FILES = (
     "js/pages/home/lives.js",
     "js/pages/home/twitch-live.js",
     "js/pages/home/home-interactions.js",
+    ".github/scripts/sync-agenda.mjs",
+    ".github/workflows/sync-agenda.yml",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1078,16 +1080,93 @@ def validate_agenda() -> None:
         if not isinstance(item.get("temLive"), bool):
             error(f"{label}.temLive deve ser booleano.")
 
+        schedule = item.get("horario", "")
+        if schedule and not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", schedule):
+            error(f"{label}.horario deve ser HH:MM ou vazio.")
+
+        platforms = item.get("plataformas")
+        allowed_platforms = {"YouTube", "Twitch"}
+        if not isinstance(platforms, list) or not all(isinstance(value, str) and value.strip() for value in platforms):
+            error(f"{label}.plataformas deve ser uma lista de textos não vazios.")
+        elif any(value not in allowed_platforms for value in platforms):
+            error(f"{label}.plataformas aceita somente YouTube e Twitch.")
+
+        lives = item.get("lives")
+        if lives is not None:
+            if not isinstance(lives, list):
+                error(f"{label}.lives deve ser uma lista quando presente.")
+                continue
+
+            if item.get("temLive") is False and lives:
+                warn(f"{label}.lives será ignorado porque temLive=false; isso pode ocorrer após edição por Helper legado.")
+
+            for live_index, live in enumerate(lives):
+                live_label = f"{label}.lives[{live_index}]"
+                if not isinstance(live, dict):
+                    error(f"{live_label} deve ser objeto.")
+                    continue
+
+                live_schedule = live.get("horario", "")
+                if live_schedule and not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", live_schedule):
+                    error(f"{live_label}.horario deve ser HH:MM ou vazio.")
+                if not isinstance(live.get("titulo"), str) or not live.get("titulo", "").strip():
+                    error(f"{live_label}.titulo deve ser texto não vazio.")
+                if not isinstance(live.get("descricao", ""), str):
+                    error(f"{live_label}.descricao deve ser texto.")
+                live_platforms = live.get("plataformas")
+                if not isinstance(live_platforms, list) or not live_platforms or not all(isinstance(value, str) and value.strip() for value in live_platforms):
+                    error(f"{live_label}.plataformas deve conter ao menos uma plataforma.")
+                elif len(set(live_platforms)) != len(live_platforms):
+                    error(f"{live_label}.plataformas não deve conter duplicatas.")
+                elif any(value not in allowed_platforms for value in live_platforms):
+                    error(f"{live_label}.plataformas aceita somente YouTube e Twitch.")
+
+                steam_app_id = live.get("steamAppId")
+                if steam_app_id is not None and (
+                    not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0
+                ):
+                    error(f"{live_label}.steamAppId deve ser inteiro positivo quando informado.")
+
+                artwork = live.get("artwork")
+                if artwork is not None:
+                    if not isinstance(steam_app_id, int) or isinstance(steam_app_id, bool) or steam_app_id <= 0:
+                        error(f"{live_label}.artwork exige steamAppId válido.")
+                    elif not isinstance(artwork, dict) or artwork.get("provider") != "steam-original":
+                        error(f"{live_label}.artwork deve ser um asset steam-original.")
+                    elif artwork.get("steamAppId") != steam_app_id:
+                        error(f"{live_label}.artwork.steamAppId deve corresponder ao steamAppId da live.")
+                    elif not isinstance(artwork.get("url"), str):
+                        error(f"{live_label}.artwork.url deve ser texto HTTPS.")
+                    else:
+                        parsed_artwork = urlparse(artwork["url"])
+                        filename = parsed_artwork.path.rsplit("/", 1)[-1]
+                        valid_legacy = (
+                            parsed_artwork.scheme == "https"
+                            and parsed_artwork.hostname == "cdn.cloudflare.steamstatic.com"
+                            and parsed_artwork.path.startswith(f"/steam/apps/{steam_app_id}/")
+                            and filename in {"library_600x900.jpg", "library_600x900_2x.jpg"}
+                        )
+                        valid_modern = (
+                            parsed_artwork.scheme == "https"
+                            and parsed_artwork.hostname == "shared.fastly.steamstatic.com"
+                            and parsed_artwork.path.startswith(f"/store_item_assets/steam/apps/{steam_app_id}/")
+                            and filename in {
+                                "library_capsule.jpg", "library_capsule_2x.jpg",
+                                "library_600x900.jpg", "library_600x900_2x.jpg",
+                            }
+                        )
+                        if not (valid_legacy or valid_modern):
+                            error(f"{live_label}.artwork deve usar uma Library Capsule oficial da Steam.")
+
+            if lives and item.get("temLive") is True:
+                first = lives[0]
+                if any(item.get(field) != first.get(field) for field in ("horario", "titulo", "descricao", "plataformas")):
+                    warn(f"{label}: campos legados divergem da primeira entrada de lives; a Home prioriza os campos legados para compatibilidade com Helpers antigos.")
+
         if item.get("temLive") is False:
             for field in ("horario", "titulo", "descricao"):
                 if item.get(field, "") not in ("", None):
-                    error(
-                        f"{label}.{field} deve ficar vazio quando temLive=false."
-                    )
-
-        schedule = item.get("horario", "")
-        if schedule and not re.fullmatch(r"[0-2]\d:[0-5]\d", schedule):
-            error(f"{label}.horario deve ser HH:MM ou vazio.")
+                    error(f"{label}.{field} deve ficar vazio quando temLive=false.")
 
     if tuple(ids) != EXPECTED_DAYS:
         error(
@@ -1172,6 +1251,8 @@ def validate_architecture() -> None:
     horizontal_scroll_js = read_text("js/core/horizontal-scroll.js")
     sync_jogos_js = read_text(".github/scripts/sync-jogos.mjs")
     sync_jogos_workflow = read_text(".github/workflows/sync-jogos.yml")
+    sync_agenda_js = read_text(".github/scripts/sync-agenda.mjs")
+    sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1217,6 +1298,7 @@ def validate_architecture() -> None:
 
     home_css = read_text("css/pages/home.css")
     home_content_js = read_text("js/pages/home/content.js")
+    home_js = read_text("js/pages/home/home.js")
     for needle in (
         '.home-layout {',
         'grid-template-columns: repeat(2, minmax(0, 1fr))',
@@ -1276,10 +1358,12 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.7" not in index:
-        error("index.html: cache-buster V48.3.7 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.26" not in index:
+        error("index.html: cache-buster V48.3.26 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
+    if "js/pages/home/home.js?v=48.3.26" not in index:
+        error("index.html: cache-buster V48.3.26 ausente para js/pages/home/home.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
     for rel, html, field_id in (
@@ -1895,14 +1979,15 @@ def validate_architecture() -> None:
 
     for token in (
         'datetime="2026-09-18"',
-        "Última atualização: 18 de setembro de 2026 · V48.3.25",
+        "Última atualização: 18 de setembro de 2026 · V48.3.26",
         "Steam Web API",
+        "A Agenda e a página de Jogos são preparadas",
         "não são feitas pelo navegador do visitante",
         "da Steam permanece somente no ambiente protegido do GitHub Actions",
         "referenciador",
     ):
         if token not in privacy_html:
-            error(f"privacidade/index.html: transparência Steam V48.3.25 ausente: {token}")
+            error(f"privacidade/index.html: transparência Trello/Steam V48.3.26 ausente: {token}")
 
     for token in (
         "A identificação automática e as capas disponíveis usam dados e assets oficiais da Steam.",
@@ -1911,6 +1996,56 @@ def validate_architecture() -> None:
     ):
         if token not in jogos_index:
             error(f"jogos/index.html: aviso Steam V48.3.25 ausente: {token}")
+
+    # V48.3.26: Agenda aceita múltiplas lives por dia e é sincronizada por
+    # Trello sem alterar os campos legados consumidos pelos Helpers antigos.
+    for token in (
+        'const BOARD_ID = process.env.TRELLO_AGENDA_BOARD_ID;',
+        'const GAMES = "data/content/jogos.json";',
+        'fields: "id,name,idList,pos,closed,desc"',
+        'Semana: YYYY-MM-DD',
+        'function parseSteamAppId(value, cardName)',
+        'function loadGameArtworkIndex()',
+        'function officialSteamArtwork(artwork, appId)',
+        'function parseCard(card)',
+        'function compareLives(a, b)',
+        'if (item.steamAppId) live.steamAppId = item.steamAppId;',
+        'if (item.artwork) live.artwork = item.artwork;',
+        'lives,',
+        'horario: first?.horario || ""',
+        'titulo: first?.titulo || ""',
+        'descricao: first?.descricao || ""',
+        'plataformas: first?.plataformas || ["YouTube", "Twitch"]',
+    ):
+        if token not in sync_agenda_js:
+            error(f".github/scripts/sync-agenda.mjs: contrato Trello/múltiplas lives V48.3.26 ausente: {token}")
+
+    for token in (
+        'TRELLO_AGENDA_BOARD_ID: ${{ vars.TRELLO_AGENDA_BOARD_ID }}',
+        '- name: Sync agenda from Trello',
+        'git add data/agenda.json',
+    ):
+        if token not in sync_agenda_workflow:
+            error(f".github/workflows/sync-agenda.yml: configuração V48.3.26 ausente: {token}")
+
+    for token in (
+        "function normalizeAgendaArtwork(value, steamAppId)",
+        "function legacyLiveFromDay(dia)",
+        "function storedLivesFromDay(dia)",
+        "function getDayLives(dia)",
+        "if (legacy.titulo !== stored[0].titulo)",
+        "first.artwork = null",
+        "return [first, ...stored.slice(1)]",
+        "function renderLiveContent(live, { showTime = false } = {})",
+        'referrerpolicy="no-referrer"',
+        "has-multiple-lives",
+        "agenda-live-list",
+        "agenda-live-layout",
+        "agenda-game-cover",
+        "agenda-live-time",
+    ):
+        if token not in home_js and token not in home_css:
+            error(f"Agenda V48.3.26: suporte de múltiplas lives ausente: {token}")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
@@ -1932,7 +2067,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.7",
+            "css/pages/home.css?v=48.3.26",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",
