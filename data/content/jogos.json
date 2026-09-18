@@ -50,7 +50,6 @@
       "pos": 140737488109568,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 16575,
         "steamAppId": 587620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/587620/library_600x900.jpg"
       },
@@ -65,7 +64,6 @@
       "pos": 140737488125952,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5252987,
         "steamAppId": 1182620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1182620/library_600x900.jpg"
       },
@@ -80,7 +78,6 @@
       "pos": 140737488142336,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 9774,
         "steamAppId": 418370,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/418370/library_600x900.jpg"
       },
@@ -95,7 +92,6 @@
       "pos": 140737488158720,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5257345,
         "steamAppId": 999220,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/999220/library_600x900.jpg"
       },
@@ -110,7 +106,6 @@
       "pos": 140737488175104,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5273107,
         "steamAppId": 1466640,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1466640/library_600x900.jpg"
       },
@@ -125,7 +120,6 @@
       "pos": 140737488191488,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5317066,
         "steamAppId": 1747760,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1747760/library_600x900.jpg"
       },
@@ -140,7 +134,6 @@
       "pos": 140737488207872,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5285351,
         "steamAppId": 1627720,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1627720/library_600x900.jpg"
       },
@@ -155,7 +148,6 @@
       "pos": 140737488224256,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 10109,
         "steamAppId": 428550,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/428550/library_600x900.jpg"
       },
@@ -170,7 +162,6 @@
       "pos": 140737488236544,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5439691,
         "steamAppId": 2679460,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg"
       },
@@ -185,7 +176,6 @@
       "pos": 140737488240640,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5441889,
         "steamAppId": 2407270,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2407270/library_600x900.jpg"
       },
@@ -200,7 +190,6 @@
       "pos": 140737488252928,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5330917,
         "steamAppId": 1774580,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1774580/library_600x900.jpg"
       },
@@ -215,7 +204,6 @@
       "pos": 140737488257024,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5319754,
         "steamAppId": 813230,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/813230/library_600x900.jpg"
       },
@@ -231,7 +219,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1801110,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1801110/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1801110/library_600x900_2x.jpg"
       },
       "steamAppId": 1801110,
       "steamUrl": "https://store.steampowered.com/app/1801110/"
@@ -244,7 +232,6 @@
       "pos": 140737488273408,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5282856,
         "steamAppId": 1569580,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
       },
@@ -259,7 +246,6 @@
       "pos": 140737488282624,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5267310,
         "steamAppId": 1954200,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
       },
@@ -274,7 +260,6 @@
       "pos": 140737488282624,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5282060,
         "steamAppId": 1594940,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1594940/library_600x900.jpg"
       },
@@ -289,7 +274,6 @@
       "pos": 140737488289792,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 4878706,
         "steamAppId": 774361,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/774361/library_600x900.jpg"
       },
@@ -304,7 +288,6 @@
       "pos": 140737488289792,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5400121,
         "steamAppId": 2416450,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2416450/library_600x900.jpg"
       },
@@ -319,7 +302,6 @@
       "pos": 140737488289792,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5438459,
         "steamAppId": 2680010,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2680010/library_600x900.jpg"
       },
@@ -334,7 +316,6 @@
       "pos": 140737488290816,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5264093,
         "steamAppId": 1373960,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1373960/library_600x900.jpg"
       },
@@ -350,7 +331,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 2114740,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2114740/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2114740/library_600x900_2x.jpg"
       },
       "steamAppId": 2114740,
       "steamUrl": "https://store.steampowered.com/app/2114740/"
@@ -364,7 +345,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1174180,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900_2x.jpg"
       },
       "steamAppId": 1174180,
       "steamUrl": "https://store.steampowered.com/app/1174180/"
@@ -377,7 +358,6 @@
       "pos": 140737488297984,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 2652,
         "steamAppId": 236430,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
       },
@@ -392,7 +372,6 @@
       "pos": 140737488299008,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5280191,
         "steamAppId": 1265920,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1265920/library_600x900.jpg"
       },
@@ -408,7 +387,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1244090,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/library_600x900_2x.jpg"
       },
       "steamAppId": 1244090,
       "steamUrl": "https://store.steampowered.com/app/1244090/"
@@ -422,7 +401,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1693980,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1693980/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1693980/library_600x900_2x.jpg"
       },
       "steamAppId": 1693980,
       "steamUrl": "https://store.steampowered.com/app/1693980/"
@@ -435,7 +414,6 @@
       "pos": 140737488306176,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 2108,
         "steamAppId": 214490,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/214490/library_600x900.jpg"
       },
@@ -451,7 +429,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 972660,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/972660/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/972660/library_600x900_2x.jpg"
       },
       "steamAppId": 972660,
       "steamUrl": "https://store.steampowered.com/app/972660/"
@@ -464,7 +442,6 @@
       "pos": 140737488312064,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5039,
         "steamAppId": 312520,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/312520/library_600x900.jpg"
       },
@@ -477,7 +454,11 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488322560,
-      "artwork": null,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3357650,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3357650/2c65f388cb3ac6631c8a38ff1a59903263fc70e9/library_capsule_2x.jpg?t=1789603448"
+      },
       "steamAppId": 3357650,
       "steamUrl": "https://store.steampowered.com/app/3357650/"
     },
@@ -489,7 +470,6 @@
       "pos": 140737488322560,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5462324,
         "steamAppId": 2129530,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2129530/library_600x900.jpg"
       },
@@ -504,7 +484,6 @@
       "pos": 140737488326656,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5423718,
         "steamAppId": 1392860,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1392860/library_600x900.jpg"
       },
@@ -519,7 +498,6 @@
       "pos": 140737488330752,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5266557,
         "steamAppId": 860510,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/860510/library_600x900.jpg"
       },
@@ -534,7 +512,6 @@
       "pos": 140737488332800,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5634,
         "steamAppId": 327410,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/327410/library_600x900.jpg"
       },
@@ -549,7 +526,6 @@
       "pos": 140737488336896,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5245377,
         "steamAppId": 678960,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/678960/library_600x900.jpg"
       },
@@ -565,7 +541,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1086940,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
       },
       "steamAppId": 1086940,
       "steamUrl": "https://store.steampowered.com/app/1086940/"
@@ -578,7 +554,6 @@
       "pos": 140737488338944,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5277816,
         "steamAppId": 1245620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg"
       },
@@ -593,7 +568,6 @@
       "pos": 140737488338944,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5382824,
         "steamAppId": 1458140,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1458140/library_600x900.jpg"
       },
@@ -619,7 +593,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 814380,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/814380/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/814380/library_600x900_2x.jpg"
       },
       "steamAppId": 814380,
       "steamUrl": "https://store.steampowered.com/app/814380/"
@@ -632,7 +606,6 @@
       "pos": 140737488355328,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5499508,
         "steamAppId": 2679100,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2679100/library_600x900.jpg"
       },
@@ -647,7 +620,6 @@
       "pos": 140737488355328,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 7545,
         "steamAppId": 367520,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900.jpg"
       },
@@ -662,7 +634,6 @@
       "pos": 140737488355328,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5328043,
         "steamAppId": 1887840,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1887840/library_600x900.jpg"
       },
@@ -675,7 +646,11 @@
       "listId": "6a8c261ebc3d1ca81f06e55b",
       "listName": "Em Espera",
       "pos": 140737488371712,
-      "artwork": null,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3552140,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3552140/71b5ccdf32bdf441488ddf24cd895de140c69a38/library_capsule_2x.jpg?t=1782387805"
+      },
       "steamAppId": 3552140,
       "steamUrl": "https://store.steampowered.com/app/3552140/"
     },
@@ -687,7 +662,6 @@
       "pos": 140737488371712,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 2917,
         "steamAppId": 247080,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/247080/library_600x900.jpg"
       },
@@ -702,7 +676,6 @@
       "pos": 140737488371712,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5262075,
         "steamAppId": 1332010,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1332010/library_600x900.jpg"
       },
@@ -717,7 +690,6 @@
       "pos": 140737488371712,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 349500,
         "steamAppId": 601150,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/601150/library_600x900.jpg"
       },
@@ -732,7 +704,6 @@
       "pos": 140737488372736,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5323221,
         "steamAppId": 1809540,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1809540/library_600x900.jpg"
       },
@@ -747,7 +718,6 @@
       "pos": 140737488373760,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5252965,
         "steamAppId": 1201270,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1201270/library_600x900.jpg"
       },
@@ -762,7 +732,6 @@
       "pos": 140737488377856,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 4997889,
         "steamAppId": 1145360,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900.jpg"
       },
@@ -777,7 +746,6 @@
       "pos": 140737488379904,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 1615,
         "steamAppId": 19680,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/19680/library_600x900.jpg"
       },
@@ -793,7 +761,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 2466900,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2466900/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2466900/library_600x900_2x.jpg"
       },
       "steamAppId": 2466900,
       "steamUrl": "https://store.steampowered.com/app/2466900/"
@@ -806,7 +774,6 @@
       "pos": 140737488388096,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 13136,
         "steamAppId": 504230,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900.jpg"
       },
@@ -821,7 +788,6 @@
       "pos": 140737488388096,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5318977,
         "steamAppId": 1819460,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1819460/library_600x900.jpg"
       },
@@ -836,7 +802,6 @@
       "pos": 140737488388096,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5246864,
         "steamAppId": 1671210,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1671210/library_600x900.jpg"
       },
@@ -861,7 +826,6 @@
       "pos": 140737488404480,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 4889009,
         "steamAppId": 1057640,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1057640/library_600x900.jpg"
       },
@@ -876,7 +840,6 @@
       "pos": 140737488404480,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5403591,
         "steamAppId": 2420660,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2420660/library_600x900.jpg"
       },
@@ -889,7 +852,11 @@
       "listId": "69f61020cf0e4ae8a9494226",
       "listName": "Em Andamento",
       "pos": 140737488412672,
-      "artwork": null,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3812600,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1789419445"
+      },
       "steamAppId": 3812600,
       "steamUrl": "https://store.steampowered.com/app/3812600/"
     },
@@ -901,7 +868,6 @@
       "pos": 140737488420864,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 15396,
         "steamAppId": 559210,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/559210/library_600x900.jpg"
       },
@@ -917,7 +883,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1196590,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1196590/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1196590/library_600x900_2x.jpg"
       },
       "steamAppId": 1196590,
       "steamUrl": "https://store.steampowered.com/app/1196590/"
@@ -930,7 +896,6 @@
       "pos": 140737488429056,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 15105,
         "steamAppId": 552500,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
       },
@@ -945,7 +910,6 @@
       "pos": 140737488437248,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 3360,
         "steamAppId": 261570,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/261570/library_600x900.jpg"
       },
@@ -960,7 +924,6 @@
       "pos": 140737488453632,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5253486,
         "steamAppId": 1057090,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1057090/library_600x900.jpg"
       },
@@ -976,7 +939,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1989270,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1989270/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1989270/library_600x900_2x.jpg"
       },
       "steamAppId": 1989270,
       "steamUrl": "https://store.steampowered.com/app/1989270/"
@@ -989,7 +952,6 @@
       "pos": 140737488470016,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5436386,
         "steamAppId": 2947440,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2947440/library_600x900.jpg"
       },
@@ -1004,7 +966,6 @@
       "pos": 140737488486400,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 23535,
         "steamAppId": 753640,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/753640/library_600x900.jpg"
       },
@@ -1019,7 +980,6 @@
       "pos": 140737488486400,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5359291,
         "steamAppId": 2124490,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2124490/library_600x900.jpg"
       },
@@ -1034,7 +994,6 @@
       "pos": 140737488490496,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5446016,
         "steamAppId": 2215430,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2215430/library_600x900.jpg"
       },
@@ -1049,7 +1008,6 @@
       "pos": 140737488498688,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5444804,
         "steamAppId": 2725260,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2725260/library_600x900.jpg"
       },
@@ -1064,7 +1022,6 @@
       "pos": 140737488502784,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5334530,
         "steamAppId": 1903620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1903620/library_600x900.jpg"
       },
@@ -1080,7 +1037,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 2915460,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
       },
       "steamAppId": 2915460,
       "steamUrl": "https://store.steampowered.com/app/2915460/"
@@ -1094,7 +1051,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1369630,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1369630/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1369630/library_600x900_2x.jpg"
       },
       "steamAppId": 1369630,
       "steamUrl": "https://store.steampowered.com/app/1369630/"
@@ -1108,7 +1065,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 206440,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/206440/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/206440/library_600x900_2x.jpg"
       },
       "steamAppId": 206440,
       "steamUrl": "https://store.steampowered.com/app/206440/"
@@ -1121,7 +1078,6 @@
       "pos": 140737488535552,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 1043,
         "steamAppId": 1030300,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg"
       },
@@ -1136,7 +1092,6 @@
       "pos": 140737488551936,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 9572,
         "steamAppId": 413410,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413410/library_600x900.jpg"
       },
@@ -1151,7 +1106,6 @@
       "pos": 140737488551936,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5325057,
         "steamAppId": 1959390,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1959390/library_600x900.jpg"
       },
@@ -1166,7 +1120,6 @@
       "pos": 140737488568320,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 8643,
         "steamAppId": 391540,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/391540/library_600x900.jpg"
       },
@@ -1182,7 +1135,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 374320,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/374320/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/374320/library_600x900_2x.jpg"
       },
       "steamAppId": 374320,
       "steamUrl": "https://store.steampowered.com/app/374320/"
@@ -1196,7 +1149,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1895880,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1895880/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1895880/library_600x900_2x.jpg"
       },
       "steamAppId": 1895880,
       "steamUrl": "https://store.steampowered.com/app/1895880/"
@@ -1210,7 +1163,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 238320,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/238320/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/238320/library_600x900_2x.jpg"
       },
       "steamAppId": 238320,
       "steamUrl": "https://store.steampowered.com/app/238320/"
@@ -1223,7 +1176,6 @@
       "pos": 140737488584704,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 15863,
         "steamAppId": 570940,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/570940/library_600x900.jpg"
       },
@@ -1238,7 +1190,6 @@
       "pos": 140737488601088,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 9614,
         "steamAppId": 414700,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/414700/library_600x900.jpg"
       },
@@ -1253,7 +1204,6 @@
       "pos": 140737488601088,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5454521,
         "steamAppId": 1903340,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1903340/library_600x900.jpg"
       },
@@ -1268,7 +1218,6 @@
       "pos": 140737488601088,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5287667,
         "steamAppId": 1182900,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1182900/library_600x900.jpg"
       },
@@ -1293,7 +1242,6 @@
       "pos": 140737488617472,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 6061,
         "steamAppId": 337340,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/337340/library_600x900.jpg"
       },
@@ -1308,7 +1256,6 @@
       "pos": 140737488617472,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5423743,
         "steamAppId": 881020,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/881020/library_600x900.jpg"
       },
@@ -1323,7 +1270,6 @@
       "pos": 140737488633856,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 9569,
         "steamAppId": 413150,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900.jpg"
       },
@@ -1338,7 +1284,6 @@
       "pos": 140737488633856,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5443884,
         "steamAppId": 3489700,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/3489700/library_600x900.jpg"
       },
@@ -1351,7 +1296,11 @@
       "listId": "69f6115a8bd043c829ca0fb1",
       "listName": "Comprar",
       "pos": 140737488633856,
-      "artwork": null,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3043580,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3043580/35b34662003d80ae57559db6b654ba220bc8152d/library_capsule_2x.jpg?t=1788529941"
+      },
       "steamAppId": 3043580,
       "steamUrl": "https://store.steampowered.com/app/3043580/"
     },
@@ -1364,7 +1313,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 485510,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/485510/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/485510/library_600x900_2x.jpg"
       },
       "steamAppId": 485510,
       "steamUrl": "https://store.steampowered.com/app/485510/"
@@ -1378,7 +1327,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 489830,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/489830/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/489830/library_600x900_2x.jpg"
       },
       "steamAppId": 489830,
       "steamUrl": "https://store.steampowered.com/app/489830/"
@@ -1389,9 +1338,13 @@
       "listId": "69f610396e6fb0d017a97829",
       "listName": "Finalizados",
       "pos": 140737488666624,
-      "artwork": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2050650,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900_2x.jpg"
+      },
+      "steamAppId": 2050650,
+      "steamUrl": "https://store.steampowered.com/app/2050650/"
     },
     {
       "id": "69f61de7aa0538aa3badd8d8",
@@ -1402,7 +1355,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 3041230,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/3041230/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/3041230/library_600x900_2x.jpg"
       },
       "steamAppId": 3041230,
       "steamUrl": "https://store.steampowered.com/app/3041230/"
@@ -1415,7 +1368,6 @@
       "pos": 140737488683008,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 3120,
         "steamAppId": 253230,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/253230/library_600x900.jpg"
       },
@@ -1430,7 +1382,6 @@
       "pos": 140737488699392,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5376530,
         "steamAppId": 1145350,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg"
       },
@@ -1445,7 +1396,6 @@
       "pos": 140737488715776,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5264834,
         "steamAppId": 1367590,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1367590/library_600x900.jpg"
       },
@@ -1460,7 +1410,6 @@
       "pos": 140737488732160,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5287508,
         "steamAppId": 1388880,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1388880/library_600x900.jpg"
       },
@@ -1475,7 +1424,6 @@
       "pos": 140737488732160,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 17830,
         "steamAppId": 620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/620/library_600x900.jpg"
       },
@@ -1490,7 +1438,6 @@
       "pos": 140737488740352,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5454368,
         "steamAppId": 1588550,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1588550/library_600x900.jpg"
       },
@@ -1505,7 +1452,6 @@
       "pos": 140737488748544,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 9974,
         "steamAppId": 424840,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/424840/library_600x900.jpg"
       },
@@ -1521,7 +1467,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 400,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/400/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/400/library_600x900_2x.jpg"
       },
       "steamAppId": 400,
       "steamUrl": "https://store.steampowered.com/app/400/"
@@ -1534,7 +1480,6 @@
       "pos": 140737488748544,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5454547,
         "steamAppId": 2240620,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2240620/library_600x900.jpg"
       },
@@ -1550,7 +1495,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1507580,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1507580/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1507580/library_600x900_2x.jpg"
       },
       "steamAppId": 1507580,
       "steamUrl": "https://store.steampowered.com/app/1507580/"
@@ -1563,7 +1508,6 @@
       "pos": 140737488764928,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5138394,
         "steamAppId": 1172380,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172380/library_600x900.jpg"
       },
@@ -1578,7 +1522,6 @@
       "pos": 140737488781312,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 3583,
         "steamAppId": 268910,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/268910/library_600x900.jpg"
       },
@@ -1593,7 +1536,6 @@
       "pos": 140737488781312,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 1361,
         "steamAppId": 12210,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/12210/library_600x900.jpg"
       },
@@ -1608,7 +1550,6 @@
       "pos": 140737488797696,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5316963,
         "steamAppId": 1859280,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1859280/library_600x900.jpg"
       },
@@ -1623,7 +1564,6 @@
       "pos": 140737488801792,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 7304,
         "steamAppId": 362890,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/362890/library_600x900.jpg"
       },
@@ -1638,7 +1578,6 @@
       "pos": 140737488805888,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 2254,
         "steamAppId": 220,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/220/library_600x900.jpg"
       },
@@ -1653,7 +1592,6 @@
       "pos": 140737488814080,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 7845,
         "steamAppId": 373770,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/373770/library_600x900.jpg"
       },
@@ -1669,7 +1607,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 380,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/380/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/380/library_600x900_2x.jpg"
       },
       "steamAppId": 380,
       "steamUrl": "https://store.steampowered.com/app/380/"
@@ -1682,7 +1620,6 @@
       "pos": 140737488814080,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5455449,
         "steamAppId": 1672810,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1672810/library_600x900.jpg"
       },
@@ -1698,7 +1635,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 420,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/420/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/420/library_600x900_2x.jpg"
       },
       "steamAppId": 420,
       "steamUrl": "https://store.steampowered.com/app/420/"
@@ -1711,7 +1648,6 @@
       "pos": 140737488830464,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 16822,
         "steamAppId": 594330,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/594330/library_600x900.jpg"
       },
@@ -1726,7 +1662,6 @@
       "pos": 140737488846848,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 31424,
         "steamAppId": 940910,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/940910/library_600x900.jpg"
       },
@@ -1741,7 +1676,6 @@
       "pos": 140737488863232,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5255287,
         "steamAppId": 1229490,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1229490/library_600x900.jpg"
       },
@@ -1756,7 +1690,6 @@
       "pos": 140737488879616,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5303955,
         "steamAppId": 1654660,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1654660/library_600x900.jpg"
       },
@@ -1771,7 +1704,6 @@
       "pos": 140737488879616,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5247997,
         "steamAppId": 1150690,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1150690/library_600x900.jpg"
       },
@@ -1786,7 +1718,6 @@
       "pos": 140737488887808,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5385665,
         "steamAppId": 2300840,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2300840/library_600x900.jpg"
       },
@@ -1801,7 +1732,6 @@
       "pos": 140737488891904,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5337167,
         "steamAppId": 2060160,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2060160/library_600x900.jpg"
       },
@@ -1816,7 +1746,6 @@
       "pos": 140737488893952,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5249184,
         "steamAppId": 1164050,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1164050/library_600x900.jpg"
       },
@@ -1831,7 +1760,6 @@
       "pos": 140737488894976,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5429,
         "steamAppId": 322210,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/322210/library_600x900.jpg"
       },
@@ -1847,7 +1775,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1782460,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1782460/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1782460/library_600x900_2x.jpg"
       },
       "steamAppId": 1782460,
       "steamUrl": "https://store.steampowered.com/app/1782460/"
@@ -1860,7 +1788,6 @@
       "pos": 140737488896000,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 30441,
         "steamAppId": 914800,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/914800/library_600x900.jpg"
       },
@@ -1875,7 +1802,6 @@
       "pos": 140737488912384,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5267354,
         "steamAppId": 990080,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/library_600x900.jpg"
       },
@@ -1890,7 +1816,6 @@
       "pos": 140737488928768,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5438489,
         "steamAppId": 2246340,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2246340/library_600x900.jpg"
       },
@@ -1905,7 +1830,6 @@
       "pos": 140737488945152,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5287655,
         "steamAppId": 1663850,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1663850/library_600x900.jpg"
       },
@@ -1920,7 +1844,6 @@
       "pos": 140737488961536,
       "artwork": {
         "provider": "steam-original",
-        "gameId": 5454468,
         "steamAppId": 2377280,
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2377280/library_600x900.jpg"
       },
@@ -1928,5 +1851,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-18T01:45:33.884Z"
+  "updatedAt": "2026-09-18T11:11:25.311Z"
 }
