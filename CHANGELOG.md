@@ -1,5 +1,17 @@
 # Changelog
 
+## V48.3.31 — Manutenção: fallbacks, CI, Agenda, sync e privacidade de mídia
+
+- sincroniza os fallbacks embutidos de Navbar e Blog em `js/core/content.js` com `navbar.json`/`config.json` e faz a CI exigir paridade exata, evitando retorno silencioso de ordem, link ou placeholder antigos quando um JSON editorial falhar;
+- torna o conteúdo interno da Agenda focável somente quando houver overflow vertical real, inclusive com uma única live longa, recalculando após render, resize e carregamento de fontes sem alterar a altura fixa de 210 px;
+- serializa `Sync games from Trello` e `Sync agenda from Trello` no mesmo grupo editorial e adiciona `git pull --rebase` antes do push, reduzindo colisões entre commits automáticos sem force push;
+- inclui `sync-jogos.mjs` nos checks explícitos de sintaxe da CI e nas validações do próprio workflow de Jogos;
+- aplica `referrerPolicy = "no-referrer"` às imagens e ao preload da Galeria e documenta na Política de Privacidade que hosts editoriais externos ainda podem receber metadados de rede necessários à entrega do arquivo;
+- remove `lastmod` manual do `sitemap.xml`, amplia a CI para canonicals/indexação de Jogos, Privacidade e Uso de IA e rejeita URLs obsoletas ou `lastmod` não automatizado;
+- corrige a documentação do ranking para deixar explícito que cache local expirado é removido, nunca reutilizado como fallback;
+- endurece a agregação interna do ranking com objetos sem protótipo, evitando colisões de chaves especiais em identificadores de exibição autodeclarados;
+- atualiza cache-busters dos JavaScripts alterados e a matriz de manutenção/validação.
+
 ## V48.3.30 — Hotfix: aviso Steam expansível e alinhamento da Navbar
 
 - transforma o aviso local da Steam abaixo da Agenda em um disclosure nativo `<details>`/`<summary>`, mantendo `Dados e ícones da Steam · Aviso legal` sempre visível;

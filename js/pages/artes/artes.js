@@ -140,6 +140,7 @@
         const media = dialog.querySelector(".arte-dialog-media");
         const fullLoader = dialog.querySelector(".arte-dialog-loader");
 
+        dialogImage.referrerPolicy = "no-referrer";
         dialogImage.src = previewUrl;
         dialogImage.alt = item.alt;
         dialogImage.classList.remove("is-full");
@@ -169,6 +170,7 @@
 
         const fullImage = new Image();
         fullImage.decoding = "async";
+        fullImage.referrerPolicy = "no-referrer";
         fullImage.addEventListener("load", () => {
             dialogImage.src = fullUrl;
             dialogImage.classList.add("is-full");
@@ -207,6 +209,7 @@
         loader.appendChild(loaderLogo);
 
         const image = document.createElement("img");
+        image.referrerPolicy = "no-referrer";
         image.src = getPreviewUrl(item);
         image.alt = item.alt;
         image.loading = "lazy";

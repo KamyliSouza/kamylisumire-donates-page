@@ -72,6 +72,7 @@ jobs:
         run: |
           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
           node --check workers.js
+          node --check .github/scripts/sync-jogos.mjs
           node --check .github/scripts/sync-agenda.mjs
 
       - name: Reject generated Python cache

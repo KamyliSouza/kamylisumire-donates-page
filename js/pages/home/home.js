@@ -54,8 +54,43 @@ if (agendaGrid) {
         const layout = image.closest(".agenda-live-layout");
         image.remove();
         layout?.classList.remove("has-icon");
+        scheduleAgendaOverflowCheck();
     }, true);
 }
+
+let agendaOverflowFrame = 0;
+
+function updateAgendaScrollableRegions() {
+    if (!agendaGrid) return;
+
+    agendaGrid.querySelectorAll(".agenda-card-content").forEach(content => {
+        const isScrollable = content.scrollHeight > content.clientHeight + 1;
+
+        if (isScrollable) {
+            content.tabIndex = 0;
+            content.setAttribute(
+                "aria-label",
+                content.dataset.scrollLabel || "Conteúdo rolável da agenda"
+            );
+            return;
+        }
+
+        content.removeAttribute("tabindex");
+        content.removeAttribute("aria-label");
+    });
+}
+
+function scheduleAgendaOverflowCheck() {
+    if (!agendaGrid) return;
+    cancelAnimationFrame(agendaOverflowFrame);
+    agendaOverflowFrame = requestAnimationFrame(() => {
+        agendaOverflowFrame = 0;
+        updateAgendaScrollableRegions();
+    });
+}
+
+window.addEventListener("resize", scheduleAgendaOverflowCheck, { passive: true });
+document.fonts?.ready?.then(scheduleAgendaOverflowCheck).catch(() => {});
 
 function normalizePlatforms(value) {
     return Array.isArray(value) ? value.filter(Boolean) : [];
@@ -238,7 +273,7 @@ function renderAgenda(data) {
                 </div>
             </div>
 
-            <div class="agenda-card-content"${hasMultipleLives ? ` tabindex="0" aria-label="Lives de ${escapeHtml(dia.nome)}"` : ""}>
+            <div class="agenda-card-content" data-scroll-label="Lives de ${escapeHtml(dia.nome)}">
                 ${liveContent}
             </div>
         `;
@@ -257,6 +292,7 @@ function renderAgenda(data) {
 
     agendaGrid.scrollLeft = 0;
     agendaCarousel?.refresh();
+    scheduleAgendaOverflowCheck();
 }
 
 async function carregarAgenda() {

@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-jogos
+  group: editorial-sync-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -33,6 +33,7 @@ jobs:
           python .github/scripts/validate-content.py
           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
           node --check workers.js
+          node --check .github/scripts/sync-jogos.mjs
 
       - name: Commit only when content changed
         run: |
@@ -44,4 +45,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/content/jogos.json data/content/jogos-artwork-cache.json
           git commit -m "chore: sync jogos from Trello"
-          git push
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"

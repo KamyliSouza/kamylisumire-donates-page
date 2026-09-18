@@ -59,6 +59,8 @@ REQUIRED_FILES = (
     "js/pages/home/lives.js",
     "js/pages/home/twitch-live.js",
     "js/pages/home/home-interactions.js",
+    ".github/scripts/sync-jogos.mjs",
+    ".github/workflows/sync-jogos.yml",
     ".github/scripts/sync-agenda.mjs",
     ".github/workflows/sync-agenda.yml",
     "js/pages/blog/blog.js",
@@ -1299,6 +1301,7 @@ def validate_architecture() -> None:
     sync_jogos_workflow = read_text(".github/workflows/sync-jogos.yml")
     sync_agenda_js = read_text(".github/scripts/sync-agenda.mjs")
     sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
+    validate_workflow = read_text(".github/workflows/validate-json.yml")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1315,6 +1318,28 @@ def validate_architecture() -> None:
     ranking_js = read_text("js/pages/doacoes/ranking.js")
     privacy_html = read_text("privacidade/index.html")
     ranking_privacy_doc = read_text("docs/PRIVACIDADE-RANKING.md")
+
+    def content_default_json(key: str):
+        match = re.search(
+            rf"^\s{{8}}{re.escape(key)}:\s*(\{{.*\}}),\s*$",
+            content_js,
+            flags=re.M,
+        )
+        if not match:
+            error(f"js/core/content.js: fallback {key} deve permanecer JSON serializável em uma linha.")
+            return None
+        try:
+            return json.loads(match.group(1))
+        except json.JSONDecodeError as exc:
+            error(f"js/core/content.js: fallback {key} inválido ({exc}).")
+            return None
+
+    fallback_navbar = content_default_json("navbar")
+    fallback_blog_config = content_default_json("blogConfig")
+    if fallback_navbar is not None and fallback_navbar != load_json("data/content/navbar.json"):
+        error("js/core/content.js: fallback navbar divergiu de data/content/navbar.json.")
+    if fallback_blog_config is not None and fallback_blog_config != load_json("data/blog/config.json"):
+        error("js/core/content.js: fallback blogConfig divergiu de data/blog/config.json.")
 
     for element_id in (
         'id="inicio"',
@@ -1408,8 +1433,8 @@ def validate_architecture() -> None:
         error("index.html: cache-buster V48.3.30 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
-    if "js/pages/home/home.js?v=48.3.28" not in index:
-        error("index.html: cache-buster V48.3.28 ausente para js/pages/home/home.js.")
+    if "js/pages/home/home.js?v=48.3.31" not in index:
+        error("index.html: cache-buster V48.3.31 ausente para js/pages/home/home.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
     for rel, html, field_id in (
@@ -1739,7 +1764,7 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.6",
+            "js/core/content.js?v=48.3.31",
             "js/core/navbar.js?v=48.3.30",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
@@ -1772,6 +1797,8 @@ def validate_architecture() -> None:
     ):
         if "js/core/navbar.js?v=48.3.30" not in html:
             error(f"{rel}: cache-buster V48.3.30 ausente para js/core/navbar.js.")
+        if "js/core/content.js?v=48.3.31" not in html:
+            error(f"{rel}: cache-buster V48.3.31 ausente para js/core/content.js.")
 
     for asset in (
         "js/pages/home/content.js?v=48.2.0",
@@ -1790,8 +1817,8 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
     if "css/pages/blog.css?v=48.3.22" not in blog_index:
         error("blog/index.html: cache-buster V48.3.22 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.19" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.19 ausente para js/pages/artes/artes.js.")
+    if "js/pages/artes/artes.js?v=48.3.31" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.31 ausente para js/pages/artes/artes.js.")
     if "css/pages/artes.css?v=48.3.22" not in artes_index:
         error("artes/index.html: cache-buster V48.3.22 ausente para css/pages/artes.css.")
 
@@ -2063,16 +2090,19 @@ def validate_architecture() -> None:
 
     for token in (
         'datetime="2026-09-18"',
-        "Última atualização: 18 de setembro de 2026 · V48.3.28",
+        "Última atualização: 18 de setembro de 2026 · V48.3.31",
         "Steam Web API",
         "A Agenda e a página de Jogos são preparadas",
         "não são feitas pelo navegador do visitante",
         "da Steam permanece somente no ambiente protegido do GitHub Actions",
         "pode exibir o ícone oficial do jogo",
         "referenciador",
+        "Quando uma obra da Galeria utiliza imagem hospedada fora de",
+        "metadados de rede",
+        "necessários para entregar o arquivo",
     ):
         if token not in privacy_html:
-            error(f"privacidade/index.html: transparência Trello/Steam V48.3.28 ausente: {token}")
+            error(f"privacidade/index.html: transparência de integrações V48.3.31 ausente: {token}")
 
     for token in (
         "A identificação automática e as capas disponíveis usam dados e assets oficiais da Steam.",
@@ -2113,6 +2143,26 @@ def validate_architecture() -> None:
         if token not in sync_agenda_workflow:
             error(f".github/workflows/sync-agenda.yml: configuração V48.3.26 ausente: {token}")
 
+    for rel, workflow in (
+        (".github/workflows/sync-jogos.yml", sync_jogos_workflow),
+        (".github/workflows/sync-agenda.yml", sync_agenda_workflow),
+    ):
+        for token in (
+            'group: editorial-sync-${{ github.ref }}',
+            'cancel-in-progress: false',
+            'git pull --rebase origin "$GITHUB_REF_NAME"',
+            'git push origin HEAD:"$GITHUB_REF_NAME"',
+        ):
+            if token not in workflow:
+                error(f"{rel}: serialização/rebase editorial V48.3.31 ausente: {token}")
+
+    for token in (
+        'node --check .github/scripts/sync-jogos.mjs',
+        'node --check .github/scripts/sync-agenda.mjs',
+    ):
+        if token not in validate_workflow:
+            error(f".github/workflows/validate-json.yml: cobertura de sintaxe V48.3.31 ausente: {token}")
+
     for token in (
         "function normalizeAgendaIcon(value, steamAppId)",
         "function legacyLiveFromDay(dia)",
@@ -2147,8 +2197,23 @@ def validate_architecture() -> None:
         if token not in home_css:
             error(f"Agenda V48.3.27: geometria estável dos cards ausente: {token}")
 
-    if 'tabindex="0" aria-label="Lives de ${escapeHtml(dia.nome)}"' not in home_js:
-        error("Agenda V48.3.27: região rolável de múltiplas lives precisa permanecer acessível por teclado.")
+    for token in (
+        "function updateAgendaScrollableRegions()",
+        "content.scrollHeight > content.clientHeight + 1",
+        "content.tabIndex = 0",
+        'content.removeAttribute("tabindex")',
+        'content.removeAttribute("aria-label")',
+        "function scheduleAgendaOverflowCheck()",
+        'window.addEventListener("resize", scheduleAgendaOverflowCheck',
+        "document.fonts?.ready?.then(scheduleAgendaOverflowCheck)",
+        'data-scroll-label="Lives de ${escapeHtml(dia.nome)}"',
+        "scheduleAgendaOverflowCheck();",
+    ):
+        if token not in home_js:
+            error(f"Agenda V48.3.31: foco dinâmico do overflow ausente: {token}")
+
+    if 'hasMultipleLives ? ` tabindex="0"' in home_js:
+        error("Agenda V48.3.31: tabindex não deve depender apenas da quantidade de lives.")
 
     # V48.3.28: Agenda usa ícone quadrado oficial da Steam em vez da capa
     # vertical, preservando a geometria compacta dos cards.
@@ -2188,6 +2253,9 @@ def validate_architecture() -> None:
 
     if '<p class="agenda-steam-notice"' in index:
         error("Agenda V48.3.30: aviso Steam antigo não deve permanecer sempre expandido.")
+
+    if artes_js.count('referrerPolicy = "no-referrer"') < 3:
+        error("Galeria V48.3.31: preview, preload e imagem principal devem usar no-referrer.")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
@@ -2512,6 +2580,14 @@ def validate_architecture() -> None:
             error(f"workers.js: semântica de identidade do ranking V48.3.8 ausente: {needle}")
 
     for needle in (
+        "function toSafeTotals(value)",
+        "const totals = Object.create(null);",
+        "toSafeTotals(await getJSON(env, 'totals:monthly', {}))",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: hardening de chaves do ranking V48.3.31 ausente: {needle}")
+
+    for needle in (
         'RANKING_CACHE_KEY = "kamyli-ranking-cache-v4"',
         'RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
         'LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"]',
@@ -2625,6 +2701,9 @@ def validate_seo_and_deployment() -> None:
     donations = read_text("doacoes/index.html")
     blog_index = read_text("blog/index.html")
     artes_index = read_text("artes/index.html")
+    jogos_index = read_text("jogos/index.html")
+    privacy_index = read_text("privacidade/index.html")
+    ai_index = read_text("uso-de-ia/index.html")
 
     checks = (
         (index, 'rel="canonical" href="https://kamylisumire.com/"', "Home canonical"),
@@ -2642,6 +2721,21 @@ def validate_seo_and_deployment() -> None:
             artes_index,
             'rel="canonical" href="https://kamylisumire.com/artes/"',
             "Artes canonical",
+        ),
+        (
+            jogos_index,
+            'rel="canonical" href="https://kamylisumire.com/jogos/"',
+            "Jogos canonical",
+        ),
+        (
+            privacy_index,
+            'rel="canonical" href="https://kamylisumire.com/privacidade/"',
+            "Privacidade canonical",
+        ),
+        (
+            ai_index,
+            'rel="canonical" href="https://kamylisumire.com/uso-de-ia/"',
+            "Uso de IA canonical",
         ),
     )
     for text, needle, label in checks:
@@ -2664,6 +2758,8 @@ def validate_seo_and_deployment() -> None:
             for node in tree.findall(".//{*}loc")
             if node.text
         }
+        if tree.findall(".//{*}lastmod"):
+            error("sitemap.xml: lastmod manual não deve ser publicado sem automação confiável.")
     except (ET.ParseError, OSError) as exc:
         error(f"sitemap.xml: XML inválido ({exc}).")
         return
@@ -2671,6 +2767,7 @@ def validate_seo_and_deployment() -> None:
     expected = {
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
+        "https://kamylisumire.com/jogos/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
@@ -2714,6 +2811,17 @@ def validate_seo_and_deployment() -> None:
             if url in urls:
                 error(f"sitemap.xml: {url} deve ficar fora do sitemap enquanto a coleção estiver vazia.")
 
+    for rel, html in (
+        ("index.html", index),
+        ("doacoes/index.html", donations),
+        ("jogos/index.html", jogos_index),
+        ("privacidade/index.html", privacy_index),
+        ("uso-de-ia/index.html", ai_index),
+    ):
+        tokens = robots_tokens(html, rel)
+        if "index" not in tokens or "noindex" in tokens or "follow" not in tokens:
+            error(f"{rel}: página pública estável deve permanecer index, follow.")
+
     validate_collection_indexing(
         "artes/index.html",
         artes_index,
@@ -2732,9 +2840,13 @@ def validate_seo_and_deployment() -> None:
         if isinstance(slug, str):
             expected.add(f"https://kamylisumire.com/blog/{slug}/")
 
-    if not expected.issubset(urls):
-        missing = sorted(expected - urls)
+    missing = sorted(expected - urls)
+    if missing:
         error(f"sitemap.xml: URLs públicas obrigatórias estão ausentes: {', '.join(missing)}")
+
+    unexpected = sorted(urls - expected)
+    if unexpected:
+        error(f"sitemap.xml: URLs não previstas ou obsoletas presentes: {', '.join(unexpected)}")
 
 
 

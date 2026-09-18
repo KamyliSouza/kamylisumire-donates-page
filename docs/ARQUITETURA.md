@@ -87,10 +87,11 @@ também é somente de frontend/documentação e não requer alteração nos Help
 
 ## Doações
 
-O ranking possui cache local e fallback para o último cache disponível quando
-a consulta remota falha.
+O ranking possui cache local no navegador por no máximo 30 minutos. Cache
+expirado é removido e nunca é reutilizado como fallback; se não houver cache
+fresco e a consulta remota falhar, a interface informa indisponibilidade.
 
-Na V44.4, a ordem dos endpoints é:
+Na V44.4, a ordem dos endpoints remotos é:
 
 1. `https://api.kamylisumire.com`;
 2. `workers.dev`, somente se o primeiro falhar.

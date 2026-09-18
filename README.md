@@ -155,6 +155,8 @@ Antes de publicar:
 python .github/scripts/validate-content.py
 find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 node --check workers.js
+node --check .github/scripts/sync-jogos.mjs
+node --check .github/scripts/sync-agenda.mjs
 git diff --check
 ```
 
@@ -206,3 +208,7 @@ Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow
 ### Privacidade e LGPD — V48.3.8
 
 A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e limita o cache em `localStorage` a 30 minutos reais, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
+
+### Manutenção de consistência — V48.3.31
+
+Os fallbacks de `navbar` e `blogConfig` em `js/core/content.js` devem espelhar exatamente seus JSONs editoriais; a CI rejeita divergências. Os workflows de Jogos e Agenda compartilham um grupo de concorrência editorial e fazem rebase seguro antes do push, sem `force`. Imagens da Galeria usam `no-referrer` mesmo quando o host HTTPS vem do conteúdo editorial. O sitemap não publica `lastmod` manual: datas só devem retornar se houver uma fonte automatizada e confiável.

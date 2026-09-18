@@ -482,3 +482,13 @@ A Navbar marca a página ativa antes de `navbar.json` terminar de carregar. Como
 - `RANKING_CACHE_TTL_MS` é limite máximo de retenção local: cache expirado deve ser removido e nunca usado como fallback.
 - O aviso de privacidade do ranking deve permanecer próximo à própria funcionalidade, não apenas na Política de Privacidade.
 - A indexação de `/artes/` e `/blog/` continua derivada do conteúdo editorial real e validada pela CI.
+
+### Manutenção de consistência — V48.3.31
+
+- `defaults.navbar` e `defaults.blogConfig` em `js/core/content.js` são fallbacks de contingência e devem permanecer semanticamente idênticos a `data/content/navbar.json` e `data/blog/config.json`; alterar um JSON exige atualizar o fallback no mesmo patch.
+- `.agenda-card-content` só deve entrar na ordem de foco quando `scrollHeight > clientHeight`; uma live única também pode gerar overflow. Preserve o recálculo após renderização, resize e carregamento de fontes.
+- `sync-jogos.yml` e `sync-agenda.yml` compartilham `editorial-sync-${{ github.ref }}` e não usam force push. Preserve o `git pull --rebase` antes do push para absorver commits remotos compatíveis.
+- Todo script `.mjs` de sincronização deve passar `node --check` na CI geral.
+- Imagens HTTPS editoriais da Galeria devem usar `referrerPolicy = "no-referrer"` tanto na grade quanto no dialog/preload; mudanças no fluxo de mídia externa exigem revisão da Política de Privacidade.
+- `sitemap.xml` não deve conter `lastmod` mantido manualmente. A CI exige as rotas estáveis, cruza Blog/Galeria com o conteúdo publicado e rejeita URLs obsoletas.
+- Totais internos do ranking devem continuar normalizados em objetos sem protótipo antes de usar identificadores autodeclarados como chaves.

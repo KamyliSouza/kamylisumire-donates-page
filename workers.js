@@ -457,10 +457,12 @@ async function syncDonations(env) {
   const storedMonthKey = await env.RANKINGS.get('state:current_month');
   const monthChanged = storedMonthKey !== currentMonthKey;
 
-  let globalTotals = await getJSON(env, 'totals:global', {});
+  let globalTotals = toSafeTotals(
+    await getJSON(env, 'totals:global', {})
+  );
   let monthlyTotals = monthChanged
-    ? {}
-    : await getJSON(env, 'totals:monthly', {});
+    ? Object.create(null)
+    : toSafeTotals(await getJSON(env, 'totals:monthly', {}));
 
   const newDonations = [];
   let before = null;
@@ -1379,6 +1381,22 @@ function applyRankingPrivacy(name, env) {
   }
 
   return name;
+}
+
+function toSafeTotals(value) {
+  const totals = Object.create(null);
+
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return totals;
+  }
+
+  for (const [name, rawAmount] of Object.entries(value)) {
+    const amount = Number(rawAmount);
+    if (!Number.isFinite(amount)) continue;
+    totals[String(name)] = amount;
+  }
+
+  return totals;
 }
 
 function getTopFive(totals) {

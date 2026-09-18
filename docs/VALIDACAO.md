@@ -1,3 +1,15 @@
+## V48.3.31 — manutenção de consistência
+
+Smoke test recomendado:
+
+1. bloquear temporariamente `data/content/navbar.json` e confirmar que a Navbar fallback mantém a mesma ordem editorial e que **Jogos** continua apontando para `/jogos/`; repetir para `data/blog/config.json` e confirmar `Buscar publicações...`;
+2. na Agenda, testar uma live curta, uma única live com descrição longa e duas lives no mesmo dia; somente os conteúdos que realmente excederem 210 px devem receber foco/scroll vertical por teclado; redimensionar a janela e confirmar recálculo;
+3. disparar manualmente os workflows de Jogos e Agenda próximos um do outro e confirmar serialização pelo grupo `editorial-sync-*`, rebase sem force push e publicação sem conflito;
+4. confirmar que a CI executa `node --check` para `sync-jogos.mjs` e `sync-agenda.mjs`;
+5. com uma arte HTTPS externa em cópia de teste, confirmar `Referrer-Policy: no-referrer` nas requisições de preview e imagem completa;
+6. confirmar que `sitemap.xml` não possui `lastmod`, contém somente URLs esperadas e que Jogos/Privacidade/Uso de IA mantêm canonical + `index, follow`;
+7. executar `python .github/scripts/validate-content.py`, os checks de sintaxe JS/MJS/Worker e `git diff --check`.
+
 ## V48.3.11 — Contenção de nomes longos no ranking
 
 Smoke test recomendado:
