@@ -32,6 +32,13 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
 
 
 Os textos e listas ficam em `data/content/*.json`.
+
+A paginação de `/jogos/` é editorial e fica em `data/content/jogos-config.json`.
+O campo `jogosPorPagina` define quantos cards aparecem em cada página; a V48.3.32
+usa `15`. Valores válidos vão de 1 a 60. Essa configuração é independente do
+Trello/Steam e pode ser alterada sem editar JavaScript nem executar o sync de Jogos.
+Se o arquivo estiver indisponível no navegador, o frontend usa 15 como fallback.
+
 A agenda semanal continua publicada em `data/agenda.json`. Desde a V48.3.26, ela
 pode ser sincronizada de um quadro Trello dedicado por GitHub Actions sem expor
 a API ao navegador. O contrato legado de cada dia é preservado e o campo aditivo

@@ -1,0 +1,239 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 41239f4ff743ffa7c574e87c4d31a021427432b9..ca049e78c505c2db130b94a5795d52136a97420a 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -39,6 +39,7 @@ REQUIRED_FILES = (
+     "data/blog/posts.json",
+     "data/content/artes.json",
+     "data/content/jogos.json",
++    "data/content/jogos-config.json",
+     "data/content/jogos-artwork-cache.json",
+     "data/content/buttons.json",
+     "data/content/home-cards.json",
+@@ -801,6 +802,16 @@ def validate_navbar() -> None:
+ 
+ 
+ def validate_jogos() -> None:
++    config = load_json("data/content/jogos-config.json")
++    if not isinstance(config, dict):
++        error("data/content/jogos-config.json: raiz deve ser um objeto JSON.")
++    else:
++        if config.get("version") != 1:
++            error("data/content/jogos-config.json: version deve permanecer 1.")
++        page_size = config.get("jogosPorPagina")
++        if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 60:
++            error("data/content/jogos-config.json: jogosPorPagina deve ser inteiro entre 1 e 60.")
++
+     data = load_json("data/content/jogos.json")
+     if not isinstance(data, dict):
+         return
+@@ -905,6 +916,19 @@ def validate_jogos() -> None:
+     if jogos_link.get("url") != "/jogos/" or jogos_link.get("icone") != "none":
+         error("data/content/navbar.json: Jogos deve apontar internamente para /jogos/ sem ícone externo.")
+ 
++    jogos_js = read_text("js/pages/jogos/jogos.js")
++    for token in (
++        'const CONFIG_URL = "/data/content/jogos-config.json";',
++        "const DEFAULT_PAGE_SIZE = 15;",
++        "loadEditorialPageSize()",
++        "state.pageSize",
++        "config.jogosPorPagina",
++    ):
++        if token not in jogos_js:
++            error(f"js/pages/jogos/jogos.js: contrato editorial de paginação ausente: {token}")
++    if "const PAGE_SIZE = 12;" in jogos_js:
++        error("js/pages/jogos/jogos.js: limite fixo legado de 12 jogos por página não deve retornar.")
++
+     navbar_js = read_text("js/core/navbar.js")
+     if 'data-nav-key="jogos" data-nav-page="jogos"' not in navbar_js or 'sitePath("/jogos/")' not in navbar_js:
+         error("js/core/navbar.js: link Jogos deve permanecer interno e reconhecido como página.")
+@@ -1824,8 +1848,8 @@ def validate_architecture() -> None:
+ 
+     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
+         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
+-    if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
+-        error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
++    if "js/pages/jogos/jogos.js?v=48.3.32" not in jogos_index:
++        error("jogos/index.html: cache-buster V48.3.32 ausente para js/pages/jogos/jogos.js.")
+ 
+     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
+     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
+diff --git a/AGENTS.md b/AGENTS.md
+index b0c2fd1fe67b7c8e11ed297cd5941b7266a8b525..712ae58041debe5b875e6789632ef616f6de8142 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -100,6 +100,12 @@ placeholder local mesmo quando o App ID estiver confirmado. `steamAppId` e
+ pode publicar também `icon`, derivado do `community_icon` oficial da Steam, para
+ uso compacto pela Agenda; isso não substitui a Library Capsule exibida em Jogos.
+ 
++A quantidade de cards por página não pertence ao JSON gerado pelo sync. Ela é
++configuração editorial independente em `data/content/jogos-config.json`, no campo
++inteiro `jogosPorPagina` (1 a 60). O frontend deve usar esse valor em toda a
++paginação e manter 15 somente como fallback resiliente; não reintroduzir um
++`PAGE_SIZE` fixo. Alterar essa configuração não deve exigir Trello, Steam ou novo sync.
++
+ ### Doações
+ 
+ `/doacoes/` contém LivePix, Pixie e ranking.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 31d1b8629366cfa42c47a45f4a832ce2f3d49ced..09b55ec55e1920f749fa12860a70a9359849a10a 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,13 @@
+ # Changelog
+ 
++## V48.3.32 — Paginação editorial de Jogos
++
++- altera a página de Jogos de 12 para 15 cards por página;
++- adiciona `data/content/jogos-config.json` com `jogosPorPagina`, permitindo alterar a quantidade editorialmente sem editar JavaScript ou sincronizar Trello/Steam;
++- valida `jogosPorPagina` como inteiro entre 1 e 60 e mantém fallback resiliente de 15 no frontend caso a configuração não possa ser carregada;
++- faz busca, filtros e paginação reutilizarem o mesmo valor editorial, preservando o limite visual de até cinco botões numéricos;
++- atualiza cache-buster, documentação e CI para impedir o retorno do limite fixo legado de 12 jogos.
++
+ ## V48.3.31 — Manutenção: fallbacks, CI, Agenda, sync e privacidade de mídia
+ 
+ - sincroniza os fallbacks embutidos de Navbar e Blog em `js/core/content.js` com `navbar.json`/`config.json` e faz a CI exigir paridade exata, evitando retorno silencioso de ordem, link ou placeholder antigos quando um JSON editorial falhar;
+diff --git a/README.md b/README.md
+index 02b12dc40435eb8269b65add4147f06b66da80f5..6e6f83f419e50cb1f38976674e04d5033a369a9b 100644
+--- a/README.md
++++ b/README.md
+@@ -32,6 +32,13 @@ Também podem ser adicionados cards `personalizado` com eyebrow, título, descri
+ 
+ 
+ Os textos e listas ficam em `data/content/*.json`.
++
++A paginação de `/jogos/` é editorial e fica em `data/content/jogos-config.json`.
++O campo `jogosPorPagina` define quantos cards aparecem em cada página; a V48.3.32
++usa `15`. Valores válidos vão de 1 a 60. Essa configuração é independente do
++Trello/Steam e pode ser alterada sem editar JavaScript nem executar o sync de Jogos.
++Se o arquivo estiver indisponível no navegador, o frontend usa 15 como fallback.
++
+ A agenda semanal continua publicada em `data/agenda.json`. Desde a V48.3.26, ela
+ pode ser sincronizada de um quadro Trello dedicado por GitHub Actions sem expor
+ a API ao navegador. O contrato legado de cada dia é preservado e o campo aditivo
+diff --git a/data/content/jogos-config.json b/data/content/jogos-config.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6aa3a1483af853083d25c710299023e47b2184e
+--- /dev/null
++++ b/data/content/jogos-config.json
+@@ -0,0 +1,4 @@
++{
++  "version": 1,
++  "jogosPorPagina": 15
++}
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index b20fb30f47cab7eb9fe464214c0d35fd3f6288ef..fcbf38cd03b5239d9d7d4e643a4c13a5278abe64 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -1,3 +1,14 @@
++## V48.3.32 — paginação editorial de Jogos
++
++Smoke test recomendado:
++
++1. abrir `/jogos/` com `jogosPorPagina: 15` e confirmar no filtro **Todos** que no máximo 15 cards aparecem por página;
++2. em uma cópia de teste, mudar `data/content/jogos-config.json` para `jogosPorPagina: 3`, recarregar a página e confirmar que a paginação muda sem alterar `jogos.js` nem executar o sync;
++3. bloquear temporariamente `jogos-config.json` e confirmar fallback de 15 jogos por página sem impedir o carregamento do catálogo;
++4. testar busca e troca de categoria e confirmar que ambas resetam para a página 1 usando o mesmo tamanho editorial;
++5. definir propositalmente `jogosPorPagina: 0` ou um valor não inteiro numa cópia de teste e confirmar rejeição por `validate-content.py`;
++6. executar `python .github/scripts/validate-content.py`, checks JS/MJS/Worker e `git diff --check`.
++
+ ## V48.3.31 — manutenção de consistência
+ 
+ Smoke test recomendado:
+diff --git a/jogos/index.html b/jogos/index.html
+index 23b18284af70bceb9e6e4ce166973e7eeefa5807..d6f725d00d193188711cd251b352f417b3df8ee1 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -341,7 +341,7 @@
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+-    <script src="../js/pages/jogos/jogos.js?v=48.3.19"></script>
++    <script src="../js/pages/jogos/jogos.js?v=48.3.32"></script>
+     <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/js/pages/jogos/jogos.js b/js/pages/jogos/jogos.js
+index 27aa109acfe0505c0407ba19d6efa2f6ea1fd3be..6c242df2afd95b8cb9ca9dbc055ade46391285b8 100644
+--- a/js/pages/jogos/jogos.js
++++ b/js/pages/jogos/jogos.js
+@@ -2,11 +2,13 @@
+     "use strict";
+ 
+     const DATA_URL = "/data/content/jogos.json";
+-    const PAGE_SIZE = 12;
++    const CONFIG_URL = "/data/content/jogos-config.json";
++    const DEFAULT_PAGE_SIZE = 15;
++    const MAX_PAGE_SIZE = 60;
+     const MAX_VISIBLE_PAGES = 5;
+     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+     const horizontalScroll = window.KamyliHorizontalScroll;
+-    const state = { data: null, listId: "all", query: "", page: 1 };
++    const state = { data: null, listId: "all", query: "", page: 1, pageSize: DEFAULT_PAGE_SIZE };
+     const els = {
+         tools: document.getElementById("jogosTools"),
+         filters: document.getElementById("jogosFilters"),
+@@ -18,6 +20,23 @@
+ 
+     const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+ 
++    function normalizePageSize(value) {
++        return Number.isInteger(value) && value >= 1 && value <= MAX_PAGE_SIZE ? value : DEFAULT_PAGE_SIZE;
++    }
++
++    async function loadEditorialPageSize() {
++        try {
++            const response = await fetch(CONFIG_URL, { cache: "no-cache" });
++            if (!response.ok) throw new Error(`HTTP ${response.status}`);
++            const config = await response.json();
++            if (config?.version !== 1) throw new Error("Contrato de configuração de Jogos inválido");
++            return normalizePageSize(config.jogosPorPagina);
++        } catch (error) {
++            console.warn(`Falha ao carregar configuração editorial de Jogos; usando ${DEFAULT_PAGE_SIZE} jogos por página:`, error);
++            return DEFAULT_PAGE_SIZE;
++        }
++    }
++
+     function animateResults(node) {
+         if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
+         node.animate(
+@@ -162,7 +181,7 @@
+     }
+ 
+     function renderPagination(totalItems) {
+-        const totalPages = Math.ceil(totalItems / PAGE_SIZE);
++        const totalPages = Math.ceil(totalItems / state.pageSize);
+         els.pagination.replaceChildren();
+         els.pagination.hidden = totalPages <= 1;
+         if (totalPages <= 1) return;
+@@ -194,10 +213,10 @@
+             if (state.listId !== "all" && game.listId !== state.listId) return false;
+             return !query || normalize(game.name).includes(query) || normalize(game.listName).includes(query);
+         });
+-        const totalPages = Math.max(1, Math.ceil(games.length / PAGE_SIZE));
++        const totalPages = Math.max(1, Math.ceil(games.length / state.pageSize));
+         state.page = Math.min(state.page, totalPages);
+-        const start = (state.page - 1) * PAGE_SIZE;
+-        const visibleGames = games.slice(start, start + PAGE_SIZE);
++        const start = (state.page - 1) * state.pageSize;
++        const visibleGames = games.slice(start, start + state.pageSize);
+         els.grid.replaceChildren(...visibleGames.map(makeCard));
+         renderPagination(games.length);
+         if (animate) animateResults(els.grid);
+@@ -209,11 +228,15 @@
+ 
+     async function init() {
+         try {
+-            const response = await fetch(DATA_URL, { cache: "no-cache" });
++            const [response, pageSize] = await Promise.all([
++                fetch(DATA_URL, { cache: "no-cache" }),
++                loadEditorialPageSize()
++            ]);
+             if (!response.ok) throw new Error(`HTTP ${response.status}`);
+             const data = await response.json();
+             if (data?.version !== 1 || !Array.isArray(data.lists) || !Array.isArray(data.games)) throw new Error("Contrato de jogos inválido");
+             state.data = data;
++            state.pageSize = pageSize;
+             els.tools.hidden = false;
+             renderFilters();
+             horizontalScroll?.enableClickDrag(els.filters);

@@ -2,11 +2,13 @@
     "use strict";
 
     const DATA_URL = "/data/content/jogos.json";
-    const PAGE_SIZE = 12;
+    const CONFIG_URL = "/data/content/jogos-config.json";
+    const DEFAULT_PAGE_SIZE = 15;
+    const MAX_PAGE_SIZE = 60;
     const MAX_VISIBLE_PAGES = 5;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
-    const state = { data: null, listId: "all", query: "", page: 1 };
+    const state = { data: null, listId: "all", query: "", page: 1, pageSize: DEFAULT_PAGE_SIZE };
     const els = {
         tools: document.getElementById("jogosTools"),
         filters: document.getElementById("jogosFilters"),
@@ -17,6 +19,23 @@
     };
 
     const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+
+    function normalizePageSize(value) {
+        return Number.isInteger(value) && value >= 1 && value <= MAX_PAGE_SIZE ? value : DEFAULT_PAGE_SIZE;
+    }
+
+    async function loadEditorialPageSize() {
+        try {
+            const response = await fetch(CONFIG_URL, { cache: "no-cache" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const config = await response.json();
+            if (config?.version !== 1) throw new Error("Contrato de configuração de Jogos inválido");
+            return normalizePageSize(config.jogosPorPagina);
+        } catch (error) {
+            console.warn(`Falha ao carregar configuração editorial de Jogos; usando ${DEFAULT_PAGE_SIZE} jogos por página:`, error);
+            return DEFAULT_PAGE_SIZE;
+        }
+    }
 
     function animateResults(node) {
         if (!node || reducedMotion.matches || typeof node.animate !== "function") return;
@@ -162,7 +181,7 @@
     }
 
     function renderPagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+        const totalPages = Math.ceil(totalItems / state.pageSize);
         els.pagination.replaceChildren();
         els.pagination.hidden = totalPages <= 1;
         if (totalPages <= 1) return;
@@ -194,10 +213,10 @@
             if (state.listId !== "all" && game.listId !== state.listId) return false;
             return !query || normalize(game.name).includes(query) || normalize(game.listName).includes(query);
         });
-        const totalPages = Math.max(1, Math.ceil(games.length / PAGE_SIZE));
+        const totalPages = Math.max(1, Math.ceil(games.length / state.pageSize));
         state.page = Math.min(state.page, totalPages);
-        const start = (state.page - 1) * PAGE_SIZE;
-        const visibleGames = games.slice(start, start + PAGE_SIZE);
+        const start = (state.page - 1) * state.pageSize;
+        const visibleGames = games.slice(start, start + state.pageSize);
         els.grid.replaceChildren(...visibleGames.map(makeCard));
         renderPagination(games.length);
         if (animate) animateResults(els.grid);
@@ -209,11 +228,15 @@
 
     async function init() {
         try {
-            const response = await fetch(DATA_URL, { cache: "no-cache" });
+            const [response, pageSize] = await Promise.all([
+                fetch(DATA_URL, { cache: "no-cache" }),
+                loadEditorialPageSize()
+            ]);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data?.version !== 1 || !Array.isArray(data.lists) || !Array.isArray(data.games)) throw new Error("Contrato de jogos inválido");
             state.data = data;
+            state.pageSize = pageSize;
             els.tools.hidden = false;
             renderFilters();
             horizontalScroll?.enableClickDrag(els.filters);

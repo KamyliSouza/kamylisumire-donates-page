@@ -100,6 +100,12 @@ placeholder local mesmo quando o App ID estiver confirmado. `steamAppId` e
 pode publicar também `icon`, derivado do `community_icon` oficial da Steam, para
 uso compacto pela Agenda; isso não substitui a Library Capsule exibida em Jogos.
 
+A quantidade de cards por página não pertence ao JSON gerado pelo sync. Ela é
+configuração editorial independente em `data/content/jogos-config.json`, no campo
+inteiro `jogosPorPagina` (1 a 60). O frontend deve usar esse valor em toda a
+paginação e manter 15 somente como fallback resiliente; não reintroduzir um
+`PAGE_SIZE` fixo. Alterar essa configuração não deve exigir Trello, Steam ou novo sync.
+
 ### Doações
 
 `/doacoes/` contém LivePix, Pixie e ranking.

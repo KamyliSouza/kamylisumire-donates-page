@@ -39,6 +39,7 @@ REQUIRED_FILES = (
     "data/blog/posts.json",
     "data/content/artes.json",
     "data/content/jogos.json",
+    "data/content/jogos-config.json",
     "data/content/jogos-artwork-cache.json",
     "data/content/buttons.json",
     "data/content/home-cards.json",
@@ -801,6 +802,16 @@ def validate_navbar() -> None:
 
 
 def validate_jogos() -> None:
+    config = load_json("data/content/jogos-config.json")
+    if not isinstance(config, dict):
+        error("data/content/jogos-config.json: raiz deve ser um objeto JSON.")
+    else:
+        if config.get("version") != 1:
+            error("data/content/jogos-config.json: version deve permanecer 1.")
+        page_size = config.get("jogosPorPagina")
+        if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 60:
+            error("data/content/jogos-config.json: jogosPorPagina deve ser inteiro entre 1 e 60.")
+
     data = load_json("data/content/jogos.json")
     if not isinstance(data, dict):
         return
@@ -904,6 +915,19 @@ def validate_jogos() -> None:
     jogos_link = navbar.get("links", {}).get("jogos", {}) if isinstance(navbar, dict) else {}
     if jogos_link.get("url") != "/jogos/" or jogos_link.get("icone") != "none":
         error("data/content/navbar.json: Jogos deve apontar internamente para /jogos/ sem ícone externo.")
+
+    jogos_js = read_text("js/pages/jogos/jogos.js")
+    for token in (
+        'const CONFIG_URL = "/data/content/jogos-config.json";',
+        "const DEFAULT_PAGE_SIZE = 15;",
+        "loadEditorialPageSize()",
+        "state.pageSize",
+        "config.jogosPorPagina",
+    ):
+        if token not in jogos_js:
+            error(f"js/pages/jogos/jogos.js: contrato editorial de paginação ausente: {token}")
+    if "const PAGE_SIZE = 12;" in jogos_js:
+        error("js/pages/jogos/jogos.js: limite fixo legado de 12 jogos por página não deve retornar.")
 
     navbar_js = read_text("js/core/navbar.js")
     if 'data-nav-key="jogos" data-nav-page="jogos"' not in navbar_js or 'sitePath("/jogos/")' not in navbar_js:
@@ -1824,8 +1848,8 @@ def validate_architecture() -> None:
 
     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.19" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.19 ausente para js/pages/jogos/jogos.js.")
+    if "js/pages/jogos/jogos.js?v=48.3.32" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.32 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.

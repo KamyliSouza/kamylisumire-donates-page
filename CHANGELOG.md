@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.32 — Paginação editorial de Jogos
+
+- altera a página de Jogos de 12 para 15 cards por página;
+- adiciona `data/content/jogos-config.json` com `jogosPorPagina`, permitindo alterar a quantidade editorialmente sem editar JavaScript ou sincronizar Trello/Steam;
+- valida `jogosPorPagina` como inteiro entre 1 e 60 e mantém fallback resiliente de 15 no frontend caso a configuração não possa ser carregada;
+- faz busca, filtros e paginação reutilizarem o mesmo valor editorial, preservando o limite visual de até cinco botões numéricos;
+- atualiza cache-buster, documentação e CI para impedir o retorno do limite fixo legado de 12 jogos.
+
 ## V48.3.31 — Manutenção: fallbacks, CI, Agenda, sync e privacidade de mídia
 
 - sincroniza os fallbacks embutidos de Navbar e Blog em `js/core/content.js` com `navbar.json`/`config.json` e faz a CI exigir paridade exata, evitando retorno silencioso de ordem, link ou placeholder antigos quando um JSON editorial falhar;

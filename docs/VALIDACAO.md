@@ -1,3 +1,14 @@
+## V48.3.32 — paginação editorial de Jogos
+
+Smoke test recomendado:
+
+1. abrir `/jogos/` com `jogosPorPagina: 15` e confirmar no filtro **Todos** que no máximo 15 cards aparecem por página;
+2. em uma cópia de teste, mudar `data/content/jogos-config.json` para `jogosPorPagina: 3`, recarregar a página e confirmar que a paginação muda sem alterar `jogos.js` nem executar o sync;
+3. bloquear temporariamente `jogos-config.json` e confirmar fallback de 15 jogos por página sem impedir o carregamento do catálogo;
+4. testar busca e troca de categoria e confirmar que ambas resetam para a página 1 usando o mesmo tamanho editorial;
+5. definir propositalmente `jogosPorPagina: 0` ou um valor não inteiro numa cópia de teste e confirmar rejeição por `validate-content.py`;
+6. executar `python .github/scripts/validate-content.py`, checks JS/MJS/Worker e `git diff --check`.
+
 ## V48.3.31 — manutenção de consistência
 
 Smoke test recomendado:
