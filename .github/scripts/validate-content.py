@@ -1358,12 +1358,12 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.26" not in index:
-        error("index.html: cache-buster V48.3.26 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.27" not in index:
+        error("index.html: cache-buster V48.3.27 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
-    if "js/pages/home/home.js?v=48.3.26" not in index:
-        error("index.html: cache-buster V48.3.26 ausente para js/pages/home/home.js.")
+    if "js/pages/home/home.js?v=48.3.27" not in index:
+        error("index.html: cache-buster V48.3.27 ausente para js/pages/home/home.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
     for rel, html, field_id in (
@@ -2047,6 +2047,23 @@ def validate_architecture() -> None:
         if token not in home_js and token not in home_css:
             error(f"Agenda V48.3.26: suporte de múltiplas lives ausente: {token}")
 
+    # V48.3.27: cards da Agenda mantêm a altura original mesmo quando um dia
+    # possui várias lives; o conteúdo excedente rola dentro do próprio card.
+    for token in (
+        "height: 210px;",
+        "align-self: flex-start;",
+        "overflow: hidden;",
+        "min-height: 0;",
+        "overflow-y: auto;",
+        ".agenda-card-content:focus-visible",
+        ".agenda-card-content::-webkit-scrollbar",
+    ):
+        if token not in home_css:
+            error(f"Agenda V48.3.27: geometria estável dos cards ausente: {token}")
+
+    if 'tabindex="0" aria-label="Lives de ${escapeHtml(dia.nome)}"' not in home_js:
+        error("Agenda V48.3.27: região rolável de múltiplas lives precisa permanecer acessível por teclado.")
+
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
         "padding: 30px;",
@@ -2067,7 +2084,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.26",
+            "css/pages/home.css?v=48.3.27",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",

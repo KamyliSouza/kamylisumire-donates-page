@@ -233,7 +233,7 @@ function renderAgenda(data) {
                 </div>
             </div>
 
-            <div class="agenda-card-content">
+            <div class="agenda-card-content"${hasMultipleLives ? ` tabindex="0" aria-label="Lives de ${escapeHtml(dia.nome)}"` : ""}>
                 ${liveContent}
             </div>
         `;

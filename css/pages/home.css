@@ -375,14 +375,14 @@
     flex: 0 0 clamp(220px, 26vw, 276px);
 
     min-height: 210px;
-    height: auto;
+    height: 210px;
     padding: 16px;
 
     display: flex;
     flex-direction: column;
-    align-self: stretch;
+    align-self: flex-start;
 
-    overflow: visible;
+    overflow: hidden;
 
     background-color: var(--notice-bg);
 
@@ -484,11 +484,32 @@
 /* conteúdo principal: jogo em destaque + tema abaixo */
 .agenda-card-content {
     flex: 1;
+    min-height: 0;
 
     display: flex;
     flex-direction: column;
 
     margin-top: 18px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.agenda-card-content:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+    border-radius: 8px;
+}
+
+.agenda-card-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.agenda-card-content::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+    border-radius: 999px;
 }
 
 .agenda-title {
@@ -916,7 +937,7 @@
     .agenda-card {
         flex-basis: min(82vw, 270px);
         min-height: 210px;
-        height: auto;
+        height: 210px;
     }
 
     .agenda-card-top {

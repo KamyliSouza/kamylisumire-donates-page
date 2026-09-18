@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.27 — Hotfix: tamanho estável dos cards da Agenda
+
+- fixa os cards da Agenda na altura visual original de 210 px, evitando que um dia com várias lives aumente a altura dos demais cards do carrossel;
+- move o conteúdo excedente para rolagem vertical interna, mantendo cabeçalho, largura e geometria do carrossel estáveis;
+- mantém a região com múltiplas lives acessível por teclado e preserva capas, ordem cronológica, click + arrasta, touch e scroll-snap existentes;
+- atualiza apenas os cache-busters da Home afetados pelo hotfix.
+
 ## V48.3.26 — Agenda no Trello e múltiplas lives por dia
 
 - adiciona sincronização independente da Agenda por GitHub Actions usando um quadro Trello dedicado, sem chamadas à API do Trello feitas pelo navegador;
