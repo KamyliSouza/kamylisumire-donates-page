@@ -74,8 +74,8 @@ a compatibilidade com Helpers depende desse contrato permanecer estável.
 
 `/jogos/` é uma página pública alimentada por `data/content/jogos.json`, gerado
 por `.github/scripts/sync-jogos.mjs`. O Trello é a fonte editorial de listas,
-nomes, ordem e cards; o navegador do visitante não consulta a API do Trello nem
-a API do SteamGridDB.
+nomes, ordem e cards; a Steam Web API é a fonte automática de identificação dos
+jogos. O navegador do visitante não consulta a API do Trello nem a Steam Web API.
 
 A sincronização pode usar uma linha opcional na descrição do card no formato
 `SteamAppID: 123456`. O marcador é lido somente no GitHub Actions; quando contém
@@ -85,12 +85,18 @@ Linha ausente, vazia, inválida ou com IDs conflitantes mantém o fallback autom
 A descrição completa nunca deve ser copiada para `jogos.json`; comentários,
 membros, anexos e outros metadados do Trello também permanecem fora do JSON público.
 
+A identificação automática usa `IStoreService/GetAppList` na Web API pública da
+Steam com `STEAM_WEB_API_KEY` mantida somente no GitHub Actions. Correspondências
+por nome devem continuar exatas e inequívocas; o marcador `SteamAppID:` permanece
+como override autoritativo quando necessário. Não reintroduzir SteamGridDB, scraping
+de páginas da loja ou chaves da Steam no frontend.
+
 Capas automáticas continuam limitadas ao asset vertical original da Steam. A
-sincronização consulta primeiro os metadados de assets da Steam para suportar
-Library Capsules modernas com caminho versionado/hash e prefere a variante 2x;
-o caminho legado `library_600x900*.jpg` é apenas fallback. Na ausência de asset
-oficial, preservar o placeholder local mesmo quando o App ID estiver confirmado.
-`steamAppId` e `steamUrl` pertencem ao jogo e não devem depender da existência de capa.
+sincronização tenta primeiro os caminhos oficiais determinísticos e, para Library
+Capsules modernas em caminhos versionados/hash, consulta apenas metadados de assets
+na infraestrutura oficial da Steam. Na ausência de asset oficial, preservar o
+placeholder local mesmo quando o App ID estiver confirmado. `steamAppId` e
+`steamUrl` pertencem ao jogo e não devem depender da existência de capa.
 
 ### Doações
 

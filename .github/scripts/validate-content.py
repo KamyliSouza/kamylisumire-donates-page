@@ -830,7 +830,7 @@ def validate_jogos() -> None:
             error(f"data/content/jogos.json: jogo {game['id']} referencia lista inexistente.")
         artwork = game.get("artwork")
         if artwork is not None:
-            if not isinstance(artwork, dict) or artwork.get("provider") not in {"steamgriddb", "steam-original"}:
+            if not isinstance(artwork, dict) or artwork.get("provider") != "steam-original":
                 error(f"data/content/jogos.json: artwork inválido em {game['id']}.")
             elif not isinstance(artwork.get("url"), str) or not artwork["url"].startswith("https://"):
                 error(f"data/content/jogos.json: artwork.url deve ser HTTPS em {game['id']}.")
@@ -1171,6 +1171,7 @@ def validate_architecture() -> None:
     artes_js = read_text("js/pages/artes/artes.js")
     horizontal_scroll_js = read_text("js/core/horizontal-scroll.js")
     sync_jogos_js = read_text(".github/scripts/sync-jogos.mjs")
+    sync_jogos_workflow = read_text(".github/workflows/sync-jogos.yml")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1843,34 +1844,73 @@ def validate_architecture() -> None:
         if obsolete in sync_jogos_js:
             error(f".github/scripts/sync-jogos.mjs: dependência paga de Custom Fields ainda presente: {obsolete}")
 
-    # V48.3.24: Library Capsules modernas usam o asset_url_format retornado pela
-    # StoreBrowse API; a URL legada permanece somente como fallback oficial.
+    # V48.3.25: a identificação automática é Steam-only e usa a Web API pública
+    # documentada. A chave fica somente no GitHub Actions e segue via header.
+    for token in (
+        'const STEAM_WEB_API_KEY = process.env.STEAM_WEB_API_KEY;',
+        'const steamApiHeaders = { "x-webapi-key": STEAM_WEB_API_KEY };',
+        'IStoreService/GetAppList/v1/',
+        'include_games: true',
+        'max_results: 50000',
+        'function buildSteamNameIndex(apps)',
+        'function findSteamApp(name, index)',
+        'function migrateArtworkCache(raw)',
+        'version: 3, entries: {}',
+        'source: "steam-original"',
+        'function getSteamLookupNames(name)',
+    ):
+        if token not in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: integração Steam Web API V48.3.25 ausente: {token}")
+
+    for obsolete in (
+        "STEAMGRIDDB_API_KEY",
+        "SteamGridDB",
+        "steamgriddb.com",
+        "store.steampowered.com/api/storesearch/",
+    ):
+        if obsolete in sync_jogos_js or obsolete in sync_jogos_workflow:
+            error(f"Jogos V48.3.25: dependência antiga removida ainda presente: {obsolete}")
+
+    for token in (
+        'STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}',
+        '- name: Sync Trello and Steam',
+    ):
+        if token not in sync_jogos_workflow:
+            error(f".github/workflows/sync-jogos.yml: configuração Steam-only V48.3.25 ausente: {token}")
+
+    # Library Capsules modernas podem usar caminho versionado/hash. A identificação
+    # vem de IStoreService/GetAppList; a consulta de assets permanece restrita à Steam.
     for token in (
         'IStoreBrowseService/GetItems/v1/',
         'data_request: { include_assets: true }',
         'assets.library_capsule_2x',
         'assets.library_capsule',
         'shared.fastly.steamstatic.com/store_item_assets/',
-        '"library_600x900_2x.jpg", "library_600x900.jpg"',
-        'cached?.reason === "no-original-steam-portrait"',
+        'library_600x900_2x.jpg',
+        'library_600x900.jpg',
         'reason: "no-steam-library-capsule"',
-        'function getSteamLookupNames(name)',
     ):
         if token not in sync_jogos_js:
-            error(f".github/scripts/sync-jogos.mjs: resolução de Library Capsule V48.3.24 ausente: {token}")
+            error(f".github/scripts/sync-jogos.mjs: resolução de Library Capsule V48.3.25 ausente: {token}")
 
     for token in (
-        'datetime="2026-09-17"',
-        "Última atualização: 17 de setembro de 2026 · V48.3.21",
-        "A página de Jogos é preparada por uma sincronização automatizada no GitHub",
+        'datetime="2026-09-18"',
+        "Última atualização: 18 de setembro de 2026 · V48.3.25",
+        "Steam Web API",
         "não são feitas pelo navegador do visitante",
+        "da Steam permanece somente no ambiente protegido do GitHub Actions",
         "referenciador",
     ):
         if token not in privacy_html:
-            error(f"privacidade/index.html: transparência de Jogos V48.3.21 ausente: {token}")
+            error(f"privacidade/index.html: transparência Steam V48.3.25 ausente: {token}")
 
-    if "A identificação automática pode consultar o SteamGridDB; quando disponível, a capa exibida usa o asset vertical original da Steam." not in jogos_index:
-        error("jogos/index.html: aviso de proveniência Steam V48.3.21 ausente ou desatualizado.")
+    for token in (
+        "A identificação automática e as capas disponíveis usam dados e assets oficiais da Steam.",
+        "no estado em que se encontram e conforme disponíveis",
+        "não é afiliado, patrocinado ou endossado pela Valve Corporation, Steam",
+    ):
+        if token not in jogos_index:
+            error(f"jogos/index.html: aviso Steam V48.3.25 ausente: {token}")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (

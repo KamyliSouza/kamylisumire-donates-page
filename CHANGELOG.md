@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.25 — Migração: catálogo de Jogos com Steam Web API
+
+- remove o SteamGridDB da sincronização e substitui a identificação automática pelo método documentado `IStoreService/GetAppList` da Steam Web API;
+- usa `STEAM_WEB_API_KEY` apenas no GitHub Actions e envia a chave pelo header `x-webapi-key`, sem expô-la no frontend ou em URLs/logs;
+- mantém `SteamAppID:` na descrição do Trello como override autoritativo para títulos ambíguos ou com nome editorial diferente;
+- migra o cache de artwork para V3, preservando somente associações já confirmadas com Steam App ID e asset oficial e descartando dependências/proveniência do SteamGridDB;
+- mantém somente Library Capsules oficiais da Steam, tentando caminhos determinísticos antes do fallback de metadados para assets modernos com hash;
+- atualiza o workflow, a Política de Privacidade e o aviso da página Jogos para a arquitetura Steam-only e adiciona os avisos de disponibilidade/garantia e não afiliação previstos nos termos da Steam Web API.
+
 ## V48.3.24 — Hotfix: Library Capsules modernas da Steam
 
 - passa a consultar os metadados oficiais de assets da Steam antes do caminho CDN legado, suportando Library Capsules recentes armazenadas em caminhos versionados/hash;
