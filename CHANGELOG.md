@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.30 — Hotfix: aviso Steam expansível e alinhamento da Navbar
+
+- transforma o aviso local da Steam abaixo da Agenda em um disclosure nativo `<details>`/`<summary>`, mantendo `Dados e ícones da Steam · Aviso legal` sempre visível;
+- preserva integralmente o texto de disponibilidade/garantias, limitação de responsabilidade e independência/não afiliação dentro da área expansível;
+- usa interação nativa acessível por teclado, sem JavaScript adicional e sem alterar a geometria dos cards da Agenda;
+- corrige o posicionamento horizontal da Navbar após a aplicação assíncrona da ordem editorial de `navbar.json`, realinhando o item ativo depois de `kamyli:global-ui-ready`;
+- evita que Artes/Galeria, Blog e Jogos abram com a Navbar centralizada na posição fallback anterior ao reordenamento;
+- atualiza os cache-busters públicos da Navbar, as regras de manutenção e a validação arquitetural para impedir regressões.
+
 ## V48.3.29 — Hotfix: aviso Steam na Agenda
 
 - adiciona um aviso compacto imediatamente abaixo da Agenda para cobrir os ícones e dados de jogos provenientes da Steam sem depender de o visitante abrir a página de Jogos;

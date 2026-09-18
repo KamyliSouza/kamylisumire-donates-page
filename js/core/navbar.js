@@ -154,6 +154,35 @@
         }
     }
 
+    /*
+     * navbar.json é carregado de forma assíncrona por content.js e pode
+     * reordenar os links depois que a página atual já foi marcada como ativa.
+     * Quando isso acontece, o scrollLeft calculado com a ordem fallback fica
+     * desatualizado (especialmente em Artes/Blog/Jogos). Reposicionamos o item
+     * ativo somente depois que a configuração editorial global terminou.
+     */
+    function realignActiveLinkAfterEditorialNavbar() {
+        requestAnimationFrame(() => {
+            const activeLink = mount.querySelector(
+                ".site-nav-link.is-active"
+            );
+
+            if (activeLink) {
+                keepActiveLinkVisible(activeLink, "auto");
+            }
+        });
+    }
+
+    window.addEventListener(
+        "kamyli:global-ui-ready",
+        realignActiveLinkAfterEditorialNavbar,
+        { once: true }
+    );
+
+    if (window.KAMYLI_GLOBAL_UI_READY) {
+        realignActiveLinkAfterEditorialNavbar();
+    }
+
     const HOME_NAV_TARGET_KEY = "kamyli:home-nav-target";
 
     let pageScrollFrame = null;

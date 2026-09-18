@@ -194,9 +194,11 @@ indisponível ou o quadro tiver estrutura/dados inválidos, a sincronização de
 antes do commit, preservando o último `data/agenda.json` válido.
 
 Como a Home pode exibir ícones/dados oficiais da Steam dentro da Agenda, manter o
-aviso compacto `.agenda-steam-notice` logo após a observação da Agenda. O aviso deve
-continuar cobrindo apresentação conforme disponível/sem garantias e independência/
-não afiliação; não depender somente do aviso existente em `/jogos/`.
+aviso `.agenda-steam-notice` logo após a observação da Agenda. Para preservar a
+interface compacta, ele deve usar o disclosure nativo `<details>`/`<summary>`, com
+`Dados e ícones da Steam · Aviso legal` sempre visível e o texto completo expansível.
+O conteúdo deve continuar cobrindo apresentação conforme disponível/sem garantias e
+independência/não afiliação; não depender somente do aviso existente em `/jogos/`.
 
 ## CTAs de apoio e carrosséis
 
@@ -457,6 +459,10 @@ Preserve os dois modos de `apoioFixoNoFim`: `true` deve manter `apoio` no wrappe
 ### Invariante de performance e âncoras — V48.3.6
 
 Não remover `runAfterSiteReveal`, o tratamento de `hashchange`, o scrollspy nem `startSectionStabilization`: eles preservam navegação direta para seções enquanto a Home muda de altura. Para performance, observers de conteúdo/botões devem filtrar mutações relevantes e `applyNavbarOrder()` deve permanecer idempotente. Agenda e assets decorativos não devem voltar ao caminho crítico do loader inicial.
+
+### Alinhamento após ordem editorial — V48.3.30
+
+A Navbar marca a página ativa antes de `navbar.json` terminar de carregar. Como a ordem editorial pode diferir da ordem fallback do HTML/JS, preservar o realinhamento do item `.is-active` após `kamyli:global-ui-ready`; sem esse passo, Artes/Galeria, Blog ou Jogos podem abrir com o scroll horizontal da Navbar calculado para a posição antiga. O realinhamento deve usar comportamento `auto`, sem animação adicional na chegada da página.
 ### V48.3.7 — CSP, contraste e indexação condicional
 
 - Não reintroduzir `unsafe-inline`. Blocos `<script>`/`<style>` inline permitidos pela CSP usam hash SHA-256 e `.github/scripts/validate-content.py` recalcula os hashes reais; qualquer alteração de whitespace exige atualização da meta CSP correspondente.

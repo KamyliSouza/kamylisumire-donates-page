@@ -1404,8 +1404,8 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.29" not in index:
-        error("index.html: cache-buster V48.3.29 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.30" not in index:
+        error("index.html: cache-buster V48.3.30 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
     if "js/pages/home/home.js?v=48.3.28" not in index:
@@ -1740,13 +1740,38 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.6",
-            "js/core/navbar.js?v=48.3.14",
+            "js/core/navbar.js?v=48.3.30",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
             "css/core/navbar.css?v=48.3.7",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
+
+    # V48.3.30: navbar.json pode reordenar itens depois que navbar.js marcou
+    # a página ativa; o item atual precisa ser realinhado quando o conteúdo
+    # editorial global terminar de montar.
+    for token in (
+        '"kamyli:global-ui-ready"',
+        'function realignActiveLinkAfterEditorialNavbar()',
+        'mount.querySelector(\n                ".site-nav-link.is-active"',
+        'keepActiveLinkVisible(activeLink, "auto")',
+    ):
+        if token not in navbar:
+            error(f"Navbar V48.3.30: realinhamento pós-ordem editorial ausente: {token}")
+
+    for rel, html in (
+        ("index.html", index),
+        ("doacoes/index.html", donations),
+        ("blog/index.html", blog_index),
+        ("artes/index.html", artes_index),
+        ("jogos/index.html", jogos_index),
+        ("404.html", not_found),
+        ("privacidade/index.html", privacy_html),
+        ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
+    ):
+        if "js/core/navbar.js?v=48.3.30" not in html:
+            error(f"{rel}: cache-buster V48.3.30 ausente para js/core/navbar.js.")
 
     for asset in (
         "js/pages/home/content.js?v=48.2.0",
@@ -2145,18 +2170,24 @@ def validate_architecture() -> None:
     if "agenda-game-cover" in home_js or ".agenda-game-cover" in home_css or "has-artwork" in home_css:
         error("Agenda V48.3.28: capa vertical antiga não deve continuar no frontend da Agenda.")
 
-    # V48.3.29: Steam Data também exibido na Agenda mantém aviso local de
-    # disponibilidade/garantia e não afiliação, sem depender da página de Jogos.
+    # V48.3.30: o aviso local da Steam permanece imediatamente acessível, mas
+    # usa disclosure nativo para não ocupar espaço permanente na Home.
     for token in (
-        'class="agenda-steam-notice" role="note"',
+        '<details class="agenda-steam-notice">',
+        '<summary>Dados e ícones da Steam · Aviso legal</summary>',
         "ícones e dados de jogos provenientes da Steam",
         "no estado em que se encontram e conforme disponíveis",
         "não é afiliado, patrocinado ou endossado pela Valve Corporation, Steam",
-        ".agenda-steam-notice",
+        ".agenda-steam-notice summary",
+        "cursor: pointer;",
+        ".agenda-steam-notice p",
         "font-size: .74rem;",
     ):
         if token not in index and token not in home_css:
-            error(f"Agenda V48.3.29: aviso local Steam ausente: {token}")
+            error(f"Agenda V48.3.30: aviso expansível Steam ausente: {token}")
+
+    if '<p class="agenda-steam-notice"' in index:
+        error("Agenda V48.3.30: aviso Steam antigo não deve permanecer sempre expandido.")
 
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
@@ -2178,7 +2209,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.29",
+            "css/pages/home.css?v=48.3.30",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",

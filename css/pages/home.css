@@ -309,8 +309,25 @@
     color: var(--subtitle-color);
 
     font-size: .74rem;
-    font-weight: 600;
     line-height: 1.5;
+}
+
+.agenda-steam-notice summary {
+    width: fit-content;
+
+    cursor: pointer;
+
+    font-weight: 700;
+}
+
+.agenda-steam-notice summary::marker {
+    color: currentColor;
+}
+
+.agenda-steam-notice p {
+    margin: 8px 0 0;
+
+    font-weight: 600;
 }
 
 /* =========================================================
