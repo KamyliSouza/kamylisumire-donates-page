@@ -1,5 +1,11 @@
 # Changelog
 
+## V48.3.42 — Hotfix: rótulos completos no Menu mobile
+
+- troca o layout interno dos links do Menu de Grid para Flex, evitando que rótulos caiam na coluna fixa de 24 px quando o ícone está `hidden`;
+- mantém ícones visíveis ao lado do texto quando existirem e permite que o rótulo use todo o espaço restante quando o ícone estiver oculto;
+- preserva largura integral dos botões, alinhamento à esquerda, truncamento apenas quando realmente faltar espaço, CTA `Apoiar` fixo e Navbar desktop.
+
 ## V48.3.41 — Hotfix: itens do Menu ocupam a largura útil real
 
 - corrige a regra da V48.3.40 que mirava `.site-nav-item`, wrapper que não existe no markup da Navbar;

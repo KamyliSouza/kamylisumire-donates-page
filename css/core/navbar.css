@@ -240,7 +240,7 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.41
+   MOBILE — V48.3.42
    Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.
    Base: Menu e Redes compartilham escala; Apoiar fica fixo no rodapé.
    ========================================================= */
@@ -449,9 +449,9 @@
     }
 
     .site-nav-links > .site-nav-link {
-        display: grid;
-        grid-template-columns: 24px minmax(0, 1fr);
+        display: flex;
         align-items: center;
+        justify-content: flex-start;
         justify-self: stretch;
         gap: 10px;
 
@@ -481,6 +481,7 @@
     }
 
     .site-nav-links > .site-nav-link [data-nav-label] {
+        flex: 1 1 auto;
         min-width: 0;
         overflow: hidden;
         text-align: left;

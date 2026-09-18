@@ -1877,11 +1877,11 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.41",
-            "js/core/navbar.js?v=48.3.41",
+            "js/core/content.js?v=48.3.42",
+            "js/core/navbar.js?v=48.3.42",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.41",
+            "css/core/navbar.css?v=48.3.42",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,9 +1908,9 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.41" not in html:
+        if "js/core/navbar.js?v=48.3.42" not in html:
             error(f"{rel}: cache-buster V48.3.39 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.41" not in html:
+        if "js/core/content.js?v=48.3.42" not in html:
             error(f"{rel}: cache-buster V48.3.39 ausente para js/core/content.js.")
 
     for asset in (
@@ -2547,15 +2547,16 @@ def validate_architecture() -> None:
             error(f"V48.3.38: conteúdo editorial da Navbar não cobre a camada mobile: {token}.")
 
     for token in (
-        'MOBILE — V48.3.41',
+        'MOBILE — V48.3.42',
         'grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto',
         'width: min(220px, calc(100vw - 28px))',
-        'grid-template-columns: 24px minmax(0, 1fr)',
+        'justify-content: flex-start',
         'grid-template-columns: minmax(0, 1fr)',
         'justify-items: stretch',
         '.site-nav-links > .site-nav-link',
         'justify-self: stretch',
         'inline-size: 100%',
+        'flex: 1 1 auto',
         'max-width: none',
         '.site-nav-links > .site-nav-link [data-nav-label]',
         'text-align: left',
@@ -2571,7 +2572,7 @@ def validate_architecture() -> None:
         '.site-nav-links > [data-nav-key="apoio"]',
     ):
         if token not in navbar_css:
-            error(f"V48.3.41: CSS mobile incompleto: {token}.")
+            error(f"V48.3.42: CSS mobile incompleto: {token}.")
 
     if ".site-nav-links .site-nav-item {" in navbar_css:
         error("V48.3.41: Menu mobile não deve depender do wrapper inexistente .site-nav-item.")

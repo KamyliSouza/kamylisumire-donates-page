@@ -229,3 +229,7 @@ A área rolável do Menu usa uma coluna `minmax(0, 1fr)`, `justify-items: stretc
 ### Filhos reais do Menu mobile — V48.3.41
 
 `.site-nav-links` contém diretamente elementos `<a class="site-nav-link">`. A geometria mobile é aplicada a esses filhos diretos; não há wrapper `.site-nav-item`.
+
+### Layout interno dos links — V48.3.42
+
+Os links mobile usam Flex em vez de Grid fixa; como `[hidden]` remove o ícone do fluxo, o rótulo passa a ocupar automaticamente o espaço restante, eliminando a coluna vazia que causava truncamento precoce.

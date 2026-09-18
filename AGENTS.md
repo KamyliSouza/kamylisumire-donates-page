@@ -537,3 +537,7 @@ Preservar `Menu` com largura-base de 220 px e itens esticados por toda a largura
 ### Navbar mobile V48.3.41
 
 Não usar `.site-nav-item`: esse wrapper não existe. A largura dos botões deve ser protegida por `.site-nav-links > .site-nav-link`, com stretch e 100% da largura útil; lista e footer compartilham padding lateral de 8 px.
+
+### Navbar mobile V48.3.42
+
+Os links do Menu devem usar Flex (`justify-content: flex-start`) e o `[data-nav-label]` deve crescer com `flex: 1 1 auto`; não reintroduzir Grid fixa de 24 px para ícones ocultos.

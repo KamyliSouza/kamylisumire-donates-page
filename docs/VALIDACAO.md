@@ -423,3 +423,7 @@ No mobile, conferir painel com largura-base de 220 px e todos os itens comuns oc
 ### Geometria real do Menu — V48.3.41
 
 No mobile, confirmar que cada `.site-nav-link` filho direto ocupa toda a largura útil da lista e alinha lateralmente com `Apoiar`. O CSS não deve depender de `.site-nav-item`, pois esse wrapper não existe no DOM.
+
+### Rótulos do Menu — V48.3.42
+
+No mobile, validar que itens sem ícone visível mostram o rótulo completo quando houver espaço e que itens com ícone continuam alinhados à esquerda. O ellipsis só deve aparecer quando a largura realmente for insuficiente.

@@ -251,3 +251,7 @@ O Menu volta a 220 px de largura-base e sua grade força cada item a preencher t
 ### Hotfix mobile — V48.3.41
 
 Os links do Menu são filhos diretos de `.site-nav-links`; a geometria agora é aplicada a esses nós reais, com 100% da largura útil e o mesmo recuo lateral de 8 px do rodapé `Apoiar`.
+
+### Hotfix mobile — V48.3.42
+
+Os itens do Menu usam Flex internamente; ícones ocultos deixam de reservar uma coluna de 24 px, permitindo que o rótulo use toda a largura disponível sem truncamento prematuro.
