@@ -1,11 +1,66 @@
 {
-  "ultimaAtualizacao": "05/09/2026",
+  "ultimaAtualizacao": "18/09/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
       "id": "domingo",
       "nome": "Domingo",
-      "data": "2026-09-06",
+      "data": "2026-09-20",
+      "temLive": true,
+      "horario": "10:00",
+      "titulo": "Satisfactory",
+      "descricao": "Vamos construir nosso IMPÉRIO!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "10:00",
+          "titulo": "Satisfactory",
+          "descricao": "Vamos construir nosso IMPÉRIO!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 526870
+        }
+      ]
+    },
+    {
+      "id": "segunda",
+      "nome": "Segunda-feira",
+      "data": "2026-09-21",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Kena: Bridge of Spirits",
+      "descricao": "Na espera pela continuação.",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Kena: Bridge of Spirits",
+          "descricao": "Na espera pela continuação.",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 1954200,
+          "artwork": {
+            "provider": "steam-original",
+            "steamAppId": 1954200,
+            "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "terca",
+      "nome": "Terça-feira",
+      "data": "2026-09-22",
       "temLive": false,
       "horario": "",
       "titulo": "",
@@ -13,84 +68,106 @@
       "plataformas": [
         "YouTube",
         "Twitch"
-      ]
-    },
-    {
-      "id": "segunda",
-      "nome": "Segunda-feira",
-      "data": "2026-09-07",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ]
-    },
-    {
-      "id": "terca",
-      "nome": "Terça-feira",
-      "data": "2026-09-08",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ]
+      ],
+      "lives": []
     },
     {
       "id": "quarta",
       "nome": "Quarta-feira",
-      "data": "2026-09-09",
+      "data": "2026-09-23",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "titulo": "Warhammer: Vermintide 2",
+      "descricao": "Vamos de Collab Com Meus AMIGOS",
       "plataformas": [
         "YouTube",
         "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Warhammer: Vermintide 2",
+          "descricao": "Vamos de Collab Com Meus AMIGOS",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 552500,
+          "artwork": {
+            "provider": "steam-original",
+            "steamAppId": 552500,
+            "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
+          }
+        }
       ]
     },
     {
       "id": "quinta",
       "nome": "Quinta-feira",
-      "data": "2026-09-10",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "data": "2026-09-24",
+      "temLive": false,
+      "horario": "",
+      "titulo": "",
+      "descricao": "",
       "plataformas": [
         "YouTube",
         "Twitch"
-      ]
+      ],
+      "lives": []
     },
     {
       "id": "sexta",
       "nome": "Sexta-feira",
-      "data": "2026-09-11",
+      "data": "2026-09-25",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "titulo": "ReStory: Chill Electronics Repairs",
+      "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
       "plataformas": [
         "YouTube",
         "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "ReStory: Chill Electronics Repairs",
+          "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 3812600,
+          "artwork": {
+            "provider": "steam-original",
+            "steamAppId": 3812600,
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1789419445"
+          }
+        }
       ]
     },
     {
       "id": "sabado",
       "nome": "Sábado",
-      "data": "2026-09-12",
+      "data": "2026-09-26",
       "temLive": true,
-      "horario": "",
-      "titulo": "Bora de Joguinhos",
-      "descricao": "Vamos trocar uma ideia enquanto jogamos alguma coisa!",
+      "horario": "10:00",
+      "titulo": "Satisfactory",
+      "descricao": "Vamos construir nosso IMPÉRIO!",
       "plataformas": [
         "YouTube",
         "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "10:00",
+          "titulo": "Satisfactory",
+          "descricao": "Vamos construir nosso IMPÉRIO!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 526870
+        }
       ]
     }
   ]
