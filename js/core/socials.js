@@ -90,8 +90,16 @@
         summary.setAttribute("aria-label", config.mobileButtonAriaLabel);
         summary.title = "Redes sociais";
 
-        const shareIcon = iconLibrary.create("share", "site-socials-mobile-trigger-icon");
-        if (shareIcon) summary.appendChild(shareIcon);
+        const triggerMark = document.createElement("span");
+        triggerMark.className = "site-socials-mobile-trigger-mark";
+        triggerMark.setAttribute("aria-hidden", "true");
+        triggerMark.textContent = "@";
+
+        const triggerLabel = document.createElement("span");
+        triggerLabel.className = "site-socials-mobile-trigger-label";
+        triggerLabel.textContent = "Redes";
+
+        summary.append(triggerMark, triggerLabel);
 
         const menu = document.createElement("nav");
         menu.className = "site-socials-mobile-menu";

@@ -35,8 +35,9 @@ Os textos e listas ficam em `data/content/*.json`.
 
 As redes sociais globais ficam em `data/content/redes.json`. A ordem do array é a
 ordem visual; cada entrada possui `id`, `nome`, `url`, `icone` e `visivel`. Em
-desktop/tablet (a partir de 768 px) elas aparecem em um dock vertical fixo; no
-mobile aparecem atrás de um botão expansível. URLs devem usar HTTPS e os ícones
+desktop/tablet (a partir de 768 px) elas aparecem em um dock vertical fixo à
+esquerda; no mobile aparecem atrás da cápsula expansível `@ Redes`. URLs devem
+usar HTTPS e os ícones
 precisam existir na biblioteca segura `js/core/button-icons.js`. A Home não mantém
 mais uma segunda lista hardcoded de redes.
 

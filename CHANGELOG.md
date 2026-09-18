@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.34 — Hotfix: posição do dock social e clareza no mobile
+
+- move o dock social de desktop/tablet da direita para a esquerda da viewport, preservando safe area, posição fixa e independência da geometria do conteúdo;
+- move os tooltips para o lado interno do conteúdo, à direita do dock, e ajusta o microdeslocamento de hover/foco para acompanhar a nova lateral;
+- substitui no mobile o glyph ambíguo de compartilhamento por uma cápsula textual `@ Redes`, mantendo o menu expansível nativo e o `aria-label` editorial;
+- preserva fechamento por Escape/clique externo, navegação por teclado, `prefers-reduced-motion`, links editoriais e z-index abaixo da Navbar/listboxes;
+- atualiza cache-busters, documentação e CI para impedir regressão à lateral direita ou ao ícone de compartilhamento no gatilho mobile.
+
 ## V48.3.33 — Redes sociais globais editoriais
 
 - centraliza as redes sociais em `data/content/redes.json`, com ordem, nome, URL, ícone e visibilidade editoriais;

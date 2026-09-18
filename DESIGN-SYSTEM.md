@@ -90,8 +90,8 @@ altera apenas dimensões/posicionamento local.
 
 Desde a V48.3.33, as redes não pertencem à Navbar nem ao Hero: são um componente
 global independente alimentado por `data/content/redes.json`. Em larguras de
-768 px ou mais, o componente usa um dock vertical fixo à direita; abaixo disso,
-usa um único botão circular com menu expansível nativo.
+768 px ou mais, o componente usa um dock vertical fixo à esquerda; abaixo disso,
+usa uma única cápsula `@ Redes` com menu expansível nativo.
 
 Regras visuais e de interação:
 
@@ -99,7 +99,7 @@ Regras visuais e de interação:
 - `z-index` permanece abaixo da Navbar e dos listboxes portados para `body`;
 - links de desktop são icon-only com tooltip visual e nome acessível; o menu mobile mostra ícone + nome;
 - nenhuma rede define cor própria no JSON e nenhum SVG/HTML bruto é editorial;
-- o botão mobile respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
+- a cápsula mobile `@ Redes` evita a semântica ambígua de compartilhamento, respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
 - loader e transições de página ocultam temporariamente o componente para evitar sobreposição visual.
 
 ## Navbar

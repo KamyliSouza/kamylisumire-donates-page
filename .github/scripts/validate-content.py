@@ -2488,7 +2488,7 @@ def validate_architecture() -> None:
     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
         error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
 
-    # V48.3.33: redes sociais são editoriais e globais, fora do Hero/Navbar.
+    # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
 
@@ -2498,21 +2498,34 @@ def validate_architecture() -> None:
         'site-socials-mobile',
         'url.protocol === "https:"',
         'link.rel = "noopener noreferrer"',
-        'iconLibrary.create("share"',
+        'site-socials-mobile-trigger-mark',
+        'triggerMark.textContent = "@"',
+        'site-socials-mobile-trigger-label',
+        'triggerLabel.textContent = "Redes"',
         'event.key === "Escape"',
     ):
         if token not in socials_js:
-            error(f"V48.3.33: runtime global de redes incompleto: {token}.")
+            error(f"V48.3.34: runtime global de redes incompleto: {token}.")
+
+    if 'iconLibrary.create("share"' in socials_js:
+        error("V48.3.34: gatilho mobile de redes não deve usar ícone de compartilhamento.")
 
     for token in (
         "position: fixed",
         "z-index: 850",
         "@media (max-width: 767px)",
-        "env(safe-area-inset-right)",
+        "left: max(12px, env(safe-area-inset-left))",
+        "left: calc(100% + 10px)",
+        "min-width: 92px",
+        "site-socials-mobile-trigger-mark",
+        "site-socials-mobile-trigger-label",
         "prefers-reduced-motion",
     ):
         if token not in socials_css:
-            error(f"V48.3.33: CSS global de redes incompleto: {token}.")
+            error(f"V48.3.34: CSS global de redes incompleto: {token}.")
+
+    if "right: max(12px, env(safe-area-inset-right))" in socials_css:
+        error("V48.3.34: dock social desktop/tablet não deve voltar para a lateral direita.")
 
     for rel in (
         "index.html", "404.html", "doacoes/index.html", "blog/index.html",
@@ -2520,10 +2533,10 @@ def validate_architecture() -> None:
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
-        if "css/core/socials.css?v=48.3.33" not in html:
-            error(f"{rel}: CSS global de redes V48.3.33 ausente.")
-        if "js/core/socials.js?v=48.3.33" not in html:
-            error(f"{rel}: runtime global de redes V48.3.33 ausente.")
+        if "css/core/socials.css?v=48.3.34" not in html:
+            error(f"{rel}: CSS global de redes V48.3.34 ausente.")
+        if "js/core/socials.js?v=48.3.34" not in html:
+            error(f"{rel}: runtime global de redes V48.3.34 ausente.")
         if "js/core/button-icons.js?v=48.3.33" not in html:
             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
 

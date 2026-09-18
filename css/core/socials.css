@@ -1,6 +1,6 @@
 /* =========================================================
-   REDES SOCIAIS GLOBAIS — V48.3.33
-   Dock em desktop/tablet; botão expansível no mobile.
+   REDES SOCIAIS GLOBAIS — V48.3.34
+   Dock à esquerda em desktop/tablet; cápsula "@ Redes" no mobile.
    ========================================================= */
 
 .site-socials {
@@ -15,7 +15,7 @@
 .site-socials-desktop {
     position: fixed;
     top: 50%;
-    right: max(12px, env(safe-area-inset-right));
+    left: max(12px, env(safe-area-inset-left));
 
     display: flex;
     flex-direction: column;
@@ -69,7 +69,7 @@
 
     position: absolute;
     top: 50%;
-    right: calc(100% + 10px);
+    left: calc(100% + 10px);
 
     width: max-content;
     max-width: 180px;
@@ -87,7 +87,7 @@
 
     opacity: 0;
     visibility: hidden;
-    transform: translate(5px, -50%);
+    transform: translate(-5px, -50%);
     pointer-events: none;
 
     transition:
@@ -113,7 +113,7 @@
 
 .site-social-link:hover,
 .site-social-link:focus-visible {
-    transform: translateX(-2px) scale(1.04);
+    transform: translateX(2px) scale(1.04);
 }
 
 .site-social-link:hover::after,
@@ -123,8 +123,7 @@
     transform: translate(0, -50%);
 }
 
-.site-social-icon,
-.site-socials-mobile-trigger-icon {
+.site-social-icon {
     width: 21px;
     height: 21px;
 }
@@ -157,14 +156,16 @@ html.site-page-leaving .site-socials {
     }
 
     .site-socials-mobile-trigger {
-        display: grid;
-        place-items: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
 
-        width: 50px;
-        height: 50px;
-        padding: 0;
+        min-width: 92px;
+        min-height: 48px;
+        padding: 0 14px;
 
-        border-radius: 50%;
+        border-radius: 999px;
         box-shadow: var(--shadow-card);
 
         backdrop-filter: blur(var(--blur-card));
@@ -180,6 +181,20 @@ html.site-page-leaving .site-socials {
 
     .site-socials-mobile-trigger::marker {
         content: "";
+    }
+
+    .site-socials-mobile-trigger-mark {
+        color: var(--primary-color);
+        font-size: 1.05rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .site-socials-mobile-trigger-label {
+        color: var(--text-color);
+        font-size: .82rem;
+        font-weight: 800;
+        line-height: 1;
     }
 
     .site-socials-mobile-menu {

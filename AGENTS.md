@@ -38,7 +38,8 @@ falha do Worker deve manter o Hero padrão e as demais seções locais funcionan
 Desde V48.3.33, `data/content/redes.json` é a fonte única das redes sociais. O
 frontend compartilhado fica em `js/core/socials.js` + `css/core/socials.css` e deve
 ser carregado por todas as páginas públicas. Em desktop/tablet (>= 768 px) usar
-dock vertical fixo; no mobile usar um único botão expansível. Não recolocar links
+dock vertical fixo à esquerda; no mobile usar uma única cápsula expansível
+`@ Redes`, sem ícone de compartilhamento. Não recolocar links
 sociais hardcoded no Hero/Navbar. URLs editoriais devem ser HTTPS, ícones devem
 vir da allowlist segura de `button-icons.js` e HTML/SVG/CSS arbitrário não entra
 no JSON. O componente deve permanecer abaixo da Navbar/listboxes em z-index e
