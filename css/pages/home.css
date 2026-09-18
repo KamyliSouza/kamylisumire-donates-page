@@ -303,6 +303,16 @@
     margin: 16px 0 0;
 }
 
+.agenda-steam-notice {
+    margin: 10px 0 0;
+
+    color: var(--subtitle-color);
+
+    font-size: .74rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
 /* =========================================================
    AGENDA — CARROSSEL FLUIDO COM SETAS SOBREPOSTAS
    ========================================================= */

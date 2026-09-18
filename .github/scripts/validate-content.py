@@ -1404,8 +1404,8 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.28" not in index:
-        error("index.html: cache-buster V48.3.28 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.29" not in index:
+        error("index.html: cache-buster V48.3.29 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
     if "js/pages/home/home.js?v=48.3.28" not in index:
@@ -2145,6 +2145,19 @@ def validate_architecture() -> None:
     if "agenda-game-cover" in home_js or ".agenda-game-cover" in home_css or "has-artwork" in home_css:
         error("Agenda V48.3.28: capa vertical antiga não deve continuar no frontend da Agenda.")
 
+    # V48.3.29: Steam Data também exibido na Agenda mantém aviso local de
+    # disponibilidade/garantia e não afiliação, sem depender da página de Jogos.
+    for token in (
+        'class="agenda-steam-notice" role="note"',
+        "ícones e dados de jogos provenientes da Steam",
+        "no estado em que se encontram e conforme disponíveis",
+        "não é afiliado, patrocinado ou endossado pela Valve Corporation, Steam",
+        ".agenda-steam-notice",
+        "font-size: .74rem;",
+    ):
+        if token not in index and token not in home_css:
+            error(f"Agenda V48.3.29: aviso local Steam ausente: {token}")
+
     # V48.3.13: Galeria e Blog compartilham o mesmo ritmo tipográfico do header.
     artes_header_rules = (
         "padding: 30px;",
@@ -2165,7 +2178,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.28",
+            "css/pages/home.css?v=48.3.29",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",

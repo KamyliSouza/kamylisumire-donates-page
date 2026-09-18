@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.29 — Hotfix: aviso Steam na Agenda
+
+- adiciona um aviso compacto imediatamente abaixo da Agenda para cobrir os ícones e dados de jogos provenientes da Steam sem depender de o visitante abrir a página de Jogos;
+- informa apresentação conforme disponível/sem garantias, limitação de responsabilidade na extensão permitida pela lei e independência/não afiliação com Valve/Steam;
+- mantém o aviso fora dos cards e das lives individuais para preservar a geometria de 210 px e evitar repetição visual;
+- atualiza somente o CSS/cache-buster e a validação necessários para tornar o aviso um requisito de manutenção da Home.
+
 ## V48.3.28 — Hotfix: ícones da Steam na Agenda
 
 - troca a miniatura vertical da Library Capsule na Agenda por um ícone quadrado oficial da Steam, mantendo as capas verticais exclusivamente na página de Jogos;

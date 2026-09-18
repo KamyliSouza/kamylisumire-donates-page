@@ -193,6 +193,11 @@ existentes e lê o ID do quadro em `vars.TRELLO_AGENDA_BOARD_ID`. Se o Trello es
 indisponível ou o quadro tiver estrutura/dados inválidos, a sincronização deve falhar
 antes do commit, preservando o último `data/agenda.json` válido.
 
+Como a Home pode exibir ícones/dados oficiais da Steam dentro da Agenda, manter o
+aviso compacto `.agenda-steam-notice` logo após a observação da Agenda. O aviso deve
+continuar cobrindo apresentação conforme disponível/sem garantias e independência/
+não afiliação; não depender somente do aviso existente em `/jogos/`.
+
 ## CTAs de apoio e carrosséis
 
 Na Home:
