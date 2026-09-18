@@ -23,7 +23,12 @@
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 526870
+          "steamAppId": 526870,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 526870,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/526870/ee3406fe5ec813b1987ad67e37e5cd6fb4f620e6.jpg"
+          }
         }
       ]
     },
@@ -166,7 +171,12 @@
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 526870
+          "steamAppId": 526870,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 526870,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/526870/ee3406fe5ec813b1987ad67e37e5cd6fb4f620e6.jpg"
+          }
         }
       ]
     }
