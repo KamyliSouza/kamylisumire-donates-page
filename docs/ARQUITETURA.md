@@ -209,3 +209,7 @@ O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` 
 ### Montagem global e navegação por hash — V48.3.6
 
 `content.js` ainda observa montagem tardia porque Navbar, Footer e diálogo externo são criados por módulos separados, mas o callback só reaplica conteúdo quando esses mounts aparecem. `buttons.js` segue a mesma regra para novos `[data-button-key]`. A navegação `/#secao` permanece independente em `navbar.js`: ela aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a posição durante mudanças posteriores de layout.
+
+### Hotfix da camada mobile — V48.3.37
+
+No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.

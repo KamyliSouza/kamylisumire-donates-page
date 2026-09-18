@@ -100,10 +100,38 @@
     `;
 
     const nav = mount.querySelector(".site-nav");
+    const navInner = mount.querySelector(".site-nav-inner");
     const navLinksContainer = mount.querySelector(".site-nav-links");
     const mobileTrigger = mount.querySelector(".site-nav-mobile-trigger");
     const mobileTitle = mount.querySelector(".site-nav-mobile-title");
     const mobileQuery = window.matchMedia("(max-width: 767px)");
+
+    /*
+     * Chromium/Brave trata ancestrais com backdrop-filter como containing
+     * block de descendentes position: fixed. No mobile, Menu e seu painel
+     * precisam ficar fora de .site-nav para serem realmente relativos à
+     * viewport, assim como o componente @ Redes.
+     */
+    const mobileLayer = document.createElement("div");
+    mobileLayer.className = "site-nav-mobile-layer";
+    mount.appendChild(mobileLayer);
+
+    const linksHome = document.createComment("site-nav-links-home");
+    navLinksContainer?.before(linksHome);
+
+    function syncMobileLayer() {
+        if (!navLinksContainer || !mobileTrigger || !navInner) return;
+
+        if (mobileQuery.matches) {
+            mobileLayer.append(mobileTrigger, navLinksContainer);
+            return;
+        }
+
+        mobileLayer.classList.remove("is-mobile-menu-open");
+        mobileTrigger.setAttribute("aria-expanded", "false");
+        linksHome.after(navLinksContainer);
+        navLinksContainer.before(mobileTrigger);
+    }
 
     function fallbackMobileTitle() {
         const title = document.title
@@ -119,14 +147,14 @@
 
     function closeMobileMenu({ restoreFocus = false } = {}) {
         if (!nav || !mobileTrigger) return;
-        nav.classList.remove("is-mobile-menu-open");
+        mobileLayer.classList.remove("is-mobile-menu-open");
         mobileTrigger.setAttribute("aria-expanded", "false");
         if (restoreFocus) mobileTrigger.focus();
     }
 
     function setMobileMenuOpen(open) {
         if (!nav || !mobileTrigger) return;
-        nav.classList.toggle("is-mobile-menu-open", open);
+        mobileLayer.classList.toggle("is-mobile-menu-open", open);
         mobileTrigger.setAttribute("aria-expanded", String(open));
         if (open) {
             document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open");
@@ -134,29 +162,31 @@
     }
 
     mobileTrigger?.addEventListener("click", () => {
-        setMobileMenuOpen(!nav?.classList.contains("is-mobile-menu-open"));
+        setMobileMenuOpen(!mobileLayer.classList.contains("is-mobile-menu-open"));
     });
 
     document.addEventListener("click", event => {
         if (
-            nav?.classList.contains("is-mobile-menu-open") &&
+            mobileLayer.classList.contains("is-mobile-menu-open") &&
             event.target instanceof Node &&
-            !nav.contains(event.target) &&
-            !mobileTrigger?.contains(event.target)
+            !mobileLayer.contains(event.target)
         ) {
             closeMobileMenu();
         }
     });
 
     document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && nav?.classList.contains("is-mobile-menu-open")) {
+        if (event.key === "Escape" && mobileLayer.classList.contains("is-mobile-menu-open")) {
             closeMobileMenu({ restoreFocus: true });
         }
     });
 
     mobileQuery.addEventListener?.("change", event => {
         if (!event.matches) closeMobileMenu();
+        syncMobileLayer();
     });
+
+    syncMobileLayer();
 
     navLinksContainer?.addEventListener("click", event => {
         if (mobileQuery.matches && event.target.closest(".site-nav-link")) {

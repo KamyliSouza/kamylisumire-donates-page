@@ -403,3 +403,7 @@ A validação exige o wrapper/divisor dedicados e o runtime dual-mode. Teste `ap
 4. abrir Redes com Menu aberto (e o inverso) e confirmar exclusividade entre os painéis;
 5. testar `apoioFixoNoFim: false` e confirmar que Apoiar entra no Menu na posição definida por `ordem`;
 6. acima de 767 px, confirmar que a Navbar tradicional e o dock social de desktop permanecem inalterados.
+
+### Hotfix mobile — V48.3.37
+
+No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.

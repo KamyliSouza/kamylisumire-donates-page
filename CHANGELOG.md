@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.37 — Hotfix: Menu mobile no viewport e título contextual
+
+- corrige no Chromium/Brave Android o botão `Menu` que podia aparecer junto ao topo porque `backdrop-filter` da Navbar cria um containing block para descendentes com `position: fixed`;
+- move, somente no breakpoint mobile, o gatilho e o painel de Menu para uma camada irmã da Navbar, mantendo os mesmos nós/links e restaurando-os à estrutura desktop ao sair do breakpoint;
+- preserva blur da Navbar, safe areas, fechamento Menu/Redes, Escape, clique externo, navegação editorial, estado ativo e todas as rotas/seções existentes;
+- altera o título contextual mobile para rosa, maior e alinhado à esquerda entre Logo e Apoiar, com `ellipsis` para não deslocar o CTA;
+- atualiza cache-buster e CI da Navbar para proteger a correção.
+
 ## V48.3.36 — Navegação mobile por menu flutuante
 
 - substitui apenas no mobile a antiga faixa horizontal rolável por um botão flutuante `Menu` no canto inferior esquerdo, reaproveitando os mesmos links e a mesma ordem editorial da Navbar;

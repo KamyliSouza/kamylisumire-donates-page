@@ -517,3 +517,7 @@ A Navbar marca a página ativa antes de `navbar.json` terminar de carregar. Como
 ### Navbar mobile V48.3.36
 
 No mobile, não restaurar a faixa horizontal rolável nem duplicar os links editoriais. `Menu` reutiliza `.site-nav-links`, fica no canto inferior esquerdo e é mutuamente exclusivo com `@ Redes`. O topo preserva logo, contexto atual e o slot de Apoiar conforme `apoioFixoNoFim`; desktop mantém a Navbar tradicional.
+
+### Navbar mobile V48.3.37
+
+No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.

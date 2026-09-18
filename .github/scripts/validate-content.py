@@ -1878,10 +1878,10 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.31",
-            "js/core/navbar.js?v=48.3.36",
+            "js/core/navbar.js?v=48.3.37",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.36",
+            "css/core/navbar.css?v=48.3.37",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,7 +1908,7 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.36" not in html:
+        if "js/core/navbar.js?v=48.3.37" not in html:
             error(f"{rel}: cache-buster V48.3.30 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.31" not in html:
             error(f"{rel}: cache-buster V48.3.31 ausente para js/core/content.js.")
@@ -2489,7 +2489,7 @@ def validate_architecture() -> None:
     if 'id="homeBlogSection"' in index and re.search(r'id="homeBlogSection"[^>]*\shidden(?:\s|>)', index, re.I | re.S):
         error("index.html: seção do Blog deve iniciar visível na V48.2.0.")
 
-    # V48.3.36: no mobile, a navegação deixa de depender de scroll horizontal.
+    # V48.3.37: no mobile, a navegação deixa de depender de scroll horizontal.
     # Os mesmos links editoriais são apresentados num menu flutuante à esquerda,
     # enquanto o topo comunica a página atual e preserva o slot de Apoiar.
     for token in (
@@ -2499,24 +2499,26 @@ def validate_architecture() -> None:
         'id="site-nav-mobile-menu"',
         'function updateMobileTitle(link)',
         'function closeMobileMenu',
+        'site-nav-mobile-layer',
+        'function syncMobileLayer()',
         'is-mobile-menu-open',
         'document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open")',
     ):
         if token not in navbar:
-            error(f"V48.3.36: runtime da navegação mobile incompleto: {token}.")
+            error(f"V48.3.37: runtime da navegação mobile incompleto: {token}.")
 
     for token in (
-        'MOBILE — V48.3.36',
+        'MOBILE — V48.3.37',
         '.site-nav-mobile-title',
         '.site-nav-mobile-trigger',
         'left: max(14px, env(safe-area-inset-left))',
         'bottom: calc(16px + env(safe-area-inset-bottom))',
-        '.site-nav.is-mobile-menu-open .site-nav-links',
+        '.site-nav-mobile-layer.is-mobile-menu-open .site-nav-links',
         '(hover: hover) and (pointer: fine)',
         'touch-action: manipulation',
     ):
         if token not in navbar_css:
-            error(f"V48.3.36: CSS da navegação mobile incompleto: {token}.")
+            error(f"V48.3.37: CSS da navegação mobile incompleto: {token}.")
 
 
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.

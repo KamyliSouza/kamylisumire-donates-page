@@ -231,3 +231,7 @@ A Política de Privacidade identifica **Kamyli Souza** (nome social) como respon
 ### Manutenção de consistência — V48.3.31
 
 Os fallbacks de `navbar` e `blogConfig` em `js/core/content.js` devem espelhar exatamente seus JSONs editoriais; a CI rejeita divergências. Os workflows de Jogos e Agenda compartilham um grupo de concorrência editorial e fazem rebase seguro antes do push, sem `force`. Imagens da Galeria usam `no-referrer` mesmo quando o host HTTPS vem do conteúdo editorial. O sitemap não publica `lastmod` manual: datas só devem retornar se houver uma fonte automatizada e confiável.
+
+### Hotfix mobile — V48.3.37
+
+No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.

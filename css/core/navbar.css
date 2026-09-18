@@ -233,13 +233,22 @@
     display: none;
 }
 
+.site-nav-mobile-layer {
+    display: contents;
+}
+
 /* =========================================================
-   MOBILE — V48.3.36
+   MOBILE — V48.3.37
    Topo: Logo / título da página / Apoiar.
    Base: Menu flutuante à esquerda; Redes é o par à direita.
    ========================================================= */
 
 @media (max-width: 767px) {
+    .site-nav-mobile-layer {
+        display: block;
+        position: static;
+    }
+
     #site-navbar {
         height: 62px;
     }
@@ -273,11 +282,12 @@
         display: block;
         min-width: 0;
         overflow: hidden;
-        color: var(--text-color);
-        font-size: .9rem;
+        color: var(--primary-color);
+        font-size: 1.08rem;
         font-weight: 900;
-        line-height: 1.2;
-        text-align: center;
+        line-height: 1.15;
+        letter-spacing: -.015em;
+        text-align: left;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -343,7 +353,7 @@
     }
 
     .site-nav-mobile-trigger:focus-visible,
-    .site-nav.is-mobile-menu-open .site-nav-mobile-trigger {
+    .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger {
         color: var(--text-color);
         background-color: var(--card-bg);
         border-color: var(--primary-color);
@@ -375,7 +385,7 @@
         overscroll-behavior: contain;
     }
 
-    .site-nav.is-mobile-menu-open .site-nav-links {
+    .site-nav-mobile-layer.is-mobile-menu-open .site-nav-links {
         display: grid;
         gap: 6px;
     }
