@@ -247,3 +247,7 @@ O painel `Menu` usa a mesma largura-base e a mesma grade visual do painel `@ Red
 ### Hotfix mobile — V48.3.40
 
 O Menu volta a 220 px de largura-base e sua grade força cada item a preencher toda a largura útil, preservando apenas a margem interna de 8 px compartilhada com o CTA `Apoiar`.
+
+### Hotfix mobile — V48.3.41
+
+Os links do Menu são filhos diretos de `.site-nav-links`; a geometria agora é aplicada a esses nós reais, com 100% da largura útil e o mesmo recuo lateral de 8 px do rodapé `Apoiar`.

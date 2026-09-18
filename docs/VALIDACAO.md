@@ -419,3 +419,7 @@ No mobile, conferir que `Menu` e `@ Redes` compartilham largura-base de 188 px e
 ### Geometria do Menu — V48.3.40
 
 No mobile, conferir painel com largura-base de 220 px e todos os itens comuns ocupando a mesma largura útil do CTA `Apoiar`, separados da borda externa apenas pelo padding de 8 px.
+
+### Geometria real do Menu — V48.3.41
+
+No mobile, confirmar que cada `.site-nav-link` filho direto ocupa toda a largura útil da lista e alinha lateralmente com `Apoiar`. O CSS não deve depender de `.site-nav-item`, pois esse wrapper não existe no DOM.

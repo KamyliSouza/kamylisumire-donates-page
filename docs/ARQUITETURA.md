@@ -225,3 +225,7 @@ A geometria do painel `Menu` passa a espelhar a largura-base de `@ Redes` (188 p
 ### Geometria mobile — V48.3.40
 
 A área rolável do Menu usa uma coluna `minmax(0, 1fr)`, `justify-items: stretch` e wrappers `.site-nav-item` em 100%, impedindo que regras de largura intrínseca da Navbar desktop comprimam os botões no painel.
+
+### Filhos reais do Menu mobile — V48.3.41
+
+`.site-nav-links` contém diretamente elementos `<a class="site-nav-link">`. A geometria mobile é aplicada a esses filhos diretos; não há wrapper `.site-nav-item`.

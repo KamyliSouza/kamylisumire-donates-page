@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.41 — Hotfix: itens do Menu ocupam a largura útil real
+
+- corrige a regra da V48.3.40 que mirava `.site-nav-item`, wrapper que não existe no markup da Navbar;
+- aplica a geometria diretamente aos links filhos de `.site-nav-links`, com `justify-self: stretch`, largura inline de 100% e sem `max-width`;
+- mantém lista e rodapé com o mesmo recuo lateral de 8 px, fazendo os botões comuns e `Apoiar` compartilharem as mesmas bordas úteis;
+- preserva painel de 220 px, alinhamento esquerdo, scroll interno, título animado, comportamento Android/Brave e Navbar desktop.
+
 ## V48.3.40 — Hotfix: largura útil dos itens do Menu mobile
 
 - restaura o painel `Menu` para 220 px de largura-base, mantendo limite responsivo pela viewport;

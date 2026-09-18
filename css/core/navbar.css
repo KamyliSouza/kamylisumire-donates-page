@@ -240,7 +240,7 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.40
+   MOBILE — V48.3.41
    Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.
    Base: Menu e Redes compartilham escala; Apoiar fica fixo no rodapé.
    ========================================================= */
@@ -437,6 +437,7 @@
         width: 100%;
         min-height: 0;
         padding: 8px;
+        padding-inline: 8px;
 
         background: transparent;
         border: 0;
@@ -447,20 +448,19 @@
         scrollbar-width: thin;
     }
 
-    .site-nav-links .site-nav-item {
-        display: block;
-        width: 100%;
-        min-width: 0;
-    }
-
-    .site-nav-links .site-nav-link {
+    .site-nav-links > .site-nav-link {
         display: grid;
         grid-template-columns: 24px minmax(0, 1fr);
         align-items: center;
+        justify-self: stretch;
         gap: 10px;
 
         width: 100%;
+        inline-size: 100%;
+        max-width: none;
+        min-width: 0;
         min-height: 42px;
+        margin: 0;
         padding: 8px 11px;
 
         color: var(--text-color);
@@ -474,13 +474,13 @@
         transform: none;
     }
 
-    .site-nav-links .site-nav-item-icon {
+    .site-nav-links > .site-nav-link .site-nav-item-icon {
         width: 24px;
         height: 24px;
         color: var(--primary-color);
     }
 
-    .site-nav-links [data-nav-label] {
+    .site-nav-links > .site-nav-link [data-nav-label] {
         min-width: 0;
         overflow: hidden;
         text-align: left;
@@ -488,7 +488,7 @@
         white-space: nowrap;
     }
 
-    .site-nav-links .site-nav-link.is-active {
+    .site-nav-links > .site-nav-link.is-active {
         color: var(--primary-color);
         background-color: var(--notice-bg);
         border-color: var(--primary-color);
@@ -496,7 +496,7 @@
 
     /* Apoiar pode estar no fluxo editorial quando apoioFixoNoFim=false.
        No mobile, a representação fixa do rodapé é sempre a usada no painel. */
-    .site-nav-links [data-nav-key="apoio"] {
+    .site-nav-links > [data-nav-key="apoio"] {
         display: none;
     }
 
@@ -504,12 +504,15 @@
         display: block;
         flex: 0 0 auto;
         padding: 8px;
+        padding-inline: 8px;
         border-top: 1px solid var(--card-border);
         background-color: var(--nav-bg);
     }
 
     .site-nav-mobile-support {
         width: 100%;
+        inline-size: 100%;
+        max-width: none;
         min-height: 42px;
         justify-content: center;
         gap: 8px;
@@ -544,8 +547,8 @@
 /* Assim como em @ Redes, hover só é aplicado quando há hover real. */
 @media (max-width: 767px) and (hover: hover) and (pointer: fine) {
     .site-nav-mobile-trigger:hover,
-    .site-nav-links .site-nav-link:hover,
-    .site-nav-links .site-nav-link:focus-visible {
+    .site-nav-links > .site-nav-link:hover,
+    .site-nav-links > .site-nav-link:focus-visible {
         color: var(--primary-color);
         background-color: var(--notice-bg);
         border-color: var(--primary-color);

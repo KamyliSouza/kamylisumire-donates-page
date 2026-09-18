@@ -533,3 +533,7 @@ Preservar a largura-base de 188 px do `Menu`, equivalente a `@ Redes`, com itens
 ### Navbar mobile V48.3.40
 
 Preservar `Menu` com largura-base de 220 px e itens esticados por toda a largura útil (`justify-items: stretch` + wrapper em 100%); não reintroduzir largura intrínseca/centralização dos itens.
+
+### Navbar mobile V48.3.41
+
+Não usar `.site-nav-item`: esse wrapper não existe. A largura dos botões deve ser protegida por `.site-nav-links > .site-nav-link`, com stretch e 100% da largura útil; lista e footer compartilham padding lateral de 8 px.
