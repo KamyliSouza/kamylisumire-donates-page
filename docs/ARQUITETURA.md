@@ -233,3 +233,7 @@ A área rolável do Menu usa uma coluna `minmax(0, 1fr)`, `justify-items: stretc
 ### Layout interno dos links — V48.3.42
 
 Os links mobile usam Flex em vez de Grid fixa; como `[hidden]` remove o ícone do fluxo, o rótulo passa a ocupar automaticamente o espaço restante, eliminando a coluna vazia que causava truncamento precoce.
+
+### Drawer lateral mobile — V48.3.43
+
+A camada `.site-nav-mobile-layer` contém backdrop e um painel `role="dialog"` fora da `.site-nav`, evitando o containing block criado por `backdrop-filter` no Chromium/Brave. Os links editoriais reais continuam sendo reparentados para o drawer no breakpoint mobile; apenas o CTA fixo é clonado. O painel usa `inert`/`aria-hidden` quando fechado e um trap simples de Tab quando aberto.

@@ -255,3 +255,7 @@ Os links do Menu são filhos diretos de `.site-nav-links`; a geometria agora é 
 ### Hotfix mobile — V48.3.42
 
 Os itens do Menu usam Flex internamente; ícones ocultos deixam de reservar uma coluna de 24 px, permitindo que o rótulo use toda a largura disponível sem truncamento prematuro.
+
+### Drawer de navegação mobile — V48.3.43
+
+No mobile, `Menu` abre um drawer lateral pela esquerda em vez de uma caixa flutuante. A lista de páginas rola de forma independente, `Apoiar` permanece fixo no rodapé e um backdrop fecha o drawer ao tocar fora. `@ Redes` continua como popup rápido no canto inferior direito.

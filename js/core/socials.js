@@ -86,7 +86,9 @@
         mobile.className = "site-socials-mobile";
         mobile.addEventListener("toggle", () => {
             if (mobile.open) {
-                document.querySelector("#site-navbar .site-nav.is-mobile-menu-open .site-nav-mobile-trigger")?.click();
+                document.querySelector(
+                    "#site-navbar .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger"
+                )?.click();
             }
         });
 

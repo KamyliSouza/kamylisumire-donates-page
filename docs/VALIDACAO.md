@@ -427,3 +427,7 @@ No mobile, confirmar que cada `.site-nav-link` filho direto ocupa toda a largura
 ### Rótulos do Menu — V48.3.42
 
 No mobile, validar que itens sem ícone visível mostram o rótulo completo quando houver espaço e que itens com ícone continuam alinhados à esquerda. O ellipsis só deve aparecer quando a largura realmente for insuficiente.
+
+### Drawer mobile — V48.3.43
+
+Em viewport <= 767 px, validar: drawer deslizando pela esquerda; backdrop cobrindo o restante da página; botão Fechar, Escape e toque fora funcionando; Tab permanecendo dentro do drawer; lista rolando sem mover `Apoiar`; scroll da página bloqueado enquanto aberto; `@ Redes` e Menu mutuamente exclusivos; `prefers-reduced-motion` sem transição.

@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.43 — Navegação mobile em drawer lateral
+
+- substitui a caixa flutuante do `Menu` por um drawer retrátil que desliza da lateral esquerda, com largura responsiva de até 320 px e backdrop sobre o conteúdo;
+- mantém a lista de páginas rolável e o CTA `Apoiar` fixo no rodapé, agora com alvos de toque de 48 px;
+- adiciona cabeçalho próprio com botão de fechar, fechamento por backdrop/Escape/seleção, foco inicial e ciclo de Tab dentro do drawer;
+- bloqueia o scroll do documento enquanto o drawer está aberto e respeita `prefers-reduced-motion` e a preferência global de blur;
+- preserva `@ Redes` como popup rápido e corrige a exclusão mútua para que abrir Redes feche o drawer;
+- mantém Header mobile, animação do título, conteúdo editorial e Navbar desktop inalterados.
+
 ## V48.3.42 — Hotfix: rótulos completos no Menu mobile
 
 - troca o layout interno dos links do Menu de Grid para Flex, evitando que rótulos caiam na coluna fixa de 24 px quando o ícone está `hidden`;

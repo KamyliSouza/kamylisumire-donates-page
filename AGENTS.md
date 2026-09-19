@@ -541,3 +541,7 @@ Não usar `.site-nav-item`: esse wrapper não existe. A largura dos botões deve
 ### Navbar mobile V48.3.42
 
 Os links do Menu devem usar Flex (`justify-content: flex-start`) e o `[data-nav-label]` deve crescer com `flex: 1 1 auto`; não reintroduzir Grid fixa de 24 px para ícones ocultos.
+
+### Navbar mobile V48.3.43
+
+Preservar o `Menu` como drawer lateral (`.site-nav-mobile-panel`) com backdrop, cabeçalho/fechar, lista rolável e `Apoiar` fixo. O drawer deve ser inerte quando fechado, prender o foco por Tab quando aberto, fechar `@ Redes` ao abrir e ser fechado quando `@ Redes` abrir. Não converter Redes em drawer nem alterar a Navbar desktop.
