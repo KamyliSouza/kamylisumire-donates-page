@@ -545,3 +545,7 @@ Os links do Menu devem usar Flex (`justify-content: flex-start`) e o `[data-nav-
 ### Navbar mobile V48.3.43
 
 Preservar o `Menu` como drawer lateral (`.site-nav-mobile-panel`) com backdrop, cabeçalho/fechar, lista rolável e `Apoiar` fixo. O drawer deve ser inerte quando fechado, prender o foco por Tab quando aberto, fechar `@ Redes` ao abrir e ser fechado quando `@ Redes` abrir. Não converter Redes em drawer nem alterar a Navbar desktop.
+
+### Navbar mobile V48.3.44
+
+Preservar o drawer abaixo da Navbar, com largura máxima de 288 px, links agrupados no topo e `Apoiar` fixo no rodapé. Links comuns não usam borda/cartão: normal é transparente e ativo/foco/hover usa `--primary-soft`. Fallbacks mobile são nós próprios (`[data-mobile-nav-fallback]`) e nunca substituem o slot editorial `[data-nav-icon]`. O gesto de borda usa 24 px, diferencia eixo horizontal/vertical e não deve bloquear o scroll vertical.

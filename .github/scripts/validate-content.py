@@ -1872,16 +1872,16 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=48.3.33" not in html or "js/core/buttons.js?v=48.3.6" not in html:
+        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.6" not in html:
             error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.43",
-            "js/core/navbar.js?v=48.3.43",
+            "js/core/navbar.js?v=48.3.44",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.43",
+            "css/core/navbar.css?v=48.3.44",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,10 +1908,10 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.43" not in html:
-            error(f"{rel}: cache-buster V48.3.39 ausente para js/core/navbar.js.")
+        if "js/core/navbar.js?v=48.3.44" not in html:
+            error(f"{rel}: cache-buster V48.3.44 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.43" not in html:
-            error(f"{rel}: cache-buster V48.3.39 ausente para js/core/content.js.")
+            error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
 
     for asset in (
         "js/pages/home/content.js?v=48.2.0",
@@ -2538,17 +2538,25 @@ def validate_architecture() -> None:
             error(f"V48.3.38: runtime mobile incompleto: {token}.")
 
     for token in (
+        'mobileEdgeGesture.className = "site-nav-mobile-edge-gesture"',
         'mobileBackdrop.className = "site-nav-mobile-backdrop"',
         'mobilePanel.setAttribute("role", "dialog")',
         'mobilePanel.setAttribute("aria-modal", "true")',
         'mobilePanel.inert = true',
         'mobileClose.className = "site-nav-mobile-close"',
+        'MOBILE_FALLBACK_ICONS',
+        'function ensureMobileFallbackIcons()',
+        'data-mobile-nav-fallback',
+        'DRAWER_GESTURE_COMMIT_RATIO',
+        'function beginDrawerGesture(event, mode)',
+        'function moveDrawerGesture(event)',
+        'function endDrawerGesture(event)',
         'document.documentElement.classList.toggle(',
         'function mobileDrawerFocusable()',
         'requestAnimationFrame(() => mobileClose.focus())',
     ):
         if token not in navbar:
-            error(f"V48.3.43: runtime do drawer mobile incompleto: {token}.")
+            error(f"V48.3.44: runtime do drawer mobile incompleto: {token}.")
 
     for token in (
         'function applyNavbarOrder(navRoot, data)',
@@ -2560,23 +2568,33 @@ def validate_architecture() -> None:
             error(f"V48.3.38: conteúdo editorial da Navbar não cobre a camada mobile: {token}.")
 
     for token in (
-        'MOBILE — V48.3.43',
+        'MOBILE — V48.3.44',
         'grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto',
-        'width: min(82vw, 320px)',
-        'max-width: calc(100vw - 56px)',
+        'width: min(clamp(248px, 74vw, 288px), calc(100vw - 48px))',
+        'top: 62px',
+        'inset: 62px 0 0',
+        '.site-nav-mobile-edge-gesture',
+        'width: 24px',
+        'touch-action: pan-y',
         '.site-nav-mobile-backdrop',
         '.site-nav-mobile-panel-header',
         '.site-nav-mobile-close',
+        '.is-mobile-menu-dragging',
         'transform: translateX(-105%)',
         'html.site-mobile-drawer-open',
+        'grid-auto-rows: min-content',
+        'align-content: start',
         'justify-content: flex-start',
         'grid-template-columns: minmax(0, 1fr)',
         'justify-items: stretch',
         '.site-nav-links > .site-nav-link',
         'justify-self: stretch',
         'inline-size: 100%',
-        'flex: 1 1 auto',
-        'max-width: none',
+        'background: transparent',
+        'border: 0',
+        'background-color: var(--primary-soft)',
+        '.site-nav-mobile-generic-icon',
+        '.site-nav-item-icon:not([hidden]) + .site-nav-mobile-generic-icon',
         '.site-nav-links > .site-nav-link [data-nav-label]',
         'text-align: left',
         '.site-nav-mobile-title-text.is-leaving',
@@ -2591,10 +2609,17 @@ def validate_architecture() -> None:
         '.site-nav-links > [data-nav-key="apoio"]',
     ):
         if token not in navbar_css:
-            error(f"V48.3.43: CSS mobile incompleto: {token}.")
+            error(f"V48.3.44: CSS mobile incompleto: {token}.")
 
     if ".site-nav-links .site-nav-item {" in navbar_css:
         error("V48.3.41: Menu mobile não deve depender do wrapper inexistente .site-nav-item.")
+
+
+    for icon_name in (
+        "video", "image", "file-text", "gamepad", "shield-check", "users"
+    ):
+        if f"{icon_name}:" not in button_icons_js and f'"{icon_name}":' not in button_icons_js:
+            error(f"V48.3.44: ícone genérico mobile ausente em button-icons.js: {icon_name}.")
 
 
 
@@ -2663,7 +2688,7 @@ def validate_architecture() -> None:
             error(f"{rel}: CSS global de redes V48.3.35 ausente.")
         if "js/core/socials.js?v=48.3.43" not in html:
             error(f"{rel}: runtime global de redes V48.3.43 ausente.")
-        if "js/core/button-icons.js?v=48.3.33" not in html:
+        if "js/core/button-icons.js?v=48.3.44" not in html:
             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
 
     # V47.2: o ícone de configurações usa engrenagem geométrica simétrica.

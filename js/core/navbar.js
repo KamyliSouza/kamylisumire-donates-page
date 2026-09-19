@@ -121,6 +121,10 @@
     const mobileLayer = document.createElement("div");
     mobileLayer.className = "site-nav-mobile-layer";
 
+    const mobileEdgeGesture = document.createElement("div");
+    mobileEdgeGesture.className = "site-nav-mobile-edge-gesture";
+    mobileEdgeGesture.setAttribute("aria-hidden", "true");
+
     const mobileBackdrop = document.createElement("div");
     mobileBackdrop.className = "site-nav-mobile-backdrop";
     mobileBackdrop.setAttribute("aria-hidden", "true");
@@ -151,7 +155,7 @@
 
     mobilePanelHeader.append(mobilePanelTitle, mobileClose);
     mobilePanel.appendChild(mobilePanelHeader);
-    mobileLayer.append(mobileBackdrop, mobilePanel);
+    mobileLayer.append(mobileEdgeGesture, mobileBackdrop, mobilePanel);
     mount.appendChild(mobileLayer);
 
     const linksHome = document.createComment("site-nav-links-home");
@@ -161,6 +165,49 @@
     let mobileTitleAnimationTimer = null;
     let deferMobileTitleUntilReveal = false;
     let pendingRevealedMobileTitle = "";
+
+    const MOBILE_FALLBACK_ICONS = Object.freeze({
+        inicio: "home",
+        lives: "video",
+        agenda: "calendar",
+        artes: "image",
+        blog: "file-text",
+        jogos: "gamepad",
+        regras: "shield-check",
+        creditos: "users"
+    });
+
+    const DRAWER_GESTURE_COMMIT_RATIO = 0.36;
+    const DRAWER_GESTURE_FLICK_PX_MS = 0.45;
+    const DRAWER_GESTURE_AXIS_LOCK_PX = 10;
+    let drawerGesture = null;
+
+    function ensureMobileFallbackIcons() {
+        if (!navLinksContainer) return;
+
+        const icons = window.KamyliButtonIcons;
+        navLinksContainer
+            .querySelectorAll(".site-nav-link[data-nav-key]")
+            .forEach(link => {
+                if (link.querySelector("[data-mobile-nav-fallback]")) return;
+
+                const slot = link.querySelector("[data-nav-icon]");
+                const iconName = MOBILE_FALLBACK_ICONS[link.dataset.navKey];
+                const svg = icons?.create(
+                    iconName,
+                    "site-nav-mobile-fallback-svg"
+                );
+
+                if (!slot || !svg) return;
+
+                const fallback = document.createElement("span");
+                fallback.className = "site-nav-mobile-generic-icon";
+                fallback.dataset.mobileNavFallback = "";
+                fallback.setAttribute("aria-hidden", "true");
+                fallback.appendChild(svg);
+                slot.after(fallback);
+            });
+    }
 
     function syncMobileSupport() {
         if (!mobileFooter || !supportLink) return;
@@ -180,6 +227,7 @@
         if (mobileQuery.matches) {
             mobileLayer.appendChild(mobileTrigger);
             mobilePanel.append(navLinksContainer, mobileFooter);
+            ensureMobileFallbackIcons();
             return;
         }
 
@@ -187,6 +235,7 @@
         linksHome.after(navLinksContainer);
         navLinksContainer.before(mobileTrigger);
         navLinksContainer.after(mobileFooter);
+        ensureMobileFallbackIcons();
     }
 
     function fallbackMobileTitle() {
@@ -329,6 +378,135 @@
         }
     }
 
+    function clearDrawerGestureVisuals() {
+        mobileLayer.classList.remove("is-mobile-menu-dragging");
+        mobilePanel.style.removeProperty("transform");
+        mobilePanel.style.removeProperty("transition");
+        mobileBackdrop.style.removeProperty("opacity");
+        mobileBackdrop.style.removeProperty("transition");
+    }
+
+    function drawerWidth() {
+        const measured = mobilePanel.getBoundingClientRect().width;
+        if (measured > 0) return measured;
+        return Math.min(288, Math.max(248, window.innerWidth * 0.74));
+    }
+
+    function renderDrawerGesture(progress) {
+        const value = Math.max(0, Math.min(1, progress));
+        mobileLayer.classList.add("is-mobile-menu-dragging");
+        mobilePanel.style.transition = "none";
+        mobileBackdrop.style.transition = "none";
+        mobilePanel.style.transform =
+            `translateX(${(value - 1) * 100}%)`;
+        mobileBackdrop.style.opacity = String(value);
+
+        if (drawerGesture) drawerGesture.progress = value;
+    }
+
+    function cancelDrawerGesture() {
+        drawerGesture = null;
+        clearDrawerGestureVisuals();
+    }
+
+    function beginDrawerGesture(event, mode) {
+        if (
+            !mobileQuery.matches ||
+            event.isPrimary === false ||
+            event.pointerType === "mouse"
+        ) {
+            return;
+        }
+
+        drawerGesture = {
+            pointerId: event.pointerId,
+            mode,
+            startX: event.clientX,
+            startY: event.clientY,
+            startTime: performance.now(),
+            lastX: event.clientX,
+            lastTime: performance.now(),
+            velocityX: 0,
+            progress: mode === "open" ? 0 : 1,
+            locked: false
+        };
+    }
+
+    function moveDrawerGesture(event) {
+        if (!drawerGesture || event.pointerId !== drawerGesture.pointerId) {
+            return;
+        }
+
+        const deltaX = event.clientX - drawerGesture.startX;
+        const deltaY = event.clientY - drawerGesture.startY;
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+
+        if (!drawerGesture.locked) {
+            if (
+                absX < DRAWER_GESTURE_AXIS_LOCK_PX &&
+                absY < DRAWER_GESTURE_AXIS_LOCK_PX
+            ) {
+                return;
+            }
+
+            const wrongDirection =
+                (drawerGesture.mode === "open" && deltaX <= 0) ||
+                (drawerGesture.mode === "close" && deltaX >= 0);
+
+            if (absY >= absX || wrongDirection) {
+                cancelDrawerGesture();
+                return;
+            }
+
+            drawerGesture.locked = true;
+        }
+
+        event.preventDefault();
+
+        const now = performance.now();
+        const elapsed = Math.max(1, now - drawerGesture.lastTime);
+        drawerGesture.velocityX =
+            (event.clientX - drawerGesture.lastX) / elapsed;
+        drawerGesture.lastX = event.clientX;
+        drawerGesture.lastTime = now;
+
+        const width = drawerWidth();
+        const progress = drawerGesture.mode === "open"
+            ? deltaX / width
+            : 1 + (deltaX / width);
+
+        renderDrawerGesture(progress);
+    }
+
+    function endDrawerGesture(event) {
+        if (!drawerGesture || event.pointerId !== drawerGesture.pointerId) {
+            return;
+        }
+
+        const gesture = drawerGesture;
+        drawerGesture = null;
+
+        if (!gesture.locked) {
+            clearDrawerGestureVisuals();
+            return;
+        }
+
+        const flingOpen =
+            gesture.mode === "open" &&
+            gesture.velocityX >= DRAWER_GESTURE_FLICK_PX_MS;
+        const flingClose =
+            gesture.mode === "close" &&
+            gesture.velocityX <= -DRAWER_GESTURE_FLICK_PX_MS;
+
+        let shouldOpen = gesture.progress >= DRAWER_GESTURE_COMMIT_RATIO;
+        if (flingOpen) shouldOpen = true;
+        if (flingClose) shouldOpen = false;
+
+        clearDrawerGestureVisuals();
+        setMobileMenuOpen(shouldOpen);
+    }
+
     function closeMobileMenu({ restoreFocus = false } = {}) {
         if (!nav || !mobileTrigger) return;
         setMobileMenuOpen(false);
@@ -337,6 +515,8 @@
 
     function setMobileMenuOpen(open) {
         if (!nav || !mobileTrigger) return;
+
+        clearDrawerGestureVisuals();
 
         const shouldOpen = Boolean(open && mobileQuery.matches);
         mobileLayer.classList.toggle("is-mobile-menu-open", shouldOpen);
@@ -364,6 +544,26 @@
 
     mobileBackdrop.addEventListener("click", () => {
         closeMobileMenu();
+    });
+
+    mobileEdgeGesture.addEventListener("pointerdown", event => {
+        if (mobileLayer.classList.contains("is-mobile-menu-open")) return;
+        beginDrawerGesture(event, "open");
+    });
+
+    mobilePanel.addEventListener("pointerdown", event => {
+        if (!mobileLayer.classList.contains("is-mobile-menu-open")) return;
+        beginDrawerGesture(event, "close");
+    });
+
+    window.addEventListener("pointermove", moveDrawerGesture, {
+        passive: false
+    });
+    window.addEventListener("pointerup", endDrawerGesture);
+    window.addEventListener("pointercancel", event => {
+        if (drawerGesture?.pointerId === event.pointerId) {
+            cancelDrawerGesture();
+        }
     });
 
     document.addEventListener("click", event => {
@@ -516,6 +716,7 @@
     function realignActiveLinkAfterEditorialNavbar() {
         requestAnimationFrame(() => {
             syncMobileSupport();
+            ensureMobileFallbackIcons();
             const activeLink = mount.querySelector(
                 ".site-nav-link.is-active"
             );

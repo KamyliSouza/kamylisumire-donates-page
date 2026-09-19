@@ -431,3 +431,7 @@ No mobile, validar que itens sem ícone visível mostram o rótulo completo quan
 ### Drawer mobile — V48.3.43
 
 Em viewport <= 767 px, validar: drawer deslizando pela esquerda; backdrop cobrindo o restante da página; botão Fechar, Escape e toque fora funcionando; Tab permanecendo dentro do drawer; lista rolando sem mover `Apoiar`; scroll da página bloqueado enquanto aberto; `@ Redes` e Menu mutuamente exclusivos; `prefers-reduced-motion` sem transição.
+
+### Drawer refinado — V48.3.44
+
+Em viewport <= 767 px, validar: drawer iniciando abaixo da Navbar; largura entre 248 e 288 px conforme a viewport; links compactos no topo sem bordas individuais; ícones genéricos aparecendo somente quando não existe ícone editorial; `Apoiar` fixo embaixo; swipe da borda esquerda abrindo e swipe para a esquerda fechando; movimento predominantemente vertical mantendo o scroll da lista. Confirmar também fechamento por backdrop/×/Escape e `prefers-reduced-motion`.

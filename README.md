@@ -259,3 +259,7 @@ Os itens do Menu usam Flex internamente; ícones ocultos deixam de reservar uma 
 ### Drawer de navegação mobile — V48.3.43
 
 No mobile, `Menu` abre um drawer lateral pela esquerda em vez de uma caixa flutuante. A lista de páginas rola de forma independente, `Apoiar` permanece fixo no rodapé e um backdrop fecha o drawer ao tocar fora. `@ Redes` continua como popup rápido no canto inferior direito.
+
+### Drawer refinado — V48.3.44
+
+No mobile, o drawer usa largura `clamp(248px, 74vw, 288px)`, começa abaixo da Navbar e mantém os links agrupados no topo. Os itens seguem a linguagem da Navbar desktop, sem bordas individuais, e recebem ícones genéricos locais quando o conteúdo editorial não define um ícone. A faixa de 24 px da borda esquerda permite abrir por swipe; arrastar o drawer para a esquerda fecha. `Apoiar` permanece fixo no rodapé.

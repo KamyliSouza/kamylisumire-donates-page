@@ -237,3 +237,7 @@ Os links mobile usam Flex em vez de Grid fixa; como `[hidden]` remove o ícone d
 ### Drawer lateral mobile — V48.3.43
 
 A camada `.site-nav-mobile-layer` contém backdrop e um painel `role="dialog"` fora da `.site-nav`, evitando o containing block criado por `backdrop-filter` no Chromium/Brave. Os links editoriais reais continuam sendo reparentados para o drawer no breakpoint mobile; apenas o CTA fixo é clonado. O painel usa `inert`/`aria-hidden` quando fechado e um trap simples de Tab quando aberto.
+
+### Gestos e fallbacks do drawer — V48.3.44
+
+O drawer mantém os links editoriais reais e acrescenta, ao lado do slot `[data-nav-icon]`, um fallback separado `[data-mobile-nav-fallback]`. CSS mostra esse fallback apenas no mobile e o oculta automaticamente quando o slot editorial está visível. O gesto de abertura nasce de `.site-nav-mobile-edge-gesture` (24 px) e o de fechamento usa o próprio painel; ambos aplicam transform/opacity temporários durante o arrasto e só alteram o estado aberto/fechado ao concluir o gesto.

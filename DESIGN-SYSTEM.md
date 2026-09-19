@@ -219,3 +219,7 @@ A identidade visual não deve tornar o conteúdo dependente de assets decorativo
 No tema claro, `--primary-color` continua sendo o tom de identidade para fundos, bordas, ícones e títulos grandes. Texto normal ou pequeno que use a cor primária deve usar `--primary-text`, cujo contraste atende AA nas superfícies claras principais. No tema escuro, `--primary-text` mantém o mesmo tom visual de `--primary-color`. Não substituir títulos grandes por `--primary-text` apenas por consistência mecânica; a distinção é semântica e preserva a identidade visual.
 
 Galeria e Blog continuam compartilhando a mesma hierarquia cromática: seus títulos principais usam `--primary-color`; controles, links, tags e estados textuais pequenos podem usar `--primary-text` quando necessário para contraste.
+
+### Navegação mobile
+
+O drawer mobile deve preservar a linguagem da Navbar desktop: links sem borda individual e sem cartão permanente, usando fundo transparente no estado normal e `--primary-soft` nos estados ativo/foco/hover. Ícones têm função de reconhecimento rápido e devem manter o mesmo traço do sistema local `KamyliButtonIcons`. O CTA `Apoiar` é a exceção e permanece destacado no rodapé.

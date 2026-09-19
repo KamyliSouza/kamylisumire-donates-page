@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.44 — Drawer mobile refinado, ícones e gestos
+
+- reduz o drawer para `clamp(248px, 74vw, 288px)`, mantendo uma faixa visível do site e proporção mais natural para rótulos curtos;
+- posiciona o drawer explicitamente abaixo da Navbar mobile, removendo a separação superior redundante e mantendo apenas a borda lateral;
+- agrupa os links no topo com espaçamento constante e mantém `Apoiar` fixo no rodapé, sem distribuir itens verticalmente em telas altas;
+- aproxima os links do estilo da Navbar desktop: sem bordas individuais, fundo transparente e destaque suave apenas em ativo/foco/hover;
+- adiciona SVGs genéricos locais para Lives, Artes, Blog, Jogos, Regras e Créditos e usa fallbacks visuais apenas no drawer mobile; ícones editoriais continuam tendo prioridade;
+- adiciona gesto pela faixa de 24 px da borda esquerda para abrir e swipe do drawer para a esquerda para fechar, acompanhando o dedo com painel/backdrop e preservando scroll vertical;
+- mantém botão `Menu`, `@ Redes`, teclado, foco, `prefers-reduced-motion`, safe areas, conteúdo editorial e Navbar desktop.
+
 ## V48.3.43 — Navegação mobile em drawer lateral
 
 - substitui a caixa flutuante do `Menu` por um drawer retrátil que desliza da lateral esquerda, com largura responsiva de até 320 px e backdrop sobre o conteúdo;
