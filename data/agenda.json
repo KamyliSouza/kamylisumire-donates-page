@@ -50,15 +50,31 @@
       "id": "terca",
       "nome": "Terça-feira",
       "data": "2026-09-22",
-      "temLive": false,
-      "horario": "",
-      "titulo": "",
-      "descricao": "",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "ReStory: Chill Electronics Repairs",
+      "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
       "plataformas": [
         "YouTube",
         "Twitch"
       ],
-      "lives": []
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "ReStory: Chill Electronics Repairs",
+          "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 3812600,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 3812600,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
+          }
+        }
+      ]
     },
     {
       "id": "quarta",
@@ -140,8 +156,8 @@
       "data": "2026-09-26",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "ReStory: Chill Electronics Repairs",
-      "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
+      "titulo": "Kena: Bridge of Spirits",
+      "descricao": "Na espera pela continuação.",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -149,17 +165,17 @@
       "lives": [
         {
           "horario": "20:00",
-          "titulo": "ReStory: Chill Electronics Repairs",
-          "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
+          "titulo": "Kena: Bridge of Spirits",
+          "descricao": "Na espera pela continuação.",
           "plataformas": [
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 3812600,
+          "steamAppId": 1954200,
           "icon": {
             "provider": "steam-original",
-            "steamAppId": 3812600,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
+            "steamAppId": 1954200,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
           }
         }
       ]
