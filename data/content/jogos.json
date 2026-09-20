@@ -43,6 +43,25 @@
   ],
   "games": [
     {
+      "id": "69f61d7b0734be288f7bf634",
+      "name": "Life is Strange Remastered",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488093184,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1265920,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1265920/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1265920,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1265920/3f7aa3eec440654761e24eb37d769ca3f4fb5c5c.jpg"
+      },
+      "steamAppId": 1265920,
+      "steamUrl": "https://store.steampowered.com/app/1265920/"
+    },
+    {
       "id": "69f61ec0b8ae2c6aa8a42099",
       "name": "Ōkami HD",
       "listId": "69f610396e6fb0d017a97829",
@@ -478,25 +497,6 @@
       },
       "steamAppId": 236430,
       "steamUrl": "https://store.steampowered.com/app/236430/"
-    },
-    {
-      "id": "69f61d7b0734be288f7bf634",
-      "name": "Life is Strange Remastered",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488299008,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1265920,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1265920/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1265920,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1265920/3f7aa3eec440654761e24eb37d769ca3f4fb5c5c.jpg"
-      },
-      "steamAppId": 1265920,
-      "steamUrl": "https://store.steampowered.com/app/1265920/"
     },
     {
       "id": "69f6102989c646e4cddfb1e6",
@@ -2508,5 +2508,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-18T13:50:49.074Z"
+  "updatedAt": "2026-09-20T13:36:06.351Z"
 }
