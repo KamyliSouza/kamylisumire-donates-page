@@ -447,3 +447,7 @@ No mobile, validar: (1) abrir Redes e tocar Menu troca diretamente para o drawer
 ### Overlays temporários — V48.3.47
 
 Validar que Redes inicia fechado na Home inclusive após reload e retorno pelo histórico, que Voltar fecha um overlay aberto e que troca de hash na Home não remove o estado temporário enquanto o overlay está ativo.
+
+### Loader mobile — V48.3.48
+
+Durante a tela de carregamento e transições de página, verificar que `Menu`, drawer, backdrop e zona de swipe não aparecem nem recebem toque. `@ Redes` deve continuar seguindo o mesmo comportamento.

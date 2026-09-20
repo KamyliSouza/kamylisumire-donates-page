@@ -242,6 +242,18 @@
     display: contents;
 }
 
+/* O Menu mobile fica fora de .site-nav para escapar do containing block
+   criado por backdrop-filter no Chromium/Brave. Por isso ele também precisa
+   replicar explicitamente o estado de visibilidade usado pelo loader. */
+html.site-loading-pending .site-nav-mobile-layer,
+html.site-loading-visible .site-nav-mobile-layer,
+html.site-navigation-loading .site-nav-mobile-layer,
+html.site-page-leaving .site-nav-mobile-layer {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* =========================================================
    MOBILE — V48.3.46
    Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.

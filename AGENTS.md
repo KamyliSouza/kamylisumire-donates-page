@@ -561,3 +561,7 @@ Preservar `window.KamyliMobileOverlay` como coordenador único de `menu` e `soci
 ### Overlays mobile V48.3.47
 
 Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador de histórico deve ser associado ao documento atual, e mudanças de hash da Home devem preservar `history.state`.
+
+### Loader e Menu mobile — V48.3.48
+
+Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.

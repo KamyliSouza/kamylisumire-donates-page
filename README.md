@@ -275,3 +275,7 @@ O drawer não possui mais cabeçalho interno nem botão `×`. Ele fecha por swip
 ### Hotfix de overlays — V48.3.47
 
 Estados `menu`/`socials` no History API são temporários por documento e são descartados em reload/navegação/BFCache. A Home preserva `history.state` ao trocar somente o hash da seção.
+
+### Hotfix do loader — V48.3.48
+
+Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.

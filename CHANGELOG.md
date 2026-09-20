@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.48 — Hotfix: Menu oculto durante o loader
+
+- oculta toda a camada mobile do Menu enquanto `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` ou `site-page-leaving` estiver ativo;
+- replica no drawer, que vive fora de `.site-nav`, o mesmo contrato de visibilidade já usado por `@ Redes`;
+- usa `visibility: hidden` e `pointer-events: none` além de opacidade zero, impedindo que gatilho, backdrop ou faixa de swipe recebam interação durante o carregamento;
+- não altera o comportamento normal do drawer, Redes ou Navbar desktop.
+
 ## V48.3.47 — Hotfix: Redes não reabre na Home
 
 - torna o estado de Menu/Redes no History API estritamente temporário e vinculado ao documento atual, impedindo que `socials` seja restaurado após reload, navegação ou retorno via BFCache;

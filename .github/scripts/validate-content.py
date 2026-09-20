@@ -1883,7 +1883,7 @@ def validate_architecture() -> None:
             "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.46",
+            "css/core/navbar.css?v=48.3.48",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -2615,6 +2615,19 @@ def validate_architecture() -> None:
     ):
         if token not in navbar_css:
             error(f"V48.3.44: CSS mobile incompleto: {token}.")
+
+    # V48.3.48: como o drawer mobile é movido para fora de .site-nav,
+    # ele precisa reproduzir explicitamente os estados de ocultação do loader.
+    for token in (
+        'html.site-loading-pending .site-nav-mobile-layer',
+        'html.site-loading-visible .site-nav-mobile-layer',
+        'html.site-navigation-loading .site-nav-mobile-layer',
+        'html.site-page-leaving .site-nav-mobile-layer',
+        'visibility: hidden',
+        'pointer-events: none',
+    ):
+        if token not in navbar_css:
+            error(f"V48.3.48: Menu mobile pode permanecer visível durante o loader: {token}.")
 
     if ".site-nav-links .site-nav-item {" in navbar_css:
         error("V48.3.41: Menu mobile não deve depender do wrapper inexistente .site-nav-item.")

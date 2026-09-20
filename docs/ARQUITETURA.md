@@ -253,3 +253,7 @@ Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MO
 ### Escopo do History API mobile — V48.3.47
 
 `mobile-overlay.js` associa entradas temporárias a um identificador por documento e descarta marcadores antigos em inicialização, `pagehide` e restauração BFCache. Isso impede reabertura automática de overlays em outra navegação.
+
+### Integração do drawer com o loader — V48.3.48
+
+A camada mobile é irmã de `.site-nav` para evitar o containing block de `backdrop-filter`; por isso sua visibilidade durante loader é controlada explicitamente por seletores em `html.site-loading-*`.
