@@ -1,5 +1,5 @@
 /* =========================================================
-   REDES SOCIAIS GLOBAIS — V48.3.46
+   REDES SOCIAIS GLOBAIS — V48.3.49
    Dock à esquerda em desktop/tablet; cápsula "@ Redes" no mobile.
    ========================================================= */
 
@@ -180,10 +180,22 @@ html.site-page-leaving .site-socials {
     .site-socials-mobile-trigger:focus-visible,
     .site-socials-mobile.is-open > .site-socials-mobile-trigger {
         color: var(--primary-color);
-        background-color: var(--primary-soft);
+        background-color: var(--card-bg);
         border-color: var(--primary-color);
-        box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
+        box-shadow:
+            0 0 0 3px var(--primary-soft),
+            var(--shadow-card);
         outline: none;
+    }
+
+    .site-socials-mobile.is-open > .site-socials-mobile-trigger
+    .site-socials-mobile-trigger-mark {
+        color: var(--primary-color);
+    }
+
+    .site-socials-mobile.is-open > .site-socials-mobile-trigger
+    .site-socials-mobile-trigger-label {
+        color: var(--text-color);
     }
 
     .site-socials-mobile-trigger-mark {

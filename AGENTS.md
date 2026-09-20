@@ -565,3 +565,7 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 ### Loader e Menu mobile — V48.3.48
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
+
+### Redes mobile — V48.3.49
+
+Preservar `--card-bg` no gatilho `@ Redes` quando aberto; não voltar a usar `--primary-soft` como única superfície do botão. Fechamento externo usa `pointerdown` para que gestos de rolagem iniciados fora do popup o descartem antes do scroll.

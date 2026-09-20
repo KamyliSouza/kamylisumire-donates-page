@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.49 — Hotfix: estado aberto e scroll de Redes
+
+- mantém `@ Redes` com a superfície `--card-bg` quando aberto, evitando que `--primary-soft` translúcido + blur deixe o gatilho visualmente lavado;
+- indica o estado aberto por borda primária e halo suave, preservando as cores do `@` e do rótulo;
+- troca o fechamento externo de `click` para `pointerdown`, fazendo um gesto de scroll iniciado fora do popup fechá-lo antes que a página role;
+- mantém links internos, exclusão mútua com Menu, Voltar/Escape, History API e desktop inalterados.
+
 ## V48.3.48 — Hotfix: Menu oculto durante o loader
 
 - oculta toda a camada mobile do Menu enquanto `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` ou `site-page-leaving` estiver ativo;

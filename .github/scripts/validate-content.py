@@ -2727,6 +2727,21 @@ def validate_architecture() -> None:
         if token not in socials_css:
             error(f"V48.3.35: proteção touch do gatilho de redes ausente: {token}.")
 
+    # V48.3.49: o estado aberto preserva a superfície do gatilho e qualquer
+    # gesto iniciado fora do popup fecha Redes antes do scroll da página.
+    for token in (
+        '.site-socials-mobile.is-open > .site-socials-mobile-trigger {',
+        'background-color: var(--card-bg)',
+        '0 0 0 3px var(--primary-soft)',
+        'document.addEventListener("pointerdown", event =>',
+        'event.isPrimary !== false',
+        '!mobile.contains(event.target)',
+        '{ passive: true }',
+    ):
+        source = socials_css if token in socials_css else socials_js
+        if token not in source:
+            error(f"V48.3.49: polimento do popup de Redes ausente: {token}.")
+
     shared_state = socials_css.split("@media (max-width: 767px)", 1)[0]
     if ".site-socials-mobile-trigger:hover" in shared_state:
         error("V48.3.35: hover do gatilho mobile não pode ser aplicado globalmente em dispositivos touch.")
@@ -2737,10 +2752,10 @@ def validate_architecture() -> None:
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
-        if "css/core/socials.css?v=48.3.46" not in html:
-            error(f"{rel}: CSS global de redes V48.3.46 ausente.")
-        if "js/core/socials.js?v=48.3.46" not in html:
-            error(f"{rel}: runtime global de redes V48.3.46 ausente.")
+        if "css/core/socials.css?v=48.3.49" not in html:
+            error(f"{rel}: CSS global de redes V48.3.49 ausente.")
+        if "js/core/socials.js?v=48.3.49" not in html:
+            error(f"{rel}: runtime global de redes V48.3.49 ausente.")
         if "js/core/mobile-overlay.js?v=48.3.47" not in html:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
         if "js/core/button-icons.js?v=48.3.44" not in html:

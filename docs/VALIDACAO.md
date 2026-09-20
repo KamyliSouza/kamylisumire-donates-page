@@ -451,3 +451,7 @@ Validar que Redes inicia fechado na Home inclusive após reload e retorno pelo h
 ### Loader mobile — V48.3.48
 
 Durante a tela de carregamento e transições de página, verificar que `Menu`, drawer, backdrop e zona de swipe não aparecem nem recebem toque. `@ Redes` deve continuar seguindo o mesmo comportamento.
+
+### Popup Redes — V48.3.49
+
+No mobile, abrir Redes e confirmar que o gatilho mantém fundo/superfície legível, com `@` rosa e rótulo preservado. Com o popup aberto, iniciar um swipe vertical em qualquer área da página fora do popup: Redes deve fechar imediatamente e o scroll deve continuar normalmente. Confirmar que tocar nos links do popup continua funcionando.

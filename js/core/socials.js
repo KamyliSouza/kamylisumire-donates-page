@@ -143,15 +143,16 @@
             mobileOverlay?.toggle("socials");
         });
 
-        document.addEventListener("click", event => {
+        document.addEventListener("pointerdown", event => {
             if (
                 mobile.classList.contains("is-open") &&
+                event.isPrimary !== false &&
                 event.target instanceof Node &&
                 !mobile.contains(event.target)
             ) {
                 mobileOverlay?.close("socials");
             }
-        });
+        }, { passive: true });
     }
 
     fetch(sitePath(DATA_PATH), {
