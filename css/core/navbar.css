@@ -243,7 +243,7 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.45
+   MOBILE — V48.3.46
    Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.
    Base: Menu abre um drawer lateral compacto com gestos; Redes permanece como popup rápido.
    ========================================================= */
@@ -383,7 +383,7 @@
     .site-nav-mobile-trigger:focus-visible,
     .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger {
         color: var(--primary-color);
-        background-color: var(--card-bg);
+        background-color: var(--primary-soft);
         border-color: var(--primary-color);
         box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
         outline: none;
@@ -401,6 +401,20 @@
         font-size: .82rem;
         font-weight: 800;
         line-height: 1;
+    }
+
+    .site-nav-mobile-trigger-mark {
+        transition: transform .18s ease;
+    }
+
+    .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger-mark {
+        transform: translateX(1px);
+    }
+
+    html.site-mobile-keyboard-open .site-nav-mobile-trigger {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
     }
 
     .site-nav-mobile-edge-gesture {
@@ -867,6 +881,7 @@ html.site-mobile-drawer-open body {
 
 @media (prefers-reduced-motion: reduce) {
     .site-nav-mobile-trigger,
+    .site-nav-mobile-trigger-mark,
     .site-nav-mobile-panel,
     .site-nav-mobile-backdrop {
         transition: none;

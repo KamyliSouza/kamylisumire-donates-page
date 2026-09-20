@@ -439,3 +439,7 @@ Em viewport <= 767 px, validar: drawer iniciando abaixo da Navbar; largura entre
 ### Fechamento do drawer — V48.3.45
 
 No mobile, validar ausência do cabeçalho `Menu`/`×`; abertura por botão e swipe; fechamento por swipe à esquerda, backdrop, Escape e Voltar do navegador/Android. Após fechar, Voltar novamente deve recuperar seu comportamento normal, sem etapa fantasma do drawer.
+
+### Coordenação Menu/Redes — V48.3.46
+
+No mobile, validar: (1) abrir Redes e tocar Menu troca diretamente para o drawer; (2) abrir Menu e tocar Redes troca diretamente para o popup; (3) Voltar fecha primeiro a camada ativa; (4) `Escape` fecha e devolve foco ao gatilho; (5) toque fora fecha Redes e backdrop fecha Menu; (6) popup de Redes anima sem hover preso no Android/Brave; (7) ao abrir teclado virtual em um input, os dois gatilhos somem e retornam ao fechar o teclado; (8) desktop permanece inalterado.

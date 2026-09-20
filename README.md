@@ -267,3 +267,7 @@ No mobile, o drawer usa largura `clamp(248px, 74vw, 288px)`, começa abaixo da N
 ### Drawer mobile — V48.3.45
 
 O drawer não possui mais cabeçalho interno nem botão `×`. Ele fecha por swipe à esquerda, backdrop, `Esc` e pela ação Voltar do navegador/Android; a abertura cria uma entrada temporária de histórico que é consumida ao fechar.
+
+### Overlays mobile coordenados — V48.3.46
+
+`Menu` e `Redes` compartilham `js/core/mobile-overlay.js`: apenas um overlay pode ficar aberto, o botão/gesto Voltar e `Escape` fecham a camada ativa antes de navegar, alternar entre Menu/Redes reutiliza a mesma entrada temporária do histórico e o foco retorna ao gatilho quando apropriado. O popup de Redes agora é controlado por botão + `aria-expanded`/`inert`, com animação curta; o drawer mantém swipe/backdrop e focus trap. Em campos de texto, os FABs somem enquanto o teclado virtual ocupa parte relevante da viewport.

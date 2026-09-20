@@ -163,9 +163,8 @@
     const DRAWER_GESTURE_COMMIT_RATIO = 0.36;
     const DRAWER_GESTURE_FLICK_PX_MS = 0.45;
     const DRAWER_GESTURE_AXIS_LOCK_PX = 10;
-    const MOBILE_DRAWER_HISTORY_KEY = "__kamyliMobileDrawer";
+    const mobileOverlay = window.KamyliMobileOverlay;
     let drawerGesture = null;
-    let pendingDrawerHistoryAction = null;
 
     function ensureMobileFallbackIcons() {
         if (!navLinksContainer) return;
@@ -490,30 +489,10 @@
 
         clearDrawerGestureVisuals();
         if (shouldOpen) {
-            openMobileMenu();
+            mobileOverlay?.open("menu");
         } else {
-            closeMobileMenu();
+            mobileOverlay?.close("menu");
         }
-    }
-
-    function hasMobileDrawerHistoryState() {
-        return Boolean(
-            window.history.state?.[MOBILE_DRAWER_HISTORY_KEY]
-        );
-    }
-
-    function pushMobileDrawerHistoryState() {
-        if (hasMobileDrawerHistoryState()) return;
-
-        const currentState =
-            window.history.state && typeof window.history.state === "object"
-                ? window.history.state
-                : {};
-
-        window.history.pushState({
-            ...currentState,
-            [MOBILE_DRAWER_HISTORY_KEY]: true
-        }, "");
     }
 
     function applyMobileMenuState(open, { focusFirst = false } = {}) {
@@ -531,110 +510,52 @@
             shouldOpen
         );
 
-        if (shouldOpen) {
-            document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open");
-
-            if (focusFirst) {
-                requestAnimationFrame(() => {
-                    mobileDrawerFocusable()[0]?.focus();
-                });
-            }
+        if (shouldOpen && focusFirst) {
+            requestAnimationFrame(() => {
+                mobileDrawerFocusable()[0]?.focus();
+            });
         }
     }
 
-    function openMobileMenu({ fromHistory = false } = {}) {
-        if (!nav || !mobileTrigger || !mobileQuery.matches) return;
-        if (mobileLayer.classList.contains("is-mobile-menu-open")) return;
-
-        if (!fromHistory) pushMobileDrawerHistoryState();
-        applyMobileMenuState(true, { focusFirst: true });
+    function openMobileMenu({ focus = false } = {}) {
+        applyMobileMenuState(true, { focusFirst: focus });
     }
 
-    function finishPendingDrawerHistoryAction() {
-        const action = pendingDrawerHistoryAction;
-        pendingDrawerHistoryAction = null;
-        if (!action) return;
-
-        if (action.restoreFocus) mobileTrigger?.focus();
-        action.afterClose?.();
-    }
-
-    function closeMobileMenu({
-        restoreFocus = false,
-        afterClose = null,
-        fromHistory = false
-    } = {}) {
-        if (!nav || !mobileTrigger) return;
-
+    function closeMobileMenu({ restoreFocus = false } = {}) {
         const wasOpen = mobileLayer.classList.contains("is-mobile-menu-open");
-        if (!wasOpen) {
-            afterClose?.();
-            return;
-        }
-
         applyMobileMenuState(false);
-
-        if (!fromHistory && hasMobileDrawerHistoryState()) {
-            pendingDrawerHistoryAction = { restoreFocus, afterClose };
-            window.history.back();
-            return;
-        }
-
-        if (restoreFocus) mobileTrigger.focus();
-        afterClose?.();
+        if (wasOpen && restoreFocus) mobileTrigger?.focus();
     }
 
-    function setMobileMenuOpen(open) {
-        if (open) {
-            openMobileMenu();
-        } else {
-            closeMobileMenu();
-        }
-    }
+    mobileOverlay?.register("menu", {
+        isOpen: () => mobileLayer.classList.contains("is-mobile-menu-open"),
+        open: ({ focus = false } = {}) => openMobileMenu({ focus }),
+        close: ({ restoreFocus = false } = {}) => closeMobileMenu({ restoreFocus }),
+        focusTrigger: () => mobileTrigger?.focus()
+    });
 
     mobileTrigger?.addEventListener("click", () => {
-        if (mobileLayer.classList.contains("is-mobile-menu-open")) {
-            closeMobileMenu({ restoreFocus: true });
-        } else {
-            openMobileMenu();
-        }
+        mobileOverlay?.toggle("menu", { focus: true });
     });
 
     mobileBackdrop.addEventListener("click", () => {
-        closeMobileMenu();
-    });
-
-    window.addEventListener("popstate", () => {
-        const historyWantsDrawer =
-            mobileQuery.matches && hasMobileDrawerHistoryState();
-
-        if (historyWantsDrawer) {
-            openMobileMenu({ fromHistory: true });
-            return;
-        }
-
-        if (mobileLayer.classList.contains("is-mobile-menu-open")) {
-            closeMobileMenu({ fromHistory: true });
-        }
-
-        finishPendingDrawerHistoryAction();
+        mobileOverlay?.close("menu");
     });
 
     mobilePanel.addEventListener("click", event => {
         if (!mobileLayer.classList.contains("is-mobile-menu-open")) return;
 
         const anchor = event.target.closest("a[href]");
-        if (!anchor || !hasMobileDrawerHistoryState()) return;
+        if (!anchor || mobileOverlay?.current() !== "menu") return;
 
         /*
-         * Consome primeiro a entrada temporária do drawer e só então
-         * repete o clique. Assim o botão Voltar não encontra uma camada
-         * de navegação já fechada nem cria uma etapa extra no histórico.
+         * A camada compartilhada consome a entrada temporária do histórico
+         * antes de repetir o clique, evitando uma etapa fantasma no Voltar.
          */
         event.preventDefault();
         event.stopPropagation();
 
-        closeMobileMenu({
+        mobileOverlay.close("menu", {
             afterClose: () => anchor.click()
         });
     }, true);
@@ -665,7 +586,7 @@
             event.target instanceof Node &&
             !mobileLayer.contains(event.target)
         ) {
-            closeMobileMenu();
+            mobileOverlay?.close("menu");
         }
     });
 
@@ -677,12 +598,6 @@
 
     document.addEventListener("keydown", event => {
         if (!mobileLayer.classList.contains("is-mobile-menu-open")) return;
-
-        if (event.key === "Escape") {
-            event.preventDefault();
-            closeMobileMenu({ restoreFocus: true });
-            return;
-        }
 
         if (event.key !== "Tab") return;
 
@@ -704,8 +619,7 @@
         }
     });
 
-    mobileQuery.addEventListener?.("change", event => {
-        if (!event.matches) closeMobileMenu();
+    mobileQuery.addEventListener?.("change", () => {
         syncMobileLayer();
     });
 

@@ -223,3 +223,7 @@ Galeria e Blog continuam compartilhando a mesma hierarquia cromática: seus tít
 ### Navegação mobile
 
 O drawer mobile deve preservar a linguagem da Navbar desktop: links sem borda individual e sem cartão permanente, usando fundo transparente no estado normal e `--primary-soft` nos estados ativo/foco/hover. Ícones têm função de reconhecimento rápido e devem manter o mesmo traço do sistema local `KamyliButtonIcons`. O CTA `Apoiar` é a exceção e permanece destacado no rodapé.
+
+### Navegação mobile coordenada — V48.3.46
+
+Os gatilhos `Menu` e `@ Redes` usam a mesma altura, safe area, blur e linguagem de estado: fechados usam a superfície de card; abertos usam `--primary-soft` + destaque primário. Menu permanece drawer estrutural e Redes permanece popup compacto. A diferença de componente é intencional; o comportamento de camada temporária é compartilhado.

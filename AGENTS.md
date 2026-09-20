@@ -553,3 +553,7 @@ Preservar o drawer abaixo da Navbar, com largura máxima de 288 px, links agrupa
 ### Navbar mobile V48.3.45
 
 Não reintroduzir título ou botão `×` no drawer. O diálogo deve manter `aria-label="Navegação principal"`, foco no primeiro link, fechamento por swipe/backdrop/Escape e integração temporária com History API para que Voltar feche a camada antes de navegar.
+
+### Overlays mobile V48.3.46
+
+Preservar `window.KamyliMobileOverlay` como coordenador único de `menu` e `socials`; componentes não devem voltar a manipular diretamente o estado um do outro nem criar históricos independentes. O controller deve manter exclusão mútua, `popstate`, `Escape`, restauração de foco e fila de abertura durante fechamento. `@ Redes` usa `.is-open`, `aria-expanded` e `inert`; o Menu mantém o drawer e o focus trap próprios.

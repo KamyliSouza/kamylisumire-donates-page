@@ -1420,6 +1420,7 @@ def validate_architecture() -> None:
     carousel_js = read_text("js/pages/home/carousel.js")
     interactions = read_text("js/pages/home/home-interactions.js")
     navbar = read_text("js/core/navbar.js")
+    mobile_overlay_js = read_text("js/core/mobile-overlay.js")
     navbar_css = read_text("css/core/navbar.css")
     content_js = read_text("js/core/content.js")
     page_transitions = read_text("js/core/page-transitions.js")
@@ -1878,10 +1879,11 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.43",
-            "js/core/navbar.js?v=48.3.45",
+            "js/core/mobile-overlay.js?v=48.3.46",
+            "js/core/navbar.js?v=48.3.46",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.45",
+            "css/core/navbar.css?v=48.3.46",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,8 +1910,10 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.45" not in html:
-            error(f"{rel}: cache-buster V48.3.44 ausente para js/core/navbar.js.")
+        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
+            error(f"{rel}: controlador mobile V48.3.46 ausente.")
+        if "js/core/navbar.js?v=48.3.46" not in html:
+            error(f"{rel}: cache-buster V48.3.46 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.43" not in html:
             error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
 
@@ -2502,7 +2506,7 @@ def validate_architecture() -> None:
         'site-nav-mobile-layer',
         'function syncMobileLayer()',
         'is-mobile-menu-open',
-        'document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open")',
+        'mobileOverlay?.register("menu"',
     ):
         if token not in navbar:
             error(f"V48.3.37: runtime da navegação mobile incompleto: {token}.")
@@ -2553,15 +2557,13 @@ def validate_architecture() -> None:
         'document.documentElement.classList.toggle(',
         'function mobileDrawerFocusable()',
         'mobilePanel.setAttribute("aria-label", "Navegação principal")',
-        'MOBILE_DRAWER_HISTORY_KEY',
-        'function pushMobileDrawerHistoryState()',
-        'window.history.pushState({',
-        'window.history.back()',
-        'window.addEventListener("popstate"',
-        'finishPendingDrawerHistoryAction()',
+        'const mobileOverlay = window.KamyliMobileOverlay',
+        'mobileOverlay?.register("menu"',
+        'mobileOverlay?.toggle("menu"',
+        'mobileOverlay?.close("menu"',
     ):
         if token not in navbar:
-            error(f"V48.3.45: runtime do drawer mobile incompleto: {token}.")
+            error(f"V48.3.46: runtime do drawer mobile incompleto: {token}.")
 
     for token in (
         'function applyNavbarOrder(navRoot, data)',
@@ -2573,7 +2575,7 @@ def validate_architecture() -> None:
             error(f"V48.3.38: conteúdo editorial da Navbar não cobre a camada mobile: {token}.")
 
     for token in (
-        'MOBILE — V48.3.45',
+        'MOBILE — V48.3.46',
         'grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto',
         'width: min(clamp(248px, 74vw, 288px), calc(100vw - 48px))',
         'top: 62px',
@@ -2626,6 +2628,24 @@ def validate_architecture() -> None:
 
 
 
+    # V48.3.46: Menu e Redes usam um controlador único de overlay mobile,
+    # com exclusão mútua, histórico/Voltar, Escape e teclado virtual coerentes.
+    for token in (
+        'const HISTORY_KEY = "__kamyliMobileOverlay"',
+        'const providers = new Map()',
+        'function pushOrReplaceHistory(name)',
+        'function reconcileFromHistory()',
+        'window.addEventListener("popstate", reconcileFromHistory)',
+        'event.key !== "Escape"',
+        'site-mobile-keyboard-open',
+        'window.KamyliMobileOverlay = Object.freeze',
+        'register,',
+        'toggle,',
+        'current: () => activeName',
+    ):
+        if token not in mobile_overlay_js:
+            error(f"V48.3.46: controlador mobile incompleto: {token}.")
+
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
@@ -2640,11 +2660,15 @@ def validate_architecture() -> None:
         'triggerMark.textContent = "@"',
         'site-socials-mobile-trigger-label',
         'triggerLabel.textContent = "Redes"',
-        'event.key === "Escape"',
-        '.site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger',
+        'const mobileOverlay = window.KamyliMobileOverlay',
+        'mobileOverlay?.register("socials"',
+        'mobileOverlay?.toggle("socials")',
+        'mobile.classList.toggle("is-open"',
+        'trigger.setAttribute("aria-expanded"',
+        'menu.inert = !shouldOpen',
     ):
         if token not in socials_js:
-            error(f"V48.3.43: runtime global de redes incompleto: {token}.")
+            error(f"V48.3.46: runtime global de redes incompleto: {token}.")
 
     if 'iconLibrary.create("share"' in socials_js:
         error("V48.3.34: gatilho mobile de redes não deve usar ícone de compartilhamento.")
@@ -2658,6 +2682,9 @@ def validate_architecture() -> None:
         "min-width: 92px",
         "site-socials-mobile-trigger-mark",
         "site-socials-mobile-trigger-label",
+        ".site-socials-mobile.is-open .site-socials-mobile-menu",
+        "transform: translateY(6px) scale(.985)",
+        "site-mobile-keyboard-open",
         "prefers-reduced-motion",
     ):
         if token not in socials_css:
@@ -2671,7 +2698,7 @@ def validate_architecture() -> None:
         "(hover: hover) and (pointer: fine)",
         "touch-action: manipulation",
         "-webkit-tap-highlight-color: transparent",
-        ".site-socials-mobile[open] > .site-socials-mobile-trigger",
+        ".site-socials-mobile.is-open > .site-socials-mobile-trigger",
         "background-color: var(--card-bg)",
     ):
         if token not in socials_css:
@@ -2687,10 +2714,12 @@ def validate_architecture() -> None:
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
-        if "css/core/socials.css?v=48.3.36" not in html:
-            error(f"{rel}: CSS global de redes V48.3.35 ausente.")
-        if "js/core/socials.js?v=48.3.43" not in html:
-            error(f"{rel}: runtime global de redes V48.3.43 ausente.")
+        if "css/core/socials.css?v=48.3.46" not in html:
+            error(f"{rel}: CSS global de redes V48.3.46 ausente.")
+        if "js/core/socials.js?v=48.3.46" not in html:
+            error(f"{rel}: runtime global de redes V48.3.46 ausente.")
+        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
+            error(f"{rel}: controlador mobile V48.3.46 ausente.")
         if "js/core/button-icons.js?v=48.3.44" not in html:
             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
 

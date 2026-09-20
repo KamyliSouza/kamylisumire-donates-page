@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.46 — Polimento coordenado de Menu e Redes no mobile
+
+- adiciona `mobile-overlay.js` como controlador único das camadas temporárias mobile, garantindo que apenas `Menu` ou `Redes` possa ficar aberto por vez;
+- unifica o comportamento do botão/gesto Voltar, `Escape`, troca entre overlays e restauração de foco sem acumular entradas artificiais no histórico;
+- converte `@ Redes` de `<details>` autônomo para popup controlado, com `aria-expanded`, `inert` e animação curta de opacidade/deslocamento;
+- harmoniza os estados abertos de `Menu` e `Redes` com `--primary-soft`, mantendo dimensões/safe areas equivalentes e sem hover persistente em touch;
+- oculta temporariamente os dois gatilhos quando um campo de texto abre o teclado virtual e reduz significativamente a viewport;
+- preserva drawer por gesto, backdrop, foco confinado no Menu, navbar desktop e comportamento editorial existentes.
+
 ## V48.3.45 — Hotfix: drawer mobile sem cabeçalho e integrado ao Voltar
 
 - remove do drawer mobile o cabeçalho visual `Menu` e o botão `×`, reduzindo carga visual sem retirar os demais meios de fechamento;

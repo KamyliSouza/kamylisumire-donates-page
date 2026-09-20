@@ -245,3 +245,7 @@ O drawer mantém os links editoriais reais e acrescenta, ao lado do slot `[data-
 ### Histórico do drawer — V48.3.45
 
 Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MOBILE_DRAWER_HISTORY_KEY`. `popstate` fecha/reabre a camada conforme o estado e links dentro do drawer são repetidos somente depois de consumir essa entrada, preservando o histórico real da navegação.
+
+### Controlador de overlays mobile — V48.3.46
+
+`js/core/mobile-overlay.js` registra providers por nome (`menu`, `socials`) e centraliza exclusão mútua, History API, `popstate`, `Escape`, estado raiz e detecção conservadora de teclado virtual. `navbar.js` e `socials.js` expõem somente operações locais de abrir/fechar/focar; nenhum deles deve conhecer a implementação interna do outro. A troca entre overlays usa `replaceState` na entrada temporária existente, evitando multiplicar passos no histórico.

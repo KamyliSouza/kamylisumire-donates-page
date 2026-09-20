@@ -1,5 +1,5 @@
 /* =========================================================
-   REDES SOCIAIS GLOBAIS — V48.3.36
+   REDES SOCIAIS GLOBAIS — V48.3.46
    Dock à esquerda em desktop/tablet; cápsula "@ Redes" no mobile.
    ========================================================= */
 
@@ -150,6 +150,9 @@ html.site-page-leaving .site-socials {
         display: block;
 
         pointer-events: auto;
+        transition:
+            opacity .18s ease,
+            transform .18s ease;
     }
 
     .site-socials-mobile-trigger {
@@ -168,27 +171,19 @@ html.site-page-leaving .site-socials {
         backdrop-filter: blur(var(--blur-card));
         -webkit-backdrop-filter: blur(var(--blur-card));
 
+        font: inherit;
         cursor: pointer;
-        list-style: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
 
     .site-socials-mobile-trigger:focus-visible,
-    .site-socials-mobile[open] > .site-socials-mobile-trigger {
+    .site-socials-mobile.is-open > .site-socials-mobile-trigger {
         color: var(--primary-color);
-        background-color: var(--card-bg);
+        background-color: var(--primary-soft);
         border-color: var(--primary-color);
         box-shadow: 0 7px 18px rgba(179, 94, 175, .18);
         outline: none;
-    }
-
-    .site-socials-mobile-trigger::-webkit-details-marker {
-        display: none;
-    }
-
-    .site-socials-mobile-trigger::marker {
-        content: "";
     }
 
     .site-socials-mobile-trigger-mark {
@@ -223,6 +218,30 @@ html.site-page-leaving .site-socials {
 
         backdrop-filter: blur(var(--blur-card));
         -webkit-backdrop-filter: blur(var(--blur-card));
+
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(6px) scale(.985);
+        transform-origin: bottom right;
+        transition:
+            opacity .16s ease,
+            transform .16s ease,
+            visibility 0s linear .16s;
+    }
+
+    .site-socials-mobile.is-open .site-socials-mobile-menu {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+        transition-delay: 0s;
+    }
+
+    html.site-mobile-keyboard-open .site-socials-mobile {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
     }
 
     .site-socials-mobile-link {
@@ -262,7 +281,9 @@ html.site-page-leaving .site-socials {
     .site-socials,
     .site-social-link,
     .site-social-link::after,
+    .site-socials-mobile,
     .site-socials-mobile-trigger,
+    .site-socials-mobile-menu,
     .site-socials-mobile-link {
         transition: none;
     }

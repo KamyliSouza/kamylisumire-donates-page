@@ -73,6 +73,7 @@
     }
 
     function buildSocials(config) {
+        const mobileOverlay = window.KamyliMobileOverlay;
         const root = document.createElement("aside");
         root.id = "site-socials";
         root.className = "site-socials";
@@ -82,20 +83,16 @@
         desktop.setAttribute("aria-label", config.ariaLabel);
         config.redes.forEach(item => desktop.appendChild(socialLink(item)));
 
-        const mobile = document.createElement("details");
+        const mobile = document.createElement("div");
         mobile.className = "site-socials-mobile";
-        mobile.addEventListener("toggle", () => {
-            if (mobile.open) {
-                document.querySelector(
-                    "#site-navbar .site-nav-mobile-layer.is-mobile-menu-open .site-nav-mobile-trigger"
-                )?.click();
-            }
-        });
 
-        const summary = document.createElement("summary");
-        summary.className = "site-socials-mobile-trigger";
-        summary.setAttribute("aria-label", config.mobileButtonAriaLabel);
-        summary.title = "Redes sociais";
+        const trigger = document.createElement("button");
+        trigger.className = "site-socials-mobile-trigger";
+        trigger.type = "button";
+        trigger.setAttribute("aria-label", config.mobileButtonAriaLabel);
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.setAttribute("aria-controls", "site-socials-mobile-menu");
+        trigger.title = "Redes sociais";
 
         const triggerMark = document.createElement("span");
         triggerMark.className = "site-socials-mobile-trigger-mark";
@@ -106,37 +103,54 @@
         triggerLabel.className = "site-socials-mobile-trigger-label";
         triggerLabel.textContent = "Redes";
 
-        summary.append(triggerMark, triggerLabel);
+        trigger.append(triggerMark, triggerLabel);
 
         const menu = document.createElement("nav");
+        menu.id = "site-socials-mobile-menu";
         menu.className = "site-socials-mobile-menu";
         menu.setAttribute("aria-label", config.ariaLabel);
+        menu.setAttribute("aria-hidden", "true");
+        menu.inert = true;
+
+        function applyOpenState(open) {
+            const shouldOpen = Boolean(open);
+            mobile.classList.toggle("is-open", shouldOpen);
+            trigger.setAttribute("aria-expanded", String(shouldOpen));
+            menu.setAttribute("aria-hidden", String(!shouldOpen));
+            menu.inert = !shouldOpen;
+        }
+
         config.redes.forEach(item => {
             const link = socialLink(item, true);
-            link.addEventListener("click", () => mobile.removeAttribute("open"));
+            link.addEventListener("click", () => {
+                mobileOverlay?.close("socials");
+            });
             menu.appendChild(link);
         });
 
-        mobile.append(summary, menu);
+        mobile.append(trigger, menu);
         root.append(desktop, mobile);
         document.body.appendChild(root);
 
+        mobileOverlay?.register("socials", {
+            isOpen: () => mobile.classList.contains("is-open"),
+            open: () => applyOpenState(true),
+            close: () => applyOpenState(false),
+            focusTrigger: () => trigger.focus()
+        });
+
+        trigger.addEventListener("click", () => {
+            mobileOverlay?.toggle("socials");
+        });
+
         document.addEventListener("click", event => {
-            if (mobile.open && event.target instanceof Node && !mobile.contains(event.target)) {
-                mobile.removeAttribute("open");
+            if (
+                mobile.classList.contains("is-open") &&
+                event.target instanceof Node &&
+                !mobile.contains(event.target)
+            ) {
+                mobileOverlay?.close("socials");
             }
-        });
-
-        document.addEventListener("keydown", event => {
-            if (event.key === "Escape" && mobile.open) {
-                mobile.removeAttribute("open");
-                summary.focus();
-            }
-        });
-
-        const mobileQuery = window.matchMedia("(max-width: 767px)");
-        mobileQuery.addEventListener?.("change", event => {
-            if (!event.matches) mobile.removeAttribute("open");
         });
     }
 
