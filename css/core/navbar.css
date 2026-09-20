@@ -243,7 +243,7 @@
 }
 
 /* =========================================================
-   MOBILE — V48.3.44
+   MOBILE — V48.3.45
    Topo: Logo | título à esquerda | Apoiar, com divisórias preservadas.
    Base: Menu abre um drawer lateral compacto com gestos; Redes permanece como popup rápido.
    ========================================================= */
@@ -496,62 +496,6 @@
         touch-action: pan-y;
     }
 
-    .site-nav-mobile-panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex: 0 0 auto;
-
-        min-height: 56px;
-        padding:
-            8px
-            12px
-            8px
-            calc(14px + env(safe-area-inset-left));
-
-        border-bottom: 1px solid var(--card-border);
-    }
-
-    .site-nav-mobile-panel-title {
-        min-width: 0;
-        color: var(--primary-color);
-        font-size: 1.08rem;
-        font-weight: 900;
-        line-height: 1.15;
-        letter-spacing: -.015em;
-    }
-
-    .site-nav-mobile-close {
-        display: grid;
-        place-items: center;
-        flex: 0 0 auto;
-
-        width: 40px;
-        height: 40px;
-        padding: 0;
-
-        color: var(--primary-color);
-        background-color: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 50%;
-
-        font: inherit;
-        font-size: 1.45rem;
-        font-weight: 700;
-        line-height: 1;
-
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .site-nav-mobile-close:focus-visible {
-        border-color: var(--primary-color);
-        outline: 2px solid var(--primary-soft);
-        outline-offset: 2px;
-    }
-
     .site-nav-links {
         position: static;
         display: grid;
@@ -564,7 +508,7 @@
         gap: 4px;
         width: 100%;
         min-height: 0;
-        padding: 10px 12px 12px;
+        padding: 12px;
         padding-left: calc(12px + env(safe-area-inset-left));
 
         background: transparent;

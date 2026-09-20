@@ -241,3 +241,7 @@ A camada `.site-nav-mobile-layer` contém backdrop e um painel `role="dialog"` f
 ### Gestos e fallbacks do drawer — V48.3.44
 
 O drawer mantém os links editoriais reais e acrescenta, ao lado do slot `[data-nav-icon]`, um fallback separado `[data-mobile-nav-fallback]`. CSS mostra esse fallback apenas no mobile e o oculta automaticamente quando o slot editorial está visível. O gesto de abertura nasce de `.site-nav-mobile-edge-gesture` (24 px) e o de fechamento usa o próprio painel; ambos aplicam transform/opacity temporários durante o arrasto e só alteram o estado aberto/fechado ao concluir o gesto.
+
+### Histórico do drawer — V48.3.45
+
+Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MOBILE_DRAWER_HISTORY_KEY`. `popstate` fecha/reabre a camada conforme o estado e links dentro do drawer são repetidos somente depois de consumir essa entrada, preservando o histórico real da navegação.

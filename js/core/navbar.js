@@ -134,27 +134,10 @@
     mobilePanel.id = "site-nav-mobile-panel";
     mobilePanel.setAttribute("role", "dialog");
     mobilePanel.setAttribute("aria-modal", "true");
-    mobilePanel.setAttribute("aria-labelledby", "site-nav-mobile-panel-title");
+    mobilePanel.setAttribute("aria-label", "Navegação principal");
     mobilePanel.setAttribute("aria-hidden", "true");
     mobilePanel.inert = true;
 
-    const mobilePanelHeader = document.createElement("div");
-    mobilePanelHeader.className = "site-nav-mobile-panel-header";
-
-    const mobilePanelTitle = document.createElement("span");
-    mobilePanelTitle.className = "site-nav-mobile-panel-title";
-    mobilePanelTitle.id = "site-nav-mobile-panel-title";
-    mobilePanelTitle.textContent = "Menu";
-
-    const mobileClose = document.createElement("button");
-    mobileClose.className = "site-nav-mobile-close";
-    mobileClose.type = "button";
-    mobileClose.setAttribute("aria-label", "Fechar menu");
-    mobileClose.title = "Fechar menu";
-    mobileClose.textContent = "×";
-
-    mobilePanelHeader.append(mobilePanelTitle, mobileClose);
-    mobilePanel.appendChild(mobilePanelHeader);
     mobileLayer.append(mobileEdgeGesture, mobileBackdrop, mobilePanel);
     mount.appendChild(mobileLayer);
 
@@ -180,7 +163,9 @@
     const DRAWER_GESTURE_COMMIT_RATIO = 0.36;
     const DRAWER_GESTURE_FLICK_PX_MS = 0.45;
     const DRAWER_GESTURE_AXIS_LOCK_PX = 10;
+    const MOBILE_DRAWER_HISTORY_KEY = "__kamyliMobileDrawer";
     let drawerGesture = null;
+    let pendingDrawerHistoryAction = null;
 
     function ensureMobileFallbackIcons() {
         if (!navLinksContainer) return;
@@ -504,16 +489,34 @@
         if (flingClose) shouldOpen = false;
 
         clearDrawerGestureVisuals();
-        setMobileMenuOpen(shouldOpen);
+        if (shouldOpen) {
+            openMobileMenu();
+        } else {
+            closeMobileMenu();
+        }
     }
 
-    function closeMobileMenu({ restoreFocus = false } = {}) {
-        if (!nav || !mobileTrigger) return;
-        setMobileMenuOpen(false);
-        if (restoreFocus) mobileTrigger.focus();
+    function hasMobileDrawerHistoryState() {
+        return Boolean(
+            window.history.state?.[MOBILE_DRAWER_HISTORY_KEY]
+        );
     }
 
-    function setMobileMenuOpen(open) {
+    function pushMobileDrawerHistoryState() {
+        if (hasMobileDrawerHistoryState()) return;
+
+        const currentState =
+            window.history.state && typeof window.history.state === "object"
+                ? window.history.state
+                : {};
+
+        window.history.pushState({
+            ...currentState,
+            [MOBILE_DRAWER_HISTORY_KEY]: true
+        }, "");
+    }
+
+    function applyMobileMenuState(open, { focusFirst = false } = {}) {
         if (!nav || !mobileTrigger) return;
 
         clearDrawerGestureVisuals();
@@ -530,21 +533,111 @@
 
         if (shouldOpen) {
             document.querySelector(".site-socials-mobile[open]")?.removeAttribute("open");
-            requestAnimationFrame(() => mobileClose.focus());
+
+            if (focusFirst) {
+                requestAnimationFrame(() => {
+                    mobileDrawerFocusable()[0]?.focus();
+                });
+            }
+        }
+    }
+
+    function openMobileMenu({ fromHistory = false } = {}) {
+        if (!nav || !mobileTrigger || !mobileQuery.matches) return;
+        if (mobileLayer.classList.contains("is-mobile-menu-open")) return;
+
+        if (!fromHistory) pushMobileDrawerHistoryState();
+        applyMobileMenuState(true, { focusFirst: true });
+    }
+
+    function finishPendingDrawerHistoryAction() {
+        const action = pendingDrawerHistoryAction;
+        pendingDrawerHistoryAction = null;
+        if (!action) return;
+
+        if (action.restoreFocus) mobileTrigger?.focus();
+        action.afterClose?.();
+    }
+
+    function closeMobileMenu({
+        restoreFocus = false,
+        afterClose = null,
+        fromHistory = false
+    } = {}) {
+        if (!nav || !mobileTrigger) return;
+
+        const wasOpen = mobileLayer.classList.contains("is-mobile-menu-open");
+        if (!wasOpen) {
+            afterClose?.();
+            return;
+        }
+
+        applyMobileMenuState(false);
+
+        if (!fromHistory && hasMobileDrawerHistoryState()) {
+            pendingDrawerHistoryAction = { restoreFocus, afterClose };
+            window.history.back();
+            return;
+        }
+
+        if (restoreFocus) mobileTrigger.focus();
+        afterClose?.();
+    }
+
+    function setMobileMenuOpen(open) {
+        if (open) {
+            openMobileMenu();
+        } else {
+            closeMobileMenu();
         }
     }
 
     mobileTrigger?.addEventListener("click", () => {
-        setMobileMenuOpen(!mobileLayer.classList.contains("is-mobile-menu-open"));
-    });
-
-    mobileClose.addEventListener("click", () => {
-        closeMobileMenu({ restoreFocus: true });
+        if (mobileLayer.classList.contains("is-mobile-menu-open")) {
+            closeMobileMenu({ restoreFocus: true });
+        } else {
+            openMobileMenu();
+        }
     });
 
     mobileBackdrop.addEventListener("click", () => {
         closeMobileMenu();
     });
+
+    window.addEventListener("popstate", () => {
+        const historyWantsDrawer =
+            mobileQuery.matches && hasMobileDrawerHistoryState();
+
+        if (historyWantsDrawer) {
+            openMobileMenu({ fromHistory: true });
+            return;
+        }
+
+        if (mobileLayer.classList.contains("is-mobile-menu-open")) {
+            closeMobileMenu({ fromHistory: true });
+        }
+
+        finishPendingDrawerHistoryAction();
+    });
+
+    mobilePanel.addEventListener("click", event => {
+        if (!mobileLayer.classList.contains("is-mobile-menu-open")) return;
+
+        const anchor = event.target.closest("a[href]");
+        if (!anchor || !hasMobileDrawerHistoryState()) return;
+
+        /*
+         * Consome primeiro a entrada temporária do drawer e só então
+         * repete o clique. Assim o botão Voltar não encontra uma camada
+         * de navegação já fechada nem cria uma etapa extra no histórico.
+         */
+        event.preventDefault();
+        event.stopPropagation();
+
+        closeMobileMenu({
+            afterClose: () => anchor.click()
+        });
+    }, true);
 
     mobileEdgeGesture.addEventListener("pointerdown", event => {
         if (mobileLayer.classList.contains("is-mobile-menu-open")) return;
@@ -622,18 +715,6 @@
     mount.addEventListener("click", event => {
         const anchor = event.target.closest("a[href]");
         if (anchor) rememberMobileTitleForNavigation(anchor);
-    });
-
-    navLinksContainer?.addEventListener("click", event => {
-        if (mobileQuery.matches && event.target.closest(".site-nav-link")) {
-            closeMobileMenu();
-        }
-    });
-
-    mobileFooter?.addEventListener("click", event => {
-        if (mobileQuery.matches && event.target.closest("a[href]")) {
-            closeMobileMenu();
-        }
     });
 
     initializeMobileTitle();

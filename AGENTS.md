@@ -549,3 +549,7 @@ Preservar o `Menu` como drawer lateral (`.site-nav-mobile-panel`) com backdrop, 
 ### Navbar mobile V48.3.44
 
 Preservar o drawer abaixo da Navbar, com largura máxima de 288 px, links agrupados no topo e `Apoiar` fixo no rodapé. Links comuns não usam borda/cartão: normal é transparente e ativo/foco/hover usa `--primary-soft`. Fallbacks mobile são nós próprios (`[data-mobile-nav-fallback]`) e nunca substituem o slot editorial `[data-nav-icon]`. O gesto de borda usa 24 px, diferencia eixo horizontal/vertical e não deve bloquear o scroll vertical.
+
+### Navbar mobile V48.3.45
+
+Não reintroduzir título ou botão `×` no drawer. O diálogo deve manter `aria-label="Navegação principal"`, foco no primeiro link, fechamento por swipe/backdrop/Escape e integração temporária com History API para que Voltar feche a camada antes de navegar.

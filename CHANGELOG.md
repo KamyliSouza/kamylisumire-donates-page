@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.45 — Hotfix: drawer mobile sem cabeçalho e integrado ao Voltar
+
+- remove do drawer mobile o cabeçalho visual `Menu` e o botão `×`, reduzindo carga visual sem retirar os demais meios de fechamento;
+- mantém fechamento por swipe para a esquerda, toque no backdrop e `Esc`, com foco inicial transferido para o primeiro link do drawer;
+- integra a abertura do drawer ao histórico do navegador: no Android/navegador, o botão ou gesto `Voltar` fecha primeiro o drawer antes de navegar para a página anterior;
+- consome a entrada temporária do histórico antes de executar links do drawer, evitando uma etapa fantasma ao voltar;
+- preserva acessibilidade com `role="dialog"`, `aria-modal` e `aria-label="Navegação principal"`, além de `inert` quando fechado.
+
 ## V48.3.44 — Drawer mobile refinado, ícones e gestos
 
 - reduz o drawer para `clamp(248px, 74vw, 288px)`, mantendo uma faixa visível do site e proporção mais natural para rótulos curtos;

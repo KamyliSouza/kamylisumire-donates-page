@@ -263,3 +263,7 @@ No mobile, `Menu` abre um drawer lateral pela esquerda em vez de uma caixa flutu
 ### Drawer refinado — V48.3.44
 
 No mobile, o drawer usa largura `clamp(248px, 74vw, 288px)`, começa abaixo da Navbar e mantém os links agrupados no topo. Os itens seguem a linguagem da Navbar desktop, sem bordas individuais, e recebem ícones genéricos locais quando o conteúdo editorial não define um ícone. A faixa de 24 px da borda esquerda permite abrir por swipe; arrastar o drawer para a esquerda fecha. `Apoiar` permanece fixo no rodapé.
+
+### Drawer mobile — V48.3.45
+
+O drawer não possui mais cabeçalho interno nem botão `×`. Ele fecha por swipe à esquerda, backdrop, `Esc` e pela ação Voltar do navegador/Android; a abertura cria uma entrada temporária de histórico que é consumida ao fechar.

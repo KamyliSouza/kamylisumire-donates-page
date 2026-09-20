@@ -435,3 +435,7 @@ Em viewport <= 767 px, validar: drawer deslizando pela esquerda; backdrop cobrin
 ### Drawer refinado — V48.3.44
 
 Em viewport <= 767 px, validar: drawer iniciando abaixo da Navbar; largura entre 248 e 288 px conforme a viewport; links compactos no topo sem bordas individuais; ícones genéricos aparecendo somente quando não existe ícone editorial; `Apoiar` fixo embaixo; swipe da borda esquerda abrindo e swipe para a esquerda fechando; movimento predominantemente vertical mantendo o scroll da lista. Confirmar também fechamento por backdrop/×/Escape e `prefers-reduced-motion`.
+
+### Fechamento do drawer — V48.3.45
+
+No mobile, validar ausência do cabeçalho `Menu`/`×`; abertura por botão e swipe; fechamento por swipe à esquerda, backdrop, Escape e Voltar do navegador/Android. Após fechar, Voltar novamente deve recuperar seu comportamento normal, sem etapa fantasma do drawer.

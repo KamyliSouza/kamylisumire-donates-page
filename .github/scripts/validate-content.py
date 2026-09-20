@@ -1878,10 +1878,10 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.43",
-            "js/core/navbar.js?v=48.3.44",
+            "js/core/navbar.js?v=48.3.45",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.44",
+            "css/core/navbar.css?v=48.3.45",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1908,7 +1908,7 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/navbar.js?v=48.3.44" not in html:
+        if "js/core/navbar.js?v=48.3.45" not in html:
             error(f"{rel}: cache-buster V48.3.44 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.43" not in html:
             error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
@@ -2543,7 +2543,6 @@ def validate_architecture() -> None:
         'mobilePanel.setAttribute("role", "dialog")',
         'mobilePanel.setAttribute("aria-modal", "true")',
         'mobilePanel.inert = true',
-        'mobileClose.className = "site-nav-mobile-close"',
         'MOBILE_FALLBACK_ICONS',
         'function ensureMobileFallbackIcons()',
         'data-mobile-nav-fallback',
@@ -2553,10 +2552,16 @@ def validate_architecture() -> None:
         'function endDrawerGesture(event)',
         'document.documentElement.classList.toggle(',
         'function mobileDrawerFocusable()',
-        'requestAnimationFrame(() => mobileClose.focus())',
+        'mobilePanel.setAttribute("aria-label", "Navegação principal")',
+        'MOBILE_DRAWER_HISTORY_KEY',
+        'function pushMobileDrawerHistoryState()',
+        'window.history.pushState({',
+        'window.history.back()',
+        'window.addEventListener("popstate"',
+        'finishPendingDrawerHistoryAction()',
     ):
         if token not in navbar:
-            error(f"V48.3.44: runtime do drawer mobile incompleto: {token}.")
+            error(f"V48.3.45: runtime do drawer mobile incompleto: {token}.")
 
     for token in (
         'function applyNavbarOrder(navRoot, data)',
@@ -2568,7 +2573,7 @@ def validate_architecture() -> None:
             error(f"V48.3.38: conteúdo editorial da Navbar não cobre a camada mobile: {token}.")
 
     for token in (
-        'MOBILE — V48.3.44',
+        'MOBILE — V48.3.45',
         'grid-template-columns: 40px 1px minmax(0, 1fr) 1px auto',
         'width: min(clamp(248px, 74vw, 288px), calc(100vw - 48px))',
         'top: 62px',
@@ -2577,8 +2582,6 @@ def validate_architecture() -> None:
         'width: 24px',
         'touch-action: pan-y',
         '.site-nav-mobile-backdrop',
-        '.site-nav-mobile-panel-header',
-        '.site-nav-mobile-close',
         '.is-mobile-menu-dragging',
         'transform: translateX(-105%)',
         'html.site-mobile-drawer-open',
