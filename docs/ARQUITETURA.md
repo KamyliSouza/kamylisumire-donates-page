@@ -249,3 +249,7 @@ Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MO
 ### Controlador de overlays mobile — V48.3.46
 
 `js/core/mobile-overlay.js` registra providers por nome (`menu`, `socials`) e centraliza exclusão mútua, History API, `popstate`, `Escape`, estado raiz e detecção conservadora de teclado virtual. `navbar.js` e `socials.js` expõem somente operações locais de abrir/fechar/focar; nenhum deles deve conhecer a implementação interna do outro. A troca entre overlays usa `replaceState` na entrada temporária existente, evitando multiplicar passos no histórico.
+
+### Escopo do History API mobile — V48.3.47
+
+`mobile-overlay.js` associa entradas temporárias a um identificador por documento e descarta marcadores antigos em inicialização, `pagehide` e restauração BFCache. Isso impede reabertura automática de overlays em outra navegação.

@@ -2,6 +2,9 @@
     "use strict";
 
     const HISTORY_KEY = "__kamyliMobileOverlay";
+    const HISTORY_OWNER_KEY = "__kamyliMobileOverlayOwner";
+    const DOCUMENT_OWNER = crypto.randomUUID?.() ||
+        `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     const MOBILE_QUERY = "(max-width: 767px)";
     const providers = new Map();
     const mobileQuery = window.matchMedia(MOBILE_QUERY);
@@ -11,7 +14,11 @@
     let queuedOpen = null;
 
     function historyOverlayName() {
-        const value = window.history.state?.[HISTORY_KEY];
+        const state = window.history.state;
+        if (!state || typeof state !== "object") return null;
+        if (state[HISTORY_OWNER_KEY] !== DOCUMENT_OWNER) return null;
+
+        const value = state[HISTORY_KEY];
         return typeof value === "string" && value ? value : null;
     }
 
@@ -22,10 +29,23 @@
                 : {};
         const next = { ...current };
 
-        if (name) next[HISTORY_KEY] = name;
-        else delete next[HISTORY_KEY];
+        if (name) {
+            next[HISTORY_KEY] = name;
+            next[HISTORY_OWNER_KEY] = DOCUMENT_OWNER;
+        } else {
+            delete next[HISTORY_KEY];
+            delete next[HISTORY_OWNER_KEY];
+        }
 
         return next;
+    }
+
+    function clearForeignOverlayStateOnBoot() {
+        const state = window.history.state;
+        if (!state || typeof state !== "object") return;
+        if (!(HISTORY_KEY in state) && !(HISTORY_OWNER_KEY in state)) return;
+
+        window.history.replaceState(historyStateWith(null), "");
     }
 
     function syncRootState() {
@@ -171,6 +191,18 @@
         window.history.replaceState(historyStateWith(null), "");
     }
 
+    function resetTransientOverlayForNavigation() {
+        if (activeName) closeProvider(activeName);
+        activeName = null;
+        pendingClose = null;
+        queuedOpen = null;
+        syncRootState();
+
+        if (historyOverlayName()) {
+            window.history.replaceState(historyStateWith(null), "");
+        }
+    }
+
     function isTextInputActive() {
         const active = document.activeElement;
         return Boolean(
@@ -193,7 +225,14 @@
         );
     }
 
+    clearForeignOverlayStateOnBoot();
+
     window.addEventListener("popstate", reconcileFromHistory);
+    window.addEventListener("pagehide", resetTransientOverlayForNavigation);
+    window.addEventListener("pageshow", event => {
+        if (!event.persisted) return;
+        resetTransientOverlayForNavigation();
+    });
 
     document.addEventListener("keydown", event => {
         if (event.key !== "Escape" || !activeName) return;

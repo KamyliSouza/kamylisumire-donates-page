@@ -557,3 +557,7 @@ Não reintroduzir título ou botão `×` no drawer. O diálogo deve manter `aria
 ### Overlays mobile V48.3.46
 
 Preservar `window.KamyliMobileOverlay` como coordenador único de `menu` e `socials`; componentes não devem voltar a manipular diretamente o estado um do outro nem criar históricos independentes. O controller deve manter exclusão mútua, `popstate`, `Escape`, restauração de foco e fila de abertura durante fechamento. `@ Redes` usa `.is-open`, `aria-expanded` e `inert`; o Menu mantém o drawer e o focus trap próprios.
+
+### Overlays mobile V48.3.47
+
+Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador de histórico deve ser associado ao documento atual, e mudanças de hash da Home devem preservar `history.state`.

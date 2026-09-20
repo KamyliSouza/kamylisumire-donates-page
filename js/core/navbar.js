@@ -1060,7 +1060,7 @@
             `${window.location.search}` +
             `#${sectionId}`;
 
-        history.replaceState(null, "", nextUrl);
+        history.replaceState(history.state, "", nextUrl);
     }
 
     function scrollToSection(section, link, updateHash = true) {

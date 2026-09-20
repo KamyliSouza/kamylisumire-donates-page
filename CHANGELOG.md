@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.47 — Hotfix: Redes não reabre na Home
+
+- torna o estado de Menu/Redes no History API estritamente temporário e vinculado ao documento atual, impedindo que `socials` seja restaurado após reload, navegação ou retorno via BFCache;
+- limpa qualquer marcador de overlay herdado de versões anteriores na inicialização e ao sair/restaurar a página;
+- preserva `history.state` quando a Home altera apenas o hash da seção, evitando apagar o estado do controlador durante navegação interna;
+- mantém Voltar do Android, Escape, exclusão mútua Menu/Redes e restauração de foco da V48.3.46.
+
 ## V48.3.46 — Polimento coordenado de Menu e Redes no mobile
 
 - adiciona `mobile-overlay.js` como controlador único das camadas temporárias mobile, garantindo que apenas `Menu` ou `Redes` possa ficar aberto por vez;

@@ -1,0 +1,352 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 4c4979c..4dd1a8d 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1879,8 +1879,8 @@ def validate_architecture() -> None:
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+         for asset in (
+             "js/core/content.js?v=48.3.43",
+-            "js/core/mobile-overlay.js?v=48.3.46",
+-            "js/core/navbar.js?v=48.3.46",
++            "js/core/mobile-overlay.js?v=48.3.47",
++            "js/core/navbar.js?v=48.3.47",
+             "js/core/external-links.js?v=47",
+             "js/core/footer.js?v=47",
+             "css/core/navbar.css?v=48.3.46",
+@@ -1910,10 +1910,10 @@ def validate_architecture() -> None:
+         ("privacidade/index.html", privacy_html),
+         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
+     ):
+-        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
+-            error(f"{rel}: controlador mobile V48.3.46 ausente.")
+-        if "js/core/navbar.js?v=48.3.46" not in html:
+-            error(f"{rel}: cache-buster V48.3.46 ausente para js/core/navbar.js.")
++        if "js/core/mobile-overlay.js?v=48.3.47" not in html:
++            error(f"{rel}: controlador mobile V48.3.47 ausente.")
++        if "js/core/navbar.js?v=48.3.47" not in html:
++            error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
+         if "js/core/content.js?v=48.3.43" not in html:
+             error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
+ 
+@@ -2632,6 +2632,12 @@ def validate_architecture() -> None:
+     # com exclusão mútua, histórico/Voltar, Escape e teclado virtual coerentes.
+     for token in (
+         'const HISTORY_KEY = "__kamyliMobileOverlay"',
++        'const HISTORY_OWNER_KEY = "__kamyliMobileOverlayOwner"',
++        'const DOCUMENT_OWNER = crypto.randomUUID?.()',
++        'function clearForeignOverlayStateOnBoot()',
++        'function resetTransientOverlayForNavigation()',
++        'window.addEventListener("pagehide", resetTransientOverlayForNavigation)',
++        'window.addEventListener("pageshow", event =>',
+         'const providers = new Map()',
+         'function pushOrReplaceHistory(name)',
+         'function reconcileFromHistory()',
+@@ -2646,6 +2652,10 @@ def validate_architecture() -> None:
+         if token not in mobile_overlay_js:
+             error(f"V48.3.46: controlador mobile incompleto: {token}.")
+ 
++
++    if 'history.replaceState(history.state, "", nextUrl);' not in navbar:
++        error("V48.3.47: Home deve preservar history.state ao atualizar hash de seção.")
++
+     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
+     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
+         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
+@@ -2718,8 +2728,8 @@ def validate_architecture() -> None:
+             error(f"{rel}: CSS global de redes V48.3.46 ausente.")
+         if "js/core/socials.js?v=48.3.46" not in html:
+             error(f"{rel}: runtime global de redes V48.3.46 ausente.")
+-        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
+-            error(f"{rel}: controlador mobile V48.3.46 ausente.")
++        if "js/core/mobile-overlay.js?v=48.3.47" not in html:
++            error(f"{rel}: controlador mobile V48.3.47 ausente.")
+         if "js/core/button-icons.js?v=48.3.44" not in html:
+             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
+ 
+diff --git a/404.html b/404.html
+index 218ac93..ef6548d 100644
+--- a/404.html
++++ b/404.html
+@@ -292,8 +292,8 @@
+     <script src="js/core/content.js?v=48.3.43"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+-    <script src="js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="js/core/navbar.js?v=48.3.46"></script>
++    <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="js/core/navbar.js?v=48.3.47"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.46"></script>
+     <script src="js/core/sanitize.js?v=1"></script>
+diff --git a/AGENTS.md b/AGENTS.md
+index ebe974d..6261f91 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -557,3 +557,7 @@ Não reintroduzir título ou botão `×` no drawer. O diálogo deve manter `aria
+ ### Overlays mobile V48.3.46
+ 
+ Preservar `window.KamyliMobileOverlay` como coordenador único de `menu` e `socials`; componentes não devem voltar a manipular diretamente o estado um do outro nem criar históricos independentes. O controller deve manter exclusão mútua, `popstate`, `Escape`, restauração de foco e fila de abertura durante fechamento. `@ Redes` usa `.is-open`, `aria-expanded` e `inert`; o Menu mantém o drawer e o focus trap próprios.
++
++### Overlays mobile V48.3.47
++
++Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador de histórico deve ser associado ao documento atual, e mudanças de hash da Home devem preservar `history.state`.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f1cd8c7..b3822eb 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,12 @@
+ # Changelog
+ 
++## V48.3.47 — Hotfix: Redes não reabre na Home
++
++- torna o estado de Menu/Redes no History API estritamente temporário e vinculado ao documento atual, impedindo que `socials` seja restaurado após reload, navegação ou retorno via BFCache;
++- limpa qualquer marcador de overlay herdado de versões anteriores na inicialização e ao sair/restaurar a página;
++- preserva `history.state` quando a Home altera apenas o hash da seção, evitando apagar o estado do controlador durante navegação interna;
++- mantém Voltar do Android, Escape, exclusão mútua Menu/Redes e restauração de foco da V48.3.46.
++
+ ## V48.3.46 — Polimento coordenado de Menu e Redes no mobile
+ 
+ - adiciona `mobile-overlay.js` como controlador único das camadas temporárias mobile, garantindo que apenas `Menu` ou `Redes` possa ficar aberto por vez;
+diff --git a/README.md b/README.md
+index 1cda4a4..bfeee89 100644
+--- a/README.md
++++ b/README.md
+@@ -271,3 +271,7 @@ O drawer não possui mais cabeçalho interno nem botão `×`. Ele fecha por swip
+ ### Overlays mobile coordenados — V48.3.46
+ 
+ `Menu` e `Redes` compartilham `js/core/mobile-overlay.js`: apenas um overlay pode ficar aberto, o botão/gesto Voltar e `Escape` fecham a camada ativa antes de navegar, alternar entre Menu/Redes reutiliza a mesma entrada temporária do histórico e o foco retorna ao gatilho quando apropriado. O popup de Redes agora é controlado por botão + `aria-expanded`/`inert`, com animação curta; o drawer mantém swipe/backdrop e focus trap. Em campos de texto, os FABs somem enquanto o teclado virtual ocupa parte relevante da viewport.
++
++### Hotfix de overlays — V48.3.47
++
++Estados `menu`/`socials` no History API são temporários por documento e são descartados em reload/navegação/BFCache. A Home preserva `history.state` ao trocar somente o hash da seção.
+diff --git a/artes/index.html b/artes/index.html
+index 08a3167..a5c0a81 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -384,8 +384,8 @@
+     <script src="../js/core/content.js?v=48.3.43"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+diff --git a/blog/index.html b/blog/index.html
+index 2ad9ef0..7cc1814 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -385,8 +385,8 @@
+     <script src="../js/core/content.js?v=48.3.43"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 59c2af3..1688fa4 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -463,8 +463,8 @@
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/api.js?v=47.3"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index 14c211c..161e755 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -249,3 +249,7 @@ Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MO
+ ### Controlador de overlays mobile — V48.3.46
+ 
+ `js/core/mobile-overlay.js` registra providers por nome (`menu`, `socials`) e centraliza exclusão mútua, History API, `popstate`, `Escape`, estado raiz e detecção conservadora de teclado virtual. `navbar.js` e `socials.js` expõem somente operações locais de abrir/fechar/focar; nenhum deles deve conhecer a implementação interna do outro. A troca entre overlays usa `replaceState` na entrada temporária existente, evitando multiplicar passos no histórico.
++
++### Escopo do History API mobile — V48.3.47
++
++`mobile-overlay.js` associa entradas temporárias a um identificador por documento e descarta marcadores antigos em inicialização, `pagehide` e restauração BFCache. Isso impede reabertura automática de overlays em outra navegação.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 3832e80..f97bd7c 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -443,3 +443,7 @@ No mobile, validar ausência do cabeçalho `Menu`/`×`; abertura por botão e sw
+ ### Coordenação Menu/Redes — V48.3.46
+ 
+ No mobile, validar: (1) abrir Redes e tocar Menu troca diretamente para o drawer; (2) abrir Menu e tocar Redes troca diretamente para o popup; (3) Voltar fecha primeiro a camada ativa; (4) `Escape` fecha e devolve foco ao gatilho; (5) toque fora fecha Redes e backdrop fecha Menu; (6) popup de Redes anima sem hover preso no Android/Brave; (7) ao abrir teclado virtual em um input, os dois gatilhos somem e retornam ao fechar o teclado; (8) desktop permanece inalterado.
++
++### Overlays temporários — V48.3.47
++
++Validar que Redes inicia fechado na Home inclusive após reload e retorno pelo histórico, que Voltar fecha um overlay aberto e que troca de hash na Home não remove o estado temporário enquanto o overlay está ativo.
+diff --git a/index.html b/index.html
+index 32f665f..4d5f35c 100644
+--- a/index.html
++++ b/index.html
+@@ -747,8 +747,8 @@
+     <script src="js/core/content.js?v=48.3.43"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+-    <script src="js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="js/core/navbar.js?v=48.3.46"></script>
++    <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="js/core/navbar.js?v=48.3.47"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.46"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+diff --git a/jogos/index.html b/jogos/index.html
+index 4cc4765..8d5a4b4 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -336,8 +336,8 @@
+     <script src="../js/core/content.js?v=48.3.43"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+diff --git a/js/core/mobile-overlay.js b/js/core/mobile-overlay.js
+index 3c938ba..1ae0162 100644
+--- a/js/core/mobile-overlay.js
++++ b/js/core/mobile-overlay.js
+@@ -2,6 +2,9 @@
+     "use strict";
+ 
+     const HISTORY_KEY = "__kamyliMobileOverlay";
++    const HISTORY_OWNER_KEY = "__kamyliMobileOverlayOwner";
++    const DOCUMENT_OWNER = crypto.randomUUID?.() ||
++        `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+     const MOBILE_QUERY = "(max-width: 767px)";
+     const providers = new Map();
+     const mobileQuery = window.matchMedia(MOBILE_QUERY);
+@@ -11,7 +14,11 @@
+     let queuedOpen = null;
+ 
+     function historyOverlayName() {
+-        const value = window.history.state?.[HISTORY_KEY];
++        const state = window.history.state;
++        if (!state || typeof state !== "object") return null;
++        if (state[HISTORY_OWNER_KEY] !== DOCUMENT_OWNER) return null;
++
++        const value = state[HISTORY_KEY];
+         return typeof value === "string" && value ? value : null;
+     }
+ 
+@@ -22,12 +29,25 @@
+                 : {};
+         const next = { ...current };
+ 
+-        if (name) next[HISTORY_KEY] = name;
+-        else delete next[HISTORY_KEY];
++        if (name) {
++            next[HISTORY_KEY] = name;
++            next[HISTORY_OWNER_KEY] = DOCUMENT_OWNER;
++        } else {
++            delete next[HISTORY_KEY];
++            delete next[HISTORY_OWNER_KEY];
++        }
+ 
+         return next;
+     }
+ 
++    function clearForeignOverlayStateOnBoot() {
++        const state = window.history.state;
++        if (!state || typeof state !== "object") return;
++        if (!(HISTORY_KEY in state) && !(HISTORY_OWNER_KEY in state)) return;
++
++        window.history.replaceState(historyStateWith(null), "");
++    }
++
+     function syncRootState() {
+         document.documentElement.classList.toggle(
+             "site-mobile-overlay-open",
+@@ -171,6 +191,18 @@
+         window.history.replaceState(historyStateWith(null), "");
+     }
+ 
++    function resetTransientOverlayForNavigation() {
++        if (activeName) closeProvider(activeName);
++        activeName = null;
++        pendingClose = null;
++        queuedOpen = null;
++        syncRootState();
++
++        if (historyOverlayName()) {
++            window.history.replaceState(historyStateWith(null), "");
++        }
++    }
++
+     function isTextInputActive() {
+         const active = document.activeElement;
+         return Boolean(
+@@ -193,7 +225,14 @@
+         );
+     }
+ 
++    clearForeignOverlayStateOnBoot();
++
+     window.addEventListener("popstate", reconcileFromHistory);
++    window.addEventListener("pagehide", resetTransientOverlayForNavigation);
++    window.addEventListener("pageshow", event => {
++        if (!event.persisted) return;
++        resetTransientOverlayForNavigation();
++    });
+ 
+     document.addEventListener("keydown", event => {
+         if (event.key !== "Escape" || !activeName) return;
+diff --git a/js/core/navbar.js b/js/core/navbar.js
+index 08cf921..95a7282 100644
+--- a/js/core/navbar.js
++++ b/js/core/navbar.js
+@@ -1060,7 +1060,7 @@
+             `${window.location.search}` +
+             `#${sectionId}`;
+ 
+-        history.replaceState(null, "", nextUrl);
++        history.replaceState(history.state, "", nextUrl);
+     }
+ 
+     function scrollToSection(section, link, updateHash = true) {
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 53f28a3..1fa5bb7 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -543,8 +543,8 @@
+     <script src="../js/core/content.js?v=48.3.43"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 99bfdd4..07ce7ae 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -345,8 +345,8 @@
+     <script src="../js/core/content.js?v=48.3.43"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/mobile-overlay.js?v=48.3.46"></script>
+-    <script src="../js/core/navbar.js?v=48.3.46"></script>
++    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.46"></script>
+     <script src="../js/core/sanitize.js?v=1"></script>

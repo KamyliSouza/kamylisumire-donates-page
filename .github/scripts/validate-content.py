@@ -1879,8 +1879,8 @@ def validate_architecture() -> None:
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.43",
-            "js/core/mobile-overlay.js?v=48.3.46",
-            "js/core/navbar.js?v=48.3.46",
+            "js/core/mobile-overlay.js?v=48.3.47",
+            "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
             "css/core/navbar.css?v=48.3.46",
@@ -1910,10 +1910,10 @@ def validate_architecture() -> None:
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
-        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
-            error(f"{rel}: controlador mobile V48.3.46 ausente.")
-        if "js/core/navbar.js?v=48.3.46" not in html:
-            error(f"{rel}: cache-buster V48.3.46 ausente para js/core/navbar.js.")
+        if "js/core/mobile-overlay.js?v=48.3.47" not in html:
+            error(f"{rel}: controlador mobile V48.3.47 ausente.")
+        if "js/core/navbar.js?v=48.3.47" not in html:
+            error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.43" not in html:
             error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
 
@@ -2632,6 +2632,12 @@ def validate_architecture() -> None:
     # com exclusão mútua, histórico/Voltar, Escape e teclado virtual coerentes.
     for token in (
         'const HISTORY_KEY = "__kamyliMobileOverlay"',
+        'const HISTORY_OWNER_KEY = "__kamyliMobileOverlayOwner"',
+        'const DOCUMENT_OWNER = crypto.randomUUID?.()',
+        'function clearForeignOverlayStateOnBoot()',
+        'function resetTransientOverlayForNavigation()',
+        'window.addEventListener("pagehide", resetTransientOverlayForNavigation)',
+        'window.addEventListener("pageshow", event =>',
         'const providers = new Map()',
         'function pushOrReplaceHistory(name)',
         'function reconcileFromHistory()',
@@ -2645,6 +2651,10 @@ def validate_architecture() -> None:
     ):
         if token not in mobile_overlay_js:
             error(f"V48.3.46: controlador mobile incompleto: {token}.")
+
+
+    if 'history.replaceState(history.state, "", nextUrl);' not in navbar:
+        error("V48.3.47: Home deve preservar history.state ao atualizar hash de seção.")
 
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
@@ -2718,8 +2728,8 @@ def validate_architecture() -> None:
             error(f"{rel}: CSS global de redes V48.3.46 ausente.")
         if "js/core/socials.js?v=48.3.46" not in html:
             error(f"{rel}: runtime global de redes V48.3.46 ausente.")
-        if "js/core/mobile-overlay.js?v=48.3.46" not in html:
-            error(f"{rel}: controlador mobile V48.3.46 ausente.")
+        if "js/core/mobile-overlay.js?v=48.3.47" not in html:
+            error(f"{rel}: controlador mobile V48.3.47 ausente.")
         if "js/core/button-icons.js?v=48.3.44" not in html:
             error(f"{rel}: biblioteca de ícones V48.3.33 ausente.")
 
