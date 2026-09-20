@@ -1,36 +1,20 @@
 {
-  "ultimaAtualizacao": "18/09/2026",
+  "ultimaAtualizacao": "20/09/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
       "id": "domingo",
       "nome": "Domingo",
       "data": "2026-09-20",
-      "temLive": true,
-      "horario": "10:00",
-      "titulo": "Satisfactory",
-      "descricao": "Vamos construir nosso IMPÉRIO!",
+      "temLive": false,
+      "horario": "",
+      "titulo": "",
+      "descricao": "",
       "plataformas": [
         "YouTube",
         "Twitch"
       ],
-      "lives": [
-        {
-          "horario": "10:00",
-          "titulo": "Satisfactory",
-          "descricao": "Vamos construir nosso IMPÉRIO!",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 526870,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 526870,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/526870/ee3406fe5ec813b1987ad67e37e5cd6fb4f620e6.jpg"
-          }
-        }
-      ]
+      "lives": []
     },
     {
       "id": "segunda",
@@ -126,6 +110,36 @@
       "data": "2026-09-25",
       "temLive": true,
       "horario": "20:00",
+      "titulo": "INDIKA",
+      "descricao": "Espero Que Meu PC RODE!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "INDIKA",
+          "descricao": "Espero Que Meu PC RODE!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 1373960,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 1373960,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1373960/3029a15f13070be45d00b1d49deffcf32d55678e.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sabado",
+      "nome": "Sábado",
+      "data": "2026-09-26",
+      "temLive": true,
+      "horario": "20:00",
       "titulo": "ReStory: Chill Electronics Repairs",
       "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
       "plataformas": [
@@ -146,36 +160,6 @@
             "provider": "steam-original",
             "steamAppId": 3812600,
             "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "sabado",
-      "nome": "Sábado",
-      "data": "2026-09-26",
-      "temLive": true,
-      "horario": "10:00",
-      "titulo": "Satisfactory",
-      "descricao": "Vamos construir nosso IMPÉRIO!",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "10:00",
-          "titulo": "Satisfactory",
-          "descricao": "Vamos construir nosso IMPÉRIO!",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 526870,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 526870,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/526870/ee3406fe5ec813b1987ad67e37e5cd6fb4f620e6.jpg"
           }
         }
       ]
