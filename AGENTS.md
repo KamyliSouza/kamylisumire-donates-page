@@ -596,3 +596,11 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
 - Preservar `.github/tests/worker-ranking.test.mjs` como suíte sem dependências externas, executada por `node --test` no workflow principal de validação.
 - Os testes devem usar a implementação real de `workers.js` carregada/instrumentada apenas em memória; não adicionar exports, rotas ou flags de teste ao Worker de produção só para facilitar a suíte.
 - Antes de alterar persistência, deduplicação, paginação, privacidade ou a virada mensal do ranking, atualizar/adicionar o teste correspondente e manter o comportamento fail-closed para JSON corrompido e falhas da API.
+
+### Ledger atômico do Ranking — V48.3.55
+
+- `ledger:v1` é a fonte primária de `lastId`, `month`, `global` e `monthly`; não voltar a usar `totals:*`/`state:*` como fonte quando o ledger existir.
+- A migração do legado deve ser construída em memória e o primeiro `ledger:v1` só pode ser gravado depois de a leitura da Streamlabs terminar com sucesso.
+- Persistir primeiro o ledger e somente depois snapshots/espelhos derivados. Se uma escrita derivada falhar, a execução seguinte deve reconstruí-la a partir do ledger sem dupla contagem.
+- Manter `totals:global`, `totals:monthly`, `state:last_donation_id` e `state:current_month` como espelhos de compatibilidade nesta fase; não apagá-los nem tratá-los como transação.
+- `ledger:v1` inválido/corrompido deve falhar fechado. Não fazer fallback silencioso para as chaves legadas quando a chave do ledger já existe.

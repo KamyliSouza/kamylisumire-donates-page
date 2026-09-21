@@ -11,6 +11,8 @@ const TWITCH_LIVE_CACHE_TTL_SECONDS = 30 * 60;
 const TWITCH_LIVE_EDGE_CACHE_SECONDS = 60;
 const TWITCH_VIDEOS_EDGE_CACHE_MAX_SECONDS = 60 * 60;
 const RANKING_EDGE_CACHE_SECONDS = 30 * 60;
+const RANKING_LEDGER_KEY = 'ledger:v1';
+const RANKING_LEDGER_VERSION = 1;
 const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
 const TWITCH_TOKEN_VALIDATE_INTERVAL_MS = 50 * 60 * 1000;
 const TWITCH_USER_CACHE_TTL_SECONDS = 24 * 60 * 60;
@@ -448,21 +450,16 @@ async function getValidAccessToken(env) {
 // ---------------------------------------------------------------------
 async function syncDonations(env) {
   const accessToken = await getValidAccessToken(env);
-  const lastId = Number(
-    (await env.RANKINGS.get('state:last_donation_id')) || 0
-  );
+  const currentMonthKey = monthKey(new Date());
+  const { ledger: storedLedger, migratedFromLegacy } =
+    await loadRankingLedger(env, currentMonthKey);
 
-  const now = new Date();
-  const currentMonthKey = monthKey(now);
-  const storedMonthKey = await env.RANKINGS.get('state:current_month');
-  const monthChanged = storedMonthKey !== currentMonthKey;
-
-  let globalTotals = toSafeTotals(
-    await getJSON(env, 'totals:global', {})
-  );
+  const lastId = storedLedger.lastId;
+  const monthChanged = storedLedger.month !== currentMonthKey;
+  let globalTotals = toSafeTotals(storedLedger.global);
   let monthlyTotals = monthChanged
     ? Object.create(null)
-    : toSafeTotals(await getJSON(env, 'totals:monthly', {}));
+    : toSafeTotals(storedLedger.monthly);
 
   const newDonations = [];
   let before = null;
@@ -534,46 +531,56 @@ async function syncDonations(env) {
         highestId = donation.donation_id;
       }
     }
+  }
 
-    await env.RANKINGS.put(
-      'totals:global',
-      JSON.stringify(globalTotals)
-    );
+  const nextLedger = {
+    version: RANKING_LEDGER_VERSION,
+    lastId: highestId,
+    month: currentMonthKey,
+    global: globalTotals,
+    monthly: monthlyTotals
+  };
 
+  // ledger:v1 é a fonte transacional do ranking. Uma única escrita por chave
+  // impede que totais e lastId avancem separadamente. A migração das chaves
+  // legadas também só é persistida depois que a consulta à API termina com
+  // sucesso, para não transformar uma falha de rede em estado parcialmente novo.
+  if (migratedFromLegacy || hasNewDonations || monthChanged) {
     await env.RANKINGS.put(
-      'state:last_donation_id',
-      String(highestId)
+      RANKING_LEDGER_KEY,
+      JSON.stringify(nextLedger)
     );
   }
 
-  // Com Cron a cada 10 minutos, regravar snapshots idênticos consumiria
-  // desnecessariamente a cota diária de writes do KV Free. Só persistimos
-  // dados do ranking quando houve doação nova ou virada de mês.
-  if (hasNewDonations || monthChanged) {
-    await env.RANKINGS.put(
-      'totals:monthly',
-      JSON.stringify(monthlyTotals)
-    );
+  // Snapshots públicos são derivados do ledger em toda execução bem-sucedida.
+  // putKVIfChanged evita writes idênticos; se uma escrita derivada falhar após
+  // o commit do ledger, o próximo cron a reconstrói sem recontar doações.
+  await putKVIfChanged(
+    env,
+    'ranking:monthly',
+    JSON.stringify(getTopFive(monthlyTotals))
+  );
+  await putKVIfChanged(
+    env,
+    'ranking:allTime',
+    JSON.stringify(getTopFive(globalTotals))
+  );
 
-    if (monthChanged) {
-      await env.RANKINGS.put(
-        'state:current_month',
-        currentMonthKey
-      );
-    }
-
-    await env.RANKINGS.put(
-      'ranking:monthly',
-      JSON.stringify(getTopFive(monthlyTotals))
-    );
-
-    if (hasNewDonations) {
-      await env.RANKINGS.put(
-        'ranking:allTime',
-        JSON.stringify(getTopFive(globalTotals))
-      );
-    }
-  }
+  // Chaves anteriores permanecem como espelhos de compatibilidade durante a
+  // migração/rollback. Elas não são mais fonte de verdade quando ledger:v1
+  // existe e são reparadas a partir dele em cada sincronização bem-sucedida.
+  await putKVIfChanged(
+    env,
+    'totals:global',
+    JSON.stringify(globalTotals)
+  );
+  await putKVIfChanged(
+    env,
+    'totals:monthly',
+    JSON.stringify(monthlyTotals)
+  );
+  await putKVIfChanged(env, 'state:last_donation_id', String(highestId));
+  await putKVIfChanged(env, 'state:current_month', currentMonthKey);
 
   // Limpa um erro anterior somente quando ele realmente existe. Assim uma
   // sincronização sem novidades não gera um write extra a cada execução.
@@ -1397,6 +1404,94 @@ function toSafeTotals(value) {
   }
 
   return totals;
+}
+
+
+function parseRankingLastId(value, source) {
+  if (value === null || value === undefined || value === '') return 0;
+
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 0) {
+    throw new Error(`${source} inválido`);
+  }
+
+  return parsed;
+}
+
+function normalizeLedgerTotals(value, field) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`ledger:v1 ${field} inválido`);
+  }
+
+  const totals = Object.create(null);
+  for (const [name, rawAmount] of Object.entries(value)) {
+    const amount = Number(rawAmount);
+    if (!Number.isFinite(amount)) {
+      throw new Error(`ledger:v1 ${field} contém total inválido`);
+    }
+    totals[String(name)] = amount;
+  }
+
+  return totals;
+}
+
+function normalizeRankingLedger(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('ledger:v1 inválido');
+  }
+
+  if (value.version !== RANKING_LEDGER_VERSION) {
+    throw new Error('ledger:v1 possui versão incompatível');
+  }
+
+  const month = String(value.month || '');
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+    throw new Error('ledger:v1 month inválido');
+  }
+
+  return {
+    version: RANKING_LEDGER_VERSION,
+    lastId: parseRankingLastId(value.lastId, 'ledger:v1 lastId'),
+    month,
+    global: normalizeLedgerTotals(value.global, 'global'),
+    monthly: normalizeLedgerTotals(value.monthly, 'monthly')
+  };
+}
+
+async function loadRankingLedger(env, currentMonthKey) {
+  const rawLedger = await env.RANKINGS.get(RANKING_LEDGER_KEY);
+
+  if (rawLedger) {
+    return {
+      ledger: normalizeRankingLedger(JSON.parse(rawLedger)),
+      migratedFromLegacy: false
+    };
+  }
+
+  // Migração V48.3.55: lê o estado legado somente quando ledger:v1 ainda
+  // não existe. JSON inválido continua falhando fechado em vez de virar {}.
+  const legacyLastId = parseRankingLastId(
+    await env.RANKINGS.get('state:last_donation_id'),
+    'state:last_donation_id'
+  );
+  const legacyMonth = await env.RANKINGS.get('state:current_month');
+  const legacyGlobal = toSafeTotals(
+    await getJSON(env, 'totals:global', {})
+  );
+  const legacyMonthly = legacyMonth === currentMonthKey
+    ? toSafeTotals(await getJSON(env, 'totals:monthly', {}))
+    : Object.create(null);
+
+  return {
+    ledger: {
+      version: RANKING_LEDGER_VERSION,
+      lastId: legacyLastId,
+      month: currentMonthKey,
+      global: legacyGlobal,
+      monthly: legacyMonthly
+    },
+    migratedFromLegacy: true
+  };
 }
 
 function getTopFive(totals) {

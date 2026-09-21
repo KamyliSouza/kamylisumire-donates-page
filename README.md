@@ -304,3 +304,9 @@ A V48.3.53 define `America/Sao_Paulo` como fuso explícito da chave mensal usada
 ### Testes automatizados do Worker/Ranking — V48.3.54
 
 A V48.3.54 adiciona `.github/tests/worker-ranking.test.mjs`, executado com o runner nativo `node:test` e sem dependências adicionais. A suíte carrega a implementação real de `workers.js` apenas em memória para testes e cobre fuso mensal, parsing de datas, Top 5, privacidade, deduplicação, reset mensal, paginação e comportamento fail-closed. O código publicado do Worker não ganha exports ou caminhos especiais de teste.
+
+### Estado atômico do Ranking — V48.3.55
+
+A V48.3.55 passa a usar `ledger:v1` no KV como fonte primária do estado lógico do ranking. O registro reúne versão, último ID processado, mês corrente e totais geral/mensal; uma única escrita da chave evita que o cursor avance sem os totais correspondentes (ou vice-versa). Na primeira sincronização após o deploy, o Worker lê as chaves legadas, monta o ledger em memória e só o persiste depois que a consulta à Streamlabs termina com sucesso.
+
+As chaves `totals:*` e `state:*` não são removidas: permanecem como espelhos de compatibilidade e são reparadas a partir do ledger em cada execução bem-sucedida. Os snapshots públicos `ranking:monthly` e `ranking:allTime` também são derivados a cada execução com `putKVIfChanged`; assim, uma falha posterior ao commit do ledger é corrigida no cron seguinte sem recontar doações. Um `ledger:v1` corrompido falha fechado e exige correção explícita, em vez de recuar silenciosamente para dados legados potencialmente obsoletos.

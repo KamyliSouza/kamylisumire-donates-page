@@ -261,3 +261,163 @@ test('syncDonations não converte JSON corrompido em totais vazios silenciosamen
   await assert.rejects(syncDonations(env), SyntaxError);
   assert.equal(env.RANKINGS.puts.length, 0);
 });
+
+test('syncDonations migra as chaves legadas para ledger:v1 em uma única fonte de estado', async () => {
+  const currentMonth = monthKey(new Date());
+  const env = createEnv({
+    'state:last_donation_id': '42',
+    'state:current_month': currentMonth,
+    'totals:global': JSON.stringify({ Historico: 25 }),
+    'totals:monthly': JSON.stringify({ Historico: 7 }),
+    'ranking:monthly': JSON.stringify([{ name: 'Historico', amount: '7,00' }]),
+    'ranking:allTime': JSON.stringify([{ name: 'Historico', amount: '25,00' }])
+  });
+
+  await withMockFetch(async () => jsonResponse({ data: [] }), async () => {
+    await syncDonations(env);
+  });
+
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ledger:v1')), {
+    version: 1,
+    lastId: 42,
+    month: currentMonth,
+    global: { Historico: 25 },
+    monthly: { Historico: 7 }
+  });
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '42');
+  assert.equal(await env.RANKINGS.get('state:current_month'), currentMonth);
+});
+
+test('ledger:v1 é a fonte primária e repara espelhos legados divergentes', async () => {
+  const currentMonth = monthKey(new Date());
+  const env = createEnv({
+    'ledger:v1': JSON.stringify({
+      version: 1,
+      lastId: 200,
+      month: currentMonth,
+      global: { Ledger: 30 },
+      monthly: { Ledger: 12 }
+    }),
+    'state:last_donation_id': '1',
+    'state:current_month': '2000-01',
+    'totals:global': '{json-legado-corrompido',
+    'totals:monthly': '{json-legado-corrompido',
+    'ranking:monthly': '[]',
+    'ranking:allTime': '[]'
+  });
+
+  await withMockFetch(async () => jsonResponse({ data: [] }), async () => {
+    await syncDonations(env);
+  });
+
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '200');
+  assert.equal(await env.RANKINGS.get('state:current_month'), currentMonth);
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Ledger: 30 });
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), { Ledger: 12 });
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:allTime')), [
+    { name: 'Ledger', amount: '30,00' }
+  ]);
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:monthly')), [
+    { name: 'Ledger', amount: '12,00' }
+  ]);
+});
+
+test('falha em snapshot após commit do ledger não causa dupla contagem no retry', async () => {
+  const currentMonth = monthKey(new Date());
+  const createdAt = Math.floor(Date.now() / 1000);
+  const env = createEnv({
+    'state:last_donation_id': '10',
+    'state:current_month': currentMonth,
+    'totals:global': '{}',
+    'totals:monthly': '{}',
+    'ranking:monthly': '[]',
+    'ranking:allTime': '[]'
+  });
+  const page = [
+    { donation_id: 11, name: 'Alice', amount: '10', created_at: createdAt }
+  ];
+
+  const originalPut = env.RANKINGS.put.bind(env.RANKINGS);
+  let failMonthlySnapshotOnce = true;
+  env.RANKINGS.put = async (key, value, options) => {
+    if (key === 'ranking:monthly' && failMonthlySnapshotOnce) {
+      failMonthlySnapshotOnce = false;
+      throw new Error('snapshot failure');
+    }
+    return originalPut(key, value, options);
+  };
+
+  await withMockFetch(async () => jsonResponse({ data: page }), async () => {
+    await assert.rejects(syncDonations(env), /snapshot failure/);
+  });
+
+  const committedLedger = JSON.parse(await env.RANKINGS.get('ledger:v1'));
+  assert.equal(committedLedger.lastId, 11);
+  assert.deepEqual(committedLedger.global, { Alice: 10 });
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '10');
+
+  await withMockFetch(async () => jsonResponse({ data: page }), async () => {
+    await syncDonations(env);
+  });
+
+  const repairedLedger = JSON.parse(await env.RANKINGS.get('ledger:v1'));
+  assert.equal(repairedLedger.lastId, 11);
+  assert.deepEqual(repairedLedger.global, { Alice: 10 });
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '11');
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Alice: 10 });
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:allTime')), [
+    { name: 'Alice', amount: '10,00' }
+  ]);
+});
+
+test('ledger:v1 corrompido falha fechado e não recua silenciosamente para o legado', async () => {
+  const currentMonth = monthKey(new Date());
+  const env = createEnv({
+    'ledger:v1': '{json-invalido',
+    'state:last_donation_id': '10',
+    'state:current_month': currentMonth,
+    'totals:global': JSON.stringify({ Legado: 5 }),
+    'totals:monthly': JSON.stringify({ Legado: 5 })
+  });
+
+  await assert.rejects(syncDonations(env), SyntaxError);
+  assert.equal(env.RANKINGS.puts.length, 0);
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '10');
+});
+
+test('falha no commit de ledger:v1 não publica snapshots nem espelhos derivados', async () => {
+  const currentMonth = monthKey(new Date());
+  const createdAt = Math.floor(Date.now() / 1000);
+  const env = createEnv({
+    'state:last_donation_id': '10',
+    'state:current_month': currentMonth,
+    'totals:global': JSON.stringify({ Existente: 4 }),
+    'totals:monthly': JSON.stringify({ Existente: 4 }),
+    'ranking:monthly': JSON.stringify([{ name: 'Existente', amount: '4,00' }]),
+    'ranking:allTime': JSON.stringify([{ name: 'Existente', amount: '4,00' }])
+  });
+  const page = [
+    { donation_id: 11, name: 'Nova', amount: '6', created_at: createdAt }
+  ];
+
+  const originalPut = env.RANKINGS.put.bind(env.RANKINGS);
+  env.RANKINGS.put = async (key, value, options) => {
+    if (key === 'ledger:v1') throw new Error('ledger commit failure');
+    return originalPut(key, value, options);
+  };
+
+  await withMockFetch(async () => jsonResponse({ data: page }), async () => {
+    await assert.rejects(syncDonations(env), /ledger commit failure/);
+  });
+
+  assert.equal(await env.RANKINGS.get('ledger:v1'), null);
+  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '10');
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Existente: 4 });
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), { Existente: 4 });
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:monthly')), [
+    { name: 'Existente', amount: '4,00' }
+  ]);
+  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:allTime')), [
+    { name: 'Existente', amount: '4,00' }
+  ]);
+});

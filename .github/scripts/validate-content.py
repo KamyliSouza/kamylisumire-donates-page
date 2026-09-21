@@ -2363,6 +2363,20 @@ def validate_architecture() -> None:
         if token not in worker_ranking_tests:
             error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
 
+    # V48.3.55: a suíte deve proteger migração/atomicidade do ledger.
+    for token in (
+        "'ledger:v1': JSON.stringify({",
+        "migra as chaves legadas para ledger:v1",
+        "ledger:v1 é a fonte primária",
+        "snapshot failure",
+        "não causa dupla contagem no retry",
+        "ledger:v1 corrompido falha fechado",
+        "ledger commit failure",
+        "não publica snapshots nem espelhos derivados",
+    ):
+        if token not in worker_ranking_tests:
+            error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.55 ausente: {token}")
+
     for token in (
         "function normalizeAgendaIcon(value, steamAppId)",
         "function legacyLiveFromDay(dia)",
@@ -3068,6 +3082,23 @@ def validate_architecture() -> None:
     for forbidden in ("getUTCFullYear()", "getUTCMonth()"):
         if forbidden in worker_js:
             error(f"workers.js: ranking mensal V48.3.53 não deve depender de {forbidden}.")
+
+
+    # V48.3.55: o estado lógico do ranking deve ser commitado em uma única chave.
+    for needle in (
+        "const RANKING_LEDGER_KEY = 'ledger:v1';",
+        "const RANKING_LEDGER_VERSION = 1;",
+        "function normalizeRankingLedger(value)",
+        "async function loadRankingLedger(env, currentMonthKey)",
+        "const rawLedger = await env.RANKINGS.get(RANKING_LEDGER_KEY);",
+        "await env.RANKINGS.put(\n      RANKING_LEDGER_KEY,",
+        "await putKVIfChanged(\n    env,\n    'ranking:monthly',",
+        "await putKVIfChanged(\n    env,\n    'ranking:allTime',",
+        "await putKVIfChanged(env, 'state:last_donation_id', String(highestId));",
+        "await putKVIfChanged(env, 'state:current_month', currentMonthKey);",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: ledger atômico V48.3.55 ausente: {needle}")
 
     for needle in (
         'RANKING_CACHE_KEY = "kamyli-ranking-cache-v4"',

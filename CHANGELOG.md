@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.55 — Ledger atômico do ranking
+
+- introduz `ledger:v1` como fonte primária do estado do ranking (`lastId`, mês, totais geral e mensal) em uma única chave KV, eliminando avanço parcial entre totais e cursor de deduplicação;
+- migra automaticamente das chaves legadas somente após uma consulta bem-sucedida à Streamlabs e mantém essas chaves como espelhos de compatibilidade, sem apagá-las nesta versão;
+- deriva `ranking:monthly` e `ranking:allTime` em toda sincronização bem-sucedida com `putKVIfChanged`, permitindo autorreparo no cron seguinte se um snapshot falhar depois do commit do ledger;
+- trata `ledger:v1` inválido de forma fail-closed, sem recuar silenciosamente para estado legado possivelmente obsoleto;
+- expande a suíte do Worker para 14 testes, incluindo migração, prioridade do ledger, commit fail-closed, reparo dos espelhos e retry sem dupla contagem após falha de snapshot.
+
 ## V48.3.54 — Testes automatizados do Worker e ranking
 
 - adiciona uma suíte `node:test` sem dependências externas para exercitar diretamente a lógica real de `workers.js` em memória, sem alterar o módulo publicado em produção;

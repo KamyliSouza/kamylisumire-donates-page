@@ -463,3 +463,7 @@ No desktop, confirmar que a faixa de tags fica à esquerda e o conjunto seletor 
 ### Testes automatizados do Worker/Ranking — V48.3.54
 
 Executar `node --test .github/tests/worker-ranking.test.mjs`. A suíte não exige pacotes npm e carrega a implementação real de `workers.js` somente em memória, acrescentando exports apenas à cópia usada pelo teste. Ela deve cobrir: virada mensal de Brasília; parsing de `created_at`; ordenação/limite Top 5; anonimização; deduplicação pelo último ID; reset do mensal sem apagar o geral; paginação com `before`; falha da API sem persistência parcial; e JSON de totais corrompido falhando fechado. O workflow `Validate public site` deve executar essa suíte em push/PR sempre que `.github/tests/**` mudar.
+
+### Migração e atomicidade do Ranking — V48.3.55
+
+Além dos testes anteriores, confirmar que `node --test .github/tests/worker-ranking.test.mjs` cobre a migração das chaves legadas para `ledger:v1`, uso do ledger como fonte primária mesmo com espelhos divergentes, falha fechada no commit ou quando o ledger está corrompido e recuperação após falha de snapshot sem somar a mesma doação duas vezes. Em teste manual/debug, a primeira sincronização bem-sucedida após o deploy deve criar `ledger:v1`; `totals:*` e `state:*` devem continuar presentes apenas como espelhos compatíveis.
