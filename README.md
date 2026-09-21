@@ -287,3 +287,7 @@ No mobile, `@ Redes` preserva a superfície e as cores normais enquanto aberto; 
 ### Paridade Blog/Galeria — V48.3.50
 
 A barra de ferramentas do Blog segue a mesma hierarquia da Galeria: tags/filtros vêm primeiro e o conjunto busca + seletor fica depois, resultando em filtros à esquerda e busca à direita no desktop e na mesma ordem vertical no mobile.
+
+### Consistência de conteúdo e carregamento — V48.3.51
+
+A V48.3.51 mantém o fallback estático de Doações sincronizado com `data/content/doacoes.json` (Pixie a partir de R$ 1,00), faz Jogos sinalizar conteúdo pronto ao loader e impede que páginas sem entrada em `seo.json` herdem título/description da Home em runtime. A CI protege os três contratos contra regressão.

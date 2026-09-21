@@ -1,0 +1,329 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 6ab71c9..202d4a8 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -275,6 +275,42 @@ def validate_all_json() -> None:
+         load_json(rel)
+ 
+ 
++def validate_donation_content() -> None:
++    data = load_json("data/content/doacoes.json")
++    html = read_text("doacoes/index.html")
++    if not isinstance(data, dict) or not html:
++        return
++
++    def text_by_id(element_id: str) -> str | None:
++        match = re.search(
++            rf"id=[\"']{re.escape(element_id)}[\"'][^>]*>(?P<text>.*?)</[^>]+>",
++            html,
++            re.DOTALL | re.IGNORECASE,
++        )
++        if not match:
++            error(f"doacoes/index.html: fallback ausente para #{element_id}.")
++            return None
++        text = re.sub(r"<[^>]+>", "", match.group("text"))
++        return " ".join(text.split())
++
++    expected = {
++        "livepixDescription": data.get("livepix", {}).get("descricao"),
++        "pixieDescription": data.get("pixie", {}).get("descricao"),
++        "donationNoticeLabel": data.get("aviso", {}).get("rotulo"),
++        "donationNoticeText": data.get("aviso", {}).get("texto"),
++    }
++    for element_id, editorial_text in expected.items():
++        if not isinstance(editorial_text, str) or not editorial_text.strip():
++            error(f"data/content/doacoes.json: texto editorial inválido para {element_id}.")
++            continue
++        fallback = text_by_id(element_id)
++        if fallback is not None and fallback != " ".join(editorial_text.split()):
++            error(
++                f"doacoes/index.html: fallback #{element_id} deve repetir "
++                "data/content/doacoes.json exatamente."
++            )
++
++
+ def validate_home_content() -> None:
+     hero = load_json("data/content/hero.json")
+     if isinstance(hero, dict):
+@@ -1015,6 +1051,15 @@ def validate_jogos() -> None:
+     if "const PAGE_SIZE = 12;" in jogos_js:
+         error("js/pages/jogos/jogos.js: limite fixo legado de 12 jogos por página não deve retornar.")
+ 
++    for token in (
++        "function signalContentReady()",
++        "window.KAMYLI_PAGE_CONTENT_READY = true;",
++        'new CustomEvent("kamyli:loader-ready"',
++        "init().finally(signalContentReady);",
++    ):
++        if token not in jogos_js:
++            error(f"js/pages/jogos/jogos.js: sinal de conteúdo pronto V48.3.51 ausente: {token}")
++
+     navbar_js = read_text("js/core/navbar.js")
+     if 'data-nav-key="jogos" data-nav-page="jogos"' not in navbar_js or 'sitePath("/jogos/")' not in navbar_js:
+         error("js/core/navbar.js: link Jogos deve permanecer interno e reconhecido como página.")
+@@ -1878,7 +1923,7 @@ def validate_architecture() -> None:
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+         for asset in (
+-            "js/core/content.js?v=48.3.43",
++            "js/core/content.js?v=48.3.51",
+             "js/core/mobile-overlay.js?v=48.3.47",
+             "js/core/navbar.js?v=48.3.47",
+             "js/core/external-links.js?v=47",
+@@ -1914,8 +1959,8 @@ def validate_architecture() -> None:
+             error(f"{rel}: controlador mobile V48.3.47 ausente.")
+         if "js/core/navbar.js?v=48.3.47" not in html:
+             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
+-        if "js/core/content.js?v=48.3.43" not in html:
+-            error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
++        if "js/core/content.js?v=48.3.51" not in html:
++            error(f"{rel}: cache-buster V48.3.51 ausente para js/core/content.js.")
+ 
+     for asset in (
+         "js/pages/home/content.js?v=48.2.0",
+@@ -1930,6 +1975,15 @@ def validate_architecture() -> None:
+     if "js/pages/doacoes/content.js?v=47" not in donations:
+         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
+ 
++    content_js = read_text("js/core/content.js")
++    for token in (
++        'document.querySelector(\'[data-home-card-id="hero"]\')',
++        "? data.home",
++        ": null;",
++    ):
++        if token not in content_js:
++            error(f"js/core/content.js: proteção SEO V48.3.51 ausente: {token}")
++
+     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
+         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
+     if "css/pages/blog.css?v=48.3.22" not in blog_index:
+@@ -1941,8 +1995,8 @@ def validate_architecture() -> None:
+ 
+     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
+         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
+-    if "js/pages/jogos/jogos.js?v=48.3.32" not in jogos_index:
+-        error("jogos/index.html: cache-buster V48.3.32 ausente para js/pages/jogos/jogos.js.")
++    if "js/pages/jogos/jogos.js?v=48.3.51" not in jogos_index:
++        error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
+ 
+     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
+     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
+@@ -3365,6 +3419,7 @@ def main() -> int:
+     validate_socials()
+     validate_navbar()
+     validate_home_cards()
++    validate_donation_content()
+     validate_home_content()
+     validate_artes()
+     validate_jogos()
+diff --git a/404.html b/404.html
+index 3cf8db7..9b1e023 100644
+--- a/404.html
++++ b/404.html
+@@ -289,7 +289,7 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.43"></script>
++    <script src="js/core/content.js?v=48.3.51"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
+diff --git a/AGENTS.md b/AGENTS.md
+index 5ac4cf8..57b88af 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -573,3 +573,9 @@ Preservar `--card-bg` no gatilho `@ Redes` quando aberto; não voltar a usar `--
+ ### Blog/Galeria — V48.3.50
+ 
+ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de filtros/tags primeiro e busca + seletor depois. No desktop isso mantém filtros à esquerda e busca à direita; no mobile, filtros permanecem acima da busca.
++
++### Conteúdo/loader/SEO — V48.3.51
++
++- O fallback estático de `doacoes/index.html` deve repetir os textos correspondentes de `data/content/doacoes.json`; o mínimo atual do Pixie é R$ 1,00.
++- Toda mudança em `js/pages/jogos/jogos.js` deve preservar o sinal `KAMYLI_PAGE_CONTENT_READY`/`kamyli:loader-ready` após `init()`, inclusive quando a carga falhar de forma tratada.
++- `applyRuntimeSeo()` só pode aplicar `data.home` quando o documento for de fato a Home; páginas sem entrada própria em `seo.json` devem preservar seus metadados estáticos.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 6afe7ae..ea9e89f 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,13 @@
+ # Changelog
+ 
++## V48.3.51 — Consistência de doações, loader de Jogos e SEO runtime
++
++- alinha o fallback estático do Pixie ao valor editorial atual de R$ 1,00 e remove do HTML o aviso legado de mínimo de R$ 6,00;
++- valida na CI que descrições e aviso estáticos de Doações repetem `data/content/doacoes.json`, evitando nova divergência entre fallback e conteúdo carregado;
++- faz `/jogos/` sinalizar `KAMYLI_PAGE_CONTENT_READY` ao concluir `init()`, inclusive em falha tratada, permitindo que o loader libere a página sem esperar o teto de 2,5 s;
++- impede `applyRuntimeSeo()` de usar os metadados da Home como fallback em páginas sem entrada própria, preservando os títulos e descriptions estáticos de Jogos, Privacidade e Uso de IA;
++- atualiza os cache-busters dos scripts alterados e adiciona contratos de regressão ao validador.
++
+ ## V48.3.50 — Hotfix: alinhamento dos controles do Blog
+ 
+ - reorganiza a barra de ferramentas do Blog para seguir a mesma ordem visual da Galeria: tags/filtros à esquerda e busca + seletor à direita no desktop;
+diff --git a/README.md b/README.md
+index 2f5f20e..7a181c1 100644
+--- a/README.md
++++ b/README.md
+@@ -287,3 +287,7 @@ No mobile, `@ Redes` preserva a superfície e as cores normais enquanto aberto;
+ ### Paridade Blog/Galeria — V48.3.50
+ 
+ A barra de ferramentas do Blog segue a mesma hierarquia da Galeria: tags/filtros vêm primeiro e o conjunto busca + seletor fica depois, resultando em filtros à esquerda e busca à direita no desktop e na mesma ordem vertical no mobile.
++
++### Consistência de conteúdo e carregamento — V48.3.51
++
++A V48.3.51 mantém o fallback estático de Doações sincronizado com `data/content/doacoes.json` (Pixie a partir de R$ 1,00), faz Jogos sinalizar conteúdo pronto ao loader e impede que páginas sem entrada em `seo.json` herdem título/description da Home em runtime. A CI protege os três contratos contra regressão.
+diff --git a/artes/index.html b/artes/index.html
+index 59db15b..298e3eb 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -381,7 +381,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+diff --git a/blog/index.html b/blog/index.html
+index a1de122..5b0b655 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -382,7 +382,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 3b11d47..9e8f60e 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -369,7 +369,7 @@
+                     </span>
+                     <span class="donation-btn-text">
+                         <span class="donation-btn-title" id="pixieTitle" data-button-label>Moeda Estrangeira (Pixie)</span>
+-                        <span class="donation-btn-sub" id="pixieDescription">Doações a partir de R$ 6,00</span>
++                        <span class="donation-btn-sub" id="pixieDescription">Doações a partir de R$ 1,00</span>
+                     </span>
+                 </a>
+             </div>
+@@ -378,8 +378,7 @@
+                 <p>
+                     💡 <strong id="donationNoticeLabel">Aviso:</strong>
+                     <span id="donationNoticeText">
+-                        A doação mínima pelo Pixie é de R$6 por conta das taxas da plataforma.
+-                        Para doações a partir de R$1, recomendo usar o LivePix!
++                        Sinta-se a vontade para escolher a sua plataforma preferida 😊
+                     </span>
+                 </p>
+             </div>
+@@ -459,7 +458,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/api.js?v=47.3"></script>
+diff --git a/index.html b/index.html
+index a52fc7c..933b6e5 100644
+--- a/index.html
++++ b/index.html
+@@ -744,7 +744,7 @@
+ 
+     <script src="js/core/preferences.js"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.43"></script>
++    <script src="js/core/content.js?v=48.3.51"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+     <script src="js/core/buttons.js?v=48.3.6"></script>
+     <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
+diff --git a/jogos/index.html b/jogos/index.html
+index 1accce0..e305578 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -333,7 +333,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+@@ -344,7 +344,7 @@
+     <script src="../js/core/sanitize.js?v=1"></script>
+     <script src="../js/core/footer.js?v=47.4.2"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+-    <script src="../js/pages/jogos/jogos.js?v=48.3.32"></script>
++    <script src="../js/pages/jogos/jogos.js?v=48.3.51"></script>
+     <script src="../js/core/loader.js?v=48.3.6"></script>
+ </body>
+ </html>
+diff --git a/js/core/content.js b/js/core/content.js
+index 4a870b0..44f47cf 100644
+--- a/js/core/content.js
++++ b/js/core/content.js
+@@ -622,7 +622,9 @@
+                     ? data.artes
+                     : path.includes("/blog")
+                         ? data.blog
+-                        : data.home;
++                        : document.querySelector('[data-home-card-id="hero"]')
++                            ? data.home
++                            : null;
+ 
+         if (!page) return;
+ 
+diff --git a/js/pages/jogos/jogos.js b/js/pages/jogos/jogos.js
+index 6c242df..42270ec 100644
+--- a/js/pages/jogos/jogos.js
++++ b/js/pages/jogos/jogos.js
+@@ -254,5 +254,14 @@
+         renderGames();
+     });
+ 
+-    init();
++    function signalContentReady() {
++        window.KAMYLI_PAGE_CONTENT_READY = true;
++        window.dispatchEvent(
++            new CustomEvent("kamyli:loader-ready", {
++                detail: { key: "page-content" }
++            })
++        );
++    }
++
++    init().finally(signalContentReady);
+ })();
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 6c78c76..bdcfc88 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -540,7 +540,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 9e4b113..f961618 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -342,7 +342,7 @@
+ 
+     <script src="../js/core/preferences.js"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.43"></script>
++    <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>

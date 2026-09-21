@@ -622,7 +622,9 @@
                     ? data.artes
                     : path.includes("/blog")
                         ? data.blog
-                        : data.home;
+                        : document.querySelector('[data-home-card-id="hero"]')
+                            ? data.home
+                            : null;
 
         if (!page) return;
 

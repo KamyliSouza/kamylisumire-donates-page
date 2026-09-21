@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.51 — Consistência de doações, loader de Jogos e SEO runtime
+
+- alinha o fallback estático do Pixie ao valor editorial atual de R$ 1,00 e remove do HTML o aviso legado de mínimo de R$ 6,00;
+- valida na CI que descrições e aviso estáticos de Doações repetem `data/content/doacoes.json`, evitando nova divergência entre fallback e conteúdo carregado;
+- faz `/jogos/` sinalizar `KAMYLI_PAGE_CONTENT_READY` ao concluir `init()`, inclusive em falha tratada, permitindo que o loader libere a página sem esperar o teto de 2,5 s;
+- impede `applyRuntimeSeo()` de usar os metadados da Home como fallback em páginas sem entrada própria, preservando os títulos e descriptions estáticos de Jogos, Privacidade e Uso de IA;
+- atualiza os cache-busters dos scripts alterados e adiciona contratos de regressão ao validador.
+
 ## V48.3.50 — Hotfix: alinhamento dos controles do Blog
 
 - reorganiza a barra de ferramentas do Blog para seguir a mesma ordem visual da Galeria: tags/filtros à esquerda e busca + seletor à direita no desktop;

@@ -573,3 +573,9 @@ Preservar `--card-bg` no gatilho `@ Redes` quando aberto; não voltar a usar `--
 ### Blog/Galeria — V48.3.50
 
 Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de filtros/tags primeiro e busca + seletor depois. No desktop isso mantém filtros à esquerda e busca à direita; no mobile, filtros permanecem acima da busca.
+
+### Conteúdo/loader/SEO — V48.3.51
+
+- O fallback estático de `doacoes/index.html` deve repetir os textos correspondentes de `data/content/doacoes.json`; o mínimo atual do Pixie é R$ 1,00.
+- Toda mudança em `js/pages/jogos/jogos.js` deve preservar o sinal `KAMYLI_PAGE_CONTENT_READY`/`kamyli:loader-ready` após `init()`, inclusive quando a carga falhar de forma tratada.
+- `applyRuntimeSeo()` só pode aplicar `data.home` quando o documento for de fato a Home; páginas sem entrada própria em `seo.json` devem preservar seus metadados estáticos.

@@ -254,5 +254,14 @@
         renderGames();
     });
 
-    init();
+    function signalContentReady() {
+        window.KAMYLI_PAGE_CONTENT_READY = true;
+        window.dispatchEvent(
+            new CustomEvent("kamyli:loader-ready", {
+                detail: { key: "page-content" }
+            })
+        );
+    }
+
+    init().finally(signalContentReady);
 })();

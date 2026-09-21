@@ -275,6 +275,42 @@ def validate_all_json() -> None:
         load_json(rel)
 
 
+def validate_donation_content() -> None:
+    data = load_json("data/content/doacoes.json")
+    html = read_text("doacoes/index.html")
+    if not isinstance(data, dict) or not html:
+        return
+
+    def text_by_id(element_id: str) -> str | None:
+        match = re.search(
+            rf"id=[\"']{re.escape(element_id)}[\"'][^>]*>(?P<text>.*?)</[^>]+>",
+            html,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if not match:
+            error(f"doacoes/index.html: fallback ausente para #{element_id}.")
+            return None
+        text = re.sub(r"<[^>]+>", "", match.group("text"))
+        return " ".join(text.split())
+
+    expected = {
+        "livepixDescription": data.get("livepix", {}).get("descricao"),
+        "pixieDescription": data.get("pixie", {}).get("descricao"),
+        "donationNoticeLabel": data.get("aviso", {}).get("rotulo"),
+        "donationNoticeText": data.get("aviso", {}).get("texto"),
+    }
+    for element_id, editorial_text in expected.items():
+        if not isinstance(editorial_text, str) or not editorial_text.strip():
+            error(f"data/content/doacoes.json: texto editorial inválido para {element_id}.")
+            continue
+        fallback = text_by_id(element_id)
+        if fallback is not None and fallback != " ".join(editorial_text.split()):
+            error(
+                f"doacoes/index.html: fallback #{element_id} deve repetir "
+                "data/content/doacoes.json exatamente."
+            )
+
+
 def validate_home_content() -> None:
     hero = load_json("data/content/hero.json")
     if isinstance(hero, dict):
@@ -1014,6 +1050,15 @@ def validate_jogos() -> None:
             error(f"js/pages/jogos/jogos.js: contrato editorial de paginação ausente: {token}")
     if "const PAGE_SIZE = 12;" in jogos_js:
         error("js/pages/jogos/jogos.js: limite fixo legado de 12 jogos por página não deve retornar.")
+
+    for token in (
+        "function signalContentReady()",
+        "window.KAMYLI_PAGE_CONTENT_READY = true;",
+        'new CustomEvent("kamyli:loader-ready"',
+        "init().finally(signalContentReady);",
+    ):
+        if token not in jogos_js:
+            error(f"js/pages/jogos/jogos.js: sinal de conteúdo pronto V48.3.51 ausente: {token}")
 
     navbar_js = read_text("js/core/navbar.js")
     if 'data-nav-key="jogos" data-nav-page="jogos"' not in navbar_js or 'sitePath("/jogos/")' not in navbar_js:
@@ -1878,7 +1923,7 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.43",
+            "js/core/content.js?v=48.3.51",
             "js/core/mobile-overlay.js?v=48.3.47",
             "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
@@ -1914,8 +1959,8 @@ def validate_architecture() -> None:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
         if "js/core/navbar.js?v=48.3.47" not in html:
             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.43" not in html:
-            error(f"{rel}: cache-buster V48.3.43 ausente para js/core/content.js.")
+        if "js/core/content.js?v=48.3.51" not in html:
+            error(f"{rel}: cache-buster V48.3.51 ausente para js/core/content.js.")
 
     for asset in (
         "js/pages/home/content.js?v=48.2.0",
@@ -1930,6 +1975,15 @@ def validate_architecture() -> None:
     if "js/pages/doacoes/content.js?v=47" not in donations:
         error("doacoes/index.html: cache-buster V47 ausente para js/pages/doacoes/content.js.")
 
+    content_js = read_text("js/core/content.js")
+    for token in (
+        'document.querySelector(\'[data-home-card-id="hero"]\')',
+        "? data.home",
+        ": null;",
+    ):
+        if token not in content_js:
+            error(f"js/core/content.js: proteção SEO V48.3.51 ausente: {token}")
+
     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
     if "css/pages/blog.css?v=48.3.22" not in blog_index:
@@ -1941,8 +1995,8 @@ def validate_architecture() -> None:
 
     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.32" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.32 ausente para js/pages/jogos/jogos.js.")
+    if "js/pages/jogos/jogos.js?v=48.3.51" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
@@ -3365,6 +3419,7 @@ def main() -> int:
     validate_socials()
     validate_navbar()
     validate_home_cards()
+    validate_donation_content()
     validate_home_content()
     validate_artes()
     validate_jogos()
