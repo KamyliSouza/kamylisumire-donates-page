@@ -187,12 +187,12 @@ Além da validação estática, confirmar em produção:
 1. `/debug/status` protegido mostra `twitch.configured: true`;
 2. primeira chamada protegida a `/debug/twitch-sync` cria o snapshot;
 3. `/twitch/videos` responde sem autenticação e sem expor credenciais;
-4. nova chamada a `/debug/twitch-sync` antes de 24 h retorna `cache_fresh`;
+4. nova chamada a `/debug/twitch-sync` antes de 20 h retorna `cache_fresh`; entre 20 h e 24 h a renovação já pode ocorrer sem indisponibilizar o snapshot anterior;
 5. Twitch é a aba primária da Home;
 6. YouTube continua funcionando se `/twitch/videos` falhar;
 7. o endpoint público não dispara consultas a `api.twitch.tv`.
 
-A CI valida a presença da trava de 24 horas, das rotas Twitch e dos elementos do
+A CI valida a janela de renovação de 20 horas, a validade máxima de 24 horas, as rotas Twitch e os elementos do
 seletor, mas o comportamento temporal real deve ser confirmado pelo smoke test.
 
 ## V47.4.3 — status ao vivo e Hero dinâmico
@@ -467,3 +467,7 @@ Executar `node --test .github/tests/worker-ranking.test.mjs`. A suíte não exig
 ### Migração e atomicidade do Ranking — V48.3.55
 
 Além dos testes anteriores, confirmar que `node --test .github/tests/worker-ranking.test.mjs` cobre a migração das chaves legadas para `ledger:v1`, uso do ledger como fonte primária mesmo com espelhos divergentes, falha fechada no commit ou quando o ledger está corrompido e recuperação após falha de snapshot sem somar a mesma doação duas vezes. Em teste manual/debug, a primeira sincronização bem-sucedida após o deploy deve criar `ledger:v1`; `totals:*` e `state:*` devem continuar presentes apenas como espelhos compatíveis.
+
+### Robustez do Worker — V48.3.56
+
+Executar `node --test .github/tests/worker-robustness.test.mjs` além da suíte de ranking. Confirmar: exceção inesperada no roteamento retorna JSON `500` com CORS; origem não permitida recebe `Vary: Origin` sem `Access-Control-Allow-Origin`; paginação de doações falha fechado após 50 páginas ou cursor `before` repetido; snapshot Twitch com 21 h continua público enquanto `refreshDue === true`; snapshot com 24 h é rejeitado como vencido. Em produção, `/debug/status` deve expor `refreshDue`, `staleAt` e `stale` para VODs.

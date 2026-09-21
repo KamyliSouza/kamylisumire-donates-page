@@ -163,7 +163,7 @@ necessário reautorizar a Streamlabs apenas por causa dessa atualização.
 
 O primeiro preenchimento é feito por `/debug/twitch-sync`. Chamadas posteriores
 a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passado
-24 horas desde `twitch:updated_at`. O App Access Token é reutilizado no KV, mas
+20 horas desde `twitch:updated_at`. O snapshot continua válido por no máximo 24 horas, deixando margem para uma nova execução do Cron antes da expiração. O App Access Token é reutilizado no KV, mas
 é validado no endpoint oficial `/oauth2/validate` em janelas de 50 minutos; o
 `user_id` e o login do canal usam TTL de 24 horas e são resolvidos novamente
 quando expirarem.
@@ -176,6 +176,6 @@ Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
 
 `syncTwitchLiveIfDue()` impede chamadas a `helix/streams` antes de completar
 a janela nominal de 10 minutos, com tolerância intencional de até 2 minutos.
-`syncTwitchVideosIfDue()` continua impondo 24 horas para VODs. O ranking de doações também roda no mesmo `scheduled()`, mas a
+`syncTwitchVideosIfDue()` inicia a renovação de VODs após 20 horas, mantendo validade/TTL máximos de 24 horas. O ranking de doações também roda no mesmo `scheduled()`, mas a
 V47.4.3 deixa de regravar snapshots idênticos no KV quando não há doação nova
 nem virada de mês, evitando consumir a cota diária de writes do plano Free.

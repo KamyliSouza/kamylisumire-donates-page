@@ -2,8 +2,10 @@ const STREAMLABS_API = 'https://streamlabs.com/api/v2.0';
 const TWITCH_API = 'https://api.twitch.tv/helix';
 const TWITCH_OAUTH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const TWITCH_OAUTH_VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate';
-const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const TWITCH_REFRESH_INTERVAL_MS = 20 * 60 * 60 * 1000;
+const TWITCH_VIDEO_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 const TWITCH_VIDEO_CACHE_TTL_SECONDS = 24 * 60 * 60;
+const STREAMLABS_DONATION_MAX_PAGES = 50;
 const TWITCH_LIVE_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 const TWITCH_LIVE_REFRESH_TOLERANCE_MS = 2 * 60 * 1000;
 const TWITCH_LIVE_STALE_AFTER_MS = 20 * 60 * 1000;
@@ -32,27 +34,12 @@ function clientSecret(env) {
 
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-
-    if (request.method === 'OPTIONS') {
-      return cors(request, env, new Response(null, { status: 204 }));
+    try {
+      return await routeRequest(request, env, ctx);
+    } catch (err) {
+      console.error('Unhandled Worker request error', err);
+      return internalServerError(request, env);
     }
-
-    if (request.method !== 'GET') {
-      return methodNotAllowed(request, env);
-    }
-
-    if (url.pathname === '/oauth/authorize') return handleAuthorize(request, url, env);
-    if (url.pathname === '/oauth/callback') return handleCallback(request, url, env);
-    if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
-    if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
-    if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
-    if (url.pathname === '/debug/twitch-live-sync') return handleDebugTwitchLiveSync(request, url, env);
-    if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env, ctx);
-    if (url.pathname === '/twitch/live') return handleTwitchLive(request, env, ctx);
-    if (url.pathname === '/') return handleRanking(request, env, ctx);
-
-    return notFound(request, env);
   },
 
   async scheduled(event, env, ctx) {
@@ -64,7 +51,7 @@ export default {
 
     // A rotina agendada pode executar com qualquer frequência necessária
     // para o ranking. A própria função abaixo impede consultas à Twitch
-    // antes de completar 24 horas desde a última atualização bem-sucedida.
+    // antes de completar 20 horas desde a última atualização bem-sucedida.
     ctx.waitUntil(
       syncTwitchVideosIfDue(env).catch((err) =>
         putKVIfChanged(env, 'twitch:last_error', String(err.message))
@@ -79,6 +66,44 @@ export default {
     );
   }
 };
+
+
+async function routeRequest(request, env, ctx) {
+  const url = new URL(request.url);
+
+  if (request.method === 'OPTIONS') {
+    return cors(request, env, new Response(null, { status: 204 }));
+  }
+
+  if (request.method !== 'GET') {
+    return methodNotAllowed(request, env);
+  }
+
+  if (url.pathname === '/oauth/authorize') return handleAuthorize(request, url, env);
+  if (url.pathname === '/oauth/callback') return handleCallback(request, url, env);
+  if (url.pathname === '/debug/status') return handleDebugStatus(request, url, env);
+  if (url.pathname === '/debug/sync') return handleDebugSync(request, url, env);
+  if (url.pathname === '/debug/twitch-sync') return handleDebugTwitchSync(request, url, env);
+  if (url.pathname === '/debug/twitch-live-sync') return handleDebugTwitchLiveSync(request, url, env);
+  if (url.pathname === '/twitch/videos') return handleTwitchVideos(request, env, ctx);
+  if (url.pathname === '/twitch/live') return handleTwitchLive(request, env, ctx);
+  if (url.pathname === '/') return handleRanking(request, env, ctx);
+
+  return notFound(request, env);
+}
+
+function internalServerError(request, env) {
+  return cors(request, env, new Response(
+    JSON.stringify({ error: 'internal_error' }),
+    {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store'
+      }
+    }
+  ));
+}
 
 // ---------------------------------------------------------------------
 // CORS
@@ -105,16 +130,40 @@ function getAllowedOrigins(env) {
     .filter(Boolean);
 }
 
+function appendVary(headers, value) {
+  const current = (headers.get('Vary') || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+
+  if (!current.some(item => item.toLowerCase() === value.toLowerCase())) {
+    current.push(value);
+  }
+
+  if (current.length > 0) {
+    headers.set('Vary', current.join(', '));
+  }
+}
+
 function cors(request, env, response) {
   const headers = new Headers(response.headers);
   const requestOrigin = request.headers.get('Origin');
   const allowedOrigins = getAllowedOrigins(env);
+  const wildcard = allowedOrigins.includes('*');
 
-  if (allowedOrigins.includes('*')) {
+  if (wildcard) {
     headers.set('Access-Control-Allow-Origin', '*');
-  } else if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
-    headers.set('Access-Control-Allow-Origin', requestOrigin);
-    headers.append('Vary', 'Origin');
+  } else {
+    headers.delete('Access-Control-Allow-Origin');
+
+    // Mesmo respostas sem Origin ou vindas de origens não permitidas variam
+    // por Origin. Isso impede que caches reutilizem uma variante sem CORS para
+    // uma origem permitida (ou o inverso).
+    appendVary(headers, 'Origin');
+
+    if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+      headers.set('Access-Control-Allow-Origin', requestOrigin);
+    }
   }
 
   headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -356,7 +405,17 @@ async function handleCallback(request, url, env) {
     return cors(request, env, new Response('Falha:\n' + text, { status: 500 }));
   }
 
-  await saveTokens(env, JSON.parse(text));
+  let tokenData;
+  try {
+    tokenData = JSON.parse(text);
+  } catch {
+    return cors(request, env, new Response(
+      'Resposta inválida da Streamlabs ao trocar o código OAuth.',
+      { status: 502 }
+    ));
+  }
+
+  await saveTokens(env, tokenData);
 
   let syncMessage = 'Sincronização executada com sucesso.';
 
@@ -464,8 +523,16 @@ async function syncDonations(env) {
   const newDonations = [];
   let before = null;
   let keepPaging = true;
+  let pagesFetched = 0;
 
   while (keepPaging) {
+    if (pagesFetched >= STREAMLABS_DONATION_MAX_PAGES) {
+      throw new Error(
+        `Paginação de doações excedeu ${STREAMLABS_DONATION_MAX_PAGES} páginas sem alcançar o último ID processado.`
+      );
+    }
+    pagesFetched += 1;
+
     const apiUrl = new URL(`${STREAMLABS_API}/donations`);
     apiUrl.searchParams.set('limit', '100');
     apiUrl.searchParams.set('currency', 'BRL');
@@ -500,7 +567,13 @@ async function syncDonations(env) {
       newDonations.push(donation);
     }
 
-    before = page[page.length - 1].donation_id;
+    const nextBefore = page[page.length - 1].donation_id;
+
+    if (keepPaging && page.length >= 100 && String(nextBefore) === String(before)) {
+      throw new Error('Paginação de doações não avançou; cursor before repetido.');
+    }
+
+    before = nextBefore;
 
     if (page.length < 100) {
       keepPaging = false;
@@ -596,9 +669,9 @@ async function syncDonations(env) {
 // Política V47.4.5:
 // - o endpoint público /twitch/videos NUNCA chama a API da Twitch;
 // - o snapshot fica no KV RANKINGS por no máximo 24 h (expirationTtl);
-// - conteúdo vencido nunca é devolvido pelo endpoint público;
-// - a atualização automática passa por syncTwitchVideosIfDue(), que só
-//   consulta os vídeos após 24 h da última atualização bem-sucedida;
+// - conteúdo com 24 h ou mais nunca é devolvido pelo endpoint público;
+// - a atualização automática passa por syncTwitchVideosIfDue(), que tenta
+//   renovar após 20 h, deixando margem antes da expiração pública/KV;
 // - user_id/login resolvidos via Helix ficam no KV por no máximo 24 h;
 // - o App Access Token é reutilizado, mas validado periodicamente em /validate.
 // ---------------------------------------------------------------------
@@ -826,9 +899,9 @@ async function fetchTwitchVideos(env) {
   url.searchParams.set('sort', 'time');
   url.searchParams.set('first', String(twitchVideoLimit(env)));
 
-  // Esta é a única consulta Helix de vídeos feita pela integração durante
-  // cada janela de 24 horas. Em caso de falha, o endpoint público não serve
-  // conteúdo vencido; o snapshot também expira automaticamente no KV.
+  // A renovação normal começa após 20 horas, deixando uma margem de 4 horas
+  // antes do limite público/KV de 24 horas. Em caso de falha, o endpoint
+  // público nunca serve snapshot com 24 horas ou mais.
   const response = await fetchTwitchHelixWithRetry(
     env,
     url.toString(),
@@ -865,13 +938,19 @@ async function getTwitchRefreshState(env) {
     (await env.RANKINGS.get('twitch:updated_at')) || 0
   );
   const now = Date.now();
-  const due = !updatedAt || now - updatedAt >= TWITCH_REFRESH_INTERVAL_MS;
+  const age = updatedAt ? Math.max(0, now - updatedAt) : Infinity;
+  const due = !updatedAt || age >= TWITCH_REFRESH_INTERVAL_MS;
+  const stale = !updatedAt || age >= TWITCH_VIDEO_STALE_AFTER_MS;
 
   return {
     updatedAt,
     due,
+    stale,
     nextRefreshAt: updatedAt
       ? updatedAt + TWITCH_REFRESH_INTERVAL_MS
+      : now,
+    staleAt: updatedAt
+      ? updatedAt + TWITCH_VIDEO_STALE_AFTER_MS
       : now
   };
 }
@@ -932,7 +1011,7 @@ async function handleTwitchVideos(request, env, ctx) {
     }}));
   }
 
-  if (state.due || !Array.isArray(videos) || videos.length === 0) {
+  if (state.stale || !Array.isArray(videos) || videos.length === 0) {
     return cors(request, env, new Response(JSON.stringify({
       platform: 'twitch', videos: [], updatedAt: new Date(state.updatedAt).toISOString(), stale: true,
       message: 'Cache da Twitch expirado. Aguarde a próxima sincronização.'
@@ -1314,6 +1393,10 @@ async function handleDebugStatus(request, url, env) {
           ? new Date(twitchState.nextRefreshAt).toISOString()
           : null,
         refreshDue: twitchState.due,
+        staleAt: twitchState.updatedAt
+          ? new Date(twitchState.staleAt).toISOString()
+          : null,
+        stale: twitchState.stale,
         lastError: twitchLastError || null,
         tokenValidation: {
           validatedAt: twitchTokenValidatedAt

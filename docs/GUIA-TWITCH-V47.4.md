@@ -11,14 +11,14 @@ A seção **Lives** mantém o mesmo carrossel e o mesmo desenho dos cards, mas p
 
 A Twitch não é consultada quando um visitante abre a página. O navegador consulta apenas o seu Cloudflare Worker, e o Worker devolve um snapshot já salvo no KV.
 
-## Como o limite de 24 horas funciona
+## Como a janela de renovação/validade funciona
 
 A implementação usa uma barreira no servidor:
 
 ```text
 Twitch Helix /videos
         ↓
-(no máximo uma consulta de vídeos por janela de 24 h)
+(renovação normal a partir de 20 h; validade máxima de 24 h)
         ↓
 Cloudflare Worker
         ↓
@@ -35,7 +35,7 @@ Regras:
 
 - `GET /twitch/videos` **nunca** chama a API da Twitch;
 - `syncTwitchVideosIfDue()` consulta o KV antes de qualquer atualização;
-- se ainda não passaram 24 horas desde `twitch:updated_at`, a sincronização é ignorada;
+- se ainda não passaram 20 horas desde `twitch:updated_at`, a sincronização é ignorada; entre 20 h e 24 h o snapshot continua público enquanto a renovação é tentada;
 - o Cron pode continuar rodando com a frequência já necessária para o ranking de doações;
 - em falha da Twitch, o snapshot anterior não é apagado;
 - a resposta HTTP ao navegador é cacheada até a próxima janela de atualização, reduzindo novas chamadas ao Worker pelo mesmo navegador.
@@ -48,7 +48,7 @@ Na primeira inicialização, normalmente são necessárias três chamadas ao eco
 2. resolver uma vez o `user_id` de `kamyli`;
 3. buscar os vídeos em `helix/videos`.
 
-Depois disso, o Worker reutiliza o token no KV e mantém `user_id`/login por no máximo 24 horas. O identificador é resolvido novamente por `helix/users` após a expiração desse TTL. O ciclo normal de VODs continua fazendo **uma única chamada a `helix/videos` por janela de 24 horas**.
+Depois disso, o Worker reutiliza o token no KV e mantém `user_id`/login por no máximo 24 horas. O identificador é resolvido novamente por `helix/users` após a expiração desse TTL. O ciclo normal de VODs passa a tentar uma nova chamada a `helix/videos` após **20 horas**, mantendo o snapshot público por no máximo 24 horas.
 
 O App Access Token é validado em `https://id.twitch.tv/oauth2/validate` em janelas de 50 minutos. Quando expirar ou for invalidado, o Worker obtém outro pelo fluxo Client Credentials. Essas verificações são servidor-servidor e não ocorrem por visita.
 
@@ -193,7 +193,7 @@ Na primeira execução, uma resposta bem-sucedida se parece com:
 }
 ```
 
-Se chamar novamente antes de 24 horas, a resposta deve indicar que o cache ainda está fresco:
+Se chamar novamente antes de 20 horas, a resposta deve indicar que o cache ainda está fresco:
 
 ```json
 {
@@ -301,7 +301,7 @@ O `scheduled()` executa três rotinas, cada uma com seu próprio comportamento:
 - **status ao vivo:** `syncTwitchLiveIfDue()` consulta `helix/streams` no máximo
   uma vez a cada 10 minutos;
 - **VODs:** `syncTwitchVideosIfDue()` continua consultando `helix/videos` no
-  máximo uma vez a cada 24 horas;
+  normalmente uma vez a cada 20 horas, com validade máxima do snapshot de 24 horas;
 - **ranking Streamlabs:** continua verificando novas doações, mas snapshots
   idênticos deixam de ser regravados no KV quando nada mudou.
 
@@ -467,7 +467,7 @@ Depois do deploy:
 5. a aba YouTube continua exibindo a lista manual;
 6. trocar Twitch → YouTube → Twitch não consulta Helix novamente;
 7. recarregar a Home não provoca uma nova sincronização Twitch;
-8. `/debug/twitch-sync` chamado novamente antes de 24 h retorna `cache_fresh`;
+8. `/debug/twitch-sync` chamado novamente antes de 20 h retorna `cache_fresh`; entre 20 h e 24 h a renovação já pode ocorrer sem tornar o snapshot público indisponível;
 9. ranking de doações continua funcional;
 10. Blog, Agenda, Navbar, Footer e loader permanecem funcionais.
 

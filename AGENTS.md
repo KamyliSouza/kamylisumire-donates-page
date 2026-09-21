@@ -162,7 +162,7 @@ A integração Twitch deve obedecer estes invariantes:
 - VODs: o navegador consulta `/twitch/videos`;
 - status ao vivo: o navegador consulta `/twitch/live`;
 - `/twitch/videos` e `/twitch/live` leem cache/KV e nunca chamam diretamente `api.twitch.tv` durante uma visita;
-- `syncTwitchVideosIfDue()` deve respeitar no mínimo 24 h entre atualizações;
+- `syncTwitchVideosIfDue()` inicia renovação após 20 h; o snapshot `twitch:videos` continua válido/publicável por no máximo 24 h e mantém TTL de 86400 s;
 - `syncTwitchLiveIfDue()` usa janela nominal de 10 min entre consultas a `helix/streams`, com tolerância intencional de até 2 min para compensar latência/alinhamento do Cron;
 - `twitch:live` usa TTL de 30 min e não pode ser servido como válido após 20 min sem atualização;
 - o Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline/erro mantém o Hero padrão;
@@ -336,7 +336,7 @@ Preservar:
 - Streamlabs na janela operacional atual do Cron (~10 min);
 - Twitch Live na janela nominal de 10 min;
 - validação de App Access Token Twitch a cada 50 min, sempre abaixo de 1 h;
-- VODs Twitch com intervalo mínimo de 24 h;
+- VODs Twitch com renovação após 20 h e validade/TTL máxima de 24 h (regra vigente desde V48.3.56);
 - visitantes nunca chamam diretamente Twitch ou Streamlabs.
 
 O roteamento HTTP do Worker é explícito. Somente os caminhos documentados podem
@@ -604,3 +604,11 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
 - Persistir primeiro o ledger e somente depois snapshots/espelhos derivados. Se uma escrita derivada falhar, a execução seguinte deve reconstruí-la a partir do ledger sem dupla contagem.
 - Manter `totals:global`, `totals:monthly`, `state:last_donation_id` e `state:current_month` como espelhos de compatibilidade nesta fase; não apagá-los nem tratá-los como transação.
 - `ledger:v1` inválido/corrompido deve falhar fechado. Não fazer fallback silencioso para as chaves legadas quando a chave do ledger já existe.
+
+### Robustez do Worker — V48.3.56
+
+- Toda exceção inesperada do roteamento HTTP deve ser convertida em resposta JSON `500` com CORS e `Cache-Control: no-store`; não remover o `try/catch` global de `fetch()`.
+- A paginação de doações deve permanecer limitada a 50 páginas e falhar fechado se o cursor `before` não avançar; nunca persistir resultado parcial nesses casos.
+- Em CORS restrito, `Vary: Origin` deve existir mesmo quando a origem recebida não é permitida ou está ausente.
+- VODs entram em renovação após 20 h, mas `twitch:videos` continua com TTL/validade pública máxima de 24 h; não servir snapshot com 24 h ou mais.
+- A suíte `.github/tests/worker-robustness.test.mjs` deve permanecer na CI ao lado dos testes de ranking.

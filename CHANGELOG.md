@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.56 — Robustez do Worker
+
+- envolve o roteamento HTTP em tratamento global de exceções, devolvendo JSON `500` com CORS e `Cache-Control: no-store` em vez de erro 1101 sem cabeçalhos úteis;
+- protege o callback OAuth contra resposta de token com JSON inválido;
+- limita a paginação de doações da Streamlabs a 50 páginas e detecta cursor `before` sem progresso, falhando antes de qualquer persistência parcial;
+- passa a renovar VODs da Twitch após 20 h, mantendo o snapshot público/KV válido por no máximo 24 h e eliminando a janela diária esperada de 503 entre expiração e próximo Cron;
+- envia `Vary: Origin` em todas as respostas com CORS restrito, inclusive para requisições sem origem permitida;
+- adiciona `.github/tests/worker-robustness.test.mjs` à CI para cobrir erro global, CORS, paginação e janela de VODs.
+
 ## V48.3.55 — Ledger atômico do ranking
 
 - introduz `ledger:v1` como fonte primária do estado do ranking (`lastId`, mês, totais geral e mensal) em uma única chave KV, eliminando avanço parcial entre totais e cursor de deduplicação;

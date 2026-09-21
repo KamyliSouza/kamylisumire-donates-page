@@ -77,7 +77,7 @@ já usados pela sincronização de Jogos são reutilizados.
 
 As Lives usam duas abas no mesmo componente visual. **Twitch é a aba padrão** e
 recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twitch/videos`.
-O Worker atualiza esse snapshot no máximo uma vez a cada 24 horas e o guarda no KV.
+O Worker tenta renovar esse snapshot após 20 horas e o guarda no KV por no máximo 24 horas. A margem evita uma janela diária de indisponibilidade entre a expiração e o próximo Cron.
 A aba YouTube continua editorial/local em `data/content/lives.json`, com `videoId`,
 `title` e `date`, sem YouTube Data API, iframe ou chave Google.
 
@@ -107,8 +107,7 @@ Desde a V47.4.7, o Worker reduz consumo de quota sem alterar as frequências das
 integrações: caminhos inválidos não leem mais o ranking, ranking e VODs Twitch
 usam Cache API antes do KV, erros repetidos evitam writes idênticos e estados
 OAuth/cache são consolidados com migração transparente das chaves V47.4.6.
-Streamlabs (~10 min), Twitch Live (~10 min), validação Twitch (50 min) e VODs
-(24 h) mantêm o comportamento operacional anterior.
+Streamlabs (~10 min), Twitch Live (~10 min) e validação Twitch (50 min) mantêm o comportamento operacional daquela versão. Desde a V48.3.56, VODs entram em renovação após 20 h, mas continuam válidas somente até 24 h.
 
 Desde a V48.0.1, `/artes/` integra uma galeria editorial em masonry com duas imagens HTTPS por obra: `preview` leve na grade e `imagem` em alta qualidade carregada somente ao abrir o lightbox. A página mantém créditos, filtros, busca e o mesmo símbolo de loader do site, sem consumir Worker/KV e reutilizando Navbar/Footer compartilhados.
 
@@ -310,3 +309,9 @@ A V48.3.54 adiciona `.github/tests/worker-ranking.test.mjs`, executado com o run
 A V48.3.55 passa a usar `ledger:v1` no KV como fonte primária do estado lógico do ranking. O registro reúne versão, último ID processado, mês corrente e totais geral/mensal; uma única escrita da chave evita que o cursor avance sem os totais correspondentes (ou vice-versa). Na primeira sincronização após o deploy, o Worker lê as chaves legadas, monta o ledger em memória e só o persiste depois que a consulta à Streamlabs termina com sucesso.
 
 As chaves `totals:*` e `state:*` não são removidas: permanecem como espelhos de compatibilidade e são reparadas a partir do ledger em cada execução bem-sucedida. Os snapshots públicos `ranking:monthly` e `ranking:allTime` também são derivados a cada execução com `putKVIfChanged`; assim, uma falha posterior ao commit do ledger é corrigida no cron seguinte sem recontar doações. Um `ledger:v1` corrompido falha fechado e exige correção explícita, em vez de recuar silenciosamente para dados legados potencialmente obsoletos.
+
+### Robustez do Worker — V48.3.56
+
+A V48.3.56 envolve o roteamento HTTP do Worker em tratamento global de erro: exceções inesperadas passam a responder JSON `500` com CORS e `Cache-Control: no-store`, em vez de virar erro 1101 sem contexto para o navegador. A paginação de doações da Streamlabs fica limitada a 50 páginas por sincronização e também detecta cursor `before` sem progresso; ambos os casos falham antes de publicar qualquer estado parcial.
+
+Para VODs da Twitch, a renovação passa a ser tentada após 20 horas, enquanto o snapshot continua com validade pública/KV máxima de 24 horas. Isso fornece margem para o Cron sem aumentar a retenção. Respostas com CORS restrito passam a enviar `Vary: Origin` inclusive quando a origem da requisição não é permitida, evitando reutilização incorreta por caches.

@@ -77,8 +77,10 @@ jobs:
           node --check .github/scripts/sync-jogos.mjs
           node --check .github/scripts/sync-agenda.mjs
 
-      - name: Run Worker ranking tests
-        run: node --test .github/tests/worker-ranking.test.mjs
+      - name: Run Worker tests
+        run: |
+          node --test .github/tests/worker-ranking.test.mjs
+          node --test .github/tests/worker-robustness.test.mjs
 
       - name: Reject generated Python cache
         run: |

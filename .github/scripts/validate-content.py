@@ -67,6 +67,7 @@ REQUIRED_FILES = (
     ".github/scripts/sync-agenda.mjs",
     ".github/workflows/sync-agenda.yml",
     ".github/tests/worker-ranking.test.mjs",
+    ".github/tests/worker-robustness.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1459,6 +1460,7 @@ def validate_architecture() -> None:
     sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
     validate_workflow = read_text(".github/workflows/validate-json.yml")
     worker_ranking_tests = read_text(".github/tests/worker-ranking.test.mjs")
+    worker_robustness_tests = read_text(".github/tests/worker-robustness.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -2363,6 +2365,21 @@ def validate_architecture() -> None:
         if token not in worker_ranking_tests:
             error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
 
+    # V48.3.56: a CI também protege robustez de rota, paginação, CORS e cache Twitch.
+    if 'node --test .github/tests/worker-robustness.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes de robustez V48.3.56 ausentes.')
+
+    for token in (
+        'fetch global converte exceção inesperada em JSON 500 com CORS',
+        'CORS envia Vary: Origin também para origem não permitida',
+        'limite de 50 páginas',
+        'cursor before repetido',
+        'renova a partir de 20 h mas continua servindo snapshot até 24 h',
+        'considera snapshot vencido ao completar 24 h',
+    ):
+        if token not in worker_robustness_tests:
+            error(f'.github/tests/worker-robustness.test.mjs: cobertura V48.3.56 ausente: {token}')
+
     # V48.3.55: a suíte deve proteger migração/atomicidade do ledger.
     for token in (
         "'ledger:v1': JSON.stringify({",
@@ -2940,7 +2957,7 @@ def validate_architecture() -> None:
         error("js/pages/home/home.js: controlador compartilhado ausente.")
 
     for needle in (
-        "TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000",
+        "TWITCH_REFRESH_INTERVAL_MS = 20 * 60 * 60 * 1000",
         "'/twitch/videos'",
         "'/debug/twitch-sync'",
         "syncTwitchVideosIfDue(env)",
@@ -3083,6 +3100,30 @@ def validate_architecture() -> None:
         if forbidden in worker_js:
             error(f"workers.js: ranking mensal V48.3.53 não deve depender de {forbidden}.")
 
+
+    # V48.3.56: falhas inesperadas devem virar 500 com CORS, paginação de
+    # doações deve falhar fechado e o cache de VODs deve renovar com margem.
+    for needle in (
+        'const TWITCH_REFRESH_INTERVAL_MS = 20 * 60 * 60 * 1000;',
+        'const TWITCH_VIDEO_STALE_AFTER_MS = 24 * 60 * 60 * 1000;',
+        'const STREAMLABS_DONATION_MAX_PAGES = 50;',
+        'return await routeRequest(request, env, ctx);',
+        "JSON.stringify({ error: 'internal_error' })",
+        "appendVary(headers, 'Origin');",
+        'pagesFetched >= STREAMLABS_DONATION_MAX_PAGES',
+        'cursor before repetido',
+        'state.stale || !Array.isArray(videos)',
+        'Resposta inválida da Streamlabs ao trocar o código OAuth.',
+    ):
+        if needle not in worker_js:
+            error(f'workers.js: robustez V48.3.56 ausente: {needle}')
+
+    for forbidden in (
+        'const TWITCH_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000;',
+        'if (state.due || !Array.isArray(videos)',
+    ):
+        if forbidden in worker_js:
+            error(f'workers.js: regressão de robustez V48.3.56: {forbidden}')
 
     # V48.3.55: o estado lógico do ranking deve ser commitado em uma única chave.
     for needle in (

@@ -104,7 +104,7 @@ O mesmo componente visual possui duas abas:
 2. **YouTube:** lista manual/local de `data/content/lives.json`.
 
 O endpoint público `/twitch/videos` nunca chama a Twitch durante uma visita.
-A sincronização de VODs respeita uma janela mínima de 24 horas. Não existe
+A sincronização de VODs tenta renovar o snapshot após 20 horas; a validade pública/KV continua limitada a 24 horas. Não existe
 player incorporado, iframe ou YouTube Data API.
 
 Desde a V47.4.3, o Hero consulta também `/twitch/live`. A rota pública lê um
@@ -128,7 +128,7 @@ Rotas relevantes:
 - `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
 - `/debug/sync` — sincronização manual protegida do ranking;
 - `/twitch/videos` — snapshot público das últimas VODs da Twitch, com Cache API antes do KV desde V47.4.7;
-- `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, respeitando a janela de 24 h;
+- `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, renovável após 20 h e com validade máxima de 24 h;
 - `/twitch/live` — status público ao vivo, servido de cache/KV;
 - `/debug/twitch-live-sync` — sincronização protegida do status ao vivo, com `?force=1` opcional.
 
