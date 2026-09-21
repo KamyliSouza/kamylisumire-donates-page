@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.57 — Fail-safe e latência do loader
+
+- adiciona um fail-safe inline de 6 s em todas as páginas para liberar conteúdo, interação e rolagem caso `loader.js` não carregue ou falhe antes do reveal;
+- impede que um `loader.js` tardio ressuscite o overlay depois de o fail-safe já ter liberado a página e cancela o timer quando o fluxo normal assume o reveal;
+- reduz o mínimo do loader inicial de 500 ms para 320 ms, preservando o teto de 2,5 s e os timings próprios da navegação interna;
+- atualiza o cache-buster do loader e os hashes CSP do bootstrap inline em todas as páginas;
+- adiciona `.github/tests/loader-failsafe.test.mjs` à CI para verificar o fail-safe, CSP e contratos de timing.
+
 ## V48.3.56 — Robustez do Worker
 
 - envolve o roteamento HTTP em tratamento global de exceções, devolvendo JSON `500` com CORS e `Cache-Control: no-store` em vez de erro 1101 sem cabeçalhos úteis;

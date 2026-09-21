@@ -279,6 +279,10 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
 
 Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
 
+### Fail-safe do loader — V48.3.57
+
+Todas as páginas armam no bootstrap inline um fail-safe de 6 s. Se `loader.js` não executar ou falhar antes de concluir o reveal, o bootstrap remove os estados bloqueantes, oculta o overlay e devolve a página ao estado `site-ready`. O fluxo normal cancela esse timer ao assumir o reveal. O mínimo visual do carregamento inicial foi reduzido de 500 ms para 320 ms; navegações internas mantêm seus próprios timings.
+
 ### Hotfix do popup Redes — V48.3.49
 
 No mobile, `@ Redes` preserva a superfície e as cores normais enquanto aberto; o estado ativo é indicado por borda/halo da cor primária. Um toque ou gesto iniciado fora do popup fecha Redes já no `pointerdown`, então o painel não permanece aberto durante o scroll da página.

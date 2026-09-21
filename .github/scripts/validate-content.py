@@ -1904,13 +1904,13 @@ def validate_architecture() -> None:
     ):
         if "page-transitions.js?v=46.3" not in html:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
-        if "loader.js?v=48.3.6" not in html:
-            error(f"{rel}: cache-buster do loader V48.3.6 ausente.")
+        if "loader.js?v=48.3.57" not in html:
+            error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
         if "global.css?v=48.3.7" not in html:
             error(f"{rel}: cache-buster do CSS global V48.3.7 ausente.")
 
-    if "loader.js?v=48.3.6" not in not_found:
-        error("404.html: cache-buster do loader V48.3.6 ausente.")
+    if "loader.js?v=48.3.57" not in not_found:
+        error("404.html: cache-buster do loader V48.3.57 ausente.")
     if "global.css?v=48.3.7" not in not_found:
         error("404.html: cache-buster do CSS global V48.3.7 ausente.")
 
@@ -2565,12 +2565,39 @@ def validate_architecture() -> None:
     if "await prepareVisualBackdrop()" in loader_js:
         error("V48.3.6: fundo decorativo não deve bloquear o reveal inicial.")
     for token in (
-        "const INITIAL_MIN_DISPLAY_MS = 500",
+        "const INITIAL_MIN_DISPLAY_MS = 320",
         "const INITIAL_MAX_WAIT_MS = 2500",
-        'loaderTimingVersion = "48.3.6"',
+        'loaderTimingVersion = "48.3.57"',
     ):
         if token not in loader_js:
             error(f"V48.3.6: timing otimizado do loader ausente: {token}.")
+
+    # V48.3.57: o bootstrap inline precisa conseguir liberar a página mesmo
+    # quando loader.js não executa. O loader normal cancela o timer somente
+    # quando assume o reveal com sucesso.
+    loader_failsafe_tokens = (
+        "KAMYLI_LOADER_FAILSAFE_TIMER",
+        "KAMYLI_LOADER_FAILSAFE_FIRED",
+        "clearInitialFailsafe",
+    )
+    for token in loader_failsafe_tokens:
+        if token not in loader_js and token not in index:
+            error(f"V48.3.57: fail-safe do loader ausente: {token}.")
+
+    for rel, html in (
+        ("index.html", index),
+        ("404.html", not_found),
+        ("doacoes/index.html", donations),
+        ("artes/index.html", artes_index),
+        ("blog/index.html", blog_index),
+        ("jogos/index.html", jogos_index),
+        ("privacidade/index.html", privacy_html),
+        ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
+    ):
+        if "KAMYLI_LOADER_FAILSAFE_TIMER" not in html or "}, 6000);" not in html:
+            error(f"{rel}: bootstrap fail-safe V48.3.57 ausente/desatualizado.")
+        if "loader.js?v=48.3.57" not in html:
+            error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
 
     for token in (
         "runAfterSiteReveal",

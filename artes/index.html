@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-0T+Do/pSyzJGHMNTiXouDeLdR1qW0WmqeDDMpMCJGXs=' 'sha256-JX5fgFpRIg5gqUx/S73Ul0kb4Yyg27IuJ1qoxbAUpYo=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-0T+Do/pSyzJGHMNTiXouDeLdR1qW0WmqeDDMpMCJGXs=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
 
     <title>Galeria de Artes | Kamyli Sumire</title>
     <meta name="description" content="Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.">
@@ -231,8 +231,36 @@
     </script>
 
     <script>
-        window.KAMYLI_LOADER_STARTED_AT = performance.now();
-        document.documentElement.classList.add("site-loading-pending");
+        (() => {
+            const root = document.documentElement;
+            window.KAMYLI_LOADER_STARTED_AT = performance.now();
+            root.classList.add("site-loading-pending");
+
+            window.KAMYLI_LOADER_FAILSAFE_TIMER = window.setTimeout(() => {
+                window.KAMYLI_LOADER_FAILSAFE_FIRED = true;
+                window.KAMYLI_LOADER_FAILSAFE_TIMER = null;
+
+                root.classList.remove(
+                    "site-loading-pending",
+                    "site-loading-visible",
+                    "site-navigation-loading",
+                    "site-page-arriving",
+                    "site-page-delay",
+                    "site-page-leaving",
+                    "site-revealing"
+                );
+                root.classList.add("site-ready");
+
+                delete root.dataset.pageTransition;
+                delete root.dataset.blurPreparing;
+
+                const loader = document.getElementById("site-loader");
+                if (loader) {
+                    loader.setAttribute("aria-hidden", "true");
+                    loader.classList.add("is-leaving");
+                }
+            }, 6000);
+        })();
     </script>
 
     <link
@@ -393,6 +421,6 @@
     <script src="../js/core/footer.js?v=47.4.2"></script>
     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
     <script src="../js/pages/artes/artes.js?v=48.3.52"></script>
-    <script src="../js/core/loader.js?v=48.3.6"></script>
+    <script src="../js/core/loader.js?v=48.3.57"></script>
 </body>
 </html>

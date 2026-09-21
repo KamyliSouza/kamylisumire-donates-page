@@ -4,7 +4,30 @@
     const loader = document.getElementById("site-loader");
     const root = document.documentElement;
 
+    if (window.KAMYLI_LOADER_FAILSAFE_FIRED === true) {
+        if (loader) {
+            loader.setAttribute("aria-hidden", "true");
+            loader.classList.add("is-leaving");
+        }
+        root.classList.remove(
+            "site-loading-pending",
+            "site-loading-visible",
+            "site-navigation-loading",
+            "site-page-arriving",
+            "site-page-delay",
+            "site-page-leaving",
+            "site-revealing"
+        );
+        root.classList.add("site-ready");
+        return;
+    }
+
     if (!loader) {
+        const failsafeTimer = window.KAMYLI_LOADER_FAILSAFE_TIMER;
+        if (failsafeTimer !== undefined && failsafeTimer !== null) {
+            clearTimeout(failsafeTimer);
+            window.KAMYLI_LOADER_FAILSAFE_TIMER = null;
+        }
         root.classList.remove(
             "site-loading-pending",
             "site-loading-visible",
@@ -17,7 +40,7 @@
         return;
     }
 
-    const INITIAL_MIN_DISPLAY_MS = 500;
+    const INITIAL_MIN_DISPLAY_MS = 320;
     const INITIAL_MAX_WAIT_MS = 2500;
     const INITIAL_EXIT_MS = 320;
 
@@ -84,6 +107,14 @@
     const startedAt =
         Number(window.KAMYLI_LOADER_STARTED_AT) || performance.now();
 
+    function clearInitialFailsafe() {
+        const timer = window.KAMYLI_LOADER_FAILSAFE_TIMER;
+        if (timer !== undefined && timer !== null) {
+            clearTimeout(timer);
+            window.KAMYLI_LOADER_FAILSAFE_TIMER = null;
+        }
+    }
+
     let domReady = document.readyState !== "loading";
     let finished = false;
     let revealPreparing = false;
@@ -105,7 +136,7 @@
             )
         );
 
-    root.dataset.loaderTimingVersion = "48.3.6";
+    root.dataset.loaderTimingVersion = "48.3.57";
     root.dataset.loaderMode = loaderMode;
     root.dataset.pageRevealDelayMs =
         String(pageRevealDelayMs);
@@ -155,7 +186,7 @@
                     backdropReady,
                     pageRevealDelayMs,
                     pageRevealOverlapMs,
-                    loaderTimingVersion: "48.3.6"
+                    loaderTimingVersion: "48.3.57"
                 }
             })
         );
@@ -236,6 +267,7 @@
             "site-loading-visible",
             "site-navigation-loading"
         );
+        clearInitialFailsafe();
 
         let pageRevealStarted = false;
 

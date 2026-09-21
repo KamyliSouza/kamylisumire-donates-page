@@ -566,6 +566,13 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
+### Fail-safe do loader — V48.3.57
+
+- O bootstrap inline de todas as páginas deve armar `KAMYLI_LOADER_FAILSAFE_TIMER` por 6 s antes de `loader.js`; se o fluxo principal não assumir o reveal, o fail-safe precisa remover estados bloqueantes e restaurar `site-ready`.
+- `loader.js` deve cancelar o timer somente quando o reveal normal assumir o controle; se `KAMYLI_LOADER_FAILSAFE_FIRED` já estiver ativo, o loader tardio não pode reabrir o overlay.
+- O mínimo inicial vigente é 320 ms; o teto de 2,5 s e os timings de navegação interna permanecem separados.
+- Qualquer mudança no bootstrap inline exige atualizar o hash CSP correspondente nas oito páginas e manter `.github/tests/loader-failsafe.test.mjs` passando.
+
 ### Redes mobile — V48.3.49
 
 Preservar `--card-bg` no gatilho `@ Redes` quando aberto; não voltar a usar `--primary-soft` como única superfície do botão. Fechamento externo usa `pointerdown` para que gestos de rolagem iniciados fora do popup o descartem antes do scroll.

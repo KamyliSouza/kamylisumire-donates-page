@@ -81,6 +81,7 @@ jobs:
         run: |
           node --test .github/tests/worker-ranking.test.mjs
           node --test .github/tests/worker-robustness.test.mjs
+          node --test .github/tests/loader-failsafe.test.mjs
 
       - name: Reject generated Python cache
         run: |
