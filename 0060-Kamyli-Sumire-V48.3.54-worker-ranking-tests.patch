@@ -1,0 +1,402 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 1340367..bf8e33d 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -66,6 +66,7 @@ REQUIRED_FILES = (
+     ".github/workflows/sync-jogos.yml",
+     ".github/scripts/sync-agenda.mjs",
+     ".github/workflows/sync-agenda.yml",
++    ".github/tests/worker-ranking.test.mjs",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -1457,6 +1458,7 @@ def validate_architecture() -> None:
+     sync_agenda_js = read_text(".github/scripts/sync-agenda.mjs")
+     sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
+     validate_workflow = read_text(".github/workflows/validate-json.yml")
++    worker_ranking_tests = read_text(".github/tests/worker-ranking.test.mjs")
+     jogos_js = read_text("js/pages/jogos/jogos.js")
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+@@ -2342,6 +2344,25 @@ def validate_architecture() -> None:
+         if token not in validate_workflow:
+             error(f".github/workflows/validate-json.yml: cobertura de sintaxe V48.3.31 ausente: {token}")
+ 
++    # V48.3.54: a CI deve executar a suíte comportamental do Worker/ranking.
++    for token in (
++        '.github/tests/**',
++        'node --test .github/tests/worker-ranking.test.mjs',
++    ):
++        if token not in validate_workflow:
++            error(f".github/workflows/validate-json.yml: testes do Worker V48.3.54 ausentes: {token}")
++
++    for token in (
++        "monthKey(new Date('2026-10-01T02:59:59Z'))",
++        "syncDonations(env)",
++        "'state:last_donation_id'",
++        "RANKING_PRIVATE_NAMES",
++        "searchParams.get('before')",
++        "assert.rejects(syncDonations(env), SyntaxError)",
++    ):
++        if token not in worker_ranking_tests:
++            error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
++
+     for token in (
+         "function normalizeAgendaIcon(value, steamAppId)",
+         "function legacyLiveFromDay(dia)",
+diff --git a/.github/tests/worker-ranking.test.mjs b/.github/tests/worker-ranking.test.mjs
+new file mode 100644
+index 0000000..8e2d812
+--- /dev/null
++++ b/.github/tests/worker-ranking.test.mjs
+@@ -0,0 +1,263 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { readFile } from 'node:fs/promises';
++
++const workerSource = await readFile(new URL('../../workers.js', import.meta.url), 'utf8');
++const instrumentedSource = `${workerSource}\nexport { syncDonations, monthKey, parseDonationDate, getTopFive, sanitizeRanking };\n`;
++const workerModule = await import(`data:text/javascript;base64,${Buffer.from(instrumentedSource).toString('base64')}`);
++
++const {
++  syncDonations,
++  monthKey,
++  parseDonationDate,
++  getTopFive,
++  sanitizeRanking
++} = workerModule;
++
++class MemoryKV {
++  constructor(seed = {}) {
++    this.values = new Map(
++      Object.entries(seed).map(([key, value]) => [key, String(value)])
++    );
++    this.puts = [];
++  }
++
++  async get(key) {
++    return this.values.has(key) ? this.values.get(key) : null;
++  }
++
++  async put(key, value, options) {
++    const normalized = String(value);
++    this.values.set(key, normalized);
++    this.puts.push({ key, value: normalized, options });
++  }
++}
++
++function createEnv(seed = {}, overrides = {}) {
++  const tokenState = {
++    accessToken: 'streamlabs-test-token',
++    refreshToken: 'streamlabs-test-refresh',
++    expiresAt: Date.now() + 60 * 60 * 1000
++  };
++
++  return {
++    RANKINGS: new MemoryKV({
++      'tokens:streamlabs_state': JSON.stringify(tokenState),
++      ...seed
++    }),
++    ...overrides
++  };
++}
++
++function jsonResponse(data, status = 200) {
++  return new Response(JSON.stringify(data), {
++    status,
++    headers: { 'Content-Type': 'application/json' }
++  });
++}
++
++async function withMockFetch(mock, callback) {
++  const originalFetch = globalThis.fetch;
++  globalThis.fetch = mock;
++  try {
++    return await callback();
++  } finally {
++    globalThis.fetch = originalFetch;
++  }
++}
++
++test('monthKey usa a virada civil de America/Sao_Paulo', () => {
++  assert.equal(monthKey(new Date('2026-10-01T00:00:00Z')), '2026-09');
++  assert.equal(monthKey(new Date('2026-10-01T02:59:59Z')), '2026-09');
++  assert.equal(monthKey(new Date('2026-10-01T03:00:00Z')), '2026-10');
++  assert.equal(monthKey(new Date('2027-01-01T02:30:00Z')), '2026-12');
++  assert.equal(monthKey(new Date('2027-01-01T03:00:00Z')), '2027-01');
++});
++
++test('parseDonationDate aceita epoch em segundos, milissegundos e ISO', () => {
++  const expected = '2026-09-21T12:34:56.000Z';
++  const ms = Date.parse(expected);
++
++  assert.equal(parseDonationDate(Math.floor(ms / 1000)).toISOString(), expected);
++  assert.equal(parseDonationDate(ms).toISOString(), expected);
++  assert.equal(parseDonationDate(expected).toISOString(), expected);
++  assert.equal(parseDonationDate('data-invalida'), null);
++});
++
++test('getTopFive ordena, limita e formata o ranking público', () => {
++  const ranking = getTopFive({
++    Ana: 10.5,
++    Bia: 2,
++    Caio: 8,
++    Dani: 1,
++    Eva: 7,
++    Fabi: 6
++  });
++
++  assert.deepEqual(ranking.map(item => item.name), ['Ana', 'Caio', 'Eva', 'Fabi', 'Bia']);
++  assert.equal(ranking[0].amount, '10,50');
++  assert.equal(ranking.length, 5);
++});
++
++test('sanitizeRanking anonimiza nomes privados sem alterar os demais', () => {
++  const result = sanitizeRanking([
++    { name: 'Alice', amount: '10,00' },
++    { name: 'BOB', amount: '8,00' },
++    { name: 'Carol', amount: '5,00' }
++  ], {
++    RANKING_PRIVATE_NAMES: ' alice, bob ',
++    RANKING_PRIVACY_LABEL: 'Privado'
++  });
++
++  assert.deepEqual(result, [
++    { name: 'Privado', amount: '10,00' },
++    { name: 'Privado', amount: '8,00' },
++    { name: 'Carol', amount: '5,00' }
++  ]);
++});
++
++test('syncDonations deduplica pelo último ID e separa total mensal do geral', async () => {
++  const currentMonth = monthKey(new Date());
++  const currentDonationDate = Math.floor(Date.now() / 1000);
++  const oldDonationDate = Math.floor((Date.now() - 45 * 24 * 60 * 60 * 1000) / 1000);
++  const env = createEnv({
++    'state:last_donation_id': '100',
++    'state:current_month': currentMonth,
++    'totals:global': JSON.stringify({ Anterior: 5 }),
++    'totals:monthly': JSON.stringify({ Anterior: 2 }),
++    'ranking:monthly': '[]',
++    'ranking:allTime': '[]'
++  });
++
++  const page = [
++    { donation_id: 102, name: 'Alice', amount: '10.50', created_at: currentDonationDate },
++    { donation_id: 101, name: 'Bob', amount: '3', created_at: oldDonationDate },
++    { donation_id: 100, name: 'Ignorar', amount: '999', created_at: currentDonationDate }
++  ];
++
++  await withMockFetch(async () => jsonResponse({ data: page }), async () => {
++    await syncDonations(env);
++  });
++
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), {
++    Anterior: 5,
++    Alice: 10.5,
++    Bob: 3
++  });
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), {
++    Anterior: 2,
++    Alice: 10.5
++  });
++  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '102');
++
++  env.RANKINGS.puts.length = 0;
++  await withMockFetch(async () => jsonResponse({ data: page }), async () => {
++    await syncDonations(env);
++  });
++
++  assert.equal(env.RANKINGS.puts.length, 0, 'a segunda sincronização não deve recontar nem regravar dados idênticos');
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), {
++    Anterior: 5,
++    Alice: 10.5,
++    Bob: 3
++  });
++});
++
++
++test('syncDonations zera apenas o mensal quando a chave de mês muda', async () => {
++  const currentMonth = monthKey(new Date());
++  const env = createEnv({
++    'state:last_donation_id': '77',
++    'state:current_month': '2000-01',
++    'totals:global': JSON.stringify({ Historico: 25 }),
++    'totals:monthly': JSON.stringify({ MesAnterior: 12 }),
++    'ranking:monthly': JSON.stringify([{ name: 'MesAnterior', amount: '12,00' }]),
++    'ranking:allTime': JSON.stringify([{ name: 'Historico', amount: '25,00' }])
++  });
++
++  await withMockFetch(async () => jsonResponse({ data: [] }), async () => {
++    await syncDonations(env);
++  });
++
++  assert.equal(await env.RANKINGS.get('state:current_month'), currentMonth);
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), {});
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:monthly')), []);
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Historico: 25 });
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('ranking:allTime')), [
++    { name: 'Historico', amount: '25,00' }
++  ]);
++});
++
++test('syncDonations pagina até encontrar state:last_donation_id', async () => {
++  const currentMonth = monthKey(new Date());
++  const createdAt = Math.floor(Date.now() / 1000);
++  const env = createEnv({
++    'state:last_donation_id': '50',
++    'state:current_month': currentMonth,
++    'totals:global': '{}',
++    'totals:monthly': '{}',
++    'ranking:monthly': '[]',
++    'ranking:allTime': '[]'
++  });
++
++  const firstPage = Array.from({ length: 100 }, (_, index) => ({
++    donation_id: 150 - index,
++    name: 'Coletivo',
++    amount: '1',
++    created_at: createdAt
++  }));
++  const secondPage = [
++    { donation_id: 50, name: 'Antigo', amount: '999', created_at: createdAt },
++    { donation_id: 49, name: 'Antigo', amount: '999', created_at: createdAt }
++  ];
++  const requested = [];
++
++  await withMockFetch(async input => {
++    const url = new URL(String(input));
++    requested.push(url);
++    return requested.length === 1
++      ? jsonResponse({ data: firstPage })
++      : jsonResponse({ data: secondPage });
++  }, async () => {
++    await syncDonations(env);
++  });
++
++  assert.equal(requested.length, 2);
++  assert.equal(requested[0].searchParams.get('before'), null);
++  assert.equal(requested[1].searchParams.get('before'), '51');
++  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '150');
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Coletivo: 100 });
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), { Coletivo: 100 });
++});
++
++test('syncDonations falha fechado quando a API responde erro e não persiste estado parcial', async () => {
++  const currentMonth = monthKey(new Date());
++  const env = createEnv({
++    'state:last_donation_id': '10',
++    'state:current_month': currentMonth,
++    'totals:global': JSON.stringify({ Existente: 7 }),
++    'totals:monthly': JSON.stringify({ Existente: 4 })
++  });
++
++  await withMockFetch(async () => new Response('erro', { status: 503 }), async () => {
++    await assert.rejects(syncDonations(env), /Erro API: 503/);
++  });
++
++  assert.equal(env.RANKINGS.puts.length, 0);
++  assert.equal(await env.RANKINGS.get('state:last_donation_id'), '10');
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:global')), { Existente: 7 });
++  assert.deepEqual(JSON.parse(await env.RANKINGS.get('totals:monthly')), { Existente: 4 });
++});
++
++test('syncDonations não converte JSON corrompido em totais vazios silenciosamente', async () => {
++  const currentMonth = monthKey(new Date());
++  const env = createEnv({
++    'state:last_donation_id': '10',
++    'state:current_month': currentMonth,
++    'totals:global': '{json-invalido',
++    'totals:monthly': '{}'
++  });
++
++  await assert.rejects(syncDonations(env), SyntaxError);
++  assert.equal(env.RANKINGS.puts.length, 0);
++});
+diff --git a/.github/workflows/validate-json.yml b/.github/workflows/validate-json.yml
+index 8b95c0e..8a9b2e4 100644
+--- a/.github/workflows/validate-json.yml
++++ b/.github/workflows/validate-json.yml
+@@ -23,6 +23,7 @@ on:
+       - "CHANGELOG.md"
+       - "docs/**"
+       - ".github/scripts/validate-content.py"
++      - ".github/tests/**"
+       - ".github/scripts/sync-jogos.mjs"
+       - ".github/scripts/sync-agenda.mjs"
+       - ".github/workflows/validate-json.yml"
+@@ -48,6 +49,7 @@ on:
+       - "CHANGELOG.md"
+       - "docs/**"
+       - ".github/scripts/validate-content.py"
++      - ".github/tests/**"
+       - ".github/scripts/sync-jogos.mjs"
+       - ".github/scripts/sync-agenda.mjs"
+       - ".github/workflows/validate-json.yml"
+@@ -75,6 +77,9 @@ jobs:
+           node --check .github/scripts/sync-jogos.mjs
+           node --check .github/scripts/sync-agenda.mjs
+ 
++      - name: Run Worker ranking tests
++        run: node --test .github/tests/worker-ranking.test.mjs
++
+       - name: Reject generated Python cache
+         run: |
+           if find . -type d -name '__pycache__' -o -type f \( -name '*.pyc' -o -name '*.pyo' \) | grep -q .; then
+diff --git a/AGENTS.md b/AGENTS.md
+index b0f4ead..4776c90 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -589,3 +589,10 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
+ 
+ - A chave mensal do Worker deve usar explicitamente `America/Sao_Paulo`; não voltar a `getUTCFullYear()`/`getUTCMonth()`.
+ - O mesmo `monthKey()` deve classificar tanto o instante atual quanto `created_at` de cada doação, para que a virada aconteça à meia-noite de Brasília.
++
++
++### Testes do Worker/Ranking — V48.3.54
++
++- Preservar `.github/tests/worker-ranking.test.mjs` como suíte sem dependências externas, executada por `node --test` no workflow principal de validação.
++- Os testes devem usar a implementação real de `workers.js` carregada/instrumentada apenas em memória; não adicionar exports, rotas ou flags de teste ao Worker de produção só para facilitar a suíte.
++- Antes de alterar persistência, deduplicação, paginação, privacidade ou a virada mensal do ranking, atualizar/adicionar o teste correspondente e manter o comportamento fail-closed para JSON corrompido e falhas da API.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 55c0c16..3e2dee7 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,12 @@
+ # Changelog
+ 
++## V48.3.54 — Testes automatizados do Worker e ranking
++
++- adiciona uma suíte `node:test` sem dependências externas para exercitar diretamente a lógica real de `workers.js` em memória, sem alterar o módulo publicado em produção;
++- cobre virada mensal em `America/Sao_Paulo`, parsing de datas, ordenação Top 5, anonimização, deduplicação entre sincronizações, reset mensal, paginação e falhas fechadas da API/JSON;
++- integra a suíte ao workflow `Validate public site` e faz o validador exigir tanto o arquivo de testes quanto sua execução na CI;
++- estabelece uma rede de segurança antes da futura migração atômica do estado do ranking.
++
+ ## V48.3.53 — Ranking mensal no fuso de Brasília
+ 
+ - calcula a chave mensal do ranking em `America/Sao_Paulo`, em vez de UTC, para que a virada ocorra à meia-noite de Brasília;
+diff --git a/README.md b/README.md
+index 3b3652c..a2afb85 100644
+--- a/README.md
++++ b/README.md
+@@ -299,3 +299,8 @@ A V48.3.52 mantém o Ranking sincronizado com a aba selecionada mesmo quando o u
+ ### Fuso mensal do Ranking — V48.3.53
+ 
+ A V48.3.53 define `America/Sao_Paulo` como fuso explícito da chave mensal usada pelo Worker. A virada do ranking mensal passa a acontecer à meia-noite de Brasília, inclusive na passagem de dezembro para janeiro, e o mesmo critério é usado para classificar a data de cada doação.
++
++
++### Testes automatizados do Worker/Ranking — V48.3.54
++
++A V48.3.54 adiciona `.github/tests/worker-ranking.test.mjs`, executado com o runner nativo `node:test` e sem dependências adicionais. A suíte carrega a implementação real de `workers.js` apenas em memória para testes e cobre fuso mensal, parsing de datas, Top 5, privacidade, deduplicação, reset mensal, paginação e comportamento fail-closed. O código publicado do Worker não ganha exports ou caminhos especiais de teste.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 777a442..7bbec82 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -459,3 +459,7 @@ No mobile, abrir Redes e confirmar que o gatilho mantém fundo/superfície legí
+ ### Controles do Blog — V48.3.50
+ 
+ No desktop, confirmar que a faixa de tags fica à esquerda e o conjunto seletor “Buscar em” + campo de pesquisa fica à direita, igual à Galeria. No mobile, confirmar tags acima da busca e que dropdown, rolagem horizontal e pesquisa continuam funcionando.
++
++### Testes automatizados do Worker/Ranking — V48.3.54
++
++Executar `node --test .github/tests/worker-ranking.test.mjs`. A suíte não exige pacotes npm e carrega a implementação real de `workers.js` somente em memória, acrescentando exports apenas à cópia usada pelo teste. Ela deve cobrir: virada mensal de Brasília; parsing de `created_at`; ordenação/limite Top 5; anonimização; deduplicação pelo último ID; reset do mensal sem apagar o geral; paginação com `before`; falha da API sem persistência parcial; e JSON de totais corrompido falhando fechado. O workflow `Validate public site` deve executar essa suíte em push/PR sempre que `.github/tests/**` mudar.

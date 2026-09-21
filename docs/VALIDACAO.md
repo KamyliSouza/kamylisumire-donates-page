@@ -459,3 +459,7 @@ No mobile, abrir Redes e confirmar que o gatilho mantém fundo/superfície legí
 ### Controles do Blog — V48.3.50
 
 No desktop, confirmar que a faixa de tags fica à esquerda e o conjunto seletor “Buscar em” + campo de pesquisa fica à direita, igual à Galeria. No mobile, confirmar tags acima da busca e que dropdown, rolagem horizontal e pesquisa continuam funcionando.
+
+### Testes automatizados do Worker/Ranking — V48.3.54
+
+Executar `node --test .github/tests/worker-ranking.test.mjs`. A suíte não exige pacotes npm e carrega a implementação real de `workers.js` somente em memória, acrescentando exports apenas à cópia usada pelo teste. Ela deve cobrir: virada mensal de Brasília; parsing de `created_at`; ordenação/limite Top 5; anonimização; deduplicação pelo último ID; reset do mensal sem apagar o geral; paginação com `before`; falha da API sem persistência parcial; e JSON de totais corrompido falhando fechado. O workflow `Validate public site` deve executar essa suíte em push/PR sempre que `.github/tests/**` mudar.

@@ -589,3 +589,10 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
 
 - A chave mensal do Worker deve usar explicitamente `America/Sao_Paulo`; não voltar a `getUTCFullYear()`/`getUTCMonth()`.
 - O mesmo `monthKey()` deve classificar tanto o instante atual quanto `created_at` de cada doação, para que a virada aconteça à meia-noite de Brasília.
+
+
+### Testes do Worker/Ranking — V48.3.54
+
+- Preservar `.github/tests/worker-ranking.test.mjs` como suíte sem dependências externas, executada por `node --test` no workflow principal de validação.
+- Os testes devem usar a implementação real de `workers.js` carregada/instrumentada apenas em memória; não adicionar exports, rotas ou flags de teste ao Worker de produção só para facilitar a suíte.
+- Antes de alterar persistência, deduplicação, paginação, privacidade ou a virada mensal do ranking, atualizar/adicionar o teste correspondente e manter o comportamento fail-closed para JSON corrompido e falhas da API.

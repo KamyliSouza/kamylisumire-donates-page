@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.54 — Testes automatizados do Worker e ranking
+
+- adiciona uma suíte `node:test` sem dependências externas para exercitar diretamente a lógica real de `workers.js` em memória, sem alterar o módulo publicado em produção;
+- cobre virada mensal em `America/Sao_Paulo`, parsing de datas, ordenação Top 5, anonimização, deduplicação entre sincronizações, reset mensal, paginação e falhas fechadas da API/JSON;
+- integra a suíte ao workflow `Validate public site` e faz o validador exigir tanto o arquivo de testes quanto sua execução na CI;
+- estabelece uma rede de segurança antes da futura migração atômica do estado do ranking.
+
 ## V48.3.53 — Ranking mensal no fuso de Brasília
 
 - calcula a chave mensal do ranking em `America/Sao_Paulo`, em vez de UTC, para que a virada ocorra à meia-noite de Brasília;

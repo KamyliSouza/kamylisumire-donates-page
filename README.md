@@ -299,3 +299,8 @@ A V48.3.52 mantém o Ranking sincronizado com a aba selecionada mesmo quando o u
 ### Fuso mensal do Ranking — V48.3.53
 
 A V48.3.53 define `America/Sao_Paulo` como fuso explícito da chave mensal usada pelo Worker. A virada do ranking mensal passa a acontecer à meia-noite de Brasília, inclusive na passagem de dezembro para janeiro, e o mesmo critério é usado para classificar a data de cada doação.
+
+
+### Testes automatizados do Worker/Ranking — V48.3.54
+
+A V48.3.54 adiciona `.github/tests/worker-ranking.test.mjs`, executado com o runner nativo `node:test` e sem dependências adicionais. A suíte carrega a implementação real de `workers.js` apenas em memória para testes e cobre fuso mensal, parsing de datas, Top 5, privacidade, deduplicação, reset mensal, paginação e comportamento fail-closed. O código publicado do Worker não ganha exports ou caminhos especiais de teste.

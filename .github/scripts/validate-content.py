@@ -66,6 +66,7 @@ REQUIRED_FILES = (
     ".github/workflows/sync-jogos.yml",
     ".github/scripts/sync-agenda.mjs",
     ".github/workflows/sync-agenda.yml",
+    ".github/tests/worker-ranking.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1457,6 +1458,7 @@ def validate_architecture() -> None:
     sync_agenda_js = read_text(".github/scripts/sync-agenda.mjs")
     sync_agenda_workflow = read_text(".github/workflows/sync-agenda.yml")
     validate_workflow = read_text(".github/workflows/validate-json.yml")
+    worker_ranking_tests = read_text(".github/tests/worker-ranking.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -2341,6 +2343,25 @@ def validate_architecture() -> None:
     ):
         if token not in validate_workflow:
             error(f".github/workflows/validate-json.yml: cobertura de sintaxe V48.3.31 ausente: {token}")
+
+    # V48.3.54: a CI deve executar a suíte comportamental do Worker/ranking.
+    for token in (
+        '.github/tests/**',
+        'node --test .github/tests/worker-ranking.test.mjs',
+    ):
+        if token not in validate_workflow:
+            error(f".github/workflows/validate-json.yml: testes do Worker V48.3.54 ausentes: {token}")
+
+    for token in (
+        "monthKey(new Date('2026-10-01T02:59:59Z'))",
+        "syncDonations(env)",
+        "'state:last_donation_id'",
+        "RANKING_PRIVATE_NAMES",
+        "searchParams.get('before')",
+        "assert.rejects(syncDonations(env), SyntaxError)",
+    ):
+        if token not in worker_ranking_tests:
+            error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
 
     for token in (
         "function normalizeAgendaIcon(value, steamAppId)",
