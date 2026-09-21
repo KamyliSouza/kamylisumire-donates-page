@@ -26,6 +26,7 @@
     let items = [];
     let activeCategory = "todas";
     let activeSearchField = "todos";
+    let dialogLoadGeneration = 0;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
 
@@ -135,6 +136,7 @@
     function openDialog(item) {
         if (!dialog || !dialogImage) return;
 
+        const loadGeneration = ++dialogLoadGeneration;
         const previewUrl = getPreviewUrl(item);
         const fullUrl = item.imagem;
         const media = dialog.querySelector(".arte-dialog-media");
@@ -172,12 +174,14 @@
         fullImage.decoding = "async";
         fullImage.referrerPolicy = "no-referrer";
         fullImage.addEventListener("load", () => {
+            if (loadGeneration !== dialogLoadGeneration || !dialog.open) return;
             dialogImage.src = fullUrl;
             dialogImage.classList.add("is-full");
             media?.classList.remove("is-loading-full");
             fullLoader?.setAttribute("hidden", "");
         }, { once: true });
         fullImage.addEventListener("error", () => {
+            if (loadGeneration !== dialogLoadGeneration || !dialog.open) return;
             media?.classList.remove("is-loading-full");
             fullLoader?.setAttribute("hidden", "");
         }, { once: true });
@@ -484,6 +488,13 @@
     dialogClose?.addEventListener("click", () => dialog?.close());
     dialog?.addEventListener("click", event => {
         if (event.target === dialog) dialog.close();
+    });
+    dialog?.addEventListener("close", () => {
+        dialogLoadGeneration += 1;
+        const media = dialog.querySelector(".arte-dialog-media");
+        const fullLoader = dialog.querySelector(".arte-dialog-loader");
+        media?.classList.remove("is-loading-full");
+        fullLoader?.setAttribute("hidden", "");
     });
 
     load();

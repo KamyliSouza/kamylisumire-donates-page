@@ -579,3 +579,8 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
 - O fallback estático de `doacoes/index.html` deve repetir os textos correspondentes de `data/content/doacoes.json`; o mínimo atual do Pixie é R$ 1,00.
 - Toda mudança em `js/pages/jogos/jogos.js` deve preservar o sinal `KAMYLI_PAGE_CONTENT_READY`/`kamyli:loader-ready` após `init()`, inclusive quando a carga falhar de forma tratada.
 - `applyRuntimeSeo()` só pode aplicar `data.home` quando o documento for de fato a Home; páginas sem entrada própria em `seo.json` devem preservar seus metadados estáticos.
+
+### Estado assíncrono de Ranking/Galeria — V48.3.52
+
+- `js/pages/doacoes/ranking.js` deve renderizar a aba atualmente ativa quando cache/API concluírem; durante `loading`, trocar de aba mantém a mensagem de carregamento e não deve simular ranking vazio.
+- `js/pages/artes/artes.js` deve invalidar callbacks de imagem full quando o diálogo fecha ou quando outro item assume o diálogo; callbacks obsoletos não podem alterar imagem, loader ou estado visual da obra atual.

@@ -291,3 +291,7 @@ A barra de ferramentas do Blog segue a mesma hierarquia da Galeria: tags/filtros
 ### Consistência de conteúdo e carregamento — V48.3.51
 
 A V48.3.51 mantém o fallback estático de Doações sincronizado com `data/content/doacoes.json` (Pixie a partir de R$ 1,00), faz Jogos sinalizar conteúdo pronto ao loader e impede que páginas sem entrada em `seo.json` herdem título/description da Home em runtime. A CI protege os três contratos contra regressão.
+
+### Estado assíncrono de Ranking/Galeria — V48.3.52
+
+A V48.3.52 mantém o Ranking sincronizado com a aba selecionada mesmo quando o usuário troca de período durante o carregamento e protege o diálogo da Galeria contra callbacks atrasados de imagens full. Fechar ou trocar o conteúdo do diálogo invalida o carregamento anterior, evitando que uma obra antiga sobrescreva a atual.

@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.52 — Estado assíncrono do ranking e diálogo da Galeria
+
+- mantém o ranking na aba atualmente selecionada quando a resposta da API/cache chega, em vez de forçar novamente “Este mês”;
+- durante a carga, trocar entre “Este mês” e “Todos os tempos” preserva o estado “Carregando ranking...” em vez de exibir uma lista vazia como se não houvesse doações;
+- invalida carregamentos full antigos da Galeria quando o diálogo é fechado ou uma nova obra assume o estado, impedindo que uma imagem atrasada sobrescreva título/legenda de outra obra;
+- atualiza cache-busters de `ranking.js`/`artes.js` e adiciona contratos de regressão ao validador.
+
 ## V48.3.51 — Consistência de doações, loader de Jogos e SEO runtime
 
 - alinha o fallback estático do Pixie ao valor editorial atual de R$ 1,00 e remove do HTML o aviso legado de mínimo de R$ 6,00;

@@ -1988,8 +1988,8 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
     if "css/pages/blog.css?v=48.3.22" not in blog_index:
         error("blog/index.html: cache-buster V48.3.22 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.31" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.31 ausente para js/pages/artes/artes.js.")
+    if "js/pages/artes/artes.js?v=48.3.52" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.52 ausente para js/pages/artes/artes.js.")
     if "css/pages/artes.css?v=48.3.22" not in artes_index:
         error("artes/index.html: cache-buster V48.3.22 ausente para css/pages/artes.css.")
 
@@ -2465,7 +2465,7 @@ def validate_architecture() -> None:
             "css/core/variables.css?v=48.3.7",
             "css/pages/doacoes.css?v=48.3.7",
             "css/components/ranking.css?v=48.3.11",
-            "js/pages/doacoes/ranking.js?v=48.3.8",
+            "js/pages/doacoes/ranking.js?v=48.3.52",
         ),
         "blog/index.html": (
             "css/core/variables.css?v=48.3.7",
@@ -3052,6 +3052,33 @@ def validate_architecture() -> None:
     ):
         if forbidden in ranking_js:
             error(f"js/pages/doacoes/ranking.js: fallback expirado V48.3.8 não permitido: {forbidden}")
+
+    # V48.3.52: trocar de aba durante o fetch não pode renderizar uma lista
+    # vazia nem forçar o ranking mensal quando a resposta chegar.
+    for needle in (
+        'let activeRankingTab = "monthly";',
+        'let rankingLoadState = "loading";',
+        'function renderActiveRanking()',
+        'activeRankingTab === "allTime"',
+        'rankingLoadState = "ready";',
+        'renderActiveRanking();',
+    ):
+        if needle not in ranking_js:
+            error(f"js/pages/doacoes/ranking.js: estado assíncrono V48.3.52 ausente: {needle}")
+
+    # V48.3.52: callbacks atrasados da imagem full não podem alterar outro
+    # item que já tenha assumido o diálogo ou um diálogo já fechado.
+    for needle in (
+        "let dialogLoadGeneration = 0;",
+        "const loadGeneration = ++dialogLoadGeneration;",
+        'dialog?.addEventListener("close", () => {',
+        "dialogLoadGeneration += 1;",
+    ):
+        if needle not in artes_js:
+            error(f"js/pages/artes/artes.js: proteção contra imagem atrasada V48.3.52 ausente: {needle}")
+    stale_image_guard = "loadGeneration !== dialogLoadGeneration || !dialog.open"
+    if artes_js.count(stale_image_guard) < 2:
+        error("js/pages/artes/artes.js: callbacks load/error devem ignorar imagens full obsoletas na V48.3.52.")
 
     # V48.3.11: nomes de exibição arbitrariamente longos não podem alargar o card/página.
     ranking_css = read_text("css/components/ranking.css")

@@ -95,6 +95,17 @@ let rankingData = {
     monthly: [],
     allTime: []
 };
+let activeRankingTab = "monthly";
+let rankingLoadState = "loading";
+
+function renderRankingStatus(message) {
+    if (!rankingList) return;
+
+    const status = document.createElement("li");
+    status.className = "ranking-status";
+    status.textContent = message;
+    rankingList.replaceChildren(status);
+}
 
 function renderRanking(items) {
     if (!rankingList) return;
@@ -133,6 +144,26 @@ function renderRanking(items) {
     });
 }
 
+function renderActiveRanking() {
+    if (!rankingList) return;
+
+    if (rankingLoadState === "loading") {
+        renderRankingStatus("Carregando ranking...");
+        return;
+    }
+
+    if (rankingLoadState === "error") {
+        renderRankingStatus("Não foi possível carregar o ranking.");
+        return;
+    }
+
+    renderRanking(
+        activeRankingTab === "allTime"
+            ? rankingData.allTime
+            : rankingData.monthly
+    );
+}
+
 async function fetchRankingData() {
     return window.KamyliAPI.getJSON("/");
 }
@@ -152,13 +183,13 @@ async function loadRanking() {
                 : []
         };
 
-        renderRanking(rankingData.monthly);
+        rankingLoadState = "ready";
+        renderActiveRanking();
         return;
     }
 
-    rankingList.innerHTML = `
-        <li class="ranking-status">Carregando ranking...</li>
-    `;
+    rankingLoadState = "loading";
+    renderActiveRanking();
 
     try {
         const data = await fetchRankingData();
@@ -173,25 +204,24 @@ async function loadRanking() {
         };
 
         writeRankingCache(rankingData);
-        renderRanking(rankingData.monthly);
+        rankingLoadState = "ready";
+        renderActiveRanking();
     } catch (error) {
         console.error("Erro ao carregar ranking:", error);
 
         // Cache expirado é apagado por readRankingCache(). Não reutilizamos
         // nomes/valores antigos como fallback após o limite de 30 minutos.
-        rankingList.innerHTML = `
-            <li class="ranking-status">
-                Não foi possível carregar o ranking.
-            </li>
-        `;
+        rankingLoadState = "error";
+        renderActiveRanking();
     }
 }
 
 function setActiveTab(tab, { focus = false } = {}) {
+    activeRankingTab = tab === "allTime" ? "allTime" : "monthly";
     let activeButton = null;
 
     tabButtons.forEach(button => {
-        const active = button.dataset.tab === tab;
+        const active = button.dataset.tab === activeRankingTab;
 
         button.classList.toggle("active", active);
         button.setAttribute("aria-selected", String(active));
@@ -209,11 +239,7 @@ function setActiveTab(tab, { focus = false } = {}) {
         );
     }
 
-    renderRanking(
-        tab === "allTime"
-            ? rankingData.allTime
-            : rankingData.monthly
-    );
+    renderActiveRanking();
 
     if (focus) {
         activeButton?.focus();
