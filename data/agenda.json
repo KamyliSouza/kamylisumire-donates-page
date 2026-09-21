@@ -1,5 +1,5 @@
 {
-  "ultimaAtualizacao": "20/09/2026",
+  "ultimaAtualizacao": "21/09/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
@@ -52,6 +52,36 @@
       "data": "2026-09-22",
       "temLive": true,
       "horario": "20:00",
+      "titulo": "Star Wars Jedi: Survivor",
+      "descricao": "Será que meu PC RODA?",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Star Wars Jedi: Survivor",
+          "descricao": "Será que meu PC RODA?",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 1774580,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 1774580,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1774580/25578ffb2c6070c5d4e6569624efaadb8a0f5538.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quarta",
+      "nome": "Quarta-feira",
+      "data": "2026-09-23",
+      "temLive": true,
+      "horario": "20:00",
       "titulo": "ReStory: Chill Electronics Repairs",
       "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
       "plataformas": [
@@ -72,36 +102,6 @@
             "provider": "steam-original",
             "steamAppId": 3812600,
             "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "quarta",
-      "nome": "Quarta-feira",
-      "data": "2026-09-23",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Warhammer: Vermintide 2",
-      "descricao": "Vamos de Collab Com Meus AMIGOS",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "Warhammer: Vermintide 2",
-          "descricao": "Vamos de Collab Com Meus AMIGOS",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 552500,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 552500,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/552500/a671f2ddf7359beba9702ac097baf6d50cb07202.jpg"
           }
         }
       ]
