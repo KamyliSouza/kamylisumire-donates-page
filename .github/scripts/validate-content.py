@@ -2063,6 +2063,14 @@ def validate_architecture() -> None:
             if token not in css:
                 error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
 
+    # V48.3.50: Blog mantém a mesma ordem visual da Galeria: filtros/tags
+    # à esquerda e busca + seletor à direita no desktop. No mobile, essa ordem
+    # também mantém a faixa de tags antes dos controles de busca.
+    blog_filter_pos = blog_index.find('class="blog-filter-scroll"')
+    blog_search_pos = blog_index.find('class="blog-search-controls"')
+    if blog_filter_pos < 0 or blog_search_pos < 0 or blog_filter_pos > blog_search_pos:
+        error("blog/index.html: V48.3.50 exige tags antes de busca/seletor, em paridade com a Galeria.")
+
     # V48.3.22: setas continuam sobrepostas e os fades passam a usar máscara
     # na própria faixa rolável, evitando blocos visíveis sobre o vidro.
     filter_arrow_contracts = (

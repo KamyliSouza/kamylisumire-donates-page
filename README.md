@@ -283,3 +283,7 @@ Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobil
 ### Hotfix do popup Redes — V48.3.49
 
 No mobile, `@ Redes` preserva a superfície e as cores normais enquanto aberto; o estado ativo é indicado por borda/halo da cor primária. Um toque ou gesto iniciado fora do popup fecha Redes já no `pointerdown`, então o painel não permanece aberto durante o scroll da página.
+
+### Paridade Blog/Galeria — V48.3.50
+
+A barra de ferramentas do Blog segue a mesma hierarquia da Galeria: tags/filtros vêm primeiro e o conjunto busca + seletor fica depois, resultando em filtros à esquerda e busca à direita no desktop e na mesma ordem vertical no mobile.

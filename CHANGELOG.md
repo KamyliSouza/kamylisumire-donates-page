@@ -1,5 +1,11 @@
 # Changelog
 
+## V48.3.50 — Hotfix: alinhamento dos controles do Blog
+
+- reorganiza a barra de ferramentas do Blog para seguir a mesma ordem visual da Galeria: tags/filtros à esquerda e busca + seletor à direita no desktop;
+- no mobile, mantém a faixa de tags antes dos controles de busca, preservando a mesma hierarquia da Galeria;
+- não altera filtros, pesquisa, dropdown, rolagem horizontal, conteúdo editorial ou comportamento responsivo existente.
+
 ## V48.3.49 — Hotfix: estado aberto e scroll de Redes
 
 - mantém `@ Redes` com a superfície `--card-bg` quando aberto, evitando que `--primary-soft` translúcido + blur deixe o gatilho visualmente lavado;

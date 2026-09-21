@@ -569,3 +569,7 @@ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`,
 ### Redes mobile — V48.3.49
 
 Preservar `--card-bg` no gatilho `@ Redes` quando aberto; não voltar a usar `--primary-soft` como única superfície do botão. Fechamento externo usa `pointerdown` para que gestos de rolagem iniciados fora do popup o descartem antes do scroll.
+
+### Blog/Galeria — V48.3.50
+
+Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de filtros/tags primeiro e busca + seletor depois. No desktop isso mantém filtros à esquerda e busca à direita; no mobile, filtros permanecem acima da busca.

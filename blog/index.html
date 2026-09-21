@@ -303,6 +303,26 @@
             aria-label="Busca e filtros das publicações"
             hidden
         >
+            <div class="blog-filter-scroll" data-horizontal-scroll-shell>
+                <button
+                    class="blog-filter-arrow blog-filter-arrow-prev"
+                    type="button"
+                    data-horizontal-scroll-prev
+                    aria-label="Mostrar tags anteriores"
+                    aria-controls="blogFilters"
+                    hidden
+                >‹</button>
+                <div class="blog-filters" id="blogFilters" aria-label="Filtrar por tag"></div>
+                <button
+                    class="blog-filter-arrow blog-filter-arrow-next"
+                    type="button"
+                    data-horizontal-scroll-next
+                    aria-label="Mostrar próximas tags"
+                    aria-controls="blogFilters"
+                    hidden
+                >›</button>
+            </div>
+
             <div class="blog-search-controls">
                 <div class="blog-search-field" data-blog-search-field>
                     <span class="blog-search-field-label" id="blogSearchFieldLabel">Buscar em</span>
@@ -341,26 +361,6 @@
                     aria-label="Buscar publicações"
                     autocomplete="off"
                 >
-            </div>
-
-            <div class="blog-filter-scroll" data-horizontal-scroll-shell>
-                <button
-                    class="blog-filter-arrow blog-filter-arrow-prev"
-                    type="button"
-                    data-horizontal-scroll-prev
-                    aria-label="Mostrar tags anteriores"
-                    aria-controls="blogFilters"
-                    hidden
-                >‹</button>
-                <div class="blog-filters" id="blogFilters" aria-label="Filtrar por tag"></div>
-                <button
-                    class="blog-filter-arrow blog-filter-arrow-next"
-                    type="button"
-                    data-horizontal-scroll-next
-                    aria-label="Mostrar próximas tags"
-                    aria-controls="blogFilters"
-                    hidden
-                >›</button>
             </div>
         </section>
 

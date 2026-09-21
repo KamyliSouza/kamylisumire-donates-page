@@ -455,3 +455,7 @@ Durante a tela de carregamento e transições de página, verificar que `Menu`, 
 ### Popup Redes — V48.3.49
 
 No mobile, abrir Redes e confirmar que o gatilho mantém fundo/superfície legível, com `@` rosa e rótulo preservado. Com o popup aberto, iniciar um swipe vertical em qualquer área da página fora do popup: Redes deve fechar imediatamente e o scroll deve continuar normalmente. Confirmar que tocar nos links do popup continua funcionando.
+
+### Controles do Blog — V48.3.50
+
+No desktop, confirmar que a faixa de tags fica à esquerda e o conjunto seletor “Buscar em” + campo de pesquisa fica à direita, igual à Galeria. No mobile, confirmar tags acima da busca e que dropdown, rolagem horizontal e pesquisa continuam funcionando.
