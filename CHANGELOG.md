@@ -1,5 +1,11 @@
 # Changelog
 
+## V48.3.53 — Ranking mensal no fuso de Brasília
+
+- calcula a chave mensal do ranking em `America/Sao_Paulo`, em vez de UTC, para que a virada ocorra à meia-noite de Brasília;
+- aplica o mesmo critério tanto ao mês corrente quanto à data de cada doação durante a sincronização;
+- protege o contrato no validador para impedir regressão silenciosa para `getUTCFullYear()`/`getUTCMonth()` ou remoção do timezone explícito.
+
 ## V48.3.52 — Estado assíncrono do ranking e diálogo da Galeria
 
 - mantém o ranking na aba atualmente selecionada quando a resposta da API/cache chega, em vez de forçar novamente “Este mês”;

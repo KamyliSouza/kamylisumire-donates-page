@@ -1443,10 +1443,18 @@ function parseDonationDate(createdAt) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+const RANKING_MONTH_TIME_ZONE = 'America/Sao_Paulo';
+const RANKING_MONTH_FORMATTER = new Intl.DateTimeFormat('en-CA', {
+  timeZone: RANKING_MONTH_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit'
+});
+
 function monthKey(date) {
-  return `${date.getUTCFullYear()}-${String(
-    date.getUTCMonth() + 1
-  ).padStart(2, '0')}`;
+  const parts = Object.fromEntries(
+    RANKING_MONTH_FORMATTER.formatToParts(date).map(part => [part.type, part.value])
+  );
+  return `${parts.year}-${parts.month}`;
 }
 
 async function getJSON(env, key, fallback) {

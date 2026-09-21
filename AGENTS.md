@@ -584,3 +584,8 @@ Preservar a mesma ordem estrutural das ferramentas nas duas páginas: faixa de f
 
 - `js/pages/doacoes/ranking.js` deve renderizar a aba atualmente ativa quando cache/API concluírem; durante `loading`, trocar de aba mantém a mensagem de carregamento e não deve simular ranking vazio.
 - `js/pages/artes/artes.js` deve invalidar callbacks de imagem full quando o diálogo fecha ou quando outro item assume o diálogo; callbacks obsoletos não podem alterar imagem, loader ou estado visual da obra atual.
+
+### Fuso mensal do Ranking — V48.3.53
+
+- A chave mensal do Worker deve usar explicitamente `America/Sao_Paulo`; não voltar a `getUTCFullYear()`/`getUTCMonth()`.
+- O mesmo `monthKey()` deve classificar tanto o instante atual quanto `created_at` de cada doação, para que a virada aconteça à meia-noite de Brasília.

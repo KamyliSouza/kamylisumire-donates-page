@@ -295,3 +295,7 @@ A V48.3.51 mantém o fallback estático de Doações sincronizado com `data/cont
 ### Estado assíncrono de Ranking/Galeria — V48.3.52
 
 A V48.3.52 mantém o Ranking sincronizado com a aba selecionada mesmo quando o usuário troca de período durante o carregamento e protege o diálogo da Galeria contra callbacks atrasados de imagens full. Fechar ou trocar o conteúdo do diálogo invalida o carregamento anterior, evitando que uma obra antiga sobrescreva a atual.
+
+### Fuso mensal do Ranking — V48.3.53
+
+A V48.3.53 define `America/Sao_Paulo` como fuso explícito da chave mensal usada pelo Worker. A virada do ranking mensal passa a acontecer à meia-noite de Brasília, inclusive na passagem de dezembro para janeiro, e o mesmo critério é usado para classificar a data de cada doação.

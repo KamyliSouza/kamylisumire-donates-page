@@ -3034,6 +3034,20 @@ def validate_architecture() -> None:
         if needle not in worker_js:
             error(f"workers.js: hardening de chaves do ranking V48.3.31 ausente: {needle}")
 
+    # V48.3.53: o ranking mensal segue a virada civil de Brasília, não UTC.
+    for needle in (
+        "const RANKING_MONTH_TIME_ZONE = 'America/Sao_Paulo';",
+        "const RANKING_MONTH_FORMATTER = new Intl.DateTimeFormat('en-CA', {",
+        "timeZone: RANKING_MONTH_TIME_ZONE",
+        "RANKING_MONTH_FORMATTER.formatToParts(date)",
+        "monthKey(donationDate) === currentMonthKey",
+    ):
+        if needle not in worker_js:
+            error(f"workers.js: fuso mensal V48.3.53 ausente: {needle}")
+    for forbidden in ("getUTCFullYear()", "getUTCMonth()"):
+        if forbidden in worker_js:
+            error(f"workers.js: ranking mensal V48.3.53 não deve depender de {forbidden}.")
+
     for needle in (
         'RANKING_CACHE_KEY = "kamyli-ranking-cache-v4"',
         'RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
