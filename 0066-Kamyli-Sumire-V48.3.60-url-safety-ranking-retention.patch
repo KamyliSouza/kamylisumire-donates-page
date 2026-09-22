@@ -1,0 +1,1027 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 7f668d9..5c386b4 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -69,6 +69,8 @@ REQUIRED_FILES = (
+     ".github/tests/worker-ranking.test.mjs",
+     ".github/tests/worker-robustness.test.mjs",
+     ".github/tests/color-contrast.test.mjs",
++    ".github/tests/accessibility-semantics.test.mjs",
++    ".github/tests/frontend-safety-retention.test.mjs",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -339,6 +341,27 @@ def validate_home_content() -> None:
+         if not isinstance(donation.get(key), str) or not donation[key].strip():
+             error(f"data/content/home-doacoes.json: {key} deve ser texto não vazio.")
+ 
++    creditos = load_json("data/content/creditos.json")
++    if isinstance(creditos, dict):
++        itens = creditos.get("itens")
++        if not isinstance(itens, list):
++            error("data/content/creditos.json: itens deve ser lista.")
++        else:
++            for index, item in enumerate(itens):
++                if not isinstance(item, dict):
++                    error(f"data/content/creditos.json: itens[{index}] deve ser objeto.")
++                    continue
++                url = item.get("url", "")
++                if not isinstance(url, str):
++                    error(f"data/content/creditos.json: itens[{index}].url deve ser texto.")
++                    continue
++                if url.strip():
++                    parsed = urlparse(url.strip())
++                    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
++                        error(
++                            f"data/content/creditos.json: itens[{index}].url deve ser URL HTTP(S) absoluta."
++                        )
++
+ 
+ def validate_home_cards() -> None:
+     data = load_json("data/content/home-cards.json")
+@@ -1464,6 +1487,7 @@ def validate_architecture() -> None:
+     worker_robustness_tests = read_text(".github/tests/worker-robustness.test.mjs")
+     color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
+     accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
++    frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
+     jogos_js = read_text("js/pages/jogos/jogos.js")
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+@@ -1597,8 +1621,8 @@ def validate_architecture() -> None:
+ 
+     if "css/pages/home.css?v=48.3.58" not in index:
+         error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
+-    if "js/pages/home/content.js?v=48.2.0" not in index:
+-        error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
++    if "js/pages/home/content.js?v=48.3.60" not in index:
++        error("index.html: cache-buster V48.3.60 ausente para js/pages/home/content.js.")
+     if "js/pages/home/home.js?v=48.3.31" not in index:
+         error("index.html: cache-buster V48.3.31 ausente para js/pages/home/home.js.")
+ 
+@@ -1934,7 +1958,7 @@ def validate_architecture() -> None:
+             "js/core/mobile-overlay.js?v=48.3.47",
+             "js/core/navbar.js?v=48.3.47",
+             "js/core/external-links.js?v=47",
+-            "js/core/footer.js?v=47",
++            "js/core/footer.js?v=48.3.60",
+             "css/core/navbar.css?v=48.3.58",
+         ):
+             if asset not in html:
+@@ -1970,9 +1994,9 @@ def validate_architecture() -> None:
+             error(f"{rel}: cache-buster V48.3.51 ausente para js/core/content.js.")
+ 
+     for asset in (
+-        "js/pages/home/content.js?v=48.2.0",
+-        "js/pages/home/lives.js?v=47.4.3",
+-        "js/pages/home/twitch-live.js?v=48.3.7",
++        "js/pages/home/content.js?v=48.3.60",
++        "js/pages/home/lives.js?v=48.3.60",
++        "js/pages/home/twitch-live.js?v=48.3.60",
+         "js/pages/home/home-interactions.js?v=47",
+         "css/components/home-interactions.css?v=47",
+     ):
+@@ -2002,7 +2026,7 @@ def validate_architecture() -> None:
+ 
+     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
+         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
+-    if "js/pages/jogos/jogos.js?v=48.3.59" not in jogos_index:
++    if "js/pages/jogos/jogos.js?v=48.3.60" not in jogos_index:
+         error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
+ 
+     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
+@@ -2411,6 +2435,19 @@ def validate_architecture() -> None:
+         if token not in accessibility_semantics_tests:
+             error(f'.github/tests/accessibility-semantics.test.mjs: cobertura V48.3.59 ausente: {token}')
+ 
++    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
++    if 'node --test .github/tests/frontend-safety-retention.test.mjs' not in validate_workflow:
++        error('.github/workflows/validate-json.yml: testes de URL/retenção V48.3.60 ausentes.')
++
++    for token in (
++        'safeHttpUrl rejeita protocolos ativos e aplica allowlist de host',
++        'Créditos, Steam e Twitch validam href antes da atribuição',
++        'gerenciador global mantém TTL de 30 minutos e cobre retomada da página',
++        'todas as páginas carregam o gerenciador global e a versão nova do sanitizer',
++    ):
++        if token not in frontend_safety_retention_tests:
++            error(f'.github/tests/frontend-safety-retention.test.mjs: cobertura V48.3.60 ausente: {token}')
++
+     page_skip_targets = {
+         'index.html': 'conteudo',
+         'doacoes/index.html': 'conteudo',
+@@ -2573,13 +2610,13 @@ def validate_architecture() -> None:
+             "css/components/carousels.css?v=48.3.58",
+             "css/components/lives.css?v=48.3.7",
+             "css/components/blog.css?v=48.3.7",
+-            "js/pages/home/twitch-live.js?v=48.3.7",
++            "js/pages/home/twitch-live.js?v=48.3.60",
+         ),
+         "doacoes/index.html": (
+             "css/core/variables.css?v=48.3.58",
+             "css/pages/doacoes.css?v=48.3.58",
+             "css/components/ranking.css?v=48.3.58",
+-            "js/pages/doacoes/ranking.js?v=48.3.52",
++            "js/pages/doacoes/ranking.js?v=48.3.60",
+         ),
+         "blog/index.html": (
+             "css/core/variables.css?v=48.3.58",
+@@ -2873,6 +2910,47 @@ def validate_architecture() -> None:
+     if 'history.replaceState(history.state, "", nextUrl);' not in navbar:
+         error("V48.3.47: Home deve preservar history.state ao atualizar hash de seção.")
+ 
++    # V48.3.60: URLs externas de JSON/API passam pelo helper central e o cache
++    # do ranking recebe remoção proativa em todas as páginas.
++    sanitize_js = read_text("js/core/sanitize.js")
++    preferences_js = read_text("js/core/preferences.js")
++    ranking_js = read_text("js/pages/doacoes/ranking.js")
++    home_content_js = read_text("js/pages/home/content.js")
++    jogos_js = read_text("js/pages/jogos/jogos.js")
++    lives_js = read_text("js/pages/home/lives.js")
++    twitch_live_js = read_text("js/pages/home/twitch-live.js")
++
++    for token in (
++        "function safeHttpUrl(value, options = {})",
++        'parsed.protocol !== "http:" && parsed.protocol !== "https:"',
++        "options.httpsOnly === true",
++        "options.allowedHosts",
++    ):
++        if token not in sanitize_js:
++            error(f"V48.3.60: helper central de URL incompleto: {token}.")
++
++    if 'const url = safeHttpUrl(item.url);' not in home_content_js:
++        error("V48.3.60: Créditos deve validar URL antes de criar href.")
++    if 'allowedHosts: ["store.steampowered.com"]' not in jogos_js:
++        error("V48.3.60: link Steam deve exigir host oficial no runtime.")
++    for source, label in ((lives_js, "Lives Twitch"), (twitch_live_js, "Hero Twitch")):
++        if 'allowedHosts: ["www.twitch.tv", "twitch.tv"]' not in source:
++            error(f"V48.3.60: {label} deve restringir links ao host Twitch.")
++
++    for token in (
++        'const RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
++        'const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated"',
++        "function scheduleRankingCacheRetention()",
++        'window.addEventListener("focus", scheduleRankingCacheRetention)',
++        'window.addEventListener("pageshow", scheduleRankingCacheRetention)',
++        'document.addEventListener("visibilitychange"',
++    ):
++        if token not in preferences_js:
++            error(f"V48.3.60: retenção global do ranking incompleta: {token}.")
++
++    if 'window.dispatchEvent(new Event(RANKING_CACHE_EVENT));' not in ranking_js:
++        error("V48.3.60: ranking.js deve avisar o gerenciador global após atualizar/remover cache.")
++
+     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
+     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
+         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
+@@ -3124,7 +3202,7 @@ def validate_architecture() -> None:
+         "Armazenamento e retenção",
+         "Seus direitos pela LGPD",
+         "Segurança e incidentes",
+-        "cache local do Top 5 do ranking é mantido por no máximo 30 minutos",
++        "cache local do Top 5 do ranking é válido por no máximo 30 minutos",
+         "Pixie oferece, inclusive, ranking público de apoiadores",
+         "LivePix oferece alertas e integrações",
+         "não é tratada pelo projeto como consentimento específico",
+diff --git a/.github/tests/frontend-safety-retention.test.mjs b/.github/tests/frontend-safety-retention.test.mjs
+new file mode 100644
+index 0000000..fd8604c
+--- /dev/null
++++ b/.github/tests/frontend-safety-retention.test.mjs
+@@ -0,0 +1,80 @@
++import assert from "node:assert/strict";
++import { readFileSync } from "node:fs";
++import test from "node:test";
++import vm from "node:vm";
++
++const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
++
++function loadSanitize() {
++  const window = { location: { href: "https://kamylisumire.com/" } };
++  const context = vm.createContext({ window, URL, Set, String, Object });
++  vm.runInContext(read("js/core/sanitize.js"), context);
++  return window.KamyliSanitize;
++}
++
++test("safeHttpUrl rejeita protocolos ativos e aplica allowlist de host", () => {
++  const sanitize = loadSanitize();
++  assert.equal(sanitize.safeHttpUrl("javascript:alert(1)"), "");
++  assert.equal(sanitize.safeHttpUrl("data:text/html,oi"), "");
++  assert.equal(
++    sanitize.safeHttpUrl("https://www.twitch.tv/videos/123", {
++      httpsOnly: true,
++      allowedHosts: ["www.twitch.tv", "twitch.tv"],
++    }),
++    "https://www.twitch.tv/videos/123",
++  );
++  assert.equal(
++    sanitize.safeHttpUrl("https://evil.example/?next=https://www.twitch.tv/", {
++      httpsOnly: true,
++      allowedHosts: ["www.twitch.tv", "twitch.tv"],
++    }),
++    "",
++  );
++  assert.equal(
++    sanitize.safeHttpUrl("http://www.twitch.tv/videos/123", {
++      httpsOnly: true,
++      allowedHosts: ["www.twitch.tv", "twitch.tv"],
++    }),
++    "",
++  );
++});
++
++test("Créditos, Steam e Twitch validam href antes da atribuição", () => {
++  const home = read("js/pages/home/content.js");
++  const jogos = read("js/pages/jogos/jogos.js");
++  const lives = read("js/pages/home/lives.js");
++  const liveHero = read("js/pages/home/twitch-live.js");
++
++  assert.match(home, /const url = safeHttpUrl\(item\.url\);/);
++  assert.match(jogos, /allowedHosts: \["store\.steampowered\.com"\]/);
++  assert.doesNotMatch(jogos, /steamLink\.href\s*=\s*game\.steamUrl/);
++  assert.match(lives, /allowedHosts: \["www\.twitch\.tv", "twitch\.tv"\]/);
++  assert.match(liveHero, /allowedHosts: \["www\.twitch\.tv", "twitch\.tv"\]/);
++});
++
++test("gerenciador global mantém TTL de 30 minutos e cobre retomada da página", () => {
++  const prefs = read("js/core/preferences.js");
++  const ranking = read("js/pages/doacoes/ranking.js");
++
++  assert.match(prefs, /RANKING_CACHE_TTL_MS = 30 \* 60 \* 1000/);
++  assert.match(prefs, /function scheduleRankingCacheRetention\(\)/);
++  assert.match(prefs, /setTimeout\(\s*removeRankingCache,\s*remaining\s*\)/);
++  assert.match(prefs, /window\.addEventListener\("focus", scheduleRankingCacheRetention\)/);
++  assert.match(prefs, /window\.addEventListener\("pageshow", scheduleRankingCacheRetention\)/);
++  assert.match(prefs, /document\.addEventListener\("visibilitychange"/);
++  assert.match(prefs, /event\.key === RANKING_CACHE_KEY/);
++  assert.match(ranking, /window\.dispatchEvent\(new Event\(RANKING_CACHE_EVENT\)\);/);
++});
++
++test("todas as páginas carregam o gerenciador global e a versão nova do sanitizer", () => {
++  const pages = [
++    "index.html", "404.html", "doacoes/index.html", "artes/index.html",
++    "blog/index.html", "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
++  ];
++
++  for (const path of pages) {
++    const html = read(path);
++    assert.match(html, /js\/core\/preferences\.js\?v=48\.3\.60/);
++    assert.match(html, /js\/core\/sanitize\.js\?v=48\.3\.60/);
++  }
++});
+diff --git a/.github/workflows/validate-json.yml b/.github/workflows/validate-json.yml
+index 3830a5c..50fa4e1 100644
+--- a/.github/workflows/validate-json.yml
++++ b/.github/workflows/validate-json.yml
+@@ -84,6 +84,7 @@ jobs:
+           node --test .github/tests/loader-failsafe.test.mjs
+           node --test .github/tests/color-contrast.test.mjs
+           node --test .github/tests/accessibility-semantics.test.mjs
++          node --test .github/tests/frontend-safety-retention.test.mjs
+ 
+       - name: Reject generated Python cache
+         run: |
+diff --git a/404.html b/404.html
+index b8bb22f..20208ea 100644
+--- a/404.html
++++ b/404.html
+@@ -316,7 +316,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="js/core/preferences.js"></script>
++    <script src="js/core/preferences.js?v=48.3.60"></script>
+     <script src="js/core/config.js"></script>
+     <script src="js/core/content.js?v=48.3.51"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+@@ -325,8 +325,8 @@
+     <script src="js/core/navbar.js?v=48.3.47"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.49"></script>
+-    <script src="js/core/sanitize.js?v=1"></script>
+-    <script src="js/core/footer.js?v=47.4.2"></script>
++    <script src="js/core/sanitize.js?v=48.3.60"></script>
++    <script src="js/core/footer.js?v=48.3.60"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+diff --git a/AGENTS.md b/AGENTS.md
+index 907f50e..b1c8b29 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -566,6 +566,14 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
+ 
+ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
+ 
++
++### Segurança de URLs e retenção do ranking — V48.3.60
++
++- URLs editoriais/API atribuídas a `href` devem passar por `KamyliSanitize.safeHttpUrl()`; não reintroduzir atribuição direta para Créditos, Steam ou links de Twitch.
++- Steam exige HTTPS e host `store.steampowered.com`; Twitch exige HTTPS e host `twitch.tv`/`www.twitch.tv`. Imagens remotas continuam exigindo ao menos HTTPS e as allowlists específicas já existentes quando aplicáveis.
++- `kamyli-ranking-cache-v4` tem TTL de 30 minutos. `ranking.js` deve remover cache vencido antes do uso e emitir `kamyli:ranking-cache-updated` ao gravar/remover; `preferences.js` deve programar a remoção global e revalidar em foco, `pageshow`, visibilidade e evento de storage.
++- Navegador suspenso pode atrasar execução de timers; ao retomar, o cache vencido deve ser removido imediatamente e nunca reutilizado como fallback.
++
+ ### Acessibilidade semântica — V48.3.59
+ 
+ - Todas as páginas devem preservar um `.skip-link` como primeiro controle focável após `<body>`, apontando para o `<main>` correspondente com `tabindex="-1"`; IDs de runtime existentes não devem ser trocados apenas para padronizar o alvo.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 16320a1..8231321 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,13 @@
+ # Changelog
+ 
++## V48.3.60 — Segurança de URLs e retenção local do ranking
++
++- centraliza a validação de URLs HTTP(S) em `KamyliSanitize.safeHttpUrl()` e faz Créditos, Footer, Steam e links da Twitch passarem pelo helper antes de chegar a `href`;
++- restringe links de Steam a HTTPS em `store.steampowered.com` e links vindos da Twitch a HTTPS em `twitch.tv`/`www.twitch.tv`, mantendo thumbnails remotas apenas em HTTPS;
++- mantém o cache `kamyli-ranking-cache-v4` com TTL de 30 minutos, mas agora agenda remoção proativa em todas as páginas e revalida expiração em `pageshow`, foco, visibilidade e mudanças de storage;
++- faz `ranking.js` notificar cada gravação/remoção do cache para que o temporizador global seja rearmado sem depender de nova visita a `/doacoes/`;
++- atualiza a Política de Privacidade e a documentação para descrever corretamente a retomada após suspensão do navegador e adiciona testes de regressão para URLs e retenção.
++
+ ## V48.3.59 — Acessibilidade semântica de navegação e resultados
+ 
+ - adiciona “Pular para o conteúdo” nas oito páginas, apontando diretamente para o `<main>` focável sem alterar os IDs já usados por Artes, Blog e Jogos;
+diff --git a/README.md b/README.md
+index 4fc9e3d..3e783a3 100644
+--- a/README.md
++++ b/README.md
+@@ -225,7 +225,7 @@ Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow
+ 
+ ### Privacidade e LGPD — V48.3.8
+ 
+-A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e limita o cache em `localStorage` a 30 minutos reais, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
++A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e mantém o cache em `localStorage` válido por no máximo 30 minutos, com remoção programada enquanto o site executa e limpeza imediata na retomada caso o navegador tenha suspendido a página, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
+ 
+ ### Manutenção de consistência — V48.3.31
+ 
+@@ -279,6 +279,11 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
+ 
+ Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
+ 
++
++### URLs externas e retenção local — V48.3.60
++
++A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.
++
+ ### Acessibilidade semântica — V48.3.59
+ 
+ A V48.3.59 adiciona um link “Pular para o conteúdo” em todas as páginas. O link fica fora do fluxo visual até receber foco e aponta diretamente para o `<main>` da página, que aceita foco programático sem substituir IDs já usados pelo runtime. Artes e Jogos deixam de aplicar `aria-live` às grades completas: uma região `role="status"` visualmente oculta anuncia somente a contagem filtrada de resultados.
+diff --git a/artes/index.html b/artes/index.html
+index ba054b0..6f12981 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -409,7 +409,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -419,8 +419,8 @@
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+     <script src="../js/pages/artes/artes.js?v=48.3.59"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+diff --git a/blog/index.html b/blog/index.html
+index d6d4c92..dc2325d 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -409,7 +409,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -419,8 +419,8 @@
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+     <script src="../js/pages/blog/blog.js?v=48.3.19"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 43867ec..7e0fd37 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -485,7 +485,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -496,11 +496,11 @@
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script src="../js/pages/doacoes/doacoes.js"></script>
+     <script src="../js/pages/doacoes/content.js?v=47"></script>
+-    <script src="../js/pages/doacoes/ranking.js?v=48.3.52"></script>
++    <script src="../js/pages/doacoes/ranking.js?v=48.3.60"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+ </body>
+ </html>
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index cb7a8ff..1a178e1 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -87,9 +87,12 @@ também é somente de frontend/documentação e não requer alteração nos Help
+ 
+ ## Doações
+ 
+-O ranking possui cache local no navegador por no máximo 30 minutos. Cache
+-expirado é removido e nunca é reutilizado como fallback; se não houver cache
+-fresco e a consulta remota falhar, a interface informa indisponibilidade.
++O ranking possui cache local no navegador com validade máxima de 30 minutos.
++`preferences.js` agenda a remoção enquanto o site está em execução e repete a
++limpeza em `pageshow`, foco/visibilidade e mudanças de storage, cobrindo retomada
++após suspensão do navegador. Cache expirado nunca é reutilizado como fallback;
++se não houver cache fresco e a consulta remota falhar, a interface informa
++indisponibilidade.
+ 
+ Na V44.4, a ordem dos endpoints remotos é:
+ 
+diff --git a/docs/PRIVACIDADE-RANKING.md b/docs/PRIVACIDADE-RANKING.md
+index 1f5559c..8a94c0e 100644
+--- a/docs/PRIVACIDADE-RANKING.md
++++ b/docs/PRIVACIDADE-RANKING.md
+@@ -57,7 +57,7 @@ Para pedidos formais de acesso, correção ou eliminação:
+ 
+ ## 6. Retenção e cache
+ 
+-- `localStorage`: cache do Top 5 por no máximo 30 minutos; expirado, deve ser removido e nunca usado como fallback;
++- `localStorage`: cache do Top 5 com validade máxima de 30 minutos; enquanto o site executa, há remoção programada e revalidação em retomada/foco/visibilidade; expirado, é removido e nunca usado como fallback;
+ - totais mensais: acompanham o período corrente;
+ - totais históricos agregados: podem existir enquanto o ranking histórico estiver ativo;
+ - a saída pública aplica `RANKING_PRIVATE_NAMES` sem apagar automaticamente os totais internos.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index 5a7781c..d80874a 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -61,8 +61,8 @@ Antes de publicar:
+ 2. confirmar que a política chama `donation.name` de **identificador de exibição autodeclarado/não autenticado**, explica que textos iguais podem pertencer a pessoas diferentes e não trata o ranking como cadastro de identidades verificadas;
+ 3. abrir `/doacoes/` e confirmar o aviso junto ao ranking sobre identificador não verificado, valor acumulado, exibição como **Anônimo** e contestação de possível personificação;
+ 4. confirmar em `docs/PRIVACIDADE-RANKING.md` que contestação pública não concede acesso aos dados internos e que coincidência de nome/pseudônimo, isoladamente, não autoriza correção ou exclusão de totais;
+-5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; após simular `savedAt` com mais de 30 minutos, confirmar remoção da chave e nova consulta à API;
+-6. confirmar que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
++5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; simular `savedAt` vencido e confirmar que `preferences.js` remove a chave ao carregar/retomar qualquer página do site, antes de nova consulta ao ranking;
++6. manter `/doacoes/` aberto e confirmar que o evento `kamyli:ranking-cache-updated` rearma a remoção programada; confirmar também que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
+ 7. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker;
+ 8. confirmar SEO editorial: Galeria com obras deve estar `index, follow` e no sitemap; Blog sem posts publicados deve permanecer `noindex, follow` e fora do sitemap.
+ 
+diff --git a/index.html b/index.html
+index a2b0ea4..432bc4a 100644
+--- a/index.html
++++ b/index.html
+@@ -771,7 +771,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="js/core/preferences.js"></script>
++    <script src="js/core/preferences.js?v=48.3.60"></script>
+     <script src="js/core/config.js"></script>
+     <script src="js/core/content.js?v=48.3.51"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+@@ -781,14 +781,14 @@
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.49"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+-    <script src="js/core/sanitize.js?v=1"></script>
+-    <script src="js/core/footer.js?v=47.4.2"></script>
++    <script src="js/core/sanitize.js?v=48.3.60"></script>
++    <script src="js/core/footer.js?v=48.3.60"></script>
+     <script src="js/pages/home/carousel.js?v=46.2"></script>
+     <script src="js/pages/home/home.js?v=48.3.31"></script>
+-    <script src="js/pages/home/content.js?v=48.2.0"></script>
++    <script src="js/pages/home/content.js?v=48.3.60"></script>
+     <script src="js/core/api.js?v=47.3"></script>
+-    <script src="js/pages/home/lives.js?v=47.4.3"></script>
+-    <script src="js/pages/home/twitch-live.js?v=48.3.7"></script>
++    <script src="js/pages/home/lives.js?v=48.3.60"></script>
++    <script src="js/pages/home/twitch-live.js?v=48.3.60"></script>
+     <script src="js/pages/home/home-interactions.js?v=47"></script>
+     <script src="js/core/loader.js?v=48.3.57"></script>
+ </body>
+diff --git a/jogos/index.html b/jogos/index.html
+index 964148c..dd922e3 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -361,7 +361,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -371,10 +371,10 @@
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+-    <script src="../js/pages/jogos/jogos.js?v=48.3.59"></script>
++    <script src="../js/pages/jogos/jogos.js?v=48.3.60"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+ </body>
+ </html>
+diff --git a/js/core/footer.js b/js/core/footer.js
+index aeb80e6..a484ddf 100644
+--- a/js/core/footer.js
++++ b/js/core/footer.js
+@@ -41,30 +41,17 @@
+         }
+     };
+ 
+-    function safeUrl(value, fallbackValue) {
+-        try {
+-            const parsed =
+-                new URL(value, window.location.href);
+-
+-            if (
+-                parsed.protocol === "https:" ||
+-                parsed.protocol === "http:"
+-            ) {
+-                return parsed.href;
+-            }
+-        } catch {
+-            // Usa fallback.
+-        }
+-
+-        return fallbackValue;
+-    }
+-
+     const escapeHtml = window.KamyliSanitize?.escapeHtml;
++    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+ 
+-if (typeof escapeHtml !== "function") {
+-    throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
++if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
++    throw new Error("KamyliSanitize não foi carregado por completo.");
+ }
+ 
++    function safeUrl(value, fallbackValue) {
++        return safeHttpUrl(value) || safeHttpUrl(fallbackValue) || "#";
++    }
++
+     function blurReasonLabel(reason) {
+         const labels = {
+             "unsupported": "não suportado pelo navegador",
+diff --git a/js/core/preferences.js b/js/core/preferences.js
+index 3152eba..17057b1 100644
+--- a/js/core/preferences.js
++++ b/js/core/preferences.js
+@@ -1,6 +1,10 @@
+ (() => {
+     const THEME_KEY = "kamyli:ui-theme";
+     const BLUR_KEY = "kamyli:ui-blur";
++    const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
++    const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
++    const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated";
++    let rankingCacheExpiryTimer = null;
+ 
+     const THEME_AUTO = "auto";
+     const THEME_LIGHT = "light";
+@@ -32,6 +36,73 @@
+         }
+     }
+ 
++
++    function clearRankingCacheExpiryTimer() {
++        if (rankingCacheExpiryTimer !== null) {
++            clearTimeout(rankingCacheExpiryTimer);
++            rankingCacheExpiryTimer = null;
++        }
++    }
++
++    function removeRankingCache() {
++        try {
++            localStorage.removeItem(RANKING_CACHE_KEY);
++        } catch {
++            // Storage indisponível: não há cache persistente utilizável.
++        }
++        clearRankingCacheExpiryTimer();
++    }
++
++    function scheduleRankingCacheRetention() {
++        clearRankingCacheExpiryTimer();
++
++        let raw;
++        try {
++            raw = localStorage.getItem(RANKING_CACHE_KEY);
++        } catch {
++            return;
++        }
++
++        if (!raw) return;
++
++        let savedAt;
++        try {
++            savedAt = Number(JSON.parse(raw)?.savedAt || 0);
++        } catch {
++            removeRankingCache();
++            return;
++        }
++
++        const remaining = RANKING_CACHE_TTL_MS - (Date.now() - savedAt);
++        if (!Number.isFinite(savedAt) || savedAt <= 0 || remaining <= 0 || remaining > RANKING_CACHE_TTL_MS) {
++            removeRankingCache();
++            return;
++        }
++
++        rankingCacheExpiryTimer = setTimeout(
++            removeRankingCache,
++            remaining
++        );
++    }
++
++    function listenForRankingCacheRetention() {
++        scheduleRankingCacheRetention();
++
++        window.addEventListener(RANKING_CACHE_EVENT, scheduleRankingCacheRetention);
++        window.addEventListener("focus", scheduleRankingCacheRetention);
++        window.addEventListener("pageshow", scheduleRankingCacheRetention);
++        window.addEventListener("storage", event => {
++            if (event.key === RANKING_CACHE_KEY) {
++                scheduleRankingCacheRetention();
++            }
++        });
++        document.addEventListener("visibilitychange", () => {
++            if (!document.hidden) {
++                scheduleRankingCacheRetention();
++            }
++        });
++    }
++
+     function getSystemTheme() {
+         return mediaMatches("(prefers-color-scheme: dark)")
+             ? THEME_DARK
+@@ -429,6 +500,7 @@
+     resolveBlur();
+     apply();
+     listenForAutomaticConditionChanges();
++    listenForRankingCacheRetention();
+ 
+     window.KAMYLI_UI_PREFS = Object.freeze({
+         getState,
+diff --git a/js/core/sanitize.js b/js/core/sanitize.js
+index 23c969f..9790cb8 100644
+--- a/js/core/sanitize.js
++++ b/js/core/sanitize.js
+@@ -2,16 +2,16 @@
+  * SANITIZAÇÃO COMPARTILHADA
+  *
+  * Usado pelos módulos que montam HTML via innerHTML a partir de conteúdo
+- * editorial (data/content/*.json) para evitar que caracteres especiais
+- * quebrem o markup ou permitam injeção. Antes desta versão, a mesma
+- * implementação estava duplicada em footer.js, home.js e
+- * js/pages/home/content.js.
++ * editorial (data/content/*.json) e pelos módulos que recebem URLs de JSON/API.
+  *
+  * Uso:
+  *   window.KamyliSanitize.escapeHtml(valor)
++ *   window.KamyliSanitize.safeHttpUrl(valor, { httpsOnly, allowedHosts })
+  */
+-window.KamyliSanitize = Object.freeze({
+-    escapeHtml(value) {
++(() => {
++    "use strict";
++
++    function escapeHtml(value) {
+         return String(value ?? "")
+             .replaceAll("&", "&amp;")
+             .replaceAll("<", "&lt;")
+@@ -19,4 +19,43 @@ window.KamyliSanitize = Object.freeze({
+             .replaceAll('"', "&quot;")
+             .replaceAll("'", "&#039;");
+     }
+-});
++
++    function safeHttpUrl(value, options = {}) {
++        const source = String(value ?? "").trim();
++        if (!source) return "";
++
++        let parsed;
++        try {
++            parsed = new URL(source, options.baseUrl || window.location.href);
++        } catch {
++            return "";
++        }
++
++        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
++            return "";
++        }
++
++        if (options.httpsOnly === true && parsed.protocol !== "https:") {
++            return "";
++        }
++
++        if (Array.isArray(options.allowedHosts) && options.allowedHosts.length) {
++            const allowedHosts = new Set(
++                options.allowedHosts
++                    .map(host => String(host || "").trim().toLowerCase())
++                    .filter(Boolean)
++            );
++
++            if (!allowedHosts.has(parsed.hostname.toLowerCase())) {
++                return "";
++            }
++        }
++
++        return parsed.href;
++    }
++
++    window.KamyliSanitize = Object.freeze({
++        escapeHtml,
++        safeHttpUrl
++    });
++})();
+diff --git a/js/pages/doacoes/ranking.js b/js/pages/doacoes/ranking.js
+index 4ba2edc..dcc9de2 100644
+--- a/js/pages/doacoes/ranking.js
++++ b/js/pages/doacoes/ranking.js
+@@ -4,10 +4,14 @@
+ const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
+ const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
+ const LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"];
++const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated";
+ 
+ function removeRankingCache(key = RANKING_CACHE_KEY) {
+     try {
+         localStorage.removeItem(key);
++        if (key === RANKING_CACHE_KEY) {
++            window.dispatchEvent(new Event(RANKING_CACHE_EVENT));
++        }
+     } catch (error) {
+         console.warn("Não foi possível remover o cache do ranking:", error);
+     }
+@@ -50,6 +54,7 @@ function writeRankingCache(data) {
+             RANKING_CACHE_KEY,
+             JSON.stringify({ savedAt: Date.now(), data })
+         );
++        window.dispatchEvent(new Event(RANKING_CACHE_EVENT));
+     } catch (error) {
+         console.warn("Não foi possível salvar o cache do ranking:", error);
+     }
+diff --git a/js/pages/home/content.js b/js/pages/home/content.js
+index e6a7871..4e09143 100644
+--- a/js/pages/home/content.js
++++ b/js/pages/home/content.js
+@@ -32,9 +32,10 @@
+     };
+ 
+     const escapeHtml = window.KamyliSanitize?.escapeHtml;
++    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+ 
+-if (typeof escapeHtml !== "function") {
+-    throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
++if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
++    throw new Error("KamyliSanitize não foi carregado por completo.");
+ }
+ 
+     const homeLayout = document.getElementById("homeLayout");
+@@ -59,12 +60,7 @@ if (typeof escapeHtml !== "function") {
+         if (url.startsWith("/") && !url.startsWith("//")) {
+             return (window.KAMYLI_SITE_PATH || (path => path))(url);
+         }
+-        try {
+-            const parsed = new URL(url);
+-            return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+-        } catch {
+-            return "";
+-        }
++        return safeHttpUrl(url);
+     }
+ 
+     function setHomeCardPresentation(node, card) {
+@@ -482,10 +478,7 @@ if (typeof escapeHtml !== "function") {
+             const descricao =
+                 item.descricao || "";
+ 
+-            const url =
+-                typeof item.url === "string"
+-                    ? item.url.trim()
+-                    : "";
++            const url = safeHttpUrl(item.url);
+ 
+             const element = url
+                 ? document.createElement("a")
+diff --git a/js/pages/home/lives.js b/js/pages/home/lives.js
+index 4938fce..3ab9d65 100644
+--- a/js/pages/home/lives.js
++++ b/js/pages/home/lives.js
+@@ -3,6 +3,7 @@
+ 
+     const content = window.KamyliContent;
+     const api = window.KamyliAPI;
++    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+ 
+     const section = document.getElementById("lives");
+     const track = document.getElementById("livesTrack");
+@@ -107,15 +108,22 @@
+         const id = String(item.id || "").trim();
+         const title = String(item.title || "").trim();
+         const date = normalizeDate(item.date);
+-        const url = String(item.url || "").trim();
+-        const thumbnail = String(item.thumbnail || "").trim();
++        const url = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(item.url, {
++                httpsOnly: true,
++                allowedHosts: ["www.twitch.tv", "twitch.tv"]
++            })
++            : "";
++        const thumbnail = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(item.thumbnail, { httpsOnly: true })
++            : "";
+ 
+         if (
+             !id ||
+             !title ||
+             !date ||
+-            !url.startsWith("https://") ||
+-            !thumbnail.startsWith("https://")
++            !url ||
++            !thumbnail
+         ) {
+             return null;
+         }
+@@ -262,9 +270,17 @@
+         }
+ 
+         const isTwitch = platform === "twitch";
+-        const targetUrl = isTwitch
+-            ? String(pageData.twitchCanalUrl || "").trim()
+-            : String(pageData.canalUrl || "").trim();
++        const targetUrl = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(
++                isTwitch ? pageData.twitchCanalUrl : pageData.canalUrl,
++                {
++                    httpsOnly: true,
++                    allowedHosts: isTwitch
++                        ? ["www.twitch.tv", "twitch.tv"]
++                        : ["www.youtube.com", "youtube.com"]
++                }
++            )
++            : "";
+ 
+         channelLink.href = targetUrl || "#";
+         channelLinkText.textContent = isTwitch
+diff --git a/js/pages/home/twitch-live.js b/js/pages/home/twitch-live.js
+index 8003446..006b3f3 100644
+--- a/js/pages/home/twitch-live.js
++++ b/js/pages/home/twitch-live.js
+@@ -2,6 +2,7 @@
+     "use strict";
+ 
+     const api = window.KamyliAPI;
++    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+ 
+     const hero = document.getElementById("inicio");
+     const tabs = document.getElementById("heroViewTabs");
+@@ -86,9 +87,17 @@
+     }
+ 
+     function setLiveState(data) {
+-        const twitchUrl = String(data?.url || DEFAULT_TWITCH_URL).trim();
++        const twitchUrl = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(data?.url || DEFAULT_TWITCH_URL, {
++                httpsOnly: true,
++                allowedHosts: ["www.twitch.tv", "twitch.tv"]
++            }) || DEFAULT_TWITCH_URL
++            : DEFAULT_TWITCH_URL;
+         const checkedAt = String(data?.checkedAt || "").trim();
+-        const thumbnail = withCacheRevision(data?.thumbnail, checkedAt);
++        const rawThumbnail = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(data?.thumbnail, { httpsOnly: true })
++            : "";
++        const thumbnail = withCacheRevision(rawThumbnail, checkedAt);
+         const title = String(data?.title || "Kamyli está ao vivo!").trim();
+         const gameName = String(data?.gameName || "").trim();
+ 
+@@ -114,7 +123,7 @@
+             heroLiveAnchor.href = twitchUrl;
+         }
+ 
+-        if (liveThumbnail && typeof thumbnail === "string" && thumbnail.startsWith("https://")) {
++        if (liveThumbnail && thumbnail) {
+             liveThumbnail.src = thumbnail;
+         }
+ 
+diff --git a/js/pages/jogos/jogos.js b/js/pages/jogos/jogos.js
+index ccb18e3..34aafc1 100644
+--- a/js/pages/jogos/jogos.js
++++ b/js/pages/jogos/jogos.js
+@@ -8,6 +8,7 @@
+     const MAX_VISIBLE_PAGES = 5;
+     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+     const horizontalScroll = window.KamyliHorizontalScroll;
++    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+     const state = { data: null, listId: "all", query: "", page: 1, pageSize: DEFAULT_PAGE_SIZE };
+     const els = {
+         tools: document.getElementById("jogosTools"),
+@@ -120,10 +121,16 @@
+         list.className = "jogo-card-status";
+         list.textContent = game.listName;
+         content.append(title, list);
+-        if (game.steamUrl) {
++        const steamUrl = typeof safeHttpUrl === "function"
++            ? safeHttpUrl(game.steamUrl, {
++                httpsOnly: true,
++                allowedHosts: ["store.steampowered.com"]
++            })
++            : "";
++        if (steamUrl) {
+             const steamLink = document.createElement("a");
+             steamLink.className = "jogo-card-steam";
+-            steamLink.href = game.steamUrl;
++            steamLink.href = steamUrl;
+             steamLink.target = "_blank";
+             steamLink.rel = "noopener noreferrer";
+             steamLink.textContent = "Ver na Steam ↗";
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 17fb17f..70749fb 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -486,8 +486,11 @@
+                         dispositivo até serem alteradas ou apagadas pelo usuário/navegador.
+                     </li>
+                     <li>
+-                        O cache local do Top 5 do ranking é mantido por no máximo 30 minutos.
+-                        Ao expirar, ele é removido e não é reutilizado como fallback.
++                        O cache local do Top 5 do ranking é válido por no máximo 30 minutos.
++                        Enquanto uma página do site está em execução, um temporizador remove o
++                        cache ao vencer; se o navegador suspender a página, a remoção é refeita
++                        assim que o site voltar a executar. Cache expirado nunca é reutilizado
++                        como fallback.
+                     </li>
+                     <li>
+                         Totais mensais do ranking acompanham o período corrente; totais históricos
+@@ -567,7 +570,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -576,8 +579,8 @@
+     <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 33de801..d611bcc 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -369,7 +369,7 @@
+         aria-label="Créditos e informações do site"
+     ></footer>
+ 
+-    <script src="../js/core/preferences.js"></script>
++    <script src="../js/core/preferences.js?v=48.3.60"></script>
+     <script src="../js/core/config.js"></script>
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+@@ -378,8 +378,8 @@
+     <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+-    <script src="../js/core/sanitize.js?v=1"></script>
+-    <script src="../js/core/footer.js?v=47.4.2"></script>
++    <script src="../js/core/sanitize.js?v=48.3.60"></script>
++    <script src="../js/core/footer.js?v=48.3.60"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>

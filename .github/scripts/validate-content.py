@@ -69,6 +69,8 @@ REQUIRED_FILES = (
     ".github/tests/worker-ranking.test.mjs",
     ".github/tests/worker-robustness.test.mjs",
     ".github/tests/color-contrast.test.mjs",
+    ".github/tests/accessibility-semantics.test.mjs",
+    ".github/tests/frontend-safety-retention.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -338,6 +340,27 @@ def validate_home_content() -> None:
     for key in ("eyebrow", "titulo", "descricao"):
         if not isinstance(donation.get(key), str) or not donation[key].strip():
             error(f"data/content/home-doacoes.json: {key} deve ser texto não vazio.")
+
+    creditos = load_json("data/content/creditos.json")
+    if isinstance(creditos, dict):
+        itens = creditos.get("itens")
+        if not isinstance(itens, list):
+            error("data/content/creditos.json: itens deve ser lista.")
+        else:
+            for index, item in enumerate(itens):
+                if not isinstance(item, dict):
+                    error(f"data/content/creditos.json: itens[{index}] deve ser objeto.")
+                    continue
+                url = item.get("url", "")
+                if not isinstance(url, str):
+                    error(f"data/content/creditos.json: itens[{index}].url deve ser texto.")
+                    continue
+                if url.strip():
+                    parsed = urlparse(url.strip())
+                    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                        error(
+                            f"data/content/creditos.json: itens[{index}].url deve ser URL HTTP(S) absoluta."
+                        )
 
 
 def validate_home_cards() -> None:
@@ -1464,6 +1487,7 @@ def validate_architecture() -> None:
     worker_robustness_tests = read_text(".github/tests/worker-robustness.test.mjs")
     color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
     accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
+    frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1597,8 +1621,8 @@ def validate_architecture() -> None:
 
     if "css/pages/home.css?v=48.3.58" not in index:
         error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
-    if "js/pages/home/content.js?v=48.2.0" not in index:
-        error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
+    if "js/pages/home/content.js?v=48.3.60" not in index:
+        error("index.html: cache-buster V48.3.60 ausente para js/pages/home/content.js.")
     if "js/pages/home/home.js?v=48.3.31" not in index:
         error("index.html: cache-buster V48.3.31 ausente para js/pages/home/home.js.")
 
@@ -1934,7 +1958,7 @@ def validate_architecture() -> None:
             "js/core/mobile-overlay.js?v=48.3.47",
             "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
-            "js/core/footer.js?v=47",
+            "js/core/footer.js?v=48.3.60",
             "css/core/navbar.css?v=48.3.58",
         ):
             if asset not in html:
@@ -1970,9 +1994,9 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster V48.3.51 ausente para js/core/content.js.")
 
     for asset in (
-        "js/pages/home/content.js?v=48.2.0",
-        "js/pages/home/lives.js?v=47.4.3",
-        "js/pages/home/twitch-live.js?v=48.3.7",
+        "js/pages/home/content.js?v=48.3.60",
+        "js/pages/home/lives.js?v=48.3.60",
+        "js/pages/home/twitch-live.js?v=48.3.60",
         "js/pages/home/home-interactions.js?v=47",
         "css/components/home-interactions.css?v=47",
     ):
@@ -2002,7 +2026,7 @@ def validate_architecture() -> None:
 
     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.59" not in jogos_index:
+    if "js/pages/jogos/jogos.js?v=48.3.60" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
@@ -2411,6 +2435,19 @@ def validate_architecture() -> None:
         if token not in accessibility_semantics_tests:
             error(f'.github/tests/accessibility-semantics.test.mjs: cobertura V48.3.59 ausente: {token}')
 
+    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
+    if 'node --test .github/tests/frontend-safety-retention.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes de URL/retenção V48.3.60 ausentes.')
+
+    for token in (
+        'safeHttpUrl rejeita protocolos ativos e aplica allowlist de host',
+        'Créditos, Steam e Twitch validam href antes da atribuição',
+        'gerenciador global mantém TTL de 30 minutos e cobre retomada da página',
+        'todas as páginas carregam o gerenciador global e a versão nova do sanitizer',
+    ):
+        if token not in frontend_safety_retention_tests:
+            error(f'.github/tests/frontend-safety-retention.test.mjs: cobertura V48.3.60 ausente: {token}')
+
     page_skip_targets = {
         'index.html': 'conteudo',
         'doacoes/index.html': 'conteudo',
@@ -2573,13 +2610,13 @@ def validate_architecture() -> None:
             "css/components/carousels.css?v=48.3.58",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
-            "js/pages/home/twitch-live.js?v=48.3.7",
+            "js/pages/home/twitch-live.js?v=48.3.60",
         ),
         "doacoes/index.html": (
             "css/core/variables.css?v=48.3.58",
             "css/pages/doacoes.css?v=48.3.58",
             "css/components/ranking.css?v=48.3.58",
-            "js/pages/doacoes/ranking.js?v=48.3.52",
+            "js/pages/doacoes/ranking.js?v=48.3.60",
         ),
         "blog/index.html": (
             "css/core/variables.css?v=48.3.58",
@@ -2873,6 +2910,47 @@ def validate_architecture() -> None:
     if 'history.replaceState(history.state, "", nextUrl);' not in navbar:
         error("V48.3.47: Home deve preservar history.state ao atualizar hash de seção.")
 
+    # V48.3.60: URLs externas de JSON/API passam pelo helper central e o cache
+    # do ranking recebe remoção proativa em todas as páginas.
+    sanitize_js = read_text("js/core/sanitize.js")
+    preferences_js = read_text("js/core/preferences.js")
+    ranking_js = read_text("js/pages/doacoes/ranking.js")
+    home_content_js = read_text("js/pages/home/content.js")
+    jogos_js = read_text("js/pages/jogos/jogos.js")
+    lives_js = read_text("js/pages/home/lives.js")
+    twitch_live_js = read_text("js/pages/home/twitch-live.js")
+
+    for token in (
+        "function safeHttpUrl(value, options = {})",
+        'parsed.protocol !== "http:" && parsed.protocol !== "https:"',
+        "options.httpsOnly === true",
+        "options.allowedHosts",
+    ):
+        if token not in sanitize_js:
+            error(f"V48.3.60: helper central de URL incompleto: {token}.")
+
+    if 'const url = safeHttpUrl(item.url);' not in home_content_js:
+        error("V48.3.60: Créditos deve validar URL antes de criar href.")
+    if 'allowedHosts: ["store.steampowered.com"]' not in jogos_js:
+        error("V48.3.60: link Steam deve exigir host oficial no runtime.")
+    for source, label in ((lives_js, "Lives Twitch"), (twitch_live_js, "Hero Twitch")):
+        if 'allowedHosts: ["www.twitch.tv", "twitch.tv"]' not in source:
+            error(f"V48.3.60: {label} deve restringir links ao host Twitch.")
+
+    for token in (
+        'const RANKING_CACHE_TTL_MS = 30 * 60 * 1000',
+        'const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated"',
+        "function scheduleRankingCacheRetention()",
+        'window.addEventListener("focus", scheduleRankingCacheRetention)',
+        'window.addEventListener("pageshow", scheduleRankingCacheRetention)',
+        'document.addEventListener("visibilitychange"',
+    ):
+        if token not in preferences_js:
+            error(f"V48.3.60: retenção global do ranking incompleta: {token}.")
+
+    if 'window.dispatchEvent(new Event(RANKING_CACHE_EVENT));' not in ranking_js:
+        error("V48.3.60: ranking.js deve avisar o gerenciador global após atualizar/remover cache.")
+
     # V48.3.34: redes sociais seguem editoriais/globais, com dock à esquerda e gatilho mobile claro.
     if 'class="hero-socials"' in index or 'class="social-bubble"' in index:
         error("V48.3.33: Home não deve manter lista social hardcoded no Hero.")
@@ -3124,7 +3202,7 @@ def validate_architecture() -> None:
         "Armazenamento e retenção",
         "Seus direitos pela LGPD",
         "Segurança e incidentes",
-        "cache local do Top 5 do ranking é mantido por no máximo 30 minutos",
+        "cache local do Top 5 do ranking é válido por no máximo 30 minutos",
         "Pixie oferece, inclusive, ranking público de apoiadores",
         "LivePix oferece alertas e integrações",
         "não é tratada pelo projeto como consentimento específico",

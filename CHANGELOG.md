@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.60 — Segurança de URLs e retenção local do ranking
+
+- centraliza a validação de URLs HTTP(S) em `KamyliSanitize.safeHttpUrl()` e faz Créditos, Footer, Steam e links da Twitch passarem pelo helper antes de chegar a `href`;
+- restringe links de Steam a HTTPS em `store.steampowered.com` e links vindos da Twitch a HTTPS em `twitch.tv`/`www.twitch.tv`, mantendo thumbnails remotas apenas em HTTPS;
+- mantém o cache `kamyli-ranking-cache-v4` com TTL de 30 minutos, mas agora agenda remoção proativa em todas as páginas e revalida expiração em `pageshow`, foco, visibilidade e mudanças de storage;
+- faz `ranking.js` notificar cada gravação/remoção do cache para que o temporizador global seja rearmado sem depender de nova visita a `/doacoes/`;
+- atualiza a Política de Privacidade e a documentação para descrever corretamente a retomada após suspensão do navegador e adiciona testes de regressão para URLs e retenção.
+
 ## V48.3.59 — Acessibilidade semântica de navegação e resultados
 
 - adiciona “Pular para o conteúdo” nas oito páginas, apontando diretamente para o `<main>` focável sem alterar os IDs já usados por Artes, Blog e Jogos;

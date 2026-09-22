@@ -87,9 +87,12 @@ também é somente de frontend/documentação e não requer alteração nos Help
 
 ## Doações
 
-O ranking possui cache local no navegador por no máximo 30 minutos. Cache
-expirado é removido e nunca é reutilizado como fallback; se não houver cache
-fresco e a consulta remota falhar, a interface informa indisponibilidade.
+O ranking possui cache local no navegador com validade máxima de 30 minutos.
+`preferences.js` agenda a remoção enquanto o site está em execução e repete a
+limpeza em `pageshow`, foco/visibilidade e mudanças de storage, cobrindo retomada
+após suspensão do navegador. Cache expirado nunca é reutilizado como fallback;
+se não houver cache fresco e a consulta remota falhar, a interface informa
+indisponibilidade.
 
 Na V44.4, a ordem dos endpoints remotos é:
 

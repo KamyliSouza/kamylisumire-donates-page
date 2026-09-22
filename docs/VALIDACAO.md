@@ -61,8 +61,8 @@ Antes de publicar:
 2. confirmar que a política chama `donation.name` de **identificador de exibição autodeclarado/não autenticado**, explica que textos iguais podem pertencer a pessoas diferentes e não trata o ranking como cadastro de identidades verificadas;
 3. abrir `/doacoes/` e confirmar o aviso junto ao ranking sobre identificador não verificado, valor acumulado, exibição como **Anônimo** e contestação de possível personificação;
 4. confirmar em `docs/PRIVACIDADE-RANKING.md` que contestação pública não concede acesso aos dados internos e que coincidência de nome/pseudônimo, isoladamente, não autoriza correção ou exclusão de totais;
-5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; após simular `savedAt` com mais de 30 minutos, confirmar remoção da chave e nova consulta à API;
-6. confirmar que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
+5. com cache do ranking novo, confirmar que uma segunda visita dentro de 30 minutos pode reutilizá-lo; simular `savedAt` vencido e confirmar que `preferences.js` remove a chave ao carregar/retomar qualquer página do site, antes de nova consulta ao ranking;
+6. manter `/doacoes/` aberto e confirmar que o evento `kamyli:ranking-cache-updated` rearma a remoção programada; confirmar também que `kamyli-ranking-cache-v3` é removida e que não existe fallback de cache expirado;
 7. executar `python .github/scripts/validate-content.py` e os checks de sintaxe JS/Worker;
 8. confirmar SEO editorial: Galeria com obras deve estar `index, follow` e no sitemap; Blog sem posts publicados deve permanecer `noindex, follow` e fora do sitemap.
 

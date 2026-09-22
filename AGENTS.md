@@ -566,6 +566,14 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
+
+### Segurança de URLs e retenção do ranking — V48.3.60
+
+- URLs editoriais/API atribuídas a `href` devem passar por `KamyliSanitize.safeHttpUrl()`; não reintroduzir atribuição direta para Créditos, Steam ou links de Twitch.
+- Steam exige HTTPS e host `store.steampowered.com`; Twitch exige HTTPS e host `twitch.tv`/`www.twitch.tv`. Imagens remotas continuam exigindo ao menos HTTPS e as allowlists específicas já existentes quando aplicáveis.
+- `kamyli-ranking-cache-v4` tem TTL de 30 minutos. `ranking.js` deve remover cache vencido antes do uso e emitir `kamyli:ranking-cache-updated` ao gravar/remover; `preferences.js` deve programar a remoção global e revalidar em foco, `pageshow`, visibilidade e evento de storage.
+- Navegador suspenso pode atrasar execução de timers; ao retomar, o cache vencido deve ser removido imediatamente e nunca reutilizado como fallback.
+
 ### Acessibilidade semântica — V48.3.59
 
 - Todas as páginas devem preservar um `.skip-link` como primeiro controle focável após `<body>`, apontando para o `<main>` correspondente com `tabindex="-1"`; IDs de runtime existentes não devem ser trocados apenas para padronizar o alvo.

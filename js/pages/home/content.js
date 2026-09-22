@@ -32,9 +32,10 @@
     };
 
     const escapeHtml = window.KamyliSanitize?.escapeHtml;
+    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
 
-if (typeof escapeHtml !== "function") {
-    throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
+if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
+    throw new Error("KamyliSanitize não foi carregado por completo.");
 }
 
     const homeLayout = document.getElementById("homeLayout");
@@ -59,12 +60,7 @@ if (typeof escapeHtml !== "function") {
         if (url.startsWith("/") && !url.startsWith("//")) {
             return (window.KAMYLI_SITE_PATH || (path => path))(url);
         }
-        try {
-            const parsed = new URL(url);
-            return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
-        } catch {
-            return "";
-        }
+        return safeHttpUrl(url);
     }
 
     function setHomeCardPresentation(node, card) {
@@ -482,10 +478,7 @@ if (typeof escapeHtml !== "function") {
             const descricao =
                 item.descricao || "";
 
-            const url =
-                typeof item.url === "string"
-                    ? item.url.trim()
-                    : "";
+            const url = safeHttpUrl(item.url);
 
             const element = url
                 ? document.createElement("a")

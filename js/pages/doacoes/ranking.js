@@ -4,10 +4,14 @@
 const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
 const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
 const LEGACY_RANKING_CACHE_KEYS = ["kamyli-ranking-cache-v3"];
+const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated";
 
 function removeRankingCache(key = RANKING_CACHE_KEY) {
     try {
         localStorage.removeItem(key);
+        if (key === RANKING_CACHE_KEY) {
+            window.dispatchEvent(new Event(RANKING_CACHE_EVENT));
+        }
     } catch (error) {
         console.warn("Não foi possível remover o cache do ranking:", error);
     }
@@ -50,6 +54,7 @@ function writeRankingCache(data) {
             RANKING_CACHE_KEY,
             JSON.stringify({ savedAt: Date.now(), data })
         );
+        window.dispatchEvent(new Event(RANKING_CACHE_EVENT));
     } catch (error) {
         console.warn("Não foi possível salvar o cache do ranking:", error);
     }

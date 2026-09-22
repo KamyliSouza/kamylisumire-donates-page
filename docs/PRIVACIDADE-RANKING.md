@@ -57,7 +57,7 @@ Para pedidos formais de acesso, correção ou eliminação:
 
 ## 6. Retenção e cache
 
-- `localStorage`: cache do Top 5 por no máximo 30 minutos; expirado, deve ser removido e nunca usado como fallback;
+- `localStorage`: cache do Top 5 com validade máxima de 30 minutos; enquanto o site executa, há remoção programada e revalidação em retomada/foco/visibilidade; expirado, é removido e nunca usado como fallback;
 - totais mensais: acompanham o período corrente;
 - totais históricos agregados: podem existir enquanto o ranking histórico estiver ativo;
 - a saída pública aplica `RANKING_PRIVATE_NAMES` sem apagar automaticamente os totais internos.

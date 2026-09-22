@@ -84,6 +84,7 @@ jobs:
           node --test .github/tests/loader-failsafe.test.mjs
           node --test .github/tests/color-contrast.test.mjs
           node --test .github/tests/accessibility-semantics.test.mjs
+          node --test .github/tests/frontend-safety-retention.test.mjs
 
       - name: Reject generated Python cache
         run: |

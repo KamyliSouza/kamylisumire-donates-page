@@ -8,6 +8,7 @@
     const MAX_VISIBLE_PAGES = 5;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
+    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
     const state = { data: null, listId: "all", query: "", page: 1, pageSize: DEFAULT_PAGE_SIZE };
     const els = {
         tools: document.getElementById("jogosTools"),
@@ -120,10 +121,16 @@
         list.className = "jogo-card-status";
         list.textContent = game.listName;
         content.append(title, list);
-        if (game.steamUrl) {
+        const steamUrl = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(game.steamUrl, {
+                httpsOnly: true,
+                allowedHosts: ["store.steampowered.com"]
+            })
+            : "";
+        if (steamUrl) {
             const steamLink = document.createElement("a");
             steamLink.className = "jogo-card-steam";
-            steamLink.href = game.steamUrl;
+            steamLink.href = steamUrl;
             steamLink.target = "_blank";
             steamLink.rel = "noopener noreferrer";
             steamLink.textContent = "Ver na Steam ↗";

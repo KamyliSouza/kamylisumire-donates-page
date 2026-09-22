@@ -2,6 +2,7 @@
     "use strict";
 
     const api = window.KamyliAPI;
+    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
 
     const hero = document.getElementById("inicio");
     const tabs = document.getElementById("heroViewTabs");
@@ -86,9 +87,17 @@
     }
 
     function setLiveState(data) {
-        const twitchUrl = String(data?.url || DEFAULT_TWITCH_URL).trim();
+        const twitchUrl = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(data?.url || DEFAULT_TWITCH_URL, {
+                httpsOnly: true,
+                allowedHosts: ["www.twitch.tv", "twitch.tv"]
+            }) || DEFAULT_TWITCH_URL
+            : DEFAULT_TWITCH_URL;
         const checkedAt = String(data?.checkedAt || "").trim();
-        const thumbnail = withCacheRevision(data?.thumbnail, checkedAt);
+        const rawThumbnail = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(data?.thumbnail, { httpsOnly: true })
+            : "";
+        const thumbnail = withCacheRevision(rawThumbnail, checkedAt);
         const title = String(data?.title || "Kamyli está ao vivo!").trim();
         const gameName = String(data?.gameName || "").trim();
 
@@ -114,7 +123,7 @@
             heroLiveAnchor.href = twitchUrl;
         }
 
-        if (liveThumbnail && typeof thumbnail === "string" && thumbnail.startsWith("https://")) {
+        if (liveThumbnail && thumbnail) {
             liveThumbnail.src = thumbnail;
         }
 

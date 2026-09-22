@@ -41,29 +41,16 @@
         }
     };
 
-    function safeUrl(value, fallbackValue) {
-        try {
-            const parsed =
-                new URL(value, window.location.href);
-
-            if (
-                parsed.protocol === "https:" ||
-                parsed.protocol === "http:"
-            ) {
-                return parsed.href;
-            }
-        } catch {
-            // Usa fallback.
-        }
-
-        return fallbackValue;
-    }
-
     const escapeHtml = window.KamyliSanitize?.escapeHtml;
+    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
 
-if (typeof escapeHtml !== "function") {
-    throw new Error("KamyliSanitize.escapeHtml não foi carregado.");
+if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
+    throw new Error("KamyliSanitize não foi carregado por completo.");
 }
+
+    function safeUrl(value, fallbackValue) {
+        return safeHttpUrl(value) || safeHttpUrl(fallbackValue) || "#";
+    }
 
     function blurReasonLabel(reason) {
         const labels = {

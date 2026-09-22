@@ -1,6 +1,10 @@
 (() => {
     const THEME_KEY = "kamyli:ui-theme";
     const BLUR_KEY = "kamyli:ui-blur";
+    const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
+    const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
+    const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated";
+    let rankingCacheExpiryTimer = null;
 
     const THEME_AUTO = "auto";
     const THEME_LIGHT = "light";
@@ -30,6 +34,73 @@
         } catch {
             // A preferência continua válida durante a sessão sem storage.
         }
+    }
+
+
+    function clearRankingCacheExpiryTimer() {
+        if (rankingCacheExpiryTimer !== null) {
+            clearTimeout(rankingCacheExpiryTimer);
+            rankingCacheExpiryTimer = null;
+        }
+    }
+
+    function removeRankingCache() {
+        try {
+            localStorage.removeItem(RANKING_CACHE_KEY);
+        } catch {
+            // Storage indisponível: não há cache persistente utilizável.
+        }
+        clearRankingCacheExpiryTimer();
+    }
+
+    function scheduleRankingCacheRetention() {
+        clearRankingCacheExpiryTimer();
+
+        let raw;
+        try {
+            raw = localStorage.getItem(RANKING_CACHE_KEY);
+        } catch {
+            return;
+        }
+
+        if (!raw) return;
+
+        let savedAt;
+        try {
+            savedAt = Number(JSON.parse(raw)?.savedAt || 0);
+        } catch {
+            removeRankingCache();
+            return;
+        }
+
+        const remaining = RANKING_CACHE_TTL_MS - (Date.now() - savedAt);
+        if (!Number.isFinite(savedAt) || savedAt <= 0 || remaining <= 0 || remaining > RANKING_CACHE_TTL_MS) {
+            removeRankingCache();
+            return;
+        }
+
+        rankingCacheExpiryTimer = setTimeout(
+            removeRankingCache,
+            remaining
+        );
+    }
+
+    function listenForRankingCacheRetention() {
+        scheduleRankingCacheRetention();
+
+        window.addEventListener(RANKING_CACHE_EVENT, scheduleRankingCacheRetention);
+        window.addEventListener("focus", scheduleRankingCacheRetention);
+        window.addEventListener("pageshow", scheduleRankingCacheRetention);
+        window.addEventListener("storage", event => {
+            if (event.key === RANKING_CACHE_KEY) {
+                scheduleRankingCacheRetention();
+            }
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                scheduleRankingCacheRetention();
+            }
+        });
     }
 
     function getSystemTheme() {
@@ -429,6 +500,7 @@
     resolveBlur();
     apply();
     listenForAutomaticConditionChanges();
+    listenForRankingCacheRetention();
 
     window.KAMYLI_UI_PREFS = Object.freeze({
         getState,

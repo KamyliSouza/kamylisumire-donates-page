@@ -225,7 +225,7 @@ Blog e Galeria continuam acessíveis mesmo vazios, porém ficam `noindex, follow
 
 ### Privacidade e LGPD — V48.3.8
 
-A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e limita o cache em `localStorage` a 30 minutos reais, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
+A Política de Privacidade identifica **Kamyli Souza** (nome social) como responsável pública pelo tratamento e usa `contato@kamylisumire.com` como canal para solicitações. O ranking trata o texto recebido na contribuição como **identificador de exibição autodeclarado e não autenticado**, que pode coincidir entre pessoas diferentes; ele mantém identificador + valor acumulado como proposta comunitária, permite ocultação pública como **Anônimo** em casos de privacidade/contestação e mantém o cache em `localStorage` válido por no máximo 30 minutos, com remoção programada enquanto o site executa e limpeza imediata na retomada caso o navegador tenha suspendido a página, sem fallback expirado. O identificador exibido, isoladamente, não autentica pedidos sobre registros internos.
 
 ### Manutenção de consistência — V48.3.31
 
@@ -278,6 +278,11 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
 ### Hotfix do loader — V48.3.48
 
 Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
+
+
+### URLs externas e retenção local — V48.3.60
+
+A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.
 
 ### Acessibilidade semântica — V48.3.59
 

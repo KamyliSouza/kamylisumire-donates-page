@@ -3,6 +3,7 @@
 
     const content = window.KamyliContent;
     const api = window.KamyliAPI;
+    const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
 
     const section = document.getElementById("lives");
     const track = document.getElementById("livesTrack");
@@ -107,15 +108,22 @@
         const id = String(item.id || "").trim();
         const title = String(item.title || "").trim();
         const date = normalizeDate(item.date);
-        const url = String(item.url || "").trim();
-        const thumbnail = String(item.thumbnail || "").trim();
+        const url = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(item.url, {
+                httpsOnly: true,
+                allowedHosts: ["www.twitch.tv", "twitch.tv"]
+            })
+            : "";
+        const thumbnail = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(item.thumbnail, { httpsOnly: true })
+            : "";
 
         if (
             !id ||
             !title ||
             !date ||
-            !url.startsWith("https://") ||
-            !thumbnail.startsWith("https://")
+            !url ||
+            !thumbnail
         ) {
             return null;
         }
@@ -262,9 +270,17 @@
         }
 
         const isTwitch = platform === "twitch";
-        const targetUrl = isTwitch
-            ? String(pageData.twitchCanalUrl || "").trim()
-            : String(pageData.canalUrl || "").trim();
+        const targetUrl = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(
+                isTwitch ? pageData.twitchCanalUrl : pageData.canalUrl,
+                {
+                    httpsOnly: true,
+                    allowedHosts: isTwitch
+                        ? ["www.twitch.tv", "twitch.tv"]
+                        : ["www.youtube.com", "youtube.com"]
+                }
+            )
+            : "";
 
         channelLink.href = targetUrl || "#";
         channelLinkText.textContent = isTwitch
