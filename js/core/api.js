@@ -4,10 +4,11 @@
  * Uso:
  *   const data = await KamyliAPI.getJSON("/endpoint");
  *
- * V44.4:
- * - api.kamylisumire.com é o endpoint primário;
- * - workers.dev continua como fallback temporário;
- * - módulos consumidores não precisam conhecer o hostname real da API.
+ * V48.3.61:
+ * - api.kamylisumire.com continua como endpoint primário;
+ * - workers.dev é usado somente em falha de transporte/timeout;
+ * - respostas HTTP válidas (inclusive 4xx/5xx) não disparam fallback;
+ * - o AbortController permanece ativo até o corpo JSON terminar de ser lido.
  */
 window.KamyliAPI = (() => {
     const config = window.KAMYLI_CONFIG?.api || {};
@@ -35,8 +36,17 @@ window.KamyliAPI = (() => {
         return [...new Set(candidates.filter(Boolean))];
     }
 
-    async function request(endpoint = "/", options = {}) {
-        let lastError = null;
+    function isTransportFailure(error, signal) {
+        if (signal?.aborted) return true;
+        if (error?.name === "AbortError") return true;
+
+        // fetch() e falhas de leitura do stream usam TypeError nos navegadores.
+        // SyntaxError de JSON inválido e erros HTTP criados abaixo não entram aqui.
+        return error?.name === "TypeError";
+    }
+
+    async function request(endpoint = "/", options = {}, consumeResponse = response => response) {
+        let lastTransportError = null;
 
         for (const baseUrl of getCandidates()) {
             const controller = new AbortController();
@@ -68,39 +78,45 @@ window.KamyliAPI = (() => {
                     }
                 );
 
-                clearTimeout(timer);
-
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    const httpError = new Error(`HTTP ${response.status}`);
+                    httpError.name = "KamyliHTTPError";
+                    throw httpError;
                 }
 
-                return response;
+                // O timer continua armado enquanto o corpo é consumido. Em um
+                // Response real, abortar o signal interrompe response.json().
+                return await consumeResponse(response);
             } catch (error) {
-                clearTimeout(timer);
+                if (!isTransportFailure(error, controller.signal)) {
+                    throw error;
+                }
+
                 console.warn(
-                    `Falha ao consultar ${baseUrl}:`,
+                    `Falha de transporte ao consultar ${baseUrl}:`,
                     error
                 );
-                lastError = error;
+                lastTransportError = error;
+            } finally {
+                clearTimeout(timer);
             }
         }
 
         throw (
-            lastError ||
+            lastTransportError ||
             new Error("Nenhum endpoint da API disponível.")
         );
     }
 
     async function getJSON(endpoint = "/", options = {}) {
-        const response = await request(
+        return request(
             endpoint,
             {
                 ...options,
                 method: "GET"
-            }
+            },
+            response => response.json()
         );
-
-        return response.json();
     }
 
     return Object.freeze({

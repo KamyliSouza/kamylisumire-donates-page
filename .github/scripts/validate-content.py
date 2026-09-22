@@ -71,6 +71,7 @@ REQUIRED_FILES = (
     ".github/tests/color-contrast.test.mjs",
     ".github/tests/accessibility-semantics.test.mjs",
     ".github/tests/frontend-safety-retention.test.mjs",
+    ".github/tests/api-client.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1488,6 +1489,7 @@ def validate_architecture() -> None:
     color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
     accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
     frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
+    api_client_tests = read_text(".github/tests/api-client.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1601,8 +1603,8 @@ def validate_architecture() -> None:
     if "ranking.js" in index:
         error("index.html: Home não deve carregar ranking.js.")
 
-    if "js/core/api.js?v=47.3" not in index:
-        error("index.html: Home V47.4 deve carregar api.js para a aba Twitch de Lives.")
+    if "js/core/api.js" not in index:
+        error("index.html: Home deve carregar api.js para a aba Twitch de Lives.")
 
     if "js/core/api.js" in blog_index or "ranking.js" in blog_index:
         error("blog/index.html: Blog não deve carregar API/ranking.")
@@ -2447,6 +2449,34 @@ def validate_architecture() -> None:
     ):
         if token not in frontend_safety_retention_tests:
             error(f'.github/tests/frontend-safety-retention.test.mjs: cobertura V48.3.60 ausente: {token}')
+
+    # V48.3.61: fallback da API ocorre apenas em falha de transporte/timeout e
+    # o AbortController permanece ativo até o consumo completo do JSON.
+    if 'node --test .github/tests/api-client.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes do cliente API V48.3.61 ausentes.')
+
+    api_js = read_text('js/core/api.js')
+    for token in (
+        'function isTransportFailure(error, signal)',
+        'return await consumeResponse(response);',
+        'finally {',
+        'clearTimeout(timer);',
+        'httpError.name = "KamyliHTTPError"',
+    ):
+        if token not in api_js:
+            error(f'js/core/api.js: contrato de fallback/timeout V48.3.61 ausente: {token}')
+
+    for token in (
+        'erro HTTP do domínio principal não dispara fallback workers.dev',
+        'falha de rede do domínio principal usa fallback workers.dev',
+        'timeout permanece ativo durante response.json e pode acionar fallback',
+        'JSON inválido em resposta HTTP não é tratado como falha de transporte',
+    ):
+        if token not in api_client_tests:
+            error(f'.github/tests/api-client.test.mjs: cobertura V48.3.61 ausente: {token}')
+
+    if 'js/core/api.js?v=48.3.61' not in index or 'js/core/api.js?v=48.3.61' not in donations:
+        error('Home/Doações: cache-buster do api.js V48.3.61 ausente.')
 
     page_skip_targets = {
         'index.html': 'conteudo',

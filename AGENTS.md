@@ -567,6 +567,13 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
 
+### Cliente API e fallback — V48.3.61
+
+- `api.kamylisumire.com` continua primário; `workers.dev` só pode ser tentado após falha de transporte/timeout, nunca como repetição automática de HTTP 4xx/5xx ou JSON inválido.
+- O timeout de `KamyliAPI.getJSON()` deve permanecer armado até `response.json()` terminar; não limpar o `AbortController` logo após os headers.
+- Falhas HTTP devem preservar o status no erro e interromper a cadeia de candidatos; falhas de rede/abort podem avançar para o próximo candidato.
+- Manter `.github/tests/api-client.test.mjs` na CI ao alterar `js/core/api.js` ou a estratégia de fallback.
+
 ### Segurança de URLs e retenção do ranking — V48.3.60
 
 - URLs editoriais/API atribuídas a `href` devem passar por `KamyliSanitize.safeHttpUrl()`; não reintroduzir atribuição direta para Créditos, Steam ou links de Twitch.

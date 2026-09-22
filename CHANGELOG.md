@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.61 — Fallback e timeout do cliente API
+
+- limita o fallback `workers.dev` a falhas de transporte/timeout; respostas HTTP 4xx/5xx do domínio principal passam a ser devolvidas como erro sem repetir a mesma requisição no host de contingência;
+- mantém o `AbortController` ativo até `response.json()` terminar, permitindo interromper também um corpo que trave depois de os headers já terem chegado;
+- trata JSON inválido como erro da resposta recebida, sem mascará-lo com fallback para outro host;
+- atualiza o cache-buster de `api.js` na Home e em Doações e adiciona testes dedicados do cliente API à CI.
+
 ## V48.3.60 — Segurança de URLs e retenção local do ranking
 
 - centraliza a validação de URLs HTTP(S) em `KamyliSanitize.safeHttpUrl()` e faz Créditos, Footer, Steam e links da Twitch passarem pelo helper antes de chegar a `href`;

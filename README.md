@@ -280,6 +280,10 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
 Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
 
 
+### Cliente API resiliente — V48.3.61
+
+A V48.3.61 restringe o `workers.dev` a contingência de transporte: timeout, falha de rede ou interrupção do stream. Respostas HTTP válidas do domínio principal, inclusive 4xx/5xx, não são repetidas no fallback. O timeout de `KamyliAPI.getJSON()` permanece ativo até o corpo JSON terminar de ser consumido, cobrindo respostas que entregam headers mas travam durante a leitura. JSON inválido também falha no host que respondeu, sem fallback silencioso.
+
 ### URLs externas e retenção local — V48.3.60
 
 A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.

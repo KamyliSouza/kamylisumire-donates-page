@@ -1,0 +1,387 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 5c386b4..38460a9 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -71,6 +71,7 @@ REQUIRED_FILES = (
+     ".github/tests/color-contrast.test.mjs",
+     ".github/tests/accessibility-semantics.test.mjs",
+     ".github/tests/frontend-safety-retention.test.mjs",
++    ".github/tests/api-client.test.mjs",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -1488,6 +1489,7 @@ def validate_architecture() -> None:
+     color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
+     accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
+     frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
++    api_client_tests = read_text(".github/tests/api-client.test.mjs")
+     jogos_js = read_text("js/pages/jogos/jogos.js")
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+@@ -1601,8 +1603,8 @@ def validate_architecture() -> None:
+     if "ranking.js" in index:
+         error("index.html: Home não deve carregar ranking.js.")
+ 
+-    if "js/core/api.js?v=47.3" not in index:
+-        error("index.html: Home V47.4 deve carregar api.js para a aba Twitch de Lives.")
++    if "js/core/api.js" not in index:
++        error("index.html: Home deve carregar api.js para a aba Twitch de Lives.")
+ 
+     if "js/core/api.js" in blog_index or "ranking.js" in blog_index:
+         error("blog/index.html: Blog não deve carregar API/ranking.")
+@@ -2448,6 +2450,34 @@ def validate_architecture() -> None:
+         if token not in frontend_safety_retention_tests:
+             error(f'.github/tests/frontend-safety-retention.test.mjs: cobertura V48.3.60 ausente: {token}')
+ 
++    # V48.3.61: fallback da API ocorre apenas em falha de transporte/timeout e
++    # o AbortController permanece ativo até o consumo completo do JSON.
++    if 'node --test .github/tests/api-client.test.mjs' not in validate_workflow:
++        error('.github/workflows/validate-json.yml: testes do cliente API V48.3.61 ausentes.')
++
++    api_js = read_text('js/core/api.js')
++    for token in (
++        'function isTransportFailure(error, signal)',
++        'return await consumeResponse(response);',
++        'finally {',
++        'clearTimeout(timer);',
++        'httpError.name = "KamyliHTTPError"',
++    ):
++        if token not in api_js:
++            error(f'js/core/api.js: contrato de fallback/timeout V48.3.61 ausente: {token}')
++
++    for token in (
++        'erro HTTP do domínio principal não dispara fallback workers.dev',
++        'falha de rede do domínio principal usa fallback workers.dev',
++        'timeout permanece ativo durante response.json e pode acionar fallback',
++        'JSON inválido em resposta HTTP não é tratado como falha de transporte',
++    ):
++        if token not in api_client_tests:
++            error(f'.github/tests/api-client.test.mjs: cobertura V48.3.61 ausente: {token}')
++
++    if 'js/core/api.js?v=48.3.61' not in index or 'js/core/api.js?v=48.3.61' not in donations:
++        error('Home/Doações: cache-buster do api.js V48.3.61 ausente.')
++
+     page_skip_targets = {
+         'index.html': 'conteudo',
+         'doacoes/index.html': 'conteudo',
+diff --git a/.github/tests/api-client.test.mjs b/.github/tests/api-client.test.mjs
+new file mode 100644
+index 0000000..4f72a6e
+--- /dev/null
++++ b/.github/tests/api-client.test.mjs
+@@ -0,0 +1,129 @@
++import assert from "node:assert/strict";
++import { readFileSync } from "node:fs";
++import test from "node:test";
++import vm from "node:vm";
++
++const source = readFileSync(new URL("../../js/core/api.js", import.meta.url), "utf8");
++
++function loadApi(fetchImpl, timers = {}) {
++  const window = {
++    KAMYLI_CONFIG: {
++      api: {
++        useCustomDomain: true,
++        customDomainUrl: "https://api.kamylisumire.com",
++        workersDevUrl: "https://fallback.example.workers.dev",
++        fallbackToWorkersDev: true,
++        defaultTimeoutMs: 8000,
++      },
++    },
++  };
++  const warnings = [];
++  const context = vm.createContext({
++    window,
++    fetch: fetchImpl,
++    AbortController,
++    Error,
++    Object,
++    Set,
++    String,
++    console: { warn: (...args) => warnings.push(args) },
++    setTimeout: timers.setTimeout || setTimeout,
++    clearTimeout: timers.clearTimeout || clearTimeout,
++  });
++  vm.runInContext(source, context);
++  return { api: window.KamyliAPI, warnings };
++}
++
++function response({ status = 200, json = async () => ({ ok: true }) } = {}) {
++  return {
++    ok: status >= 200 && status < 300,
++    status,
++    json,
++  };
++}
++
++test("erro HTTP do domínio principal não dispara fallback workers.dev", async () => {
++  const calls = [];
++  const { api } = loadApi(async url => {
++    calls.push(url);
++    if (url.startsWith("https://api.kamylisumire.com")) {
++      return response({ status: 503 });
++    }
++    return response({ json: async () => ({ source: "fallback" }) });
++  });
++
++  await assert.rejects(api.getJSON("/"), /HTTP 503/);
++  assert.equal(calls.length, 1);
++  assert.match(calls[0], /^https:\/\/api\.kamylisumire\.com\//);
++});
++
++test("falha de rede do domínio principal usa fallback workers.dev", async () => {
++  const calls = [];
++  const { api } = loadApi(async url => {
++    calls.push(url);
++    if (url.startsWith("https://api.kamylisumire.com")) {
++      throw new TypeError("network failed");
++    }
++    return response({ json: async () => ({ source: "fallback" }) });
++  });
++
++  assert.deepEqual(await api.getJSON("/twitch/live"), { source: "fallback" });
++  assert.equal(calls.length, 2);
++  assert.match(calls[1], /^https:\/\/fallback\.example\.workers\.dev\//);
++});
++
++test("timeout permanece ativo durante response.json e pode acionar fallback", async () => {
++  let activeTimer = null;
++  let nextTimerId = 0;
++  const calls = [];
++  const timers = {
++    setTimeout(callback) {
++      activeTimer = { id: ++nextTimerId, callback };
++      return activeTimer.id;
++    },
++    clearTimeout(id) {
++      if (activeTimer?.id === id) activeTimer = null;
++    },
++  };
++
++  const { api } = loadApi(async (url, options) => {
++    calls.push(url);
++    if (url.startsWith("https://api.kamylisumire.com")) {
++      const signal = options.signal;
++      return response({
++        json: async () => {
++          // Simula corpo que ainda está sendo lido quando o timeout vence.
++          activeTimer?.callback();
++          if (signal.aborted) {
++            const error = new Error("aborted while reading body");
++            error.name = "AbortError";
++            throw error;
++          }
++          return { source: "primary" };
++        },
++      });
++    }
++    return response({ json: async () => ({ source: "fallback" }) });
++  }, timers);
++
++  assert.deepEqual(await api.getJSON("/", { timeoutMs: 25 }), { source: "fallback" });
++  assert.equal(calls.length, 2);
++});
++
++test("JSON inválido em resposta HTTP não é tratado como falha de transporte", async () => {
++  const calls = [];
++  const { api } = loadApi(async url => {
++    calls.push(url);
++    if (url.startsWith("https://api.kamylisumire.com")) {
++      return response({
++        json: async () => {
++          throw new SyntaxError("Unexpected token");
++        },
++      });
++    }
++    return response({ json: async () => ({ source: "fallback" }) });
++  });
++
++  await assert.rejects(api.getJSON("/"), SyntaxError);
++  assert.equal(calls.length, 1);
++});
+diff --git a/.github/workflows/validate-json.yml b/.github/workflows/validate-json.yml
+index 50fa4e1..e37eee3 100644
+--- a/.github/workflows/validate-json.yml
++++ b/.github/workflows/validate-json.yml
+@@ -85,6 +85,7 @@ jobs:
+           node --test .github/tests/color-contrast.test.mjs
+           node --test .github/tests/accessibility-semantics.test.mjs
+           node --test .github/tests/frontend-safety-retention.test.mjs
++          node --test .github/tests/api-client.test.mjs
+ 
+       - name: Reject generated Python cache
+         run: |
+diff --git a/AGENTS.md b/AGENTS.md
+index b1c8b29..4c6fa9b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -567,6 +567,13 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
+ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
+ 
+ 
++### Cliente API e fallback — V48.3.61
++
++- `api.kamylisumire.com` continua primário; `workers.dev` só pode ser tentado após falha de transporte/timeout, nunca como repetição automática de HTTP 4xx/5xx ou JSON inválido.
++- O timeout de `KamyliAPI.getJSON()` deve permanecer armado até `response.json()` terminar; não limpar o `AbortController` logo após os headers.
++- Falhas HTTP devem preservar o status no erro e interromper a cadeia de candidatos; falhas de rede/abort podem avançar para o próximo candidato.
++- Manter `.github/tests/api-client.test.mjs` na CI ao alterar `js/core/api.js` ou a estratégia de fallback.
++
+ ### Segurança de URLs e retenção do ranking — V48.3.60
+ 
+ - URLs editoriais/API atribuídas a `href` devem passar por `KamyliSanitize.safeHttpUrl()`; não reintroduzir atribuição direta para Créditos, Steam ou links de Twitch.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 8231321..36d5409 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,12 @@
+ # Changelog
+ 
++## V48.3.61 — Fallback e timeout do cliente API
++
++- limita o fallback `workers.dev` a falhas de transporte/timeout; respostas HTTP 4xx/5xx do domínio principal passam a ser devolvidas como erro sem repetir a mesma requisição no host de contingência;
++- mantém o `AbortController` ativo até `response.json()` terminar, permitindo interromper também um corpo que trave depois de os headers já terem chegado;
++- trata JSON inválido como erro da resposta recebida, sem mascará-lo com fallback para outro host;
++- atualiza o cache-buster de `api.js` na Home e em Doações e adiciona testes dedicados do cliente API à CI.
++
+ ## V48.3.60 — Segurança de URLs e retenção local do ranking
+ 
+ - centraliza a validação de URLs HTTP(S) em `KamyliSanitize.safeHttpUrl()` e faz Créditos, Footer, Steam e links da Twitch passarem pelo helper antes de chegar a `href`;
+diff --git a/README.md b/README.md
+index 3e783a3..a132d4b 100644
+--- a/README.md
++++ b/README.md
+@@ -280,6 +280,10 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
+ Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
+ 
+ 
++### Cliente API resiliente — V48.3.61
++
++A V48.3.61 restringe o `workers.dev` a contingência de transporte: timeout, falha de rede ou interrupção do stream. Respostas HTTP válidas do domínio principal, inclusive 4xx/5xx, não são repetidas no fallback. O timeout de `KamyliAPI.getJSON()` permanece ativo até o corpo JSON terminar de ser consumido, cobrindo respostas que entregam headers mas travam durante a leitura. JSON inválido também falha no host que respondeu, sem fallback silencioso.
++
+ ### URLs externas e retenção local — V48.3.60
+ 
+ A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 7e0fd37..660cf2b 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -490,7 +490,7 @@
+     <script src="../js/core/content.js?v=48.3.51"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+     <script src="../js/core/buttons.js?v=48.3.6"></script>
+-    <script src="../js/core/api.js?v=47.3"></script>
++    <script src="../js/core/api.js?v=48.3.61"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+     <script src="../js/core/navbar.js?v=48.3.47"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+diff --git a/index.html b/index.html
+index 432bc4a..963a674 100644
+--- a/index.html
++++ b/index.html
+@@ -786,7 +786,7 @@
+     <script src="js/pages/home/carousel.js?v=46.2"></script>
+     <script src="js/pages/home/home.js?v=48.3.31"></script>
+     <script src="js/pages/home/content.js?v=48.3.60"></script>
+-    <script src="js/core/api.js?v=47.3"></script>
++    <script src="js/core/api.js?v=48.3.61"></script>
+     <script src="js/pages/home/lives.js?v=48.3.60"></script>
+     <script src="js/pages/home/twitch-live.js?v=48.3.60"></script>
+     <script src="js/pages/home/home-interactions.js?v=47"></script>
+diff --git a/js/core/api.js b/js/core/api.js
+index 4cf278d..648925f 100644
+--- a/js/core/api.js
++++ b/js/core/api.js
+@@ -4,10 +4,11 @@
+  * Uso:
+  *   const data = await KamyliAPI.getJSON("/endpoint");
+  *
+- * V44.4:
+- * - api.kamylisumire.com é o endpoint primário;
+- * - workers.dev continua como fallback temporário;
+- * - módulos consumidores não precisam conhecer o hostname real da API.
++ * V48.3.61:
++ * - api.kamylisumire.com continua como endpoint primário;
++ * - workers.dev é usado somente em falha de transporte/timeout;
++ * - respostas HTTP válidas (inclusive 4xx/5xx) não disparam fallback;
++ * - o AbortController permanece ativo até o corpo JSON terminar de ser lido.
+  */
+ window.KamyliAPI = (() => {
+     const config = window.KAMYLI_CONFIG?.api || {};
+@@ -35,8 +36,17 @@ window.KamyliAPI = (() => {
+         return [...new Set(candidates.filter(Boolean))];
+     }
+ 
+-    async function request(endpoint = "/", options = {}) {
+-        let lastError = null;
++    function isTransportFailure(error, signal) {
++        if (signal?.aborted) return true;
++        if (error?.name === "AbortError") return true;
++
++        // fetch() e falhas de leitura do stream usam TypeError nos navegadores.
++        // SyntaxError de JSON inválido e erros HTTP criados abaixo não entram aqui.
++        return error?.name === "TypeError";
++    }
++
++    async function request(endpoint = "/", options = {}, consumeResponse = response => response) {
++        let lastTransportError = null;
+ 
+         for (const baseUrl of getCandidates()) {
+             const controller = new AbortController();
+@@ -68,39 +78,45 @@ window.KamyliAPI = (() => {
+                     }
+                 );
+ 
+-                clearTimeout(timer);
+-
+                 if (!response.ok) {
+-                    throw new Error(`HTTP ${response.status}`);
++                    const httpError = new Error(`HTTP ${response.status}`);
++                    httpError.name = "KamyliHTTPError";
++                    throw httpError;
+                 }
+ 
+-                return response;
++                // O timer continua armado enquanto o corpo é consumido. Em um
++                // Response real, abortar o signal interrompe response.json().
++                return await consumeResponse(response);
+             } catch (error) {
+-                clearTimeout(timer);
++                if (!isTransportFailure(error, controller.signal)) {
++                    throw error;
++                }
++
+                 console.warn(
+-                    `Falha ao consultar ${baseUrl}:`,
++                    `Falha de transporte ao consultar ${baseUrl}:`,
+                     error
+                 );
+-                lastError = error;
++                lastTransportError = error;
++            } finally {
++                clearTimeout(timer);
+             }
+         }
+ 
+         throw (
+-            lastError ||
++            lastTransportError ||
+             new Error("Nenhum endpoint da API disponível.")
+         );
+     }
+ 
+     async function getJSON(endpoint = "/", options = {}) {
+-        const response = await request(
++        return request(
+             endpoint,
+             {
+                 ...options,
+                 method: "GET"
+-            }
++            },
++            response => response.json()
+         );
+-
+-        return response.json();
+     }
+ 
+     return Object.freeze({
