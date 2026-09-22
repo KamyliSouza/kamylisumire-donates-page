@@ -566,6 +566,13 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
+### Contraste de ações — V48.3.58
+
+- Fundos preenchidos de CTAs, filtros/abas ativos e seletores devem usar `--button-bg`/`--button-bg-hover` com `--button-text`, não combinar diretamente `--primary-color` com texto branco.
+- `--primary-color` continua sendo a cor de marca para títulos grandes, ícones, bordas e detalhes decorativos; texto pequeno colorido deve preferir `--primary-text`.
+- Os tokens de ação devem permanecer definidos nos temas claro, escuro explícito e fallback `prefers-color-scheme`, sempre com contraste mínimo de 4,5:1 para texto normal.
+- Manter `.github/tests/color-contrast.test.mjs` na CI ao alterar tokens ou superfícies primárias.
+
 ### Fail-safe do loader — V48.3.57
 
 - O bootstrap inline de todas as páginas deve armar `KAMYLI_LOADER_FAILSAFE_TIMER` por 6 s antes de `loader.js`; se o fluxo principal não assumir o reveal, o fail-safe precisa remover estados bloqueantes e restaurar `site-ready`.

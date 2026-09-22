@@ -420,7 +420,7 @@
 }
 
 .agenda-date-time-separator {
-    color: var(--primary-color);
+    color: var(--primary-text);
 
     font-size: .95rem;
     font-weight: 900;
@@ -967,9 +967,9 @@
 
 .home-blog-all-link:hover,
 .home-blog-all-link:focus-visible {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
     transform: translateY(-1px);
     outline: none;
 }
@@ -1042,8 +1042,8 @@
 }
 
 .hero-view-tab[aria-selected="true"] {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
 }
 
 .hero-view-tab:hover,
@@ -1055,8 +1055,8 @@
 
 .hero-view-tab[aria-selected="true"]:hover,
 .hero-view-tab[aria-selected="true"]:focus-visible {
-    color: #fff;
-    background-color: var(--primary-hover);
+    color: var(--button-text);
+    background-color: var(--button-bg-hover);
 }
 
 .hero-live-eyebrow {

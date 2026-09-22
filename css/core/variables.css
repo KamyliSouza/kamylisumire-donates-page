@@ -25,6 +25,13 @@
        ícones, títulos grandes, onde a régua de contraste é 3:1). */
     --primary-text: #9b4d97;
 
+    /* Superfícies de ação com contraste WCAG AA para texto normal.
+       Mantidas separadas da cor de marca para não escurecer títulos, ícones
+       e detalhes decorativos que usam --primary-color. */
+    --button-bg: #9b4d97;
+    --button-bg-hover: #843f80;
+    --button-text: #ffffff;
+
     /* Fundo e superfícies */
     --bg-color: #f7eff7;
     --card-bg: rgba(255, 255, 255, 0.92);
@@ -74,6 +81,9 @@
        tema escuro sem mudanças. */
     --primary-text: #d178cd;
     --primary-soft: rgba(209, 120, 205, 0.12);
+    --button-bg: #d178cd;
+    --button-bg-hover: #e08ddc;
+    --button-text: #1a0f1a;
 
     --bg-color: #121212;
     --card-bg: rgba(30, 24, 32, 0.85);
@@ -103,6 +113,9 @@
         --primary-hover: #b35eaf;
         --primary-text: #d178cd;
         --primary-soft: rgba(209, 120, 205, 0.12);
+        --button-bg: #d178cd;
+        --button-bg-hover: #e08ddc;
+        --button-text: #1a0f1a;
 
         --bg-color: #121212;
         --card-bg: rgba(30, 24, 32, 0.85);

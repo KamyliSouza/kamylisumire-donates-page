@@ -69,9 +69,9 @@
 .lives-carousel-button:focus-visible:not(:disabled),
 .agenda-carousel-button:hover:not(:disabled),
 .agenda-carousel-button:focus-visible:not(:disabled) {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
 
     box-shadow: 0 9px 26px rgba(179, 94, 175, .28);
 

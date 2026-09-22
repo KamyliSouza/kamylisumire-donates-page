@@ -126,9 +126,9 @@
 .artes-filter:hover,
 .artes-filter:focus-visible,
 .artes-filter.is-active {
-    color: #fff;
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background: var(--button-bg);
+    border-color: var(--button-bg);
     outline: none;
 }
 
@@ -376,8 +376,8 @@
 }
 
 .artes-search-field-option[aria-selected="true"] {
-    color: #fff;
-    background: var(--primary-color);
+    color: var(--button-text);
+    background: var(--button-bg);
 }
 
 .artes-search-field-option[aria-selected="true"]::after {

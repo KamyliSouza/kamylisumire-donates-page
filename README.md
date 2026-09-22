@@ -279,6 +279,12 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
 
 Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
 
+### Contraste de ações — V48.3.58
+
+A V48.3.58 separa a cor de marca das superfícies clicáveis primárias. `--primary-color` continua responsável por títulos, ícones e detalhes visuais, enquanto `--button-bg`, `--button-bg-hover` e `--button-text` definem CTAs, abas/filtros ativos e demais controles preenchidos. Os pares de cor são validados automaticamente para manter pelo menos 4,5:1 nos temas claro e escuro, inclusive no fallback de `prefers-color-scheme`.
+
+A suíte `.github/tests/color-contrast.test.mjs` calcula o contraste WCAG dos tokens e verifica que os principais componentes continuam usando o contrato semântico de botões. Textos pequenos de marca devem usar `--primary-text`; `--primary-color` permanece apropriado para títulos grandes, ícones, bordas e decoração.
+
 ### Fail-safe do loader — V48.3.57
 
 Todas as páginas armam no bootstrap inline um fail-safe de 6 s. Se `loader.js` não executar ou falhar antes de concluir o reveal, o bootstrap remove os estados bloqueantes, oculta o overlay e devolve a página ao estado `site-ready`. O fluxo normal cancela esse timer ao assumir o reveal. O mínimo visual do carregamento inicial foi reduzido de 500 ms para 320 ms; navegações internas mantêm seus próprios timings.

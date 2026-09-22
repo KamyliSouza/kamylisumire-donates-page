@@ -135,12 +135,12 @@
 }
 
 .donation-btn-primary {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
 }
 
 .donation-btn-primary:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--button-bg-hover);
     box-shadow: 0 6px 18px rgba(179, 94, 175, .30);
 }
 

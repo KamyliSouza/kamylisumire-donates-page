@@ -107,8 +107,8 @@
 }
 
 .ranking-tabs .tab-btn.active {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
 
     box-shadow: 0 5px 15px rgba(179, 94, 175, .25);
 }

@@ -68,6 +68,7 @@ REQUIRED_FILES = (
     ".github/workflows/sync-agenda.yml",
     ".github/tests/worker-ranking.test.mjs",
     ".github/tests/worker-robustness.test.mjs",
+    ".github/tests/color-contrast.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1461,6 +1462,7 @@ def validate_architecture() -> None:
     validate_workflow = read_text(".github/workflows/validate-json.yml")
     worker_ranking_tests = read_text(".github/tests/worker-ranking.test.mjs")
     worker_robustness_tests = read_text(".github/tests/worker-robustness.test.mjs")
+    color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1592,8 +1594,8 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.33" not in index:
-        error("index.html: cache-buster V48.3.30 ausente para css/pages/home.css.")
+    if "css/pages/home.css?v=48.3.58" not in index:
+        error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.2.0" not in index:
         error("index.html: cache-buster V48.2.0 ausente para js/pages/home/content.js.")
     if "js/pages/home/home.js?v=48.3.31" not in index:
@@ -1906,13 +1908,13 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=48.3.57" not in html:
             error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
-        if "global.css?v=48.3.7" not in html:
-            error(f"{rel}: cache-buster do CSS global V48.3.7 ausente.")
+        if "global.css?v=48.3.58" not in html:
+            error(f"{rel}: cache-buster do CSS global V48.3.58 ausente.")
 
     if "loader.js?v=48.3.57" not in not_found:
         error("404.html: cache-buster do loader V48.3.57 ausente.")
-    if "global.css?v=48.3.7" not in not_found:
-        error("404.html: cache-buster do CSS global V48.3.7 ausente.")
+    if "global.css?v=48.3.58" not in not_found:
+        error("404.html: cache-buster do CSS global V48.3.58 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
@@ -1932,7 +1934,7 @@ def validate_architecture() -> None:
             "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=47",
-            "css/core/navbar.css?v=48.3.48",
+            "css/core/navbar.css?v=48.3.58",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1990,12 +1992,12 @@ def validate_architecture() -> None:
 
     if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.22" not in blog_index:
-        error("blog/index.html: cache-buster V48.3.22 ausente para css/pages/blog.css.")
+    if "css/pages/blog.css?v=48.3.58" not in blog_index:
+        error("blog/index.html: cache-buster V48.3.58 ausente para css/pages/blog.css.")
     if "js/pages/artes/artes.js?v=48.3.52" not in artes_index:
         error("artes/index.html: cache-buster V48.3.52 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.22" not in artes_index:
-        error("artes/index.html: cache-buster V48.3.22 ausente para css/pages/artes.css.")
+    if "css/pages/artes.css?v=48.3.58" not in artes_index:
+        error("artes/index.html: cache-buster V48.3.58 ausente para css/pages/artes.css.")
 
     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
@@ -2380,6 +2382,20 @@ def validate_architecture() -> None:
         if token not in worker_robustness_tests:
             error(f'.github/tests/worker-robustness.test.mjs: cobertura V48.3.56 ausente: {token}')
 
+    # V48.3.58: superfícies primárias usam tokens semânticos com contraste AA.
+    if 'node --test .github/tests/color-contrast.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes de contraste V48.3.58 ausentes.')
+
+    for token in (
+        'tokens de ação atingem WCAG AA nos temas claro e escuro',
+        'componentes primários usam tokens semânticos de botão',
+        'textos pequenos de marca usam --primary-text no tema claro',
+        'button-bg',
+        'button-text',
+    ):
+        if token not in color_contrast_tests:
+            error(f'.github/tests/color-contrast.test.mjs: cobertura V48.3.58 ausente: {token}')
+
     # V48.3.55: a suíte deve proteger migração/atomicidade do ledger.
     for token in (
         "'ledger:v1': JSON.stringify({",
@@ -2507,32 +2523,34 @@ def validate_architecture() -> None:
     # V48.3.7: todo asset CSS/JS alterado pelo hardening precisa invalidar cache.
     v4837_assets = {
         "index.html": (
-            "css/core/variables.css?v=48.3.7",
-            "css/pages/home.css?v=48.3.33",
+            "css/core/variables.css?v=48.3.58",
+            "css/pages/home.css?v=48.3.58",
+            "css/components/carousels.css?v=48.3.58",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.3.7",
         ),
         "doacoes/index.html": (
-            "css/core/variables.css?v=48.3.7",
-            "css/pages/doacoes.css?v=48.3.7",
-            "css/components/ranking.css?v=48.3.11",
+            "css/core/variables.css?v=48.3.58",
+            "css/pages/doacoes.css?v=48.3.58",
+            "css/components/ranking.css?v=48.3.58",
             "js/pages/doacoes/ranking.js?v=48.3.52",
         ),
         "blog/index.html": (
-            "css/core/variables.css?v=48.3.7",
+            "css/core/variables.css?v=48.3.58",
             "css/components/blog.css?v=48.3.7",
         ),
-        "artes/index.html": ("css/core/variables.css?v=48.3.7",),
+        "artes/index.html": ("css/core/variables.css?v=48.3.58",),
+        "jogos/index.html": ("css/core/variables.css?v=48.3.58",),
         "privacidade/index.html": (
-            "css/core/variables.css?v=48.3.7",
+            "css/core/variables.css?v=48.3.58",
             "css/pages/privacidade.css?v=48.3.7",
         ),
         "uso-de-ia/index.html": (
-            "css/core/variables.css?v=48.3.7",
+            "css/core/variables.css?v=48.3.58",
             "css/pages/privacidade.css?v=48.3.7",
         ),
-        "404.html": ("css/core/variables.css?v=48.3.7",),
+        "404.html": ("css/core/variables.css?v=48.3.58",),
     }
     for rel, assets in v4837_assets.items():
         html = read_text(rel)

@@ -232,8 +232,8 @@
 }
 
 .blog-search-field-option[aria-selected="true"] {
-    color: #fff;
-    background: var(--primary-color);
+    color: var(--button-text);
+    background: var(--button-bg);
 }
 
 .blog-search-field-option[aria-selected="true"]::after {
@@ -358,9 +358,9 @@
 }
 
 .blog-filter.is-active {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
     box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
     transform: translateY(-1px);
 }

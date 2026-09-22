@@ -35,6 +35,8 @@ adaptativo desabilitar o efeito.
 
 ## Botões
 
+Desde a V48.3.58, superfícies de ação preenchidas usam os tokens semânticos `--button-bg`, `--button-bg-hover` e `--button-text`. Eles são separados de `--primary-color` para permitir contraste WCAG AA nos dois temas sem escurecer ou alterar a cor de marca usada em títulos, ícones e decoração. Texto pequeno colorido deve usar `--primary-text`.
+
 Usar as classes existentes:
 
 - `button`;

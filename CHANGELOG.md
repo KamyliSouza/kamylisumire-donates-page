@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.58 — Contraste AA em superfícies de ação
+
+- separa a cor de marca dos fundos de botões por meio de `--button-bg`, `--button-bg-hover` e `--button-text`;
+- mantém branco sobre rosa escuro no tema claro e usa texto escuro sobre rosa claro no tema escuro, garantindo contraste WCAG AA para texto normal;
+- aplica os novos tokens aos CTAs, filtros/abas ativos, seletores, controles do rodapé, carrosséis e botão Apoiar, sem alterar títulos, ícones e detalhes decorativos;
+- troca textos pequenos de marca que não atingiam 4,5:1 no tema claro para `--primary-text`;
+- adiciona `.github/tests/color-contrast.test.mjs` à CI para calcular contraste e proteger os componentes primários contra regressão.
+
 ## V48.3.57 — Fail-safe e latência do loader
 
 - adiciona um fail-safe inline de 6 s em todas as páginas para liberar conteúdo, interação e rolagem caso `loader.js` não carregue ou falhe antes do reveal;

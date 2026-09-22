@@ -145,12 +145,12 @@ a {
 }
 
 .button-primary {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
 }
 
 .button-primary:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--button-bg-hover);
     box-shadow: 0 6px 18px rgba(179, 94, 175, 0.30);
 }
 
@@ -303,9 +303,9 @@ a {
 .site-footer-settings-toggle:hover,
 .site-footer-settings-toggle:focus-visible,
 .site-footer-settings-toggle[aria-expanded="true"] {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
 
     outline: none;
 }
@@ -482,9 +482,9 @@ a {
 }
 
 .site-settings-option input:checked + span {
-    color: #fff;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
 }
 
 .site-settings-option input:focus-visible + span {

@@ -216,15 +216,15 @@
 }
 
 .site-nav-donate {
-    color: #fff;
-    background-color: var(--primary-color);
+    color: var(--button-text);
+    background-color: var(--button-bg);
 }
 
 .site-nav-donate:hover,
 .site-nav-donate:focus-visible,
 .site-nav-donate.is-active {
-    color: #fff;
-    background-color: var(--primary-hover);
+    color: var(--button-text);
+    background-color: var(--button-bg-hover);
 }
 
 /* Elementos exclusivos do layout mobile. */
@@ -310,7 +310,7 @@ html.site-page-leaving .site-nav-mobile-layer {
         height: 1.35em;
         align-items: center;
         overflow: hidden;
-        color: var(--primary-color);
+        color: var(--primary-text);
         font-size: 1.12rem;
         font-weight: 900;
         line-height: 1.15;
@@ -638,9 +638,9 @@ html.site-page-leaving .site-nav-mobile-layer {
         gap: 8px;
         padding: 8px 11px;
 
-        color: #fff;
-        background-color: var(--primary-color);
-        border: 1px solid var(--primary-color);
+        color: var(--button-text);
+        background-color: var(--button-bg);
+        border: 1px solid var(--button-bg);
         border-radius: 12px;
 
         font-size: .86rem;
@@ -689,9 +689,9 @@ html.site-mobile-drawer-open body {
 
     .site-nav-mobile-support:hover,
     .site-nav-mobile-support:focus-visible {
-        color: #fff;
-        background-color: var(--primary-hover);
-        border-color: var(--primary-hover);
+        color: var(--button-text);
+        background-color: var(--button-bg-hover);
+        border-color: var(--button-bg-hover);
         outline: none;
         transform: none;
     }
