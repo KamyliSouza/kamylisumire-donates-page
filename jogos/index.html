@@ -272,7 +272,7 @@
     >
 
     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.58">
+    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
     <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.22">
@@ -292,6 +292,7 @@
     </script>
 </head>
 <body>
+    <a class="skip-link" href="#jogosPage">Pular para o conteúdo</a>
     <div
         class="site-loader"
         id="site-loader"
@@ -312,7 +313,7 @@
 
     <header id="site-navbar"></header>
 
-    <main class="jogos-shell" id="jogosPage">
+    <main class="jogos-shell" id="jogosPage" tabindex="-1">
         <header class="glass-panel jogos-intro">
             <span class="eyebrow">Jogos das Lives</span>
             <h1>Jogos das lives 🎮</h1>
@@ -342,7 +343,8 @@
             <input class="jogos-search" id="jogosSearch" type="search" placeholder="Buscar um jogo..." aria-label="Buscar jogos" autocomplete="off">
         </section>
 
-        <section class="jogos-grid" id="jogosGrid" aria-live="polite" aria-label="Jogos das lives"></section>
+        <p class="sr-only" id="jogosResultsStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+        <section class="jogos-grid" id="jogosGrid" aria-label="Jogos das lives"></section>
         <nav class="glass-panel jogos-pagination" id="jogosPagination" aria-label="Páginas de jogos" hidden></nav>
         <p class="glass-panel jogos-state" id="jogosState">Carregando jogos...</p>
 
@@ -372,7 +374,7 @@
     <script src="../js/core/sanitize.js?v=1"></script>
     <script src="../js/core/footer.js?v=47.4.2"></script>
     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
-    <script src="../js/pages/jogos/jogos.js?v=48.3.51"></script>
+    <script src="../js/pages/jogos/jogos.js?v=48.3.59"></script>
     <script src="../js/core/loader.js?v=48.3.57"></script>
 </body>
 </html>

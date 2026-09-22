@@ -190,11 +190,12 @@ Não adicionar movimento indispensável à compreensão da interface.
 Manter:
 
 - foco visível;
+- link “Pular para o conteúdo” como primeiro controle focável, apontando para o `<main>`;
 - controles com nome acessível;
 - headings em ordem coerente;
 - contraste suficiente;
 - links externos identificáveis pelo contexto;
-- `aria-live` somente onde já há atualização dinâmica relevante.
+- `aria-live` em regiões curtas de status, nunca em grades inteiras de resultados quando uma contagem resumida for suficiente.
 
 ## Assets
 

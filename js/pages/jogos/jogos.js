@@ -15,7 +15,8 @@
         search: document.getElementById("jogosSearch"),
         grid: document.getElementById("jogosGrid"),
         pagination: document.getElementById("jogosPagination"),
-        status: document.getElementById("jogosState")
+        status: document.getElementById("jogosState"),
+        resultsStatus: document.getElementById("jogosResultsStatus")
     };
 
     const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
@@ -207,6 +208,13 @@
         els.pagination.append(makeArrow("next", totalPages));
     }
 
+    function announceResultCount(count) {
+        if (!els.resultsStatus) return;
+        els.resultsStatus.textContent = count === 1
+            ? "1 jogo encontrado."
+            : `${count} jogos encontrados.`;
+    }
+
     function renderGames({ animate = false } = {}) {
         const query = normalize(state.query.trim());
         const games = (state.data?.games || []).filter(game => {
@@ -219,6 +227,7 @@
         const visibleGames = games.slice(start, start + state.pageSize);
         els.grid.replaceChildren(...visibleGames.map(makeCard));
         renderPagination(games.length);
+        announceResultCount(games.length);
         if (animate) animateResults(els.grid);
         els.status.hidden = games.length > 0;
         if (!games.length) {
@@ -245,6 +254,7 @@
             console.error("Falha ao carregar jogos:", error);
             els.status.hidden = false;
             els.status.textContent = "Não foi possível carregar a lista de jogos agora.";
+            if (els.resultsStatus) els.resultsStatus.textContent = "Não foi possível carregar a lista de jogos.";
         }
     }
 

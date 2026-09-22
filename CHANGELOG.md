@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.59 — Acessibilidade semântica de navegação e resultados
+
+- adiciona “Pular para o conteúdo” nas oito páginas, apontando diretamente para o `<main>` focável sem alterar os IDs já usados por Artes, Blog e Jogos;
+- adiciona os utilitários globais `.skip-link` e `.sr-only`, com foco visível, tokens de ação AA e respeito aos estados bloqueantes do loader;
+- remove `aria-live` das grades inteiras de Artes e Jogos e cria regiões `role="status"` curtas para anunciar somente a quantidade de resultados;
+- faz filtros e busca anunciarem contagens como “1 arte encontrada”/“12 jogos encontrados”, evitando releitura completa das grades por leitores de tela;
+- adiciona `.github/tests/accessibility-semantics.test.mjs` à CI para proteger skip links, alvos focáveis e regiões live reduzidas.
+
 ## V48.3.58 — Contraste AA em superfícies de ação
 
 - separa a cor de marca dos fundos de botões por meio de `--button-bg`, `--button-bg-hover` e `--button-text`;

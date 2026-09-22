@@ -279,6 +279,12 @@ Estados `menu`/`socials` no History API são temporários por documento e são d
 
 Como o Menu mobile é renderizado fora de `.site-nav`, a camada `.site-nav-mobile-layer` replica explicitamente os estados de ocultação do loader. Durante carregamento/transição, o gatilho, drawer, backdrop e faixa de swipe ficam invisíveis e não interativos.
 
+### Acessibilidade semântica — V48.3.59
+
+A V48.3.59 adiciona um link “Pular para o conteúdo” em todas as páginas. O link fica fora do fluxo visual até receber foco e aponta diretamente para o `<main>` da página, que aceita foco programático sem substituir IDs já usados pelo runtime. Artes e Jogos deixam de aplicar `aria-live` às grades completas: uma região `role="status"` visualmente oculta anuncia somente a contagem filtrada de resultados.
+
+A suíte `.github/tests/accessibility-semantics.test.mjs` protege os oito skip links, os alvos focáveis, os utilitários `.skip-link`/`.sr-only` e o contrato de anúncios curtos.
+
 ### Contraste de ações — V48.3.58
 
 A V48.3.58 separa a cor de marca das superfícies clicáveis primárias. `--primary-color` continua responsável por títulos, ícones e detalhes visuais, enquanto `--button-bg`, `--button-bg-hover` e `--button-text` definem CTAs, abas/filtros ativos e demais controles preenchidos. Os pares de cor são validados automaticamente para manter pelo menos 4,5:1 nos temas claro e escuro, inclusive no fallback de `prefers-color-scheme`.

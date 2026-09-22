@@ -13,6 +13,7 @@
     const searchFieldControl = searchField?.closest(".artes-search-field-control") || null;
     const searchFieldMenuHome = searchFieldMenu?.parentElement || null;
     const state = document.getElementById("artesState");
+    const resultsStatus = document.getElementById("artesResultsStatus");
     const dialog = document.getElementById("arteDialog");
     const dialogImage = document.getElementById("arteDialogImage");
     const dialogTitle = document.getElementById("arteDialogTitle");
@@ -284,6 +285,13 @@
         }
     }
 
+    function announceResultCount(count) {
+        if (!resultsStatus) return;
+        resultsStatus.textContent = count === 1
+            ? "1 arte encontrada."
+            : `${count} artes encontradas.`;
+    }
+
     function applyFilters({ animate = false } = {}) {
         const { field, query } = parseSearch(search?.value);
         let visible = 0;
@@ -299,6 +307,7 @@
         } else if (items.length) {
             state.hidden = true;
         }
+        announceResultCount(visible);
         if (animate) animateResults(grid);
     }
 
@@ -474,10 +483,12 @@
                 if (tools) tools.hidden = false;
                 renderFilters();
             }
+            announceResultCount(items.length);
             ready({ page: "artes", count: items.length });
         } catch (error) {
             state.hidden = false;
             state.textContent = "Não foi possível carregar a galeria agora. Tente novamente mais tarde.";
+            if (resultsStatus) resultsStatus.textContent = "Não foi possível carregar a galeria.";
             if (tools) tools.hidden = true;
             ready({ page: "artes", error: String(error?.message || error) });
         }

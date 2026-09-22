@@ -1463,6 +1463,7 @@ def validate_architecture() -> None:
     worker_ranking_tests = read_text(".github/tests/worker-ranking.test.mjs")
     worker_robustness_tests = read_text(".github/tests/worker-robustness.test.mjs")
     color_contrast_tests = read_text(".github/tests/color-contrast.test.mjs")
+    accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -1908,12 +1909,12 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=48.3.57" not in html:
             error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
-        if "global.css?v=48.3.58" not in html:
+        if "global.css?v=48.3.59" not in html:
             error(f"{rel}: cache-buster do CSS global V48.3.58 ausente.")
 
     if "loader.js?v=48.3.57" not in not_found:
         error("404.html: cache-buster do loader V48.3.57 ausente.")
-    if "global.css?v=48.3.58" not in not_found:
+    if "global.css?v=48.3.59" not in not_found:
         error("404.html: cache-buster do CSS global V48.3.58 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
@@ -1994,14 +1995,14 @@ def validate_architecture() -> None:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
     if "css/pages/blog.css?v=48.3.58" not in blog_index:
         error("blog/index.html: cache-buster V48.3.58 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.52" not in artes_index:
+    if "js/pages/artes/artes.js?v=48.3.59" not in artes_index:
         error("artes/index.html: cache-buster V48.3.52 ausente para js/pages/artes/artes.js.")
     if "css/pages/artes.css?v=48.3.58" not in artes_index:
         error("artes/index.html: cache-buster V48.3.58 ausente para css/pages/artes.css.")
 
     if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.51" not in jogos_index:
+    if "js/pages/jogos/jogos.js?v=48.3.59" not in jogos_index:
         error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
@@ -2395,6 +2396,50 @@ def validate_architecture() -> None:
     ):
         if token not in color_contrast_tests:
             error(f'.github/tests/color-contrast.test.mjs: cobertura V48.3.58 ausente: {token}')
+
+    # V48.3.59: navegação por teclado e anúncios de resultados usam regiões curtas.
+    if 'node --test .github/tests/accessibility-semantics.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes de acessibilidade V48.3.59 ausentes.')
+
+    for token in (
+        'Pular para o conteúdo com alvo focável no main',
+        'grades de Artes e Jogos não são regiões live inteiras',
+        'filtros anunciam somente uma contagem curta de resultados',
+        'artesResultsStatus',
+        'jogosResultsStatus',
+    ):
+        if token not in accessibility_semantics_tests:
+            error(f'.github/tests/accessibility-semantics.test.mjs: cobertura V48.3.59 ausente: {token}')
+
+    page_skip_targets = {
+        'index.html': 'conteudo',
+        'doacoes/index.html': 'conteudo',
+        'artes/index.html': 'artesPage',
+        'blog/index.html': 'blogIndexPage',
+        'jogos/index.html': 'jogosPage',
+        'privacidade/index.html': 'conteudo',
+        'uso-de-ia/index.html': 'conteudo',
+        '404.html': 'conteudo',
+    }
+    for rel, target in page_skip_targets.items():
+        html = read_text(rel)
+        if f'<a class="skip-link" href="#{target}">Pular para o conteúdo</a>' not in html:
+            error(f'{rel}: skip link V48.3.59 ausente ou com alvo incorreto.')
+        main_match = re.search(rf'<main[^>]*\bid="{re.escape(target)}"[^>]*>', html)
+        if not main_match or 'tabindex="-1"' not in main_match.group(0):
+            error(f'{rel}: main alvo do skip link V48.3.59 deve ter tabindex="-1".')
+
+    for rel, grid_id, status_id in (
+        ('artes/index.html', 'artesGrid', 'artesResultsStatus'),
+        ('jogos/index.html', 'jogosGrid', 'jogosResultsStatus'),
+    ):
+        html = read_text(rel)
+        grid_match = re.search(rf'<section[^>]*\bid="{grid_id}"[^>]*>', html)
+        if not grid_match or 'aria-live=' in grid_match.group(0):
+            error(f'{rel}: grade {grid_id} não deve ser aria-live na V48.3.59.')
+        expected_status = f'id="{status_id}" role="status" aria-live="polite" aria-atomic="true"'
+        if expected_status not in html:
+            error(f'{rel}: região curta de status {status_id} ausente na V48.3.59.')
 
     # V48.3.55: a suíte deve proteger migração/atomicidade do ledger.
     for token in (

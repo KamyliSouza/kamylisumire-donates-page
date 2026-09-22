@@ -58,6 +58,62 @@ a {
 }
 
 /* =========================================================
+   ACESSIBILIDADE COMPARTILHADA — V48.3.59
+   ========================================================= */
+
+.skip-link {
+    position: fixed;
+    inset-block-start: max(12px, env(safe-area-inset-top));
+    inset-inline-start: max(12px, env(safe-area-inset-left));
+    z-index: 10050;
+
+    padding: 10px 14px;
+
+    color: var(--button-text);
+    background-color: var(--button-bg);
+
+    border: 2px solid var(--button-bg-hover);
+    border-radius: var(--radius-button);
+    box-shadow: var(--shadow-card);
+
+    font-weight: 800;
+    text-decoration: none;
+
+    transform: translateY(calc(-100% - 32px));
+    transition:
+        transform .16s ease,
+        background-color .16s ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    background-color: var(--button-bg-hover);
+    outline: 3px solid var(--text-color);
+    outline-offset: 3px;
+    transform: translateY(0);
+}
+
+html.site-loading-pending .skip-link,
+html.site-loading-visible .skip-link,
+html.site-navigation-loading .skip-link,
+html.site-page-leaving .skip-link {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* =========================================================
    LAYOUT COMPARTILHADO
    ========================================================= */
 

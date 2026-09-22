@@ -566,6 +566,13 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
+### Acessibilidade semântica — V48.3.59
+
+- Todas as páginas devem preservar um `.skip-link` como primeiro controle focável após `<body>`, apontando para o `<main>` correspondente com `tabindex="-1"`; IDs de runtime existentes não devem ser trocados apenas para padronizar o alvo.
+- Grades de resultados não devem usar `aria-live`; Artes e Jogos anunciam mudanças por regiões `.sr-only` com `role="status"`, `aria-live="polite"` e `aria-atomic="true"`.
+- Anúncios de filtros devem ser curtos e quantitativos, sem reproduzir títulos/cards inteiros.
+- Manter `.github/tests/accessibility-semantics.test.mjs` na CI ao alterar estrutura de `<main>`, grids ou estados de filtros.
+
 ### Contraste de ações — V48.3.58
 
 - Fundos preenchidos de CTAs, filtros/abas ativos e seletores devem usar `--button-bg`/`--button-bg-hover` com `--button-text`, não combinar diretamente `--primary-color` com texto branco.

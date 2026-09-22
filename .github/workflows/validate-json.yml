@@ -77,12 +77,13 @@ jobs:
           node --check .github/scripts/sync-jogos.mjs
           node --check .github/scripts/sync-agenda.mjs
 
-      - name: Run Worker tests
+      - name: Run automated tests
         run: |
           node --test .github/tests/worker-ranking.test.mjs
           node --test .github/tests/worker-robustness.test.mjs
           node --test .github/tests/loader-failsafe.test.mjs
           node --test .github/tests/color-contrast.test.mjs
+          node --test .github/tests/accessibility-semantics.test.mjs
 
       - name: Reject generated Python cache
         run: |
