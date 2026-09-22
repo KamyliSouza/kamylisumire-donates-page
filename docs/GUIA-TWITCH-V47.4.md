@@ -115,6 +115,7 @@ Não altere/remova as configurações já existentes do projeto, incluindo:
 
 ```text
 OAUTH_SETUP_TOKEN
+OAUTH_STATE_SECRET
 STREAMLABS_CLIENT_ID
 STREAMLABS_CLIENT_SECRET
 REDIRECT_URI
@@ -207,13 +208,10 @@ Nesse caso **nenhuma consulta de vídeos é feita à Twitch**.
 
 ### Pelo navegador
 
-O fallback `?key=` continua aceito para compatibilidade administrativa:
-
-```text
-https://api.kamylisumire.com/debug/twitch-sync?key=SEU_OAUTH_SETUP_TOKEN
-```
-
-Prefira Bearer quando possível para não colocar o token na URL/histórico.
+Desde a V48.3.62, rotas `/debug/*` não aceitam mais `?key=`. Para executar a
+sincronização administrativa, envie `Authorization: Bearer` pelo terminal ou
+por uma ferramenta que permita headers. `?key=` permanece disponível somente
+em `/oauth/authorize`.
 
 ## 6. Testar o endpoint público
 
@@ -432,6 +430,7 @@ Nunca publicar:
 ```text
 TWITCH_CLIENT_SECRET
 OAUTH_SETUP_TOKEN
+OAUTH_STATE_SECRET
 App Access Token armazenado no KV
 ```
 

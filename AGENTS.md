@@ -298,24 +298,27 @@ A configuração OAuth do Worker deve usar exatamente:
 CORS deve permitir `https://kamylisumire.com` e somente outras origens
 explicitamente necessárias.
 
-`STREAMLABS_CLIENT_SECRET`, `OAUTH_SETUP_TOKEN`, tokens OAuth e demais
-credenciais continuam fora do Git.
+`STREAMLABS_CLIENT_SECRET`, `OAUTH_SETUP_TOKEN`, `OAUTH_STATE_SECRET`, tokens
+OAuth e demais credenciais continuam fora do Git.
 
-Desde a V47.3, `/oauth/authorize`, `/debug/status` e `/debug/sync`
-aceitam o token de administração via `Authorization: Bearer <token>`
-(preferido, não fica em logs/histórico) além do fallback `?key=` na URL
-(mantido só porque `/oauth/authorize` precisa continuar sendo um link
-clicável no navegador). As três rotas administrativas e o `/oauth/callback`
-agora respondem com os mesmos cabeçalhos de CORS de `handleRanking`, em vez
-de um subconjunto inconsistente.
+Desde a V48.3.62, todas as rotas `/debug/*` aceitam o token administrativo
+**somente** em `Authorization: Bearer <token>`. O fallback `?key=` fica restrito
+a `/oauth/authorize`, porque essa rota precisa continuar utilizável como uma
+navegação simples de navegador. `OAUTH_SETUP_TOKEN` deve ter pelo menos 32
+caracteres; valores menores falham fechado e não devem ser aceitos em produção.
+As rotas administrativas e o `/oauth/callback` respondem com os mesmos
+cabeçalhos de CORS de `handleRanking`.
 
-
-Desde a V47.4.5, o OAuth Streamlabs deve enviar um `state` assinado por HMAC em
-`/oauth/authorize` e rejeitar callbacks com `state` ausente, adulterado ou
-expirado. A assinatura reutiliza `OAUTH_SETUP_TOKEN` como segredo interno e não
-deve exigir chave adicional nem armazenamento temporário no KV. O estado expira
-em 10 minutos. CORS sem variável configurada deve restringir-se aos domínios
-oficiais do site; `*` só é aceitável quando definido explicitamente para teste.
+O OAuth Streamlabs usa `OAUTH_STATE_SECRET`, separado de `OAUTH_SETUP_TOKEN`,
+para assinar o `state` por HMAC. O segredo de state também deve ter pelo menos
+32 caracteres. Cada autorização registra no KV um nonce `oauth:state:nonce:*`
+com TTL de 10 minutos; o callback valida assinatura/idade e consome esse nonce
+antes da troca do `code`, impedindo reutilização sequencial do mesmo state. Como
+Workers KV é eventualmente consistente entre data centers, esse nonce é defesa
+em profundidade e não substitui mecanismos de consistência forte se o threat
+model futuro exigir proteção global estrita contra replay concorrente.
+CORS sem variável configurada deve restringir-se aos domínios oficiais do site;
+`*` só é aceitável quando definido explicitamente para teste.
 
 A anonimização de nomes no ranking público passou do frontend (lista
 fixa em `js/pages/doacoes/ranking.js`) para o Worker, via a variável de

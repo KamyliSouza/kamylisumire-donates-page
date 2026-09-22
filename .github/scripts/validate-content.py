@@ -1490,6 +1490,7 @@ def validate_architecture() -> None:
     accessibility_semantics_tests = read_text(".github/tests/accessibility-semantics.test.mjs")
     frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
     api_client_tests = read_text(".github/tests/api-client.test.mjs")
+    worker_auth_tests = read_text(".github/tests/worker-auth.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -2408,6 +2409,39 @@ def validate_architecture() -> None:
     ):
         if token not in worker_robustness_tests:
             error(f'.github/tests/worker-robustness.test.mjs: cobertura V48.3.56 ausente: {token}')
+
+    # V48.3.62: autenticação administrativa e state OAuth usam segredos separados.
+    if 'node --test .github/tests/worker-auth.test.mjs' not in validate_workflow:
+        error('.github/workflows/validate-json.yml: testes de autenticação V48.3.62 ausentes.')
+
+    for token in (
+        'rotas debug rejeitam ?key= e exigem Authorization Bearer',
+        '/oauth/authorize mantém ?key= somente para a navegação OAuth',
+        'token administrativo com menos de 32 caracteres falha fechado',
+        'state OAuth usa OAUTH_STATE_SECRET separado do token administrativo',
+        'state OAuth é consumido uma única vez',
+        'OAuth recusa reutilizar OAUTH_SETUP_TOKEN como OAUTH_STATE_SECRET',
+        'OAuth falha fechado quando OAUTH_STATE_SECRET não está configurado',
+    ):
+        if token not in worker_auth_tests:
+            error(f'.github/tests/worker-auth.test.mjs: cobertura V48.3.62 ausente: {token}')
+
+    for token in (
+        "ADMIN_TOKEN_MIN_LENGTH = 32",
+        "OAUTH_STATE_SECRET_MIN_LENGTH = 32",
+        "STREAMLABS_OAUTH_NONCE_PREFIX = 'oauth:state:nonce:'",
+        "const payload = `v2.${issuedAt}.${nonce}`",
+        "env.OAUTH_STATE_SECRET",
+        "secret === adminToken",
+        "{ allowQuery: true }",
+        "await env.RANKINGS.delete(nonceKey)",
+        "expirationTtl: STREAMLABS_OAUTH_STATE_TTL_SECONDS",
+    ):
+        if token not in worker_js:
+            error(f'workers.js: contrato de autenticação V48.3.62 ausente: {token}')
+
+    if worker_js.count("url.searchParams.get('key')") != 1:
+        error("workers.js: ?key= deve permanecer restrito exclusivamente a /oauth/authorize na V48.3.62.")
 
     # V48.3.58: superfícies primárias usam tokens semânticos com contraste AA.
     if 'node --test .github/tests/color-contrast.test.mjs' not in validate_workflow:

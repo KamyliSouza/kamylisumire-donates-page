@@ -86,6 +86,7 @@ jobs:
           node --test .github/tests/accessibility-semantics.test.mjs
           node --test .github/tests/frontend-safety-retention.test.mjs
           node --test .github/tests/api-client.test.mjs
+          node --test .github/tests/worker-auth.test.mjs
 
       - name: Reject generated Python cache
         run: |

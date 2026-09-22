@@ -126,10 +126,10 @@ offline, erro ou snapshot vencido mantém o Hero padrão.
 Rotas relevantes:
 
 - `/` — ranking público;
-- `/oauth/authorize` — início controlado do OAuth, com `state` assinado desde V47.4.5;
-- `/oauth/callback` — callback OAuth do Streamlabs, que valida `state` antes de trocar o `code`;
-- `/debug/status` — diagnóstico protegido por `OAUTH_SETUP_TOKEN`;
-- `/debug/sync` — sincronização manual protegida do ranking;
+- `/oauth/authorize` — início controlado do OAuth; aceita Bearer ou `?key=` e cria `state` v2 assinado por `OAUTH_STATE_SECRET` com nonce temporário no KV;
+- `/oauth/callback` — callback OAuth do Streamlabs, que valida e consome o `state` antes de trocar o `code`;
+- `/debug/status` — diagnóstico protegido exclusivamente por `Authorization: Bearer OAUTH_SETUP_TOKEN`;
+- `/debug/sync` — sincronização manual protegida exclusivamente por Bearer;
 - `/twitch/videos` — snapshot público das últimas VODs da Twitch, com Cache API antes do KV desde V47.4.7;
 - `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, renovável após 20 h e com validade máxima de 24 h;
 - `/twitch/live` — status público ao vivo, servido de cache/KV;

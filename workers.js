@@ -19,6 +19,10 @@ const TWITCH_TOKEN_SAFETY_MS = 5 * 60 * 1000;
 const TWITCH_TOKEN_VALIDATE_INTERVAL_MS = 50 * 60 * 1000;
 const TWITCH_USER_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const STREAMLABS_OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+const STREAMLABS_OAUTH_STATE_TTL_SECONDS = 10 * 60;
+const STREAMLABS_OAUTH_NONCE_PREFIX = 'oauth:state:nonce:';
+const ADMIN_TOKEN_MIN_LENGTH = 32;
+const OAUTH_STATE_SECRET_MIN_LENGTH = 32;
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://kamylisumire.com',
   'https://www.kamylisumire.com'
@@ -212,19 +216,20 @@ async function putKVIfChanged(env, key, value, options) {
 // ---------------------------------------------------------------------
 // Autenticação administrativa (OAuth/Debug)
 //
-// Preferir 'Authorization: Bearer <token>': ele não fica registrado em
-// logs de acesso, histórico do navegador ou cabeçalho Referer da forma
-// como '?key=' na URL fica. O parâmetro de query é mantido apenas como
-// fallback, porque /oauth/authorize precisa continuar sendo um link
-// clicável/colável diretamente no navegador (não dá para anexar um
-// header a uma navegação simples de GET).
+// Rotas /debug/* aceitam somente Authorization: Bearer. O parâmetro ?key=
+// fica restrito a /oauth/authorize, porque uma navegação simples do navegador
+// não consegue anexar headers customizados. O segredo administrativo precisa
+// ter pelo menos 32 caracteres; valores curtos são recusados por fail-closed.
 // ---------------------------------------------------------------------
-function extractAdminToken(request, url) {
+function extractBearerToken(request) {
   const header = request.headers.get('Authorization') || '';
   const bearerMatch = /^Bearer\s+(.+)$/i.exec(header.trim());
+  return bearerMatch ? bearerMatch[1].trim() : '';
+}
 
-  if (bearerMatch) return bearerMatch[1].trim();
-
+function extractAuthorizeToken(request, url) {
+  const bearer = extractBearerToken(request);
+  if (bearer) return bearer;
   return (url.searchParams.get('key') || '').trim();
 }
 
@@ -241,16 +246,22 @@ function timingSafeEqual(a, b) {
     return crypto.subtle.timingSafeEqual(bufA, bufB);
   }
 
-  // Mantém o caminho de comparação mesmo quando os comprimentos diferem.
   crypto.subtle.timingSafeEqual(bufA, bufA);
   return false;
 }
 
-function isAdminAuthorized(request, url, env) {
-  const expected = (env.OAUTH_SETUP_TOKEN || '').trim();
+function configuredAdminToken(env) {
+  const token = (env.OAUTH_SETUP_TOKEN || '').trim();
+  return token.length >= ADMIN_TOKEN_MIN_LENGTH ? token : '';
+}
+
+function isAdminAuthorized(request, url, env, { allowQuery = false } = {}) {
+  const expected = configuredAdminToken(env);
   if (!expected) return false;
 
-  const provided = extractAdminToken(request, url);
+  const provided = allowQuery
+    ? extractAuthorizeToken(request, url)
+    : extractBearerToken(request);
   if (!provided) return false;
 
   return timingSafeEqual(provided, expected);
@@ -282,31 +293,50 @@ function base64UrlDecode(value) {
   return Uint8Array.from(binary, char => char.charCodeAt(0));
 }
 
-async function streamlabsStateKey(env) {
-  const secret = (env.OAUTH_SETUP_TOKEN || '').trim();
-
-  if (!secret) {
-    throw new Error('OAUTH_SETUP_TOKEN não configurado.');
+function streamlabsStateSecret(env) {
+  const secret = (env.OAUTH_STATE_SECRET || '').trim();
+  if (secret.length < OAUTH_STATE_SECRET_MIN_LENGTH) {
+    throw new Error('OAUTH_STATE_SECRET deve ter pelo menos 32 caracteres.');
   }
 
+  const adminToken = (env.OAUTH_SETUP_TOKEN || '').trim();
+  if (adminToken && secret === adminToken) {
+    throw new Error('OAUTH_STATE_SECRET deve ser diferente de OAUTH_SETUP_TOKEN.');
+  }
+  return secret;
+}
+
+async function streamlabsStateKey(env) {
   return crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(secret),
+    new TextEncoder().encode(streamlabsStateSecret(env)),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign', 'verify']
   );
 }
 
+function streamlabsStateNonceKey(nonce) {
+  return `${STREAMLABS_OAUTH_NONCE_PREFIX}${nonce}`;
+}
+
 async function createStreamlabsOAuthState(env) {
   const issuedAt = Date.now();
   const nonce = crypto.randomUUID();
-  const payload = `v1.${issuedAt}.${nonce}`;
+  const payload = `v2.${issuedAt}.${nonce}`;
   const key = await streamlabsStateKey(env);
   const signature = await crypto.subtle.sign(
     'HMAC',
     key,
     new TextEncoder().encode(payload)
+  );
+
+  // O nonce não contém segredo e expira junto com a janela do state. A chave
+  // separada permite rejeitar uma segunda tentativa do mesmo callback.
+  await env.RANKINGS.put(
+    streamlabsStateNonceKey(nonce),
+    String(issuedAt),
+    { expirationTtl: STREAMLABS_OAUTH_STATE_TTL_SECONDS }
   );
 
   return `${payload}.${base64UrlEncode(signature)}`;
@@ -315,7 +345,7 @@ async function createStreamlabsOAuthState(env) {
 async function validateStreamlabsOAuthState(env, state) {
   const parts = String(state || '').split('.');
 
-  if (parts.length !== 4 || parts[0] !== 'v1') return false;
+  if (parts.length !== 4 || parts[0] !== 'v2') return false;
 
   const issuedAt = Number(parts[1]);
   const nonce = parts[2];
@@ -334,19 +364,29 @@ async function validateStreamlabsOAuthState(env, state) {
 
   try {
     const key = await streamlabsStateKey(env);
-    return await crypto.subtle.verify(
+    const validSignature = await crypto.subtle.verify(
       'HMAC',
       key,
       base64UrlDecode(signature),
-      new TextEncoder().encode(`v1.${issuedAt}.${nonce}`)
+      new TextEncoder().encode(`v2.${issuedAt}.${nonce}`)
     );
+    if (!validSignature) return false;
+
+    const nonceKey = streamlabsStateNonceKey(nonce);
+    const storedIssuedAt = await env.RANKINGS.get(nonceKey);
+    if (storedIssuedAt !== String(issuedAt)) return false;
+
+    // Consome o state antes da troca do code. Se a troca falhar, uma nova
+    // autorização deve ser iniciada em vez de reutilizar o mesmo callback.
+    await env.RANKINGS.delete(nonceKey);
+    return true;
   } catch {
     return false;
   }
 }
 
 async function handleAuthorize(request, url, env) {
-  if (!isAdminAuthorized(request, url, env)) {
+  if (!isAdminAuthorized(request, url, env, { allowQuery: true })) {
     return cors(request, env, new Response('Não autorizado', { status: 403 }));
   }
 

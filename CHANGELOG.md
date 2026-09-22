@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.62 — Autenticação administrativa e OAuth endurecidos
+
+- restringe `?key=` exclusivamente a `/oauth/authorize`; rotas `/debug/*` passam a aceitar somente `Authorization: Bearer`;
+- exige pelo menos 32 caracteres em `OAUTH_SETUP_TOKEN` e introduz `OAUTH_STATE_SECRET` separado, também com mínimo de 32 caracteres, para a assinatura HMAC do state;
+- atualiza o OAuth Streamlabs para state v2 e registra nonce temporário no KV por 10 minutos, consumido no callback antes da troca do `code`;
+- preserva tokens Streamlabs existentes no KV e documenta a ordem segura de configuração/deploy;
+- adiciona testes automatizados para Bearer-only em debug, mínimo dos segredos, separação de chaves e consumo único do state.
+
 ## V48.3.61 — Fallback e timeout do cliente API
 
 - limita o fallback `workers.dev` a falhas de transporte/timeout; respostas HTTP 4xx/5xx do domínio principal passam a ser devolvidas como erro sem repetir a mesma requisição no host de contingência;

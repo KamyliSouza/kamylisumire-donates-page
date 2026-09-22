@@ -78,7 +78,8 @@ Continuam sensíveis e fora do Git:
 
 - `STREAMLABS_CLIENT_SECRET`;
 - `TWITCH_CLIENT_SECRET`;
-- `OAUTH_SETUP_TOKEN`;
+- `OAUTH_SETUP_TOKEN` (mínimo de 32 caracteres);
+- `OAUTH_STATE_SECRET` (mínimo de 32 caracteres e diferente do token administrativo);
 - tokens OAuth armazenados no KV;
 - demais credenciais privadas.
 
@@ -93,12 +94,24 @@ como Redirect/Redirection URI.
 O Worker usa `env.REDIRECT_URI` na autorização e também na troca/renovação
 de tokens, por isso Cloudflare e Streamlabs devem estar idênticos.
 
-Desde a V47.4.5, `/oauth/authorize` também gera um `state` assinado por HMAC,
-com validade de 10 minutos, e `/oauth/callback` rejeita estado ausente,
-adulterado ou vencido. Não é necessária nova variável: `OAUTH_SETUP_TOKEN` é
-reutilizado apenas como chave interna de assinatura.
+Desde a V48.3.62, `/oauth/authorize` gera um `state` v2 assinado por HMAC com
+`OAUTH_STATE_SECRET`, separado do token administrativo. O state vale 10 minutos
+e registra um nonce temporário `oauth:state:nonce:*` no binding `RANKINGS`; o
+callback consome esse nonce antes de trocar o `code`, portanto o mesmo state não
+deve ser reutilizado. `/debug/*` aceita apenas `Authorization: Bearer`; `?key=`
+permanece aceito somente em `/oauth/authorize`.
 
-Após a mudança, faça uma nova autorização pelo domínio novo:
+Antes de publicar o Worker V48.3.62, configure em **Secrets**:
+
+- `OAUTH_SETUP_TOKEN` com pelo menos 32 caracteres;
+- `OAUTH_STATE_SECRET` com pelo menos 32 caracteres e valor diferente.
+
+Os tokens Streamlabs já armazenados no KV não são apagados nem exigem nova
+autorização só por essa mudança. Qualquer fluxo OAuth iniciado antes do deploy
+(state v1) deve simplesmente ser reiniciado após o deploy.
+
+Após a mudança, faça uma nova autorização pelo domínio novo somente quando for
+necessário renovar/recriar a autorização Streamlabs:
 
 ```text
 https://api.kamylisumire.com/oauth/authorize?key=SEU_OAUTH_SETUP_TOKEN
