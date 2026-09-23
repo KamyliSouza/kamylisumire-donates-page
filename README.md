@@ -288,6 +288,10 @@ A V48.3.61 restringe o `workers.dev` a contingência de transporte: timeout, fal
 
 A V48.3.62 restringe `?key=` a `/oauth/authorize`; todas as rotas `/debug/*` passam a exigir `Authorization: Bearer`. `OAUTH_SETUP_TOKEN` precisa ter pelo menos 32 caracteres. O `state` OAuth deixa de reutilizar esse token e passa a ser assinado por `OAUTH_STATE_SECRET`, também com mínimo de 32 caracteres. Cada state v2 registra um nonce no KV por 10 minutos e o callback o consome antes da troca do `code`, adicionando proteção contra reutilização. Os tokens Streamlabs existentes no KV permanecem compatíveis; apenas fluxos OAuth iniciados antes do deploy devem ser reiniciados.
 
+### Hardening da CI — V48.3.63
+
+A V48.3.63 limita a duração dos jobs do GitHub Actions (10 min para validação e 20 min para os syncs editoriais), fixa `actions/checkout` v4.2.2 por SHA completo e impede que o checkout somente-leitura da validação persista credenciais. Validações obsoletas da mesma ref são canceladas; os syncs de Jogos/Agenda continuam serializados e nunca são cancelados no meio de uma publicação. A suíte `node:test` passa a ser descoberta automaticamente por `.github/tests/*.test.mjs`, de modo que um novo teste versionado não precise ser lembrado manualmente no workflow.
+
 ### URLs externas e retenção local — V48.3.60
 
 A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.

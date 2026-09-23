@@ -72,6 +72,8 @@ REQUIRED_FILES = (
     ".github/tests/accessibility-semantics.test.mjs",
     ".github/tests/frontend-safety-retention.test.mjs",
     ".github/tests/api-client.test.mjs",
+    ".github/tests/worker-auth.test.mjs",
+    ".github/tests/workflow-hardening.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -1491,6 +1493,7 @@ def validate_architecture() -> None:
     frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
     api_client_tests = read_text(".github/tests/api-client.test.mjs")
     worker_auth_tests = read_text(".github/tests/worker-auth.test.mjs")
+    workflow_hardening_tests = read_text(".github/tests/workflow-hardening.test.mjs")
     jogos_js = read_text("js/pages/jogos/jogos.js")
     not_found = read_text("404.html")
     config = read_text("js/core/config.js")
@@ -2376,13 +2379,36 @@ def validate_architecture() -> None:
         if token not in validate_workflow:
             error(f".github/workflows/validate-json.yml: cobertura de sintaxe V48.3.31 ausente: {token}")
 
-    # V48.3.54: a CI deve executar a suíte comportamental do Worker/ranking.
+    # V48.3.63: jobs de CI devem terminar em tempo limitado e actions externas ficam pinadas.
+    checkout_pin = 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2'
+    workflow_limits = (
+        ('.github/workflows/validate-json.yml', validate_workflow, 'timeout-minutes: 10'),
+        ('.github/workflows/sync-jogos.yml', sync_jogos_workflow, 'timeout-minutes: 20'),
+        ('.github/workflows/sync-agenda.yml', sync_agenda_workflow, 'timeout-minutes: 20'),
+    )
+    for rel, workflow, timeout_token in workflow_limits:
+        if timeout_token not in workflow:
+            error(f'{rel}: timeout explícito V48.3.63 ausente/incorreto: {timeout_token}')
+        if checkout_pin not in workflow:
+            error(f'{rel}: actions/checkout V48.3.63 deve permanecer pinado por SHA completo.')
+        if re.search(r'uses:\s*actions/checkout@(v\d+|main|master)\b', workflow):
+            error(f'{rel}: referência flutuante de actions/checkout não é permitida na V48.3.63.')
+
     for token in (
-        '.github/tests/**',
-        'node --test .github/tests/worker-ranking.test.mjs',
+        'group: validate-${{ github.ref }}',
+        'cancel-in-progress: true',
+        'persist-credentials: false',
     ):
         if token not in validate_workflow:
-            error(f".github/workflows/validate-json.yml: testes do Worker V48.3.54 ausentes: {token}")
+            error(f'.github/workflows/validate-json.yml: hardening V48.3.63 ausente: {token}')
+
+    # V48.3.54/V48.3.63: toda a suíte node:test deve ser descoberta automaticamente.
+    for token in (
+        '.github/tests/**',
+        'node --test .github/tests/*.test.mjs',
+    ):
+        if token not in validate_workflow:
+            error(f".github/workflows/validate-json.yml: descoberta automática da suíte V48.3.63 ausente: {token}")
 
     for token in (
         "monthKey(new Date('2026-10-01T02:59:59Z'))",
@@ -2395,10 +2421,7 @@ def validate_architecture() -> None:
         if token not in worker_ranking_tests:
             error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
 
-    # V48.3.56: a CI também protege robustez de rota, paginação, CORS e cache Twitch.
-    if 'node --test .github/tests/worker-robustness.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes de robustez V48.3.56 ausentes.')
-
+    # V48.3.56: robustez de rota, paginação, CORS e cache Twitch.
     for token in (
         'fetch global converte exceção inesperada em JSON 500 com CORS',
         'CORS envia Vary: Origin também para origem não permitida',
@@ -2411,9 +2434,6 @@ def validate_architecture() -> None:
             error(f'.github/tests/worker-robustness.test.mjs: cobertura V48.3.56 ausente: {token}')
 
     # V48.3.62: autenticação administrativa e state OAuth usam segredos separados.
-    if 'node --test .github/tests/worker-auth.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes de autenticação V48.3.62 ausentes.')
-
     for token in (
         'rotas debug rejeitam ?key= e exigem Authorization Bearer',
         '/oauth/authorize mantém ?key= somente para a navegação OAuth',
@@ -2444,9 +2464,6 @@ def validate_architecture() -> None:
         error("workers.js: ?key= deve permanecer restrito exclusivamente a /oauth/authorize na V48.3.62.")
 
     # V48.3.58: superfícies primárias usam tokens semânticos com contraste AA.
-    if 'node --test .github/tests/color-contrast.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes de contraste V48.3.58 ausentes.')
-
     for token in (
         'tokens de ação atingem WCAG AA nos temas claro e escuro',
         'componentes primários usam tokens semânticos de botão',
@@ -2458,9 +2475,6 @@ def validate_architecture() -> None:
             error(f'.github/tests/color-contrast.test.mjs: cobertura V48.3.58 ausente: {token}')
 
     # V48.3.59: navegação por teclado e anúncios de resultados usam regiões curtas.
-    if 'node --test .github/tests/accessibility-semantics.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes de acessibilidade V48.3.59 ausentes.')
-
     for token in (
         'Pular para o conteúdo com alvo focável no main',
         'grades de Artes e Jogos não são regiões live inteiras',
@@ -2471,10 +2485,17 @@ def validate_architecture() -> None:
         if token not in accessibility_semantics_tests:
             error(f'.github/tests/accessibility-semantics.test.mjs: cobertura V48.3.59 ausente: {token}')
 
-    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
-    if 'node --test .github/tests/frontend-safety-retention.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes de URL/retenção V48.3.60 ausentes.')
+    # V48.3.63: suíte dedicada protege os contratos dos workflows.
+    for token in (
+        'jobs da CI possuem timeout explícito e limitado',
+        'actions checkout ficam fixadas por SHA imutável',
+        'validação cancela execuções obsoletas sem alterar serialização editorial',
+        'workflow principal descobre automaticamente toda a suíte node:test',
+    ):
+        if token not in workflow_hardening_tests:
+            error(f'.github/tests/workflow-hardening.test.mjs: cobertura V48.3.63 ausente: {token}')
 
+    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
     for token in (
         'safeHttpUrl rejeita protocolos ativos e aplica allowlist de host',
         'Créditos, Steam e Twitch validam href antes da atribuição',
@@ -2486,9 +2507,6 @@ def validate_architecture() -> None:
 
     # V48.3.61: fallback da API ocorre apenas em falha de transporte/timeout e
     # o AbortController permanece ativo até o consumo completo do JSON.
-    if 'node --test .github/tests/api-client.test.mjs' not in validate_workflow:
-        error('.github/workflows/validate-json.yml: testes do cliente API V48.3.61 ausentes.')
-
     api_js = read_text('js/core/api.js')
     for token in (
         'function isTransportFailure(error, signal)',

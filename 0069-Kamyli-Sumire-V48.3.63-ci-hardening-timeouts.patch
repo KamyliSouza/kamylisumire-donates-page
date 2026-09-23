@@ -1,0 +1,339 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index 869237f3c21df831a197cc46d2cf643ac729e041..442cd4cb554905cccafd87ac035e478e8ec2917b 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -72,6 +72,8 @@ REQUIRED_FILES = (
+     ".github/tests/accessibility-semantics.test.mjs",
+     ".github/tests/frontend-safety-retention.test.mjs",
+     ".github/tests/api-client.test.mjs",
++    ".github/tests/worker-auth.test.mjs",
++    ".github/tests/workflow-hardening.test.mjs",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -1491,6 +1493,7 @@ def validate_architecture() -> None:
+     frontend_safety_retention_tests = read_text(".github/tests/frontend-safety-retention.test.mjs")
+     api_client_tests = read_text(".github/tests/api-client.test.mjs")
+     worker_auth_tests = read_text(".github/tests/worker-auth.test.mjs")
++    workflow_hardening_tests = read_text(".github/tests/workflow-hardening.test.mjs")
+     jogos_js = read_text("js/pages/jogos/jogos.js")
+     not_found = read_text("404.html")
+     config = read_text("js/core/config.js")
+@@ -2376,13 +2379,36 @@ def validate_architecture() -> None:
+         if token not in validate_workflow:
+             error(f".github/workflows/validate-json.yml: cobertura de sintaxe V48.3.31 ausente: {token}")
+ 
+-    # V48.3.54: a CI deve executar a suíte comportamental do Worker/ranking.
++    # V48.3.63: jobs de CI devem terminar em tempo limitado e actions externas ficam pinadas.
++    checkout_pin = 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2'
++    workflow_limits = (
++        ('.github/workflows/validate-json.yml', validate_workflow, 'timeout-minutes: 10'),
++        ('.github/workflows/sync-jogos.yml', sync_jogos_workflow, 'timeout-minutes: 20'),
++        ('.github/workflows/sync-agenda.yml', sync_agenda_workflow, 'timeout-minutes: 20'),
++    )
++    for rel, workflow, timeout_token in workflow_limits:
++        if timeout_token not in workflow:
++            error(f'{rel}: timeout explícito V48.3.63 ausente/incorreto: {timeout_token}')
++        if checkout_pin not in workflow:
++            error(f'{rel}: actions/checkout V48.3.63 deve permanecer pinado por SHA completo.')
++        if re.search(r'uses:\s*actions/checkout@(v\d+|main|master)\b', workflow):
++            error(f'{rel}: referência flutuante de actions/checkout não é permitida na V48.3.63.')
++
++    for token in (
++        'group: validate-${{ github.ref }}',
++        'cancel-in-progress: true',
++        'persist-credentials: false',
++    ):
++        if token not in validate_workflow:
++            error(f'.github/workflows/validate-json.yml: hardening V48.3.63 ausente: {token}')
++
++    # V48.3.54/V48.3.63: toda a suíte node:test deve ser descoberta automaticamente.
+     for token in (
+         '.github/tests/**',
+-        'node --test .github/tests/worker-ranking.test.mjs',
++        'node --test .github/tests/*.test.mjs',
+     ):
+         if token not in validate_workflow:
+-            error(f".github/workflows/validate-json.yml: testes do Worker V48.3.54 ausentes: {token}")
++            error(f".github/workflows/validate-json.yml: descoberta automática da suíte V48.3.63 ausente: {token}")
+ 
+     for token in (
+         "monthKey(new Date('2026-10-01T02:59:59Z'))",
+@@ -2395,10 +2421,7 @@ def validate_architecture() -> None:
+         if token not in worker_ranking_tests:
+             error(f".github/tests/worker-ranking.test.mjs: cobertura V48.3.54 ausente: {token}")
+ 
+-    # V48.3.56: a CI também protege robustez de rota, paginação, CORS e cache Twitch.
+-    if 'node --test .github/tests/worker-robustness.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes de robustez V48.3.56 ausentes.')
+-
++    # V48.3.56: robustez de rota, paginação, CORS e cache Twitch.
+     for token in (
+         'fetch global converte exceção inesperada em JSON 500 com CORS',
+         'CORS envia Vary: Origin também para origem não permitida',
+@@ -2411,9 +2434,6 @@ def validate_architecture() -> None:
+             error(f'.github/tests/worker-robustness.test.mjs: cobertura V48.3.56 ausente: {token}')
+ 
+     # V48.3.62: autenticação administrativa e state OAuth usam segredos separados.
+-    if 'node --test .github/tests/worker-auth.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes de autenticação V48.3.62 ausentes.')
+-
+     for token in (
+         'rotas debug rejeitam ?key= e exigem Authorization Bearer',
+         '/oauth/authorize mantém ?key= somente para a navegação OAuth',
+@@ -2444,9 +2464,6 @@ def validate_architecture() -> None:
+         error("workers.js: ?key= deve permanecer restrito exclusivamente a /oauth/authorize na V48.3.62.")
+ 
+     # V48.3.58: superfícies primárias usam tokens semânticos com contraste AA.
+-    if 'node --test .github/tests/color-contrast.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes de contraste V48.3.58 ausentes.')
+-
+     for token in (
+         'tokens de ação atingem WCAG AA nos temas claro e escuro',
+         'componentes primários usam tokens semânticos de botão',
+@@ -2458,9 +2475,6 @@ def validate_architecture() -> None:
+             error(f'.github/tests/color-contrast.test.mjs: cobertura V48.3.58 ausente: {token}')
+ 
+     # V48.3.59: navegação por teclado e anúncios de resultados usam regiões curtas.
+-    if 'node --test .github/tests/accessibility-semantics.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes de acessibilidade V48.3.59 ausentes.')
+-
+     for token in (
+         'Pular para o conteúdo com alvo focável no main',
+         'grades de Artes e Jogos não são regiões live inteiras',
+@@ -2471,10 +2485,17 @@ def validate_architecture() -> None:
+         if token not in accessibility_semantics_tests:
+             error(f'.github/tests/accessibility-semantics.test.mjs: cobertura V48.3.59 ausente: {token}')
+ 
+-    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
+-    if 'node --test .github/tests/frontend-safety-retention.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes de URL/retenção V48.3.60 ausentes.')
++    # V48.3.63: suíte dedicada protege os contratos dos workflows.
++    for token in (
++        'jobs da CI possuem timeout explícito e limitado',
++        'actions checkout ficam fixadas por SHA imutável',
++        'validação cancela execuções obsoletas sem alterar serialização editorial',
++        'workflow principal descobre automaticamente toda a suíte node:test',
++    ):
++        if token not in workflow_hardening_tests:
++            error(f'.github/tests/workflow-hardening.test.mjs: cobertura V48.3.63 ausente: {token}')
+ 
++    # V48.3.60: URLs externas e retenção local possuem suíte dedicada.
+     for token in (
+         'safeHttpUrl rejeita protocolos ativos e aplica allowlist de host',
+         'Créditos, Steam e Twitch validam href antes da atribuição',
+@@ -2486,9 +2507,6 @@ def validate_architecture() -> None:
+ 
+     # V48.3.61: fallback da API ocorre apenas em falha de transporte/timeout e
+     # o AbortController permanece ativo até o consumo completo do JSON.
+-    if 'node --test .github/tests/api-client.test.mjs' not in validate_workflow:
+-        error('.github/workflows/validate-json.yml: testes do cliente API V48.3.61 ausentes.')
+-
+     api_js = read_text('js/core/api.js')
+     for token in (
+         'function isTransportFailure(error, signal)',
+diff --git a/.github/tests/workflow-hardening.test.mjs b/.github/tests/workflow-hardening.test.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..ce4d16af74ebbff990d106dc447ff369157bc22b
+--- /dev/null
++++ b/.github/tests/workflow-hardening.test.mjs
+@@ -0,0 +1,53 @@
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import test from 'node:test';
++
++const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
++
++const CHECKOUT_PIN = 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2';
++const workflows = new Map([
++  ['.github/workflows/validate-json.yml', read('.github/workflows/validate-json.yml')],
++  ['.github/workflows/sync-jogos.yml', read('.github/workflows/sync-jogos.yml')],
++  ['.github/workflows/sync-agenda.yml', read('.github/workflows/sync-agenda.yml')],
++]);
++
++test('jobs da CI possuem timeout explícito e limitado', () => {
++  const expected = new Map([
++    ['.github/workflows/validate-json.yml', 10],
++    ['.github/workflows/sync-jogos.yml', 20],
++    ['.github/workflows/sync-agenda.yml', 20],
++  ]);
++
++  for (const [path, yaml] of workflows) {
++    const timeout = Number(yaml.match(/timeout-minutes:\s*(\d+)/)?.[1]);
++    assert.equal(timeout, expected.get(path), `${path}: timeout-minutes inesperado`);
++    assert.ok(timeout > 0 && timeout <= 20, `${path}: timeout deve permanecer limitado a até 20 minutos`);
++  }
++});
++
++test('actions checkout ficam fixadas por SHA imutável', () => {
++  for (const [path, yaml] of workflows) {
++    assert.match(yaml, new RegExp(CHECKOUT_PIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
++    assert.doesNotMatch(yaml, /uses:\s*actions\/checkout@(v\d+|main|master)\b/);
++  }
++
++  const validate = workflows.get('.github/workflows/validate-json.yml');
++  assert.match(validate, /persist-credentials:\s*false/);
++});
++
++test('validação cancela execuções obsoletas sem alterar serialização editorial', () => {
++  const validate = workflows.get('.github/workflows/validate-json.yml');
++  assert.match(validate, /group:\s*validate-\$\{\{ github\.ref \}\}/);
++  assert.match(validate, /cancel-in-progress:\s*true/);
++
++  for (const path of ['.github/workflows/sync-jogos.yml', '.github/workflows/sync-agenda.yml']) {
++    const yaml = workflows.get(path);
++    assert.match(yaml, /group:\s*editorial-sync-\$\{\{ github\.ref \}\}/);
++    assert.match(yaml, /cancel-in-progress:\s*false/);
++  }
++});
++
++test('workflow principal descobre automaticamente toda a suíte node:test', () => {
++  const validate = workflows.get('.github/workflows/validate-json.yml');
++  assert.match(validate, /run:\s*node --test \.github\/tests\/\*\.test\.mjs/);
++});
+diff --git a/.github/workflows/sync-agenda.yml b/.github/workflows/sync-agenda.yml
+index 0756e802707d7920b15051bcbfbd68fef2716dc8..9dd67a7a424fa700672f279c9ac956f8a8eb7cd7 100644
+--- a/.github/workflows/sync-agenda.yml
++++ b/.github/workflows/sync-agenda.yml
+@@ -16,9 +16,10 @@ jobs:
+   sync:
+     if: github.repository_owner == 'KamyliSouza'
+     runs-on: ubuntu-latest
++    timeout-minutes: 20
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+ 
+       - name: Sync agenda from Trello
+         env:
+diff --git a/.github/workflows/sync-jogos.yml b/.github/workflows/sync-jogos.yml
+index 80ee4ae4414e2f3c524592ffe074ab12a8c2156b..1983bc8638f7467f13321a48cf39345b15c99d9f 100644
+--- a/.github/workflows/sync-jogos.yml
++++ b/.github/workflows/sync-jogos.yml
+@@ -16,9 +16,10 @@ jobs:
+   sync:
+     if: github.repository_owner == 'KamyliSouza'
+     runs-on: ubuntu-latest
++    timeout-minutes: 20
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+ 
+       - name: Sync Trello and Steam
+         env:
+diff --git a/.github/workflows/validate-json.yml b/.github/workflows/validate-json.yml
+index e486417e3cd2f7ec501509b25f664a6d584606c7..2a5986bbb1b3d52e63c8eb65cae8e8c5cb03b5d6 100644
+--- a/.github/workflows/validate-json.yml
++++ b/.github/workflows/validate-json.yml
+@@ -59,13 +59,20 @@ on:
+ permissions:
+   contents: read
+ 
++concurrency:
++  group: validate-${{ github.ref }}
++  cancel-in-progress: true
++
+ jobs:
+   validate-content:
+     runs-on: ubuntu-latest
++    timeout-minutes: 10
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
++        with:
++          persist-credentials: false
+ 
+       - name: Validate content, architecture, SEO and references
+         run: python .github/scripts/validate-content.py
+@@ -78,15 +85,7 @@ jobs:
+           node --check .github/scripts/sync-agenda.mjs
+ 
+       - name: Run automated tests
+-        run: |
+-          node --test .github/tests/worker-ranking.test.mjs
+-          node --test .github/tests/worker-robustness.test.mjs
+-          node --test .github/tests/loader-failsafe.test.mjs
+-          node --test .github/tests/color-contrast.test.mjs
+-          node --test .github/tests/accessibility-semantics.test.mjs
+-          node --test .github/tests/frontend-safety-retention.test.mjs
+-          node --test .github/tests/api-client.test.mjs
+-          node --test .github/tests/worker-auth.test.mjs
++        run: node --test .github/tests/*.test.mjs
+ 
+       - name: Reject generated Python cache
+         run: |
+diff --git a/AGENTS.md b/AGENTS.md
+index 3ec49649b7a9f02b175adc78376accec56e3e669..d327d9b003e8e8bb941135e510ec3d89edd6390b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -570,6 +570,14 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
+ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
+ 
+ 
++### Hardening da CI — V48.3.63
++
++- Todo job versionado em `.github/workflows/` deve manter `timeout-minutes` explícito; o contrato atual é 10 min para validação e 20 min para os syncs editoriais.
++- `actions/checkout` deve permanecer fixado no SHA completo documentado como v4.2.2; não voltar a `@v4`, `@main` ou outra referência flutuante sem uma atualização explícita e revisada do pin.
++- O checkout do workflow de validação é somente-leitura e deve manter `persist-credentials: false`; os workflows de sync preservam credenciais porque precisam executar `git push`.
++- Validações da mesma ref podem cancelar execuções obsoletas; Jogos e Agenda continuam no grupo `editorial-sync-*` com `cancel-in-progress: false`, para não interromper uma publicação em andamento.
++- O workflow principal executa `node --test .github/tests/*.test.mjs`; novos testes com esse sufixo entram automaticamente na CI e não devem exigir uma nova linha manual no YAML.
++
+ ### Cliente API e fallback — V48.3.61
+ 
+ - `api.kamylisumire.com` continua primário; `workers.dev` só pode ser tentado após falha de transporte/timeout, nunca como repetição automática de HTTP 4xx/5xx ou JSON inválido.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a9ec30e5d38bf473867c4c477b7bde69effc40eb..708995a7c862e8d3dc39fe8dd53a823b05f8638e 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,13 @@
+ # Changelog
+ 
++## V48.3.63 — Hardening e limites da CI
++
++- adiciona `timeout-minutes` explícito aos três jobs: 10 minutos para validação e 20 minutos para as sincronizações editoriais de Jogos/Agenda;
++- fixa `actions/checkout` v4.2.2 pelo SHA completo `11bd71901bbe5b1630ceea73d27597364c9af683`, evitando referência mutável por tag nos workflows;
++- desabilita persistência de credenciais no checkout somente-leitura da validação e cancela execuções antigas da mesma ref quando uma validação nova começa;
++- mantém os syncs editoriais serializados e não canceláveis, preservando rebase/push seguro;
++- troca a lista manual de testes por descoberta automática de `.github/tests/*.test.mjs` e adiciona uma suíte dedicada para proteger os contratos da CI.
++
+ ## V48.3.62 — Autenticação administrativa e OAuth endurecidos
+ 
+ - restringe `?key=` exclusivamente a `/oauth/authorize`; rotas `/debug/*` passam a aceitar somente `Authorization: Bearer`;
+diff --git a/README.md b/README.md
+index 1eacf3d724bb3f3a27d1107dd534431114144112..bc874349d2b01f2cd9626a608c2e1c958e6a8212 100644
+--- a/README.md
++++ b/README.md
+@@ -288,6 +288,10 @@ A V48.3.61 restringe o `workers.dev` a contingência de transporte: timeout, fal
+ 
+ A V48.3.62 restringe `?key=` a `/oauth/authorize`; todas as rotas `/debug/*` passam a exigir `Authorization: Bearer`. `OAUTH_SETUP_TOKEN` precisa ter pelo menos 32 caracteres. O `state` OAuth deixa de reutilizar esse token e passa a ser assinado por `OAUTH_STATE_SECRET`, também com mínimo de 32 caracteres. Cada state v2 registra um nonce no KV por 10 minutos e o callback o consome antes da troca do `code`, adicionando proteção contra reutilização. Os tokens Streamlabs existentes no KV permanecem compatíveis; apenas fluxos OAuth iniciados antes do deploy devem ser reiniciados.
+ 
++### Hardening da CI — V48.3.63
++
++A V48.3.63 limita a duração dos jobs do GitHub Actions (10 min para validação e 20 min para os syncs editoriais), fixa `actions/checkout` v4.2.2 por SHA completo e impede que o checkout somente-leitura da validação persista credenciais. Validações obsoletas da mesma ref são canceladas; os syncs de Jogos/Agenda continuam serializados e nunca são cancelados no meio de uma publicação. A suíte `node:test` passa a ser descoberta automaticamente por `.github/tests/*.test.mjs`, de modo que um novo teste versionado não precise ser lembrado manualmente no workflow.
++
+ ### URLs externas e retenção local — V48.3.60
+ 
+ A V48.3.60 centraliza em `KamyliSanitize.safeHttpUrl()` a validação de URLs vindas de JSON/API antes de atribuí-las a `href`. Créditos aceitam somente HTTP(S); links de jogos exigem HTTPS em `store.steampowered.com`; links vindos da Twitch exigem HTTPS em `twitch.tv`/`www.twitch.tv`. O cache local do Top 5 continua com TTL de 30 minutos, mas agora `preferences.js` também agenda a remoção em qualquer página e revalida a expiração ao retomar foco/visibilidade/pageshow, enquanto `ranking.js` notifica cada atualização do cache.
+diff --git a/docs/VALIDACAO.md b/docs/VALIDACAO.md
+index d80874adac6c89f53ffbe2f3e97b5c5c60a5806e..5731d2231b42df8c183904d0a9bee1e703a45a2a 100644
+--- a/docs/VALIDACAO.md
++++ b/docs/VALIDACAO.md
+@@ -1,3 +1,14 @@
++## V48.3.63 — hardening da CI
++
++Validação recomendada:
++
++1. executar `python .github/scripts/validate-content.py` e confirmar zero erros/avisos;
++2. executar `node --test .github/tests/*.test.mjs` e confirmar que toda a suíte é descoberta automaticamente;
++3. confirmar nos três workflows que `actions/checkout` está fixado no SHA completo da v4.2.2, sem `@v4`/`@main`;
++4. confirmar `timeout-minutes: 10` em `validate-json.yml` e `timeout-minutes: 20` nos dois syncs editoriais;
++5. confirmar que validações da mesma ref usam `cancel-in-progress: true`, enquanto Jogos/Agenda continuam serializados com `cancel-in-progress: false`;
++6. no workflow de validação, preservar `permissions: contents: read` e `persist-credentials: false`; nos syncs, preservar `contents: write` e o rebase/push já existente.
++
+ ## V48.3.32 — paginação editorial de Jogos
+ 
+ Smoke test recomendado:

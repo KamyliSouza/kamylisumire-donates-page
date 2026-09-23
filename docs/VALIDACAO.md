@@ -1,3 +1,14 @@
+## V48.3.63 — hardening da CI
+
+Validação recomendada:
+
+1. executar `python .github/scripts/validate-content.py` e confirmar zero erros/avisos;
+2. executar `node --test .github/tests/*.test.mjs` e confirmar que toda a suíte é descoberta automaticamente;
+3. confirmar nos três workflows que `actions/checkout` está fixado no SHA completo da v4.2.2, sem `@v4`/`@main`;
+4. confirmar `timeout-minutes: 10` em `validate-json.yml` e `timeout-minutes: 20` nos dois syncs editoriais;
+5. confirmar que validações da mesma ref usam `cancel-in-progress: true`, enquanto Jogos/Agenda continuam serializados com `cancel-in-progress: false`;
+6. no workflow de validação, preservar `permissions: contents: read` e `persist-credentials: false`; nos syncs, preservar `contents: write` e o rebase/push já existente.
+
 ## V48.3.32 — paginação editorial de Jogos
 
 Smoke test recomendado:

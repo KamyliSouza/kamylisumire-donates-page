@@ -570,6 +570,14 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
 
+### Hardening da CI — V48.3.63
+
+- Todo job versionado em `.github/workflows/` deve manter `timeout-minutes` explícito; o contrato atual é 10 min para validação e 20 min para os syncs editoriais.
+- `actions/checkout` deve permanecer fixado no SHA completo documentado como v4.2.2; não voltar a `@v4`, `@main` ou outra referência flutuante sem uma atualização explícita e revisada do pin.
+- O checkout do workflow de validação é somente-leitura e deve manter `persist-credentials: false`; os workflows de sync preservam credenciais porque precisam executar `git push`.
+- Validações da mesma ref podem cancelar execuções obsoletas; Jogos e Agenda continuam no grupo `editorial-sync-*` com `cancel-in-progress: false`, para não interromper uma publicação em andamento.
+- O workflow principal executa `node --test .github/tests/*.test.mjs`; novos testes com esse sufixo entram automaticamente na CI e não devem exigir uma nova linha manual no YAML.
+
 ### Cliente API e fallback — V48.3.61
 
 - `api.kamylisumire.com` continua primário; `workers.dev` só pode ser tentado após falha de transporte/timeout, nunca como repetição automática de HTTP 4xx/5xx ou JSON inválido.

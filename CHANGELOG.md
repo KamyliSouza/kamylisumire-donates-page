@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.63 — Hardening e limites da CI
+
+- adiciona `timeout-minutes` explícito aos três jobs: 10 minutos para validação e 20 minutos para as sincronizações editoriais de Jogos/Agenda;
+- fixa `actions/checkout` v4.2.2 pelo SHA completo `11bd71901bbe5b1630ceea73d27597364c9af683`, evitando referência mutável por tag nos workflows;
+- desabilita persistência de credenciais no checkout somente-leitura da validação e cancela execuções antigas da mesma ref quando uma validação nova começa;
+- mantém os syncs editoriais serializados e não canceláveis, preservando rebase/push seguro;
+- troca a lista manual de testes por descoberta automática de `.github/tests/*.test.mjs` e adiciona uma suíte dedicada para proteger os contratos da CI.
+
 ## V48.3.62 — Autenticação administrativa e OAuth endurecidos
 
 - restringe `?key=` exclusivamente a `/oauth/authorize`; rotas `/debug/*` passam a aceitar somente `Authorization: Bearer`;
