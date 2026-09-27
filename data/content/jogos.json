@@ -43,6 +43,25 @@
   ],
   "games": [
     {
+      "id": "69f61e47d6aa01a3d7cf48f9",
+      "name": "INDIKA",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488076800,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1373960,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1373960/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1373960,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1373960/3029a15f13070be45d00b1d49deffcf32d55678e.jpg"
+      },
+      "steamAppId": 1373960,
+      "steamUrl": "https://store.steampowered.com/app/1373960/"
+    },
+    {
       "id": "69f61d7b0734be288f7bf634",
       "name": "Life is Strange Remastered",
       "listId": "69f610396e6fb0d017a97829",
@@ -442,25 +461,6 @@
       "steamUrl": "https://store.steampowered.com/app/2680010/"
     },
     {
-      "id": "69f61e47d6aa01a3d7cf48f9",
-      "name": "INDIKA",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488290816,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1373960,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1373960/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1373960,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1373960/3029a15f13070be45d00b1d49deffcf32d55678e.jpg"
-      },
-      "steamAppId": 1373960,
-      "steamUrl": "https://store.steampowered.com/app/1373960/"
-    },
-    {
       "id": "69f6118542d883d1449008e2",
       "name": "Blasphemous II (2023)",
       "listId": "69f610ad5891e07aa88e7636",
@@ -497,25 +497,6 @@
       },
       "steamAppId": 1174180,
       "steamUrl": "https://store.steampowered.com/app/1174180/"
-    },
-    {
-      "id": "69f803c6bc8f6fae77d6a82e",
-      "name": "Dark Souls II",
-      "listId": "69f611e83d599afb6522f751",
-      "listName": "Engavetados",
-      "pos": 140737488297984,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 236430,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 236430,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
-      },
-      "steamAppId": 236430,
-      "steamUrl": "https://store.steampowered.com/app/236430/"
     },
     {
       "id": "69f6102989c646e4cddfb1e6",
@@ -1004,6 +985,25 @@
       "steamUrl": "https://store.steampowered.com/app/1145360/"
     },
     {
+      "id": "6a8c26bf1c7224def8a39d5e",
+      "name": "ReStory: Chill Electronics Repairs",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488379904,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3812600,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1790169325"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 3812600,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
+      },
+      "steamAppId": 3812600,
+      "steamUrl": "https://store.steampowered.com/app/3812600/"
+    },
+    {
       "id": "69f6111a27adc62924c655d2",
       "name": "Alice: Madness Returns",
       "listId": "6a3eeff29abc42268c0088ef",
@@ -1110,6 +1110,25 @@
       "steamUrl": "https://store.steampowered.com/app/1117850/"
     },
     {
+      "id": "69f803c6bc8f6fae77d6a82e",
+      "name": "Dark Souls II",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488396288,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 236430,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 236430,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
+      },
+      "steamAppId": 236430,
+      "steamUrl": "https://store.steampowered.com/app/236430/"
+    },
+    {
       "id": "69f6102c3c7cf7092c6dfb53",
       "name": "Onirism",
       "listId": "6a8c261ebc3d1ca81f06e55b",
@@ -1146,25 +1165,6 @@
       },
       "steamAppId": 2420660,
       "steamUrl": "https://store.steampowered.com/app/2420660/"
-    },
-    {
-      "id": "6a8c26bf1c7224def8a39d5e",
-      "name": "ReStory: Chill Electronics Repairs",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488412672,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 3812600,
-        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1790169325"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 3812600,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
-      },
-      "steamAppId": 3812600,
-      "steamUrl": "https://store.steampowered.com/app/3812600/"
     },
     {
       "id": "69f610d35f5aad6dfec9359c",
@@ -2508,5 +2508,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-23T14:17:04.340Z"
+  "updatedAt": "2026-09-27T23:49:33.877Z"
 }
