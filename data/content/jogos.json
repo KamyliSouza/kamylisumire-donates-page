@@ -1636,7 +1636,7 @@
       "icon": {
         "provider": "steam-original",
         "steamAppId": 1903340,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1903340/d48fb3ed033a08bad9bf0a2e1ceb145e58ffe0aa.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1903340/d569d17097e2a2991cc5097939948ea075bdd653.jpg"
       },
       "steamAppId": 1903340,
       "steamUrl": "https://store.steampowered.com/app/1903340/"
@@ -2508,5 +2508,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-27T23:49:33.877Z"
+  "updatedAt": "2026-09-28T17:40:45.013Z"
 }
