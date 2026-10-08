@@ -914,10 +914,18 @@
       "listId": "6a3eeff29abc42268c0088ef",
       "listName": "Pedidos",
       "pos": 140737488345088,
-      "artwork": null,
-      "icon": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2526310,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2526310/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2526310,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2526310/2a5af6560364be1f7902c8456ad0a95cf2c66f47.jpg"
+      },
+      "steamAppId": 2526310,
+      "steamUrl": "https://store.steampowered.com/app/2526310/"
     },
     {
       "id": "69f610465bf55bcb7a7bee91",
@@ -1172,10 +1180,18 @@
       "listId": "6a3eeff29abc42268c0088ef",
       "listName": "Pedidos",
       "pos": 140737488378880,
-      "artwork": null,
-      "icon": null,
-      "steamAppId": null,
-      "steamUrl": null
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1307580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1307580/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1307580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1307580/98afd67062fddd6635e4ece1e7b5f6c6d5a54386.jpg"
+      },
+      "steamAppId": 1307580,
+      "steamUrl": "https://store.steampowered.com/app/1307580/"
     },
     {
       "id": "6a8c26bf1c7224def8a39d5e",
@@ -2720,5 +2736,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-10-08T12:46:26.650Z"
+  "updatedAt": "2026-10-08T12:53:42.194Z"
 }
