@@ -593,6 +593,76 @@
       "source": "steam-original",
       "steamAppId": 2050650,
       "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900_2x.jpg"
+    },
+    "nier automata": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 524220,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/524220/library_600x900_2x.jpg"
+    },
+    "cocoon": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 1497440,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1497440/library_600x900_2x.jpg"
+    },
+    "oneshot world machine edition": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 2915460,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
+    },
+    "darkest dungeon": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 262060,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/262060/library_600x900_2x.jpg"
+    },
+    "beyond two souls": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 960990,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+    },
+    "dragon s dogma dark arisen": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 367500,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367500/library_600x900_2x.jpg"
+    },
+    "far far west": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 3124540,
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3124540/98528159880d7aff55688144a58ca99cd7048282/library_capsule_2x.jpg?t=1791297066"
+    },
+    "out of sight": {
+      "status": "unresolved",
+      "reason": "steam-ambiguous",
+      "checkedAt": "2026-10-08T12:46:00.370Z"
+    },
+    "death s door": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 894020,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/894020/library_600x900_2x.jpg"
+    },
+    "kvark": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 2319390,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2319390/library_600x900_2x.jpg"
+    },
+    "toem": {
+      "status": "unresolved",
+      "reason": "steam-not-found",
+      "checkedAt": "2026-10-08T12:46:05.068Z"
+    },
+    "steelrising": {
+      "status": "resolved",
+      "source": "steam-original",
+      "steamAppId": 1283400,
+      "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1283400/library_600x900_2x.jpg"
     }
   }
 }

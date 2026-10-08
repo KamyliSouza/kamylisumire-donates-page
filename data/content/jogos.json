@@ -214,6 +214,25 @@
       "steamUrl": "https://store.steampowered.com/app/1627720/"
     },
     {
+      "id": "6ac786cf44d431a5e8ed0b6a",
+      "name": "NieR: Automata",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488220160,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 524220,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/524220/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 524220,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/524220/ec431ecb2a5178c5a01bb15550f112f93af029bb.jpg"
+      },
+      "steamAppId": 524220,
+      "steamUrl": "https://store.steampowered.com/app/524220/"
+    },
+    {
       "id": "69f61138d3eaa850adc1966f",
       "name": "Momodora: Reverie Under The Moonlight",
       "listId": "69f610396e6fb0d017a97829",
@@ -231,6 +250,44 @@
       },
       "steamAppId": 428550,
       "steamUrl": "https://store.steampowered.com/app/428550/"
+    },
+    {
+      "id": "6ac781dbedb06bc772c73d7a",
+      "name": "COCOON",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488228352,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1497440,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1497440/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1497440,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1497440/b755f5e4c74b4cfbc5462d7658eaa5b8738bf776.jpg"
+      },
+      "steamAppId": 1497440,
+      "steamUrl": "https://store.steampowered.com/app/1497440/"
+    },
+    {
+      "id": "6ac7864531552b70cfbd8715",
+      "name": "OneShot: World Machine Edition",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488232448,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2915460,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2915460,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2915460/27a30a7f76b1cb23a0fb22c5a26f8e2319edfe99.jpg"
+      },
+      "steamAppId": 2915460,
+      "steamUrl": "https://store.steampowered.com/app/2915460/"
     },
     {
       "id": "6a918bc1a0397e78cbee0088",
@@ -271,6 +328,25 @@
       "steamUrl": "https://store.steampowered.com/app/2407270/"
     },
     {
+      "id": "6ac78187e3d71dff514cdbdd",
+      "name": "Darkest Dungeon",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488244736,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 262060,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/262060/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 262060,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/262060/af219e7f9ed0506cb0954aabb7f24a45e38d28e4.jpg"
+      },
+      "steamAppId": 262060,
+      "steamUrl": "https://store.steampowered.com/app/262060/"
+    },
+    {
       "id": "69f612306dd0c50e4a5772ff",
       "name": "Star Wars Jedi: Survivor",
       "listId": "69f610ad5891e07aa88e7636",
@@ -307,6 +383,25 @@
       },
       "steamAppId": 813230,
       "steamUrl": "https://store.steampowered.com/app/813230/"
+    },
+    {
+      "id": "6ac780be5c055a504686072a",
+      "name": "Beyond: Two Souls",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488266240,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
+      },
+      "steamAppId": 960990,
+      "steamUrl": "https://store.steampowered.com/app/960990/"
     },
     {
       "id": "6aad40d75b30964698d1793c",
@@ -480,6 +575,25 @@
       "steamUrl": "https://store.steampowered.com/app/2114740/"
     },
     {
+      "id": "6ac78c7999c100e95c1459e6",
+      "name": "Dragon's Dogma: Dark Arisen",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488292864,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 367500,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367500/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 367500,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/367500/c21a873b4d4ccd64e582e733c9f319fbb4d7899e.jpg"
+      },
+      "steamAppId": 367500,
+      "steamUrl": "https://store.steampowered.com/app/367500/"
+    },
+    {
       "id": "69f61cb0d980238b4ceb5d8d",
       "name": "Red Dead Redemption II (2018)",
       "listId": "69f610ad5891e07aa88e7636",
@@ -497,6 +611,25 @@
       },
       "steamAppId": 1174180,
       "steamUrl": "https://store.steampowered.com/app/1174180/"
+    },
+    {
+      "id": "6ac78ce4109222fcfb402002",
+      "name": "Far Far West",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488300704,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 3124540,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3124540/98528159880d7aff55688144a58ca99cd7048282/library_capsule_2x.jpg?t=1791297066"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 3124540,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3124540/a0a5e461c215c2a8916f42111ce41fa887cbec71.jpg"
+      },
+      "steamAppId": 3124540,
+      "steamUrl": "https://store.steampowered.com/app/3124540/"
     },
     {
       "id": "69f6102989c646e4cddfb1e6",
@@ -602,7 +735,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 3357650,
-        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3357650/2c65f388cb3ac6631c8a38ff1a59903263fc70e9/library_capsule_2x.jpg?t=1789603448"
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3357650/2c65f388cb3ac6631c8a38ff1a59903263fc70e9/library_capsule_2x.jpg?t=1791454600"
       },
       "icon": {
         "provider": "steam-original",
@@ -776,6 +909,17 @@
       "steamUrl": "https://store.steampowered.com/app/2778580/"
     },
     {
+      "id": "6ac78f54120b899e0b9edf72",
+      "name": "Out of Sight",
+      "listId": "6a3eeff29abc42268c0088ef",
+      "listName": "Pedidos",
+      "pos": 140737488345088,
+      "artwork": null,
+      "icon": null,
+      "steamAppId": null,
+      "steamUrl": null
+    },
+    {
       "id": "69f610465bf55bcb7a7bee91",
       "name": "Sekiro: Shadows Die Twice (2019)",
       "listId": "69f610396e6fb0d017a97829",
@@ -850,6 +994,25 @@
       },
       "steamAppId": 1887840,
       "steamUrl": "https://store.steampowered.com/app/1887840/"
+    },
+    {
+      "id": "6ac7803b26360174e034b37c",
+      "name": "Death's Door",
+      "listId": "6a3eeff29abc42268c0088ef",
+      "listName": "Pedidos",
+      "pos": 140737488361472,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 894020,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/894020/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 894020,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/894020/d48d2167c15e8d2af57cfbc31228b90e36f4508c.jpg"
+      },
+      "steamAppId": 894020,
+      "steamUrl": "https://store.steampowered.com/app/894020/"
     },
     {
       "id": "69f611b9b5a703dea130a0dc",
@@ -985,6 +1148,36 @@
       "steamUrl": "https://store.steampowered.com/app/1145360/"
     },
     {
+      "id": "6ac7877e1324a8a3c22f9377",
+      "name": "Kvark",
+      "listId": "6a3eeff29abc42268c0088ef",
+      "listName": "Pedidos",
+      "pos": 140737488378368,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2319390,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2319390/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2319390,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2319390/0c9b4c35b624465748cd542a79ba9232519877a0.jpg"
+      },
+      "steamAppId": 2319390,
+      "steamUrl": "https://store.steampowered.com/app/2319390/"
+    },
+    {
+      "id": "6ac78731e679a4421a6944b8",
+      "name": "TOEM",
+      "listId": "6a3eeff29abc42268c0088ef",
+      "listName": "Pedidos",
+      "pos": 140737488378880,
+      "artwork": null,
+      "icon": null,
+      "steamAppId": null,
+      "steamUrl": null
+    },
+    {
       "id": "6a8c26bf1c7224def8a39d5e",
       "name": "ReStory: Chill Electronics Repairs",
       "listId": "69f61020cf0e4ae8a9494226",
@@ -1040,6 +1233,25 @@
       },
       "steamAppId": 2466900,
       "steamUrl": "https://store.steampowered.com/app/2466900/"
+    },
+    {
+      "id": "6ac780fe4d2f284f965e9233",
+      "name": "Steelrising",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488388096,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1283400,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1283400/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1283400,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1283400/64b546456f2ab6ca25eaf11ee0254654b0391ae0.jpg"
+      },
+      "steamAppId": 1283400,
+      "steamUrl": "https://store.steampowered.com/app/1283400/"
     },
     {
       "id": "69f611b23512ada964ce76be",
@@ -2508,5 +2720,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-09-28T17:40:45.013Z"
+  "updatedAt": "2026-10-08T12:46:26.650Z"
 }
