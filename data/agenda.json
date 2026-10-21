@@ -1,5 +1,5 @@
 {
-  "ultimaAtualizacao": "21/09/2026",
+  "ultimaAtualizacao": "21/10/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
@@ -20,6 +20,66 @@
       "id": "segunda",
       "nome": "Segunda-feira",
       "data": "2026-09-21",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "DARK SOULS™ II",
+      "descricao": "Primeira Vez Pela SEGUNDA VEZ!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "DARK SOULS™ II",
+          "descricao": "Primeira Vez Pela SEGUNDA VEZ!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 236430,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 236430,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "terca",
+      "nome": "Terça-feira",
+      "data": "2026-09-22",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "The Witch's Bakery",
+      "descricao": "Vamos Curar Corações!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "The Witch's Bakery",
+          "descricao": "Vamos Curar Corações!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 2967950,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 2967950,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quarta",
+      "nome": "Quarta-feira",
+      "data": "2026-09-23",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Kena: Bridge of Spirits",
@@ -47,39 +107,9 @@
       ]
     },
     {
-      "id": "terca",
-      "nome": "Terça-feira",
-      "data": "2026-09-22",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Star Wars Jedi: Survivor",
-      "descricao": "Será que meu PC RODA?",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "Star Wars Jedi: Survivor",
-          "descricao": "Será que meu PC RODA?",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 1774580,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 1774580,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1774580/25578ffb2c6070c5d4e6569624efaadb8a0f5538.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "quarta",
-      "nome": "Quarta-feira",
-      "data": "2026-09-23",
+      "id": "quinta",
+      "nome": "Quinta-feira",
+      "data": "2026-09-24",
       "temLive": true,
       "horario": "20:00",
       "titulo": "ReStory: Chill Electronics Repairs",
@@ -107,27 +137,13 @@
       ]
     },
     {
-      "id": "quinta",
-      "nome": "Quinta-feira",
-      "data": "2026-09-24",
-      "temLive": false,
-      "horario": "",
-      "titulo": "",
-      "descricao": "",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": []
-    },
-    {
       "id": "sexta",
       "nome": "Sexta-feira",
       "data": "2026-09-25",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "INDIKA",
-      "descricao": "Espero Que Meu PC RODE!",
+      "titulo": "Kena: Bridge of Spirits",
+      "descricao": "Uma Trama PSICOLÓGICA.",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -135,17 +151,17 @@
       "lives": [
         {
           "horario": "20:00",
-          "titulo": "INDIKA",
-          "descricao": "Espero Que Meu PC RODE!",
+          "titulo": "Kena: Bridge of Spirits",
+          "descricao": "Uma Trama PSICOLÓGICA.",
           "plataformas": [
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 1373960,
+          "steamAppId": 960990,
           "icon": {
             "provider": "steam-original",
-            "steamAppId": 1373960,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1373960/3029a15f13070be45d00b1d49deffcf32d55678e.jpg"
+            "steamAppId": 960990,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
           }
         }
       ]
@@ -156,8 +172,8 @@
       "data": "2026-09-26",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "Kena: Bridge of Spirits",
-      "descricao": "Na espera pela continuação.",
+      "titulo": "Baldur's Gate 3",
+      "descricao": "Rumo ao ATO 2! O Que Será Que Nos Espera?",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -165,17 +181,17 @@
       "lives": [
         {
           "horario": "20:00",
-          "titulo": "Kena: Bridge of Spirits",
-          "descricao": "Na espera pela continuação.",
+          "titulo": "Baldur's Gate 3",
+          "descricao": "Rumo ao ATO 2! O Que Será Que Nos Espera?",
           "plataformas": [
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 1954200,
+          "steamAppId": 1086940,
           "icon": {
             "provider": "steam-original",
-            "steamAppId": 1954200,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
+            "steamAppId": 1086940,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1086940/d866cae7ea1e471fdbc206287111f1b642373bd9.jpg"
           }
         }
       ]
