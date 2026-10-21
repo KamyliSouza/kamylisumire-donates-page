@@ -8,7 +8,7 @@
    - superfícies 100% opacas, sem blur e sem a arte decorativa de fundo;
    - texto e bordas com mais contraste, nos temas claro e escuro;
    - tipografia de leitura (peso, entrelinha, medida e tamanho ajustável);
-   - links dentro de textos sempre sublinhados.
+   - links dentro de textos sempre sublinhados (botões .button ficam de fora).
 
    Este arquivo é carregado por último em todas as páginas: as regras daqui
    sobrescrevem as dos demais CSS sem precisar de !important. Não cria
@@ -187,7 +187,7 @@ html[data-reading="on"] {
     .privacy-lead,
     .section-note,
     .site-footer p
-) a {
+) a:not(.button) {
     color: var(--primary-text);
     text-decoration: underline;
     text-decoration-thickness: 0.08em;
@@ -200,8 +200,15 @@ html[data-reading="on"] {
     .privacy-lead,
     .section-note,
     .site-footer p
-) a:hover {
+) a:not(.button):hover {
     text-decoration-thickness: 0.14em;
+}
+
+/* Botões (.button) dentro de textos mantêm as cores e o desenho dos próprios
+   botões: a cor e o sublinhado de link acima não se aplicam a eles (a:not(.button)).
+   No modo leitura só o contorno do botão vazado ganha mais força (3:1 contra o painel). */
+:root[data-reading="on"] .button-outline {
+    border-color: var(--primary-text);
 }
 
 /* Citações e código: fundo sólido, sem transparência */
@@ -213,6 +220,15 @@ html[data-reading="on"] {
 :root[data-reading="on"] .blog-article-body :is(code, pre) {
     background-color: var(--notice-bg);
     border: 1px solid var(--card-border);
+}
+
+/* Selo "Ver na Steam" sobre a capa do jogo: fundo sólido, para o contraste do
+   texto branco não depender da imagem que estiver por trás */
+:root[data-reading="on"] .jogo-card-steam,
+:root[data-reading="on"] .jogo-card-steam:hover,
+:root[data-reading="on"] .jogo-card-steam:focus-visible {
+    background-color: #1d1a1d;
+    border-color: rgba(255, 255, 255, 0.7);
 }
 
 /* ---------------------------------------------------------

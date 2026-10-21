@@ -3798,7 +3798,8 @@ def validate_security_contracts() -> None:
         if needle not in worker:
             error(f"workers.js: hardening timing-safe ausente: {needle}")
 
-READING_MODE_VERSION = "48.3.64"
+READING_MODE_VERSION = "48.3.64"  # preferences.js, footer.js e content.js
+READING_CSS_VERSION = "48.3.65"  # css/core/reading.css
 
 
 def validate_reading_mode() -> None:
@@ -3813,7 +3814,11 @@ def validate_reading_mode() -> None:
 
     reading_css_rel = "css/core/reading.css"
     reading_css = read_text(reading_css_rel)
-    reading_link = f"css/core/reading.css?v={READING_MODE_VERSION}"
+    reading_link = f"css/core/reading.css?v={READING_CSS_VERSION}"
+    core_pages = {
+        "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
+        "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
+    }
 
     bootstraps: dict[str, str] = {}
     for path in sorted(ROOT.rglob("*.html")):
@@ -3821,8 +3826,10 @@ def validate_reading_mode() -> None:
         html = path.read_bytes().decode("utf-8")
 
         links = re.findall(r'<link\s+rel="stylesheet"\s+href="([^"]+)"', html)
-        if not links or not links[-1].endswith(reading_link):
-            error(f"{rel}: {reading_link} deve ser o último stylesheet (modo leitura V48.3.64).")
+        if not links or not re.search(r"css/core/reading\.css\?v=[\w.]+$", links[-1]):
+            error(f"{rel}: css/core/reading.css?v=... deve ser o último stylesheet (modo leitura V48.3.64).")
+        elif rel in core_pages and not links[-1].endswith(reading_link):
+            error(f"{rel}: cache-buster de reading.css desatualizado (esperado {reading_link}).")
 
         scripts = [body for _attrs, body in re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, re.I) if "THEME_KEY" in body]
         if len(scripts) != 1:
@@ -3898,6 +3905,17 @@ def validate_reading_mode() -> None:
     for value in re.findall(r"backdrop-filter:\s*([^;]+);", reading_css_clean):
         if value.strip() != "none":
             error(f"{reading_css_rel}: backdrop-filter só pode ser none no modo leitura (encontrado: {value.strip()}).")
+    # V48.3.65: o estilo de link de texto não pode recolorir botões (.button) dentro de textos.
+    prose_link_selectors = [
+        selector.strip()
+        for selector in re.findall(r"([^{}]+)\{", reading_css_clean)
+        if re.search(r"\)\s+a(?![\w-])", selector)
+    ]
+    if not prose_link_selectors:
+        error(f"{reading_css_rel}: regras de link de texto do modo leitura não encontradas.")
+    for selector in prose_link_selectors:
+        if not re.search(r"\)\s+a:not\(\.button\)", selector):
+            error(f"{reading_css_rel}: link de texto sem a:not(.button) recolore botões: {' '.join(selector.split())}")
     if "!important" in reading_css_clean:
         error(f"{reading_css_rel}: não use !important; a ordem de carregamento já garante a precedência.")
     for token in (
@@ -3915,6 +3933,7 @@ def validate_reading_mode() -> None:
         "tokens opacos e contraste AA/AAA nos temas claro e escuro",
         "todas as páginas usam o mesmo bootstrap de tema/blur/leitura, com hash CSP",
         "preferences.js: liga/desliga o modo leitura, preserva a escolha de blur e persiste",
+        "reading.css: estilo de link de texto não atinge botões (.button)",
     ):
         if token not in reading_tests:
             error(f".github/tests/reading-mode.test.mjs: cobertura V48.3.64 ausente: {token}")

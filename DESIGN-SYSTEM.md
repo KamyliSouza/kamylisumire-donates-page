@@ -42,6 +42,7 @@ Preferência explícita (Configurações → Leitura) que prioriza a qualidade d
 - **Tipografia**: peso 500, entrelinha 1,8, medida de ~68 caracteres (`--reading-measure: 43rem`) e corpo de artigo em 1,0625rem. Tamanho do texto (padrão/grande/maior) escala o `rem` em 1 / 1,125 / 1,25.
 - **Links** dentro de textos corridos ficam sublinhados; foco visível com contorno de 3px.
 - **Movimento**: `scroll-behavior: auto`.
+- **Botões** (`.button-primary`, `.button-outline`) seguem os tokens de botão do tema; dentro de textos corridos não recebem o sublinhado/cor de link. O botão vazado usa `--primary-text` também no contorno.
 - O atalho "Modo leitura" nos artigos usa `.reading-toggle` com `aria-pressed`.
 
 Não adicionar `backdrop-filter`, `!important` nem cores soltas a esse arquivo; novas cores entram como tokens e passam pelo teste de contraste.

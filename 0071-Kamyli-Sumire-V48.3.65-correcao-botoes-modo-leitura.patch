@@ -1,0 +1,338 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index b2e3291..db24851 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -3798,7 +3798,8 @@ def validate_security_contracts() -> None:
+         if needle not in worker:
+             error(f"workers.js: hardening timing-safe ausente: {needle}")
+ 
+-READING_MODE_VERSION = "48.3.64"
++READING_MODE_VERSION = "48.3.64"  # preferences.js, footer.js e content.js
++READING_CSS_VERSION = "48.3.65"  # css/core/reading.css
+ 
+ 
+ def validate_reading_mode() -> None:
+@@ -3813,7 +3814,11 @@ def validate_reading_mode() -> None:
+ 
+     reading_css_rel = "css/core/reading.css"
+     reading_css = read_text(reading_css_rel)
+-    reading_link = f"css/core/reading.css?v={READING_MODE_VERSION}"
++    reading_link = f"css/core/reading.css?v={READING_CSS_VERSION}"
++    core_pages = {
++        "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
++        "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
++    }
+ 
+     bootstraps: dict[str, str] = {}
+     for path in sorted(ROOT.rglob("*.html")):
+@@ -3821,8 +3826,10 @@ def validate_reading_mode() -> None:
+         html = path.read_bytes().decode("utf-8")
+ 
+         links = re.findall(r'<link\s+rel="stylesheet"\s+href="([^"]+)"', html)
+-        if not links or not links[-1].endswith(reading_link):
+-            error(f"{rel}: {reading_link} deve ser o último stylesheet (modo leitura V48.3.64).")
++        if not links or not re.search(r"css/core/reading\.css\?v=[\w.]+$", links[-1]):
++            error(f"{rel}: css/core/reading.css?v=... deve ser o último stylesheet (modo leitura V48.3.64).")
++        elif rel in core_pages and not links[-1].endswith(reading_link):
++            error(f"{rel}: cache-buster de reading.css desatualizado (esperado {reading_link}).")
+ 
+         scripts = [body for _attrs, body in re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, re.I) if "THEME_KEY" in body]
+         if len(scripts) != 1:
+@@ -3898,6 +3905,17 @@ def validate_reading_mode() -> None:
+     for value in re.findall(r"backdrop-filter:\s*([^;]+);", reading_css_clean):
+         if value.strip() != "none":
+             error(f"{reading_css_rel}: backdrop-filter só pode ser none no modo leitura (encontrado: {value.strip()}).")
++    # V48.3.65: o estilo de link de texto não pode recolorir botões (.button) dentro de textos.
++    prose_link_selectors = [
++        selector.strip()
++        for selector in re.findall(r"([^{}]+)\{", reading_css_clean)
++        if re.search(r"\)\s+a(?![\w-])", selector)
++    ]
++    if not prose_link_selectors:
++        error(f"{reading_css_rel}: regras de link de texto do modo leitura não encontradas.")
++    for selector in prose_link_selectors:
++        if not re.search(r"\)\s+a:not\(\.button\)", selector):
++            error(f"{reading_css_rel}: link de texto sem a:not(.button) recolore botões: {' '.join(selector.split())}")
+     if "!important" in reading_css_clean:
+         error(f"{reading_css_rel}: não use !important; a ordem de carregamento já garante a precedência.")
+     for token in (
+@@ -3915,6 +3933,7 @@ def validate_reading_mode() -> None:
+         "tokens opacos e contraste AA/AAA nos temas claro e escuro",
+         "todas as páginas usam o mesmo bootstrap de tema/blur/leitura, com hash CSP",
+         "preferences.js: liga/desliga o modo leitura, preserva a escolha de blur e persiste",
++        "reading.css: estilo de link de texto não atinge botões (.button)",
+     ):
+         if token not in reading_tests:
+             error(f".github/tests/reading-mode.test.mjs: cobertura V48.3.64 ausente: {token}")
+diff --git a/.github/tests/reading-mode.test.mjs b/.github/tests/reading-mode.test.mjs
+index df976c7..a102e96 100644
+--- a/.github/tests/reading-mode.test.mjs
++++ b/.github/tests/reading-mode.test.mjs
+@@ -19,7 +19,8 @@ const PAGES = [
+   "uso-de-ia/index.html",
+ ];
+ 
+-const READING_VERSION = "48.3.64";
++const READING_VERSION = "48.3.64"; // preferences.js, footer.js, content.js
++const READING_CSS_VERSION = "48.3.65"; // css/core/reading.css
+ const readingCss = read("css/core/reading.css");
+ 
+ /* ---------- utilidades ---------- */
+@@ -158,7 +159,7 @@ test("todas as páginas carregam reading.css por último e com o cache-buster at
+     assert.ok(links.length > 1, `${rel}: sem stylesheets`);
+     assert.match(
+       links.at(-1),
+-      new RegExp(`css/core/reading\\.css\\?v=${READING_VERSION.replace(/\./g, "\\.")}$`),
++      new RegExp(`css/core/reading\\.css\\?v=${READING_CSS_VERSION.replace(/\./g, "\\.")}$`),
+       `${rel}: reading.css deve ser o último stylesheet`
+     );
+   }
+@@ -403,6 +404,45 @@ test("reading.css: sem blur, sem transparência nas superfícies e sem estilos i
+   assert.doesNotMatch(semComentarios, /!important/, "reading.css não deve usar !important");
+ });
+ 
++test("reading.css: estilo de link de texto não atinge botões (.button)", () => {
++  // Regressão: `... a { color: var(--primary-text) }` recolorava "Voltar ao início" e
++  // "Uso de IA" (botões dentro de .privacy-section), deixando roxo sobre roxo.
++  const semComentarios = readingCss.replace(/\/\*[\s\S]*?\*\//g, "");
++  const seletores = [...semComentarios.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim());
++  const links = seletores.filter((seletor) => /\)\s+a(?![\w-])/.test(seletor));
++
++  assert.ok(links.length >= 2, "regras de link de texto não encontradas");
++  for (const seletor of links) {
++    assert.match(seletor, /\)\s+a:not\(\.button\)/, `link de texto sem a:not(.button): ${seletor.replace(/\s+/g, " ")}`);
++  }
++});
++
++test("reading.css: botão vazado tem contorno forte e o selo da Steam tem fundo sólido", () => {
++  assert.match(readingCss, /\[data-reading="on"\]\s+\.button-outline\s*\{[^}]*border-color:\s*var\(--primary-text\)/);
++  assert.match(readingCss, /\.jogo-card-steam\s*,[\s\S]*?\{[^}]*background-color:\s*#[0-9a-fA-F]{6};/);
++});
++
++test("reading.css: botões primário e vazado mantêm contraste AA nos dois temas", () => {
++  const variables = read("css/core/variables.css");
++  const darkBlock = variables.match(/\[data-theme="dark"\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
++  const lightBlock = variables.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
++  const reading = {
++    claro: block(':root[data-reading="on"]'),
++    escuro: block(':root[data-reading="on"][data-theme="dark"]'),
++  };
++
++  for (const [nome, vars] of [["claro", lightBlock], ["escuro", darkBlock]]) {
++    // Botão primário (cores vêm de variables.css; o modo leitura não as altera).
++    assert.ok(contrast(token(vars, "button-text"), token(vars, "button-bg")) >= 4.5, `${nome}: botão primário`);
++    assert.ok(contrast(token(vars, "button-text"), token(vars, "button-bg-hover")) >= 4.5, `${nome}: botão primário (hover)`);
++    // Botão vazado: texto e contorno em --primary-text sobre o painel (contorno: 3:1, WCAG 1.4.11).
++    const t = reading[nome];
++    assert.ok(contrast(token(t, "primary-text"), token(t, "card-bg")) >= 4.5, `${nome}: botão vazado, texto`);
++    assert.ok(contrast(token(t, "primary-text"), token(t, "card-bg")) >= 3, `${nome}: botão vazado, contorno`);
++    assert.ok(contrast(token(t, "primary-text"), token(t, "notice-bg")) >= 4.5, `${nome}: botão vazado, hover`);
++  }
++});
++
+ test("reading.css: tamanhos de texto e atalho do artigo estão definidos", () => {
+   assert.match(readingCss, /\[data-reading-size="large"\]\s*\{\s*--reading-scale:\s*1\.125;/);
+   assert.match(readingCss, /\[data-reading-size="xlarge"\]\s*\{\s*--reading-scale:\s*1\.25;/);
+diff --git a/404.html b/404.html
+index f780ba3..6830bc6 100644
+--- a/404.html
++++ b/404.html
+@@ -283,7 +283,7 @@
+     <link rel="stylesheet" href="css/core/navbar.css?v=48.3.58">
+     <link rel="stylesheet" href="css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="css/pages/404.css">
+-    <link rel="stylesheet" href="css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="css/core/reading.css?v=48.3.65">
+ </head>
+ 
+ <body>
+diff --git a/AGENTS.md b/AGENTS.md
+index 4831722..d609321 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -578,6 +578,7 @@ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`,
+ - Estado vive em `html[data-reading]` e `html[data-reading-size]`, aplicado pelo bootstrap inline do `<head>` (sem flash) e por `js/core/preferences.js` (`KAMYLI_UI_PREFS.setReading/setReadingSize`). O bootstrap é **idêntico nas 8 páginas** (e nos artigos): ao editá-lo, recalcular o SHA-256 e atualizar o hash na CSP de todas elas; o validador e `reading-mode.test.mjs` falham se divergirem.
+ - Ligar a leitura força `blur = off` com motivo `reading`, mas preserva `blurPreference`; desligar a leitura restaura o blur anterior.
+ - Todo o visual fica em `css/core/reading.css`, carregado por **último** em todas as páginas (inclusive artigos). Não usar `!important`, não aplicar `backdrop-filter` diferente de `none`, não usar transparência nas superfícies e não criar cores fora dos tokens do arquivo. Mudou cor? Rodar `reading-mode.test.mjs`: ele exige AAA para o texto principal e AA para os demais textos em ambos os temas.
++- Estilo de link de texto (cor + sublinhado) deve sempre usar `a:not(.button)`: botões `.button` dentro de seções de texto (ex.: `.privacy-actions`) mantêm as próprias cores. Validador e `reading-mode.test.mjs` falham se uma regra `... a` perder o `:not(.button)`. Ao tocar em `reading.css`, subir o `?v=` dele nas 8 páginas (V48.3.65 atual) e o pin do validador.
+ - Atalhos em páginas usam `<button type="button" data-reading-toggle aria-pressed="false">`; o `preferences.js` cuida do clique por delegação e do `aria-pressed`. Sem `style=` nem `on*=` (CSP).
+ - Textos da interface em `data/content/interface.json` → `configuracoes.leitura*` e `motivosBlur.reading`; manter o espelho de fallback em `js/core/content.js`.
+ - Ao tocar em `preferences.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a605617..7629371 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,13 @@
+ # Changelog
+ 
++## V48.3.65 — Correção dos botões no modo leitura
++
++- corrige o contraste dos botões "Voltar ao início", "Uso de IA" e "Política de Privacidade" no modo leitura: a regra que dá cor e sublinhado aos links de texto também atingia os botões `.button` dentro de `.privacy-section`, deixando o botão primário com texto roxo sobre fundo roxo; agora ela usa `a:not(.button)` e os botões mantêm as próprias cores;
++- reforça o contorno do botão vazado (`.button-outline`) com `--primary-text` no modo leitura (texto e contorno acima de 4,5:1 e 3:1 sobre o painel, nos dois temas);
++- dá fundo sólido ao selo "Ver na Steam" no modo leitura, para o contraste do texto branco não depender da capa do jogo;
++- adiciona testes de regressão em `reading-mode.test.mjs` (link de texto não atinge `.button`, contraste dos botões primário/vazado nos dois temas) e a mesma checagem no validador, que agora aceita qualquer `?v=` de `reading.css` nos artigos gerados pelo editor e só fixa a versão nas 8 páginas do site;
++- atualiza o cache-buster de `css/core/reading.css` para `48.3.65` nas 8 páginas.
++
+ ## V48.3.64 — Modo leitura
+ 
+ - adiciona o **modo leitura** ao site inteiro (Configurações → Leitura): superfícies 100% opacas, sem blur e sem a arte decorativa de fundo, com mais contraste de texto/bordas nos temas claro e escuro, entrelinha/peso de leitura, coluna na medida de ~68 caracteres e links de texto sempre sublinhados;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index 0e19a7f..c63f835 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -42,6 +42,7 @@ Preferência explícita (Configurações → Leitura) que prioriza a qualidade d
+ - **Tipografia**: peso 500, entrelinha 1,8, medida de ~68 caracteres (`--reading-measure: 43rem`) e corpo de artigo em 1,0625rem. Tamanho do texto (padrão/grande/maior) escala o `rem` em 1 / 1,125 / 1,25.
+ - **Links** dentro de textos corridos ficam sublinhados; foco visível com contorno de 3px.
+ - **Movimento**: `scroll-behavior: auto`.
++- **Botões** (`.button-primary`, `.button-outline`) seguem os tokens de botão do tema; dentro de textos corridos não recebem o sublinhado/cor de link. O botão vazado usa `--primary-text` também no contorno.
+ - O atalho "Modo leitura" nos artigos usa `.reading-toggle` com `aria-pressed`.
+ 
+ Não adicionar `backdrop-filter`, `!important` nem cores soltas a esse arquivo; novas cores entram como tokens e passam pelo teste de contraste.
+diff --git a/artes/index.html b/artes/index.html
+index ee9bffc..20be0b9 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -295,7 +295,7 @@
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/blog/index.html b/blog/index.html
+index 5161314..7a84ea2 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -296,7 +296,7 @@
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/components/blog.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/css/core/reading.css b/css/core/reading.css
+index 620a62d..bcd47a6 100644
+--- a/css/core/reading.css
++++ b/css/core/reading.css
+@@ -8,7 +8,7 @@
+    - superfícies 100% opacas, sem blur e sem a arte decorativa de fundo;
+    - texto e bordas com mais contraste, nos temas claro e escuro;
+    - tipografia de leitura (peso, entrelinha, medida e tamanho ajustável);
+-   - links dentro de textos sempre sublinhados.
++   - links dentro de textos sempre sublinhados (botões .button ficam de fora).
+ 
+    Este arquivo é carregado por último em todas as páginas: as regras daqui
+    sobrescrevem as dos demais CSS sem precisar de !important. Não cria
+@@ -187,7 +187,7 @@ html[data-reading="on"] {
+     .privacy-lead,
+     .section-note,
+     .site-footer p
+-) a {
++) a:not(.button) {
+     color: var(--primary-text);
+     text-decoration: underline;
+     text-decoration-thickness: 0.08em;
+@@ -200,10 +200,17 @@ html[data-reading="on"] {
+     .privacy-lead,
+     .section-note,
+     .site-footer p
+-) a:hover {
++) a:not(.button):hover {
+     text-decoration-thickness: 0.14em;
+ }
+ 
++/* Botões (.button) dentro de textos mantêm as cores e o desenho dos próprios
++   botões: a cor e o sublinhado de link acima não se aplicam a eles (a:not(.button)).
++   No modo leitura só o contorno do botão vazado ganha mais força (3:1 contra o painel). */
++:root[data-reading="on"] .button-outline {
++    border-color: var(--primary-text);
++}
++
+ /* Citações e código: fundo sólido, sem transparência */
+ :root[data-reading="on"] .blog-article-body blockquote {
+     background-color: var(--notice-bg);
+@@ -215,6 +222,15 @@ html[data-reading="on"] {
+     border: 1px solid var(--card-border);
+ }
+ 
++/* Selo "Ver na Steam" sobre a capa do jogo: fundo sólido, para o contraste do
++   texto branco não depender da imagem que estiver por trás */
++:root[data-reading="on"] .jogo-card-steam,
++:root[data-reading="on"] .jogo-card-steam:hover,
++:root[data-reading="on"] .jogo-card-steam:focus-visible {
++    background-color: #1d1a1d;
++    border-color: rgba(255, 255, 255, 0.7);
++}
++
+ /* ---------------------------------------------------------
+    CONFIGURAÇÕES — novo grupo "Leitura"
+    --------------------------------------------------------- */
+diff --git a/doacoes/index.html b/doacoes/index.html
+index e4a59bd..c2c6b33 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -296,7 +296,7 @@
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/index.html b/index.html
+index f3a7512..272a781 100644
+--- a/index.html
++++ b/index.html
+@@ -308,7 +308,7 @@
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=48.3.58">
+     <link rel="stylesheet" href="css/components/blog.css?v=48.3.7">
+-    <link rel="stylesheet" href="css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="css/core/reading.css?v=48.3.65">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/jogos/index.html b/jogos/index.html
+index c63e1e3..c984ff8 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -295,7 +295,7 @@
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.22">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 7074a8c..bfc3271 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -284,7 +284,7 @@
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ </head>
+ 
+ <body>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index b44d5dc..1573af6 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -284,7 +284,7 @@
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
+ </head>
+ 
+ <body>

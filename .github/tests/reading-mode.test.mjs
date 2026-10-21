@@ -19,7 +19,8 @@ const PAGES = [
   "uso-de-ia/index.html",
 ];
 
-const READING_VERSION = "48.3.64";
+const READING_VERSION = "48.3.64"; // preferences.js, footer.js, content.js
+const READING_CSS_VERSION = "48.3.65"; // css/core/reading.css
 const readingCss = read("css/core/reading.css");
 
 /* ---------- utilidades ---------- */
@@ -158,7 +159,7 @@ test("todas as páginas carregam reading.css por último e com o cache-buster at
     assert.ok(links.length > 1, `${rel}: sem stylesheets`);
     assert.match(
       links.at(-1),
-      new RegExp(`css/core/reading\\.css\\?v=${READING_VERSION.replace(/\./g, "\\.")}$`),
+      new RegExp(`css/core/reading\\.css\\?v=${READING_CSS_VERSION.replace(/\./g, "\\.")}$`),
       `${rel}: reading.css deve ser o último stylesheet`
     );
   }
@@ -401,6 +402,45 @@ test("reading.css: sem blur, sem transparência nas superfícies e sem estilos i
   assert.match(readingCss, /:root\[data-reading="on"\] body::before\s*\{[^}]*background-image:\s*none;/);
   const semComentarios = readingCss.replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(semComentarios, /!important/, "reading.css não deve usar !important");
+});
+
+test("reading.css: estilo de link de texto não atinge botões (.button)", () => {
+  // Regressão: `... a { color: var(--primary-text) }` recolorava "Voltar ao início" e
+  // "Uso de IA" (botões dentro de .privacy-section), deixando roxo sobre roxo.
+  const semComentarios = readingCss.replace(/\/\*[\s\S]*?\*\//g, "");
+  const seletores = [...semComentarios.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim());
+  const links = seletores.filter((seletor) => /\)\s+a(?![\w-])/.test(seletor));
+
+  assert.ok(links.length >= 2, "regras de link de texto não encontradas");
+  for (const seletor of links) {
+    assert.match(seletor, /\)\s+a:not\(\.button\)/, `link de texto sem a:not(.button): ${seletor.replace(/\s+/g, " ")}`);
+  }
+});
+
+test("reading.css: botão vazado tem contorno forte e o selo da Steam tem fundo sólido", () => {
+  assert.match(readingCss, /\[data-reading="on"\]\s+\.button-outline\s*\{[^}]*border-color:\s*var\(--primary-text\)/);
+  assert.match(readingCss, /\.jogo-card-steam\s*,[\s\S]*?\{[^}]*background-color:\s*#[0-9a-fA-F]{6};/);
+});
+
+test("reading.css: botões primário e vazado mantêm contraste AA nos dois temas", () => {
+  const variables = read("css/core/variables.css");
+  const darkBlock = variables.match(/\[data-theme="dark"\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
+  const lightBlock = variables.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
+  const reading = {
+    claro: block(':root[data-reading="on"]'),
+    escuro: block(':root[data-reading="on"][data-theme="dark"]'),
+  };
+
+  for (const [nome, vars] of [["claro", lightBlock], ["escuro", darkBlock]]) {
+    // Botão primário (cores vêm de variables.css; o modo leitura não as altera).
+    assert.ok(contrast(token(vars, "button-text"), token(vars, "button-bg")) >= 4.5, `${nome}: botão primário`);
+    assert.ok(contrast(token(vars, "button-text"), token(vars, "button-bg-hover")) >= 4.5, `${nome}: botão primário (hover)`);
+    // Botão vazado: texto e contorno em --primary-text sobre o painel (contorno: 3:1, WCAG 1.4.11).
+    const t = reading[nome];
+    assert.ok(contrast(token(t, "primary-text"), token(t, "card-bg")) >= 4.5, `${nome}: botão vazado, texto`);
+    assert.ok(contrast(token(t, "primary-text"), token(t, "card-bg")) >= 3, `${nome}: botão vazado, contorno`);
+    assert.ok(contrast(token(t, "primary-text"), token(t, "notice-bg")) >= 4.5, `${nome}: botão vazado, hover`);
+  }
 });
 
 test("reading.css: tamanhos de texto e atalho do artigo estão definidos", () => {

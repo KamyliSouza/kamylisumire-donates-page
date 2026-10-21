@@ -1,5 +1,13 @@
 # Changelog
 
+## V48.3.65 — Correção dos botões no modo leitura
+
+- corrige o contraste dos botões "Voltar ao início", "Uso de IA" e "Política de Privacidade" no modo leitura: a regra que dá cor e sublinhado aos links de texto também atingia os botões `.button` dentro de `.privacy-section`, deixando o botão primário com texto roxo sobre fundo roxo; agora ela usa `a:not(.button)` e os botões mantêm as próprias cores;
+- reforça o contorno do botão vazado (`.button-outline`) com `--primary-text` no modo leitura (texto e contorno acima de 4,5:1 e 3:1 sobre o painel, nos dois temas);
+- dá fundo sólido ao selo "Ver na Steam" no modo leitura, para o contraste do texto branco não depender da capa do jogo;
+- adiciona testes de regressão em `reading-mode.test.mjs` (link de texto não atinge `.button`, contraste dos botões primário/vazado nos dois temas) e a mesma checagem no validador, que agora aceita qualquer `?v=` de `reading.css` nos artigos gerados pelo editor e só fixa a versão nas 8 páginas do site;
+- atualiza o cache-buster de `css/core/reading.css` para `48.3.65` nas 8 páginas.
+
 ## V48.3.64 — Modo leitura
 
 - adiciona o **modo leitura** ao site inteiro (Configurações → Leitura): superfícies 100% opacas, sem blur e sem a arte decorativa de fundo, com mais contraste de texto/bordas nos temas claro e escuro, entrelinha/peso de leitura, coluna na medida de ~68 caracteres e links de texto sempre sublinhados;
