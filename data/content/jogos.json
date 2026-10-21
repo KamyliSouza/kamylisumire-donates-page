@@ -347,6 +347,25 @@
       "steamUrl": "https://store.steampowered.com/app/262060/"
     },
     {
+      "id": "6ad8b090209b6c9ad8332e99",
+      "name": "The Witch's Bakery",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488249856,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2967950,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2967950/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2967950,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
+      },
+      "steamAppId": 2967950,
+      "steamUrl": "https://store.steampowered.com/app/2967950/"
+    },
+    {
       "id": "69f612306dd0c50e4a5772ff",
       "name": "Star Wars Jedi: Survivor",
       "listId": "69f610ad5891e07aa88e7636",
@@ -2736,5 +2755,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-10-08T12:53:42.194Z"
+  "updatedAt": "2026-10-21T12:41:08.884Z"
 }
