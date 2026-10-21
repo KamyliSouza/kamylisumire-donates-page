@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-0T+Do/pSyzJGHMNTiXouDeLdR1qW0WmqeDDMpMCJGXs=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UGnkBm0UIahFGAk+gz8v3WqeiWq3ZkxdkvnnDHqgQF0=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
 
     <title>Doações | Kamyli Sumire — LivePix e Pixie</title>
     <meta name="description" content="Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.">
@@ -47,6 +47,8 @@
             const root = document.documentElement;
             const THEME_KEY = "kamyli:ui-theme";
             const BLUR_KEY = "kamyli:ui-blur";
+            const READING_KEY = "kamyli:ui-reading";
+            const READING_SIZE_KEY = "kamyli:ui-reading-size";
             const LOW_MEMORY_GB = 2;
             const LOW_CPU_THREADS = 2;
 
@@ -125,10 +127,23 @@
                 performanceReason = "low-cpu";
             }
 
+            const readingPreference =
+                read(READING_KEY) === "on" ? "on" : "off";
+
+            const savedReadingSize = read(READING_SIZE_KEY);
+            const readingSize =
+                savedReadingSize === "large" ||
+                savedReadingSize === "xlarge"
+                    ? savedReadingSize
+                    : "normal";
+
             let blur = "on";
             let blurReason = "supported";
 
-            if (!supportsBlur) {
+            if (readingPreference === "on") {
+                blur = "off";
+                blurReason = "reading";
+            } else if (!supportsBlur) {
                 blur = "off";
                 blurReason = "unsupported";
             } else if (blurPreference !== "auto") {
@@ -163,6 +178,8 @@
                 blurPreference === "auto" ? "auto" : "manual";
             root.dataset.blurPreference = blurPreference;
             root.dataset.blurReason = blurReason;
+            root.dataset.reading = readingPreference;
+            root.dataset.readingSize = readingSize;
             root.dataset.performance = performanceProfile;
             root.dataset.performanceReason = performanceReason;
             root.style.colorScheme = theme;
@@ -174,6 +191,8 @@
                 blurPreference,
                 blurReason,
                 blurSupported: supportsBlur,
+                reading: readingPreference,
+                readingSize,
                 performance: performanceProfile,
                 performanceReason
             });
@@ -277,6 +296,7 @@
     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.58">
     <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.58">
+    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.64">
 
     <!-- Dados estruturados para mecanismos de busca -->
     <script type="application/ld+json">
@@ -485,9 +505,9 @@
         aria-label="Créditos e informações do site"
     ></footer>
 
-    <script src="../js/core/preferences.js?v=48.3.60"></script>
+    <script src="../js/core/preferences.js?v=48.3.64"></script>
     <script src="../js/core/config.js"></script>
-    <script src="../js/core/content.js?v=48.3.51"></script>
+    <script src="../js/core/content.js?v=48.3.64"></script>
     <script src="../js/core/button-icons.js?v=48.3.44"></script>
     <script src="../js/core/buttons.js?v=48.3.6"></script>
     <script src="../js/core/api.js?v=48.3.61"></script>
@@ -497,7 +517,7 @@
     <script src="../js/core/socials.js?v=48.3.49"></script>
     <script src="../js/core/page-transitions.js?v=46.3"></script>
     <script src="../js/core/sanitize.js?v=48.3.60"></script>
-    <script src="../js/core/footer.js?v=48.3.60"></script>
+    <script src="../js/core/footer.js?v=48.3.64"></script>
     <script src="../js/pages/doacoes/doacoes.js"></script>
     <script src="../js/pages/doacoes/content.js?v=47"></script>
     <script src="../js/pages/doacoes/ranking.js?v=48.3.60"></script>

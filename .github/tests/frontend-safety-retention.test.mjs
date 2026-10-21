@@ -74,7 +74,7 @@ test("todas as páginas carregam o gerenciador global e a versão nova do saniti
 
   for (const path of pages) {
     const html = read(path);
-    assert.match(html, /js\/core\/preferences\.js\?v=48\.3\.60/);
+    assert.match(html, /js\/core\/preferences\.js\?v=48\.3\.64/);
     assert.match(html, /js\/core\/sanitize\.js\?v=48\.3\.60/);
   }
 });

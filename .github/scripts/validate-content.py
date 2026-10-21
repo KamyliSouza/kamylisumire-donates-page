@@ -74,6 +74,7 @@ REQUIRED_FILES = (
     ".github/tests/api-client.test.mjs",
     ".github/tests/worker-auth.test.mjs",
     ".github/tests/workflow-hardening.test.mjs",
+    ".github/tests/reading-mode.test.mjs",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -81,6 +82,7 @@ REQUIRED_FILES = (
     "js/pages/doacoes/content.js",
     "js/pages/doacoes/ranking.js",
     "css/core/socials.css",
+    "css/core/reading.css",
     "css/pages/home.css",
     "css/pages/blog.css",
     "css/pages/artes.css",
@@ -1960,11 +1962,11 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.51",
+            "js/core/content.js?v=48.3.64",
             "js/core/mobile-overlay.js?v=48.3.47",
             "js/core/navbar.js?v=48.3.47",
             "js/core/external-links.js?v=47",
-            "js/core/footer.js?v=48.3.60",
+            "js/core/footer.js?v=48.3.64",
             "css/core/navbar.css?v=48.3.58",
         ):
             if asset not in html:
@@ -1996,8 +1998,8 @@ def validate_architecture() -> None:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
         if "js/core/navbar.js?v=48.3.47" not in html:
             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.51" not in html:
-            error(f"{rel}: cache-buster V48.3.51 ausente para js/core/content.js.")
+        if "js/core/content.js?v=48.3.64" not in html:
+            error(f"{rel}: cache-buster V48.3.64 ausente para js/core/content.js.")
 
     for asset in (
         "js/pages/home/content.js?v=48.3.60",
@@ -3796,6 +3798,128 @@ def validate_security_contracts() -> None:
         if needle not in worker:
             error(f"workers.js: hardening timing-safe ausente: {needle}")
 
+READING_MODE_VERSION = "48.3.64"
+
+
+def validate_reading_mode() -> None:
+    """V48.3.64: modo leitura vale para o site inteiro e não pode regredir.
+
+    - toda página HTML (inclusive artigos gerados pelo editor) carrega
+      css/core/reading.css por último e usa o bootstrap com as chaves de leitura;
+    - o bootstrap inline é idêntico em todas as páginas (um único hash CSP);
+    - Configurações expõe os controles e os textos têm fallback no content.js;
+    - reading.css não usa blur, transparência nas superfícies nem !important.
+    """
+
+    reading_css_rel = "css/core/reading.css"
+    reading_css = read_text(reading_css_rel)
+    reading_link = f"css/core/reading.css?v={READING_MODE_VERSION}"
+
+    bootstraps: dict[str, str] = {}
+    for path in sorted(ROOT.rglob("*.html")):
+        rel = path.relative_to(ROOT).as_posix()
+        html = path.read_bytes().decode("utf-8")
+
+        links = re.findall(r'<link\s+rel="stylesheet"\s+href="([^"]+)"', html)
+        if not links or not links[-1].endswith(reading_link):
+            error(f"{rel}: {reading_link} deve ser o último stylesheet (modo leitura V48.3.64).")
+
+        scripts = [body for _attrs, body in re.findall(r"<script\b([^>]*)>([\s\S]*?)</script>", html, re.I) if "THEME_KEY" in body]
+        if len(scripts) != 1:
+            error(f"{rel}: bootstrap inline de tema/blur/leitura deve existir exatamente uma vez.")
+            continue
+        bootstrap = scripts[0]
+        bootstraps[rel] = bootstrap
+        for token in (
+            'const READING_KEY = "kamyli:ui-reading";',
+            'const READING_SIZE_KEY = "kamyli:ui-reading-size";',
+            "root.dataset.reading",
+            "root.dataset.readingSize",
+            'blurReason = "reading"',
+        ):
+            if token not in bootstrap:
+                error(f"{rel}: bootstrap do modo leitura V48.3.64 incompleto: {token}")
+
+        for asset in ("preferences", "footer", "content"):
+            if f"js/core/{asset}.js?v={READING_MODE_VERSION}" not in html:
+                error(f"{rel}: cache-buster V{READING_MODE_VERSION} ausente para js/core/{asset}.js.")
+
+    if len(set(bootstraps.values())) > 1:
+        error("Páginas HTML: o bootstrap de tema/blur/leitura deve ser idêntico em todas (um único hash CSP).")
+
+    preferences_js = read_text("js/core/preferences.js")
+    for token in (
+        'const READING_KEY = "kamyli:ui-reading";',
+        'const READING_SIZE_KEY = "kamyli:ui-reading-size";',
+        'blurReason = "reading"',
+        "setReading",
+        "setReadingSize",
+        "[data-reading-toggle]",
+    ):
+        if token not in preferences_js:
+            error(f"js/core/preferences.js: contrato do modo leitura V48.3.64 ausente: {token}")
+
+    footer_js = read_text("js/core/footer.js")
+    for token in (
+        'name="site-reading-preference"',
+        'name="site-reading-size"',
+        "footerReadingStatus",
+        "footerReadingSizeStatus",
+    ):
+        if token not in footer_js:
+            error(f"js/core/footer.js: controle do modo leitura V48.3.64 ausente: {token}")
+
+    interface = json.loads(read_text("data/content/interface.json"))
+    settings = interface.get("configuracoes", {}) if isinstance(interface, dict) else {}
+    for key in (
+        "leitura",
+        "leituraNormal",
+        "leituraAtivo",
+        "leituraStatusDesligado",
+        "leituraStatusLigado",
+        "leituraTamanho",
+        "leituraTamanhoNormal",
+        "leituraTamanhoGrande",
+        "leituraTamanhoMaior",
+        "leituraTamanhoStatus",
+        "leituraTamanhoStatusDesligado",
+        "blurStatusLeitura",
+    ):
+        if not isinstance(settings.get(key), str) or not settings[key].strip():
+            error(f"data/content/interface.json: configuracoes.{key} ausente (modo leitura V48.3.64).")
+    if not isinstance(settings.get("motivosBlur"), dict) or not settings["motivosBlur"].get("reading"):
+        error("data/content/interface.json: configuracoes.motivosBlur.reading ausente (modo leitura V48.3.64).")
+
+    content_js = read_text("js/core/content.js")
+    if "leituraTamanhoStatus" not in content_js:
+        error("js/core/content.js: fallback dos textos do modo leitura V48.3.64 ausente.")
+
+    reading_css_clean = re.sub(r"/\*[\s\S]*?\*/", "", reading_css)
+    for value in re.findall(r"backdrop-filter:\s*([^;]+);", reading_css_clean):
+        if value.strip() != "none":
+            error(f"{reading_css_rel}: backdrop-filter só pode ser none no modo leitura (encontrado: {value.strip()}).")
+    if "!important" in reading_css_clean:
+        error(f"{reading_css_rel}: não use !important; a ordem de carregamento já garante a precedência.")
+    for token in (
+        ':root[data-reading="on"]',
+        ':root[data-reading="on"][data-theme="dark"]',
+        '[data-reading-size="large"]',
+        '[data-reading-size="xlarge"]',
+        ".reading-toggle",
+    ):
+        if token not in reading_css:
+            error(f"{reading_css_rel}: seletor obrigatório do modo leitura ausente: {token}")
+
+    reading_tests = read_text(".github/tests/reading-mode.test.mjs")
+    for token in (
+        "tokens opacos e contraste AA/AAA nos temas claro e escuro",
+        "todas as páginas usam o mesmo bootstrap de tema/blur/leitura, com hash CSP",
+        "preferences.js: liga/desliga o modo leitura, preserva a escolha de blur e persiste",
+    ):
+        if token not in reading_tests:
+            error(f".github/tests/reading-mode.test.mjs: cobertura V48.3.64 ausente: {token}")
+
+
 def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
@@ -3811,6 +3935,7 @@ def main() -> int:
     validate_blog()
     validate_agenda()
     validate_security_contracts()
+    validate_reading_mode()
 
     # Valide referências locais de toda página HTML versionada. Isso cobre
     # páginas institucionais aninhadas e futuros artigos estáticos sem depender

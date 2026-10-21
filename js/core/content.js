@@ -85,7 +85,7 @@
         navbar: {"version":2,"ariaLabel":"Navegação principal","brandAriaLabel":"Ir para a página inicial","apoioFixoNoFim":true,"ordem":["inicio","lives","agenda","regras","creditos","artes","blog","jogos","apoio"],"links":{"inicio":{"texto":"Início","icone":"none","url":"/"},"lives":{"texto":"Lives","icone":"none","url":"/#lives"},"agenda":{"texto":"Agenda","icone":"none","url":"/#agenda"},"artes":{"texto":"Artes","icone":"none","url":"/artes/"},"blog":{"texto":"Blog","icone":"none","url":"/blog/"},"jogos":{"texto":"Jogos","icone":"none","url":"/jogos/"},"regras":{"texto":"Regras","icone":"none","url":"/#regras"},"creditos":{"texto":"Créditos","icone":"none","url":"/#creditos"},"apoio":{"texto":"Apoiar","icone":"heart","url":"/doacoes/"}}},
         blogConfig: {"page":{"eyebrow":"Blog","titulo":"Publicações","descricao":"Textos, pensamentos, bastidores e novidades em uma lista simples, sem imagens de capa.","buscaPlaceholder":"Buscar publicações...","vazio":"Nenhuma publicação disponível no momento.","minutosLeitura":"{minutos} min de leitura"},"home":{"eyebrow":"Blog","titulo":"Últimas publicações","descricao":"Textos recentes publicados por aqui.","maxItems":3},"article":{"eyebrow":"Blog"}},
         blogPosts: {"version": 1, "posts": []},
-        interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": "."}, "configuracoes": {"titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
+        interface: {"loader": {"ariaLabel": "Carregando o site"}, "footer": {"ariaLabel": "Créditos e informações do site"}, "linksExternos": {"titulo": "Abrir link externo?", "antesHost": "Você está saindo deste site e será direcionado para ", "hostFallback": "outro site", "depoisHost": "."}, "configuracoes": {"titulo": "Configurações", "fecharAriaLabel": "Fechar configurações", "aparencia": "Aparência", "temaAutomatico": "Automático", "temaClaro": "Claro", "temaEscuro": "Escuro", "blur": "Blur", "blurAutomatico": "Automático", "blurLigado": "Ligado", "blurDesligado": "Desligado", "preferenciasIndisponiveis": "Preferências indisponíveis", "temaStatusAutomatico": "Automático • sistema em modo {tema}.", "temaStatusEscuro": "Modo escuro selecionado.", "temaStatusClaro": "Modo claro selecionado.", "leitura": "Leitura", "leituraNormal": "Normal", "leituraAtivo": "Modo leitura", "leituraStatusDesligado": "Modo leitura desligado.", "leituraStatusLigado": "Modo leitura ligado: sem blur nem fundo decorativo, com texto e contraste reforçados.", "leituraTamanho": "Tamanho do texto", "leituraTamanhoNormal": "Padrão", "leituraTamanhoGrande": "Grande", "leituraTamanhoMaior": "Maior", "leituraTamanhoStatus": "Tamanho do texto: {tamanho}.", "leituraTamanhoStatusDesligado": "O tamanho do texto vale quando o modo leitura está ligado.", "blurStatusIndisponivel": "Blur indisponível neste navegador; o efeito permanece desligado.", "blurStatusAutomatico": "Automático • atualmente {estado} ({motivo}).", "blurStatusLigado": "Blur ligado manualmente.", "blurStatusDesligado": "Blur desligado manualmente.", "blurStatusLeitura": "Blur desligado pelo modo leitura.", "motivosBlur": {"unsupported": "não suportado pelo navegador", "reduced-transparency": "redução de transparência", "save-data": "economia de dados", "low-memory": "memória limitada", "low-cpu": "processamento limitado", "supported": "condições adequadas", "manual": "escolha manual", "reading": "modo leitura", "fallback": "condições do dispositivo"}}, "homeFallback": {"livesAnteriorAria": "Mostrar live anterior", "livesProximaAria": "Mostrar próxima live", "livesTrackAria": "Lives recentes no YouTube", "livesCarregando": "Carregando últimas lives...", "agendaEyebrow": "Programação", "agendaTitulo": "Agenda da semana", "agendaAnteriorAria": "Mostrar dia anterior", "agendaProximoAria": "Mostrar próximo dia", "agendaTrackAria": "Dias da semana", "agendaCarregando": "Carregando agenda...", "regrasListaAria": "Regras da comunidade", "regrasCarregando": "Carregando regras...", "creditosListaAria": "Créditos de artistas e assets", "creditosCarregando": "Carregando créditos..."}},
         notFound: {"eyebrow": "Página não encontrada", "codigo": "404", "titulo": "Essa página não existe.", "descricao": "Talvez o link tenha mudado ou você tenha chegado aqui por engano.", "documentTitle": "Página não encontrada · Kamyli Sumire", "metaDescription": "A página solicitada não foi encontrada."},
         seo: {"compartilhado": {"siteName": "Kamyli Sumire", "imagem": "https://assets.kamylisumire.com/preview.png"}, "home": {"documentTitle": "Kamyli Sumire | Lives, agenda e comunidade", "description": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "ogTitle": "Oiê! Eu sou a Kamyli ✨", "ogDescription": "Faço lives de joguinhos enquanto troco uma ideia com você. Por aqui você encontra minha agenda, minhas redes e todas as formas de acompanhar o conteúdo.", "imageAlt": "Kamyli Sumire"}, "doacoes": {"documentTitle": "Doações | Kamyli Sumire — LivePix e Pixie", "description": "Apoie as lives da Kamyli Sumire pelo LivePix ou Pixie e acompanhe o ranking de apoiadores.", "ogTitle": "Apoie a Kamyli Sumire ✨", "ogDescription": "Escolha entre LivePix ou Pixie para apoiar as lives!", "imageAlt": "Apoie a Kamyli Sumire"}, "blog": {"documentTitle": "Blog | Kamyli Sumire", "description": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "ogTitle": "Blog da Kamyli Sumire", "ogDescription": "Textos, pensamentos, bastidores e novidades publicados por Kamyli Sumire.", "imageAlt": "Blog da Kamyli Sumire"}, "artes": {"documentTitle": "Galeria de Artes | Kamyli Sumire", "description": "Veja fanarts, ilustrações e artes da comunidade da Kamyli Sumire, com créditos para cada artista.", "ogTitle": "Galeria de Artes da Kamyli Sumire ✨", "ogDescription": "Um espaço para reunir fanarts, ilustrações e artes da comunidade da Kamyli Sumire.", "imageAlt": "Galeria de Artes da Kamyli Sumire"}}
     };
@@ -449,8 +449,39 @@
             }
         }
 
+        const readingStatus = document.getElementById("footerReadingStatus");
+        const readingSizeStatus = document.getElementById("footerReadingSizeStatus");
+        const reading = state.reading === "on";
+
+        if (readingStatus) {
+            readingStatus.textContent = reading
+                ? copy.leituraStatusLigado
+                : copy.leituraStatusDesligado;
+        }
+
+        if (readingSizeStatus) {
+            const sizeNames = {
+                normal: copy.leituraTamanhoNormal,
+                large: copy.leituraTamanhoGrande,
+                xlarge: copy.leituraTamanhoMaior
+            };
+
+            readingSizeStatus.textContent = reading
+                ? format(
+                    copy.leituraTamanhoStatus,
+                    {
+                        tamanho: String(
+                            sizeNames[state.readingSize] || sizeNames.normal
+                        ).toLowerCase()
+                    }
+                )
+                : copy.leituraTamanhoStatusDesligado;
+        }
+
         if (blurStatus) {
-            if (!state.blurSupported) {
+            if (reading) {
+                blurStatus.textContent = copy.blurStatusLeitura;
+            } else if (!state.blurSupported) {
                 blurStatus.textContent = copy.blurStatusIndisponivel;
             } else if (state.blurPreference === "auto") {
                 const reasons = copy.motivosBlur || {};
@@ -496,11 +527,18 @@
 
         const legends = footer.querySelectorAll(".site-settings-group legend");
         setText(legends[0], copy.aparencia);
-        setText(legends[1], copy.blur);
+        setText(legends[1], copy.leitura);
+        setText(legends[2], copy.blur);
+        setText(footer.querySelector("#footerReadingSizeLabel"), copy.leituraTamanho);
 
         setRadioLabel("site-theme-preference", "auto", copy.temaAutomatico);
         setRadioLabel("site-theme-preference", "light", copy.temaClaro);
         setRadioLabel("site-theme-preference", "dark", copy.temaEscuro);
+        setRadioLabel("site-reading-preference", "off", copy.leituraNormal);
+        setRadioLabel("site-reading-preference", "on", copy.leituraAtivo);
+        setRadioLabel("site-reading-size", "normal", copy.leituraTamanhoNormal);
+        setRadioLabel("site-reading-size", "large", copy.leituraTamanhoGrande);
+        setRadioLabel("site-reading-size", "xlarge", copy.leituraTamanhoMaior);
         setRadioLabel("site-blur-preference", "auto", copy.blurAutomatico);
         setRadioLabel("site-blur-preference", "on", copy.blurLigado);
         setRadioLabel("site-blur-preference", "off", copy.blurDesligado);

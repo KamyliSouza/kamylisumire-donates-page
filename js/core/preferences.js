@@ -1,6 +1,8 @@
 (() => {
     const THEME_KEY = "kamyli:ui-theme";
     const BLUR_KEY = "kamyli:ui-blur";
+    const READING_KEY = "kamyli:ui-reading";
+    const READING_SIZE_KEY = "kamyli:ui-reading-size";
     const RANKING_CACHE_KEY = "kamyli-ranking-cache-v4";
     const RANKING_CACHE_TTL_MS = 30 * 60 * 1000;
     const RANKING_CACHE_EVENT = "kamyli:ranking-cache-updated";
@@ -13,6 +15,16 @@
     const BLUR_AUTO = "auto";
     const BLUR_ON = "on";
     const BLUR_OFF = "off";
+
+    // V48.3.64 — Modo leitura: superfícies opacas, sem blur nem arte de fundo,
+    // com tipografia e contraste voltados à leitura. É uma preferência
+    // explícita (nunca automática) e vale para o site inteiro.
+    const READING_ON = "on";
+    const READING_OFF = "off";
+
+    const READING_SIZE_NORMAL = "normal";
+    const READING_SIZE_LARGE = "large";
+    const READING_SIZE_XLARGE = "xlarge";
 
     const PERFORMANCE_NORMAL = "normal";
     const PERFORMANCE_REDUCED = "reduced";
@@ -127,6 +139,21 @@
         )
             ? value
             : BLUR_AUTO;
+    }
+
+    function normalizeReadingPreference(value) {
+        return value === READING_ON
+            ? READING_ON
+            : READING_OFF;
+    }
+
+    function normalizeReadingSize(value) {
+        return (
+            value === READING_SIZE_LARGE ||
+            value === READING_SIZE_XLARGE
+        )
+            ? value
+            : READING_SIZE_NORMAL;
     }
 
     function supportsBackdropBlur() {
@@ -268,6 +295,16 @@
             safeGet(BLUR_KEY)
         );
 
+    let readingPreference =
+        normalizeReadingPreference(
+            safeGet(READING_KEY)
+        );
+
+    let readingSize =
+        normalizeReadingSize(
+            safeGet(READING_SIZE_KEY)
+        );
+
     let blur = BLUR_ON;
     let blurReason = "supported";
     let blurSupported = supportsBackdropBlur();
@@ -297,6 +334,14 @@
 
     function resolveBlur() {
         blurSupported = supportsBackdropBlur();
+
+        // O modo leitura vence a escolha de blur enquanto estiver ligado;
+        // a preferência de blur continua salva e volta quando ele desliga.
+        if (readingPreference === READING_ON) {
+            blur = BLUR_OFF;
+            blurReason = "reading";
+            return;
+        }
 
         if (blurPreference === BLUR_AUTO) {
             const automatic = evaluateAutomaticBlur();
@@ -334,6 +379,9 @@
         root.dataset.blurPreference = blurPreference;
         root.dataset.blurReason = blurReason;
 
+        root.dataset.reading = readingPreference;
+        root.dataset.readingSize = readingSize;
+
         root.dataset.performance = performanceProfile;
         root.dataset.performanceReason = performanceReason;
 
@@ -351,6 +399,8 @@
             blurPreference,
             blurReason,
             blurSupported,
+            reading: readingPreference,
+            readingSize,
             performance: performanceProfile,
             performanceReason
         };
@@ -422,6 +472,88 @@
         resolveBlur();
         apply();
         dispatchPreferenceChange();
+    }
+
+    function setReading(value, persist = true) {
+        readingPreference =
+            normalizeReadingPreference(value);
+
+        if (persist) {
+            safeSet(
+                READING_KEY,
+                readingPreference
+            );
+        }
+
+        resolveBlur();
+        apply();
+        dispatchPreferenceChange();
+    }
+
+    function setReadingSize(value, persist = true) {
+        readingSize =
+            normalizeReadingSize(value);
+
+        if (persist) {
+            safeSet(
+                READING_SIZE_KEY,
+                readingSize
+            );
+        }
+
+        apply();
+        dispatchPreferenceChange();
+    }
+
+    /*
+     * Atalho para qualquer botão marcado com data-reading-toggle (por
+     * exemplo, o do cabeçalho dos artigos do Blog): liga/desliga o modo
+     * leitura e mantém aria-pressed sincronizado com a preferência.
+     */
+    function syncReadingToggles() {
+        document
+            .querySelectorAll("[data-reading-toggle]")
+            .forEach(button => {
+                button.setAttribute(
+                    "aria-pressed",
+                    String(readingPreference === READING_ON)
+                );
+            });
+    }
+
+    function listenForReadingToggles() {
+        document.addEventListener("click", event => {
+            const target = event.target;
+
+            if (!(target instanceof Element)) return;
+
+            const button = target.closest("[data-reading-toggle]");
+
+            if (!button) return;
+
+            event.preventDefault();
+
+            setReading(
+                readingPreference === READING_ON
+                    ? READING_OFF
+                    : READING_ON
+            );
+        });
+
+        window.addEventListener(
+            "kamyli:ui-preference-change",
+            syncReadingToggles
+        );
+
+        if (document.readyState === "loading") {
+            document.addEventListener(
+                "DOMContentLoaded",
+                syncReadingToggles,
+                { once: true }
+            );
+        } else {
+            syncReadingToggles();
+        }
     }
 
     function addMediaChangeListener(query, callback) {
@@ -501,10 +633,13 @@
     apply();
     listenForAutomaticConditionChanges();
     listenForRankingCacheRetention();
+    listenForReadingToggles();
 
     window.KAMYLI_UI_PREFS = Object.freeze({
         getState,
         setTheme,
-        setBlur
+        setBlur,
+        setReading,
+        setReadingSize
     });
 })();

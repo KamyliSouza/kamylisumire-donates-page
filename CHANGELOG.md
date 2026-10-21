@@ -1,5 +1,16 @@
 # Changelog
 
+## V48.3.64 — Modo leitura
+
+- adiciona o **modo leitura** ao site inteiro (Configurações → Leitura): superfícies 100% opacas, sem blur e sem a arte decorativa de fundo, com mais contraste de texto/bordas nos temas claro e escuro, entrelinha/peso de leitura, coluna na medida de ~68 caracteres e links de texto sempre sublinhados;
+- permite escolher o tamanho do texto (padrão, grande, maior) escalando o `rem` do site; o modo leitura é uma preferência explícita (`kamyli:ui-reading` e `kamyli:ui-reading-size`) e nunca é ligado automaticamente;
+- ligar o modo leitura desliga o blur com o motivo `reading` sem apagar a escolha manual de blur, que volta ao desligar a leitura; as opções de blur ficam desabilitadas enquanto a leitura está ligada;
+- o bootstrap inline do `<head>` aplica `data-reading`/`data-reading-size` antes da primeira pintura (sem flash) nas 8 páginas, com o hash CSP atualizado;
+- novo `css/core/reading.css`, carregado por último em todas as páginas, sem `!important`, sem `backdrop-filter` e com tokens próprios (`--reading-*`);
+- artigos gerados pelo editor local ganham o atalho "Modo leitura" (`data-reading-toggle`) no topo, sincronizado com `aria-pressed`;
+- textos novos em `data/content/interface.json` (`configuracoes.leitura*`) com fallback espelhado em `js/core/content.js`;
+- adiciona `.github/tests/reading-mode.test.mjs` (contraste AA/AAA dos tokens, bootstrap idêntico e com hash correto, `preferences.js`, atalho, textos) e checagens equivalentes no validador; os cache-busters de `preferences.js`, `footer.js` e `content.js` foram atualizados para `48.3.64`.
+
 ## V48.3.63 — Hardening e limites da CI
 
 - adiciona `timeout-minutes` explícito aos três jobs: 10 minutos para validação e 20 minutos para as sincronizações editoriais de Jogos/Agenda;

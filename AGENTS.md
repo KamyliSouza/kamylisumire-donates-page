@@ -397,6 +397,8 @@ Preservar:
 - Save-Data;
 - perfil adaptativo por memória/CPU quando disponível.
 
+- modo leitura explícito (ver "Modo leitura — V48.3.64"), que sobrepõe o blur.
+
 Não substituir isso por detecção de user-agent.
 
 ## SEO e publicação
@@ -424,9 +426,9 @@ cache-buster `?v=` manualmente. Convenção:
 - não é necessário sincronizar o número entre arquivos que não mudaram
   juntos — versões podem divergir entre arquivos por design.
 
-Estado atual (a corrigir apenas quando esses arquivos forem tocados de
-novo, não em PRs não relacionados): `js/core/preferences.js` e
-`js/core/config.js` ainda não têm `?v=`.
+Estado atual (a corrigir apenas quando esse arquivo for tocado de
+novo, não em PRs não relacionados): `js/core/config.js` ainda não tem
+`?v=`. `js/core/preferences.js` passou a ter desde a V48.3.64.
 
 ## Validação
 
@@ -569,6 +571,16 @@ Não persistir Menu/Redes entre documentos ou restaurações BFCache. O marcador
 
 Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`, `site-loading-visible`, `site-navigation-loading` e `site-page-leaving`; o drawer vive fora de `.site-nav` e não herda automaticamente o contrato visual do loader.
 
+
+### Modo leitura — V48.3.64
+
+- É uma preferência **explícita** do visitante (`kamyli:ui-reading` = `on`/`off`, `kamyli:ui-reading-size` = `normal`/`large`/`xlarge`). Nunca ligar automaticamente por User-Agent, mídia ou performance.
+- Estado vive em `html[data-reading]` e `html[data-reading-size]`, aplicado pelo bootstrap inline do `<head>` (sem flash) e por `js/core/preferences.js` (`KAMYLI_UI_PREFS.setReading/setReadingSize`). O bootstrap é **idêntico nas 8 páginas** (e nos artigos): ao editá-lo, recalcular o SHA-256 e atualizar o hash na CSP de todas elas; o validador e `reading-mode.test.mjs` falham se divergirem.
+- Ligar a leitura força `blur = off` com motivo `reading`, mas preserva `blurPreference`; desligar a leitura restaura o blur anterior.
+- Todo o visual fica em `css/core/reading.css`, carregado por **último** em todas as páginas (inclusive artigos). Não usar `!important`, não aplicar `backdrop-filter` diferente de `none`, não usar transparência nas superfícies e não criar cores fora dos tokens do arquivo. Mudou cor? Rodar `reading-mode.test.mjs`: ele exige AAA para o texto principal e AA para os demais textos em ambos os temas.
+- Atalhos em páginas usam `<button type="button" data-reading-toggle aria-pressed="false">`; o `preferences.js` cuida do clique por delegação e do `aria-pressed`. Sem `style=` nem `on*=` (CSP).
+- Textos da interface em `data/content/interface.json` → `configuracoes.leitura*` e `motivosBlur.reading`; manter o espelho de fallback em `js/core/content.js`.
+- Ao tocar em `preferences.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
 
 ### Hardening da CI — V48.3.63
 

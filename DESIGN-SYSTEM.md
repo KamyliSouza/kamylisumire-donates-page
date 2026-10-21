@@ -33,6 +33,19 @@ performance/acessibilidade.
 Não forçar `backdrop-filter` quando `data-blur="off"` ou quando o perfil
 adaptativo desabilitar o efeito.
 
+## Modo leitura
+
+Preferência explícita (Configurações → Leitura) que prioriza a qualidade de leitura no site inteiro. Estado em `html[data-reading="on"]`; todo o visual em `css/core/reading.css`, carregado por último.
+
+- **Superfícies**: `--card-bg`, `--nav-bg`, `--footer-bg` e `--bg-color` opacos; sem blur e sem arte de fundo.
+- **Cor**: texto principal com contraste AAA (≥ 7:1) e textos secundários/links com AA (≥ 4,5:1) nos temas claro e escuro; bordas mais fortes para separar painéis sem depender de transparência. `--primary-text` segue valendo para texto pequeno.
+- **Tipografia**: peso 500, entrelinha 1,8, medida de ~68 caracteres (`--reading-measure: 43rem`) e corpo de artigo em 1,0625rem. Tamanho do texto (padrão/grande/maior) escala o `rem` em 1 / 1,125 / 1,25.
+- **Links** dentro de textos corridos ficam sublinhados; foco visível com contorno de 3px.
+- **Movimento**: `scroll-behavior: auto`.
+- O atalho "Modo leitura" nos artigos usa `.reading-toggle` com `aria-pressed`.
+
+Não adicionar `backdrop-filter`, `!important` nem cores soltas a esse arquivo; novas cores entram como tokens e passam pelo teste de contraste.
+
 ## Botões
 
 Desde a V48.3.58, superfícies de ação preenchidas usam os tokens semânticos `--button-bg`, `--button-bg-hover` e `--button-text`. Eles são separados de `--primary-color` para permitir contraste WCAG AA nos dois temas sem escurecer ou alterar a cor de marca usada em títulos, ícones e decoração. Texto pequeno colorido deve usar `--primary-text`.

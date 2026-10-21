@@ -288,6 +288,10 @@ A V48.3.61 restringe o `workers.dev` a contingência de transporte: timeout, fal
 
 A V48.3.62 restringe `?key=` a `/oauth/authorize`; todas as rotas `/debug/*` passam a exigir `Authorization: Bearer`. `OAUTH_SETUP_TOKEN` precisa ter pelo menos 32 caracteres. O `state` OAuth deixa de reutilizar esse token e passa a ser assinado por `OAUTH_STATE_SECRET`, também com mínimo de 32 caracteres. Cada state v2 registra um nonce no KV por 10 minutos e o callback o consome antes da troca do `code`, adicionando proteção contra reutilização. Os tokens Streamlabs existentes no KV permanecem compatíveis; apenas fluxos OAuth iniciados antes do deploy devem ser reiniciados.
 
+### Modo leitura — V48.3.64
+
+A V48.3.64 adiciona o **modo leitura** ao site inteiro, em Configurações → Leitura: superfícies opacas, sem blur e sem fundo decorativo, mais contraste, tipografia de leitura e tamanho de texto ajustável (padrão, grande, maior). É uma escolha do visitante, guardada no navegador e aplicada antes da primeira pintura. Os artigos criados pelo editor local ganham um atalho "Modo leitura" no topo. O visual fica em `css/core/reading.css` e a cobertura em `.github/tests/reading-mode.test.mjs`.
+
 ### Hardening da CI — V48.3.63
 
 A V48.3.63 limita a duração dos jobs do GitHub Actions (10 min para validação e 20 min para os syncs editoriais), fixa `actions/checkout` v4.2.2 por SHA completo e impede que o checkout somente-leitura da validação persista credenciais. Validações obsoletas da mesma ref são canceladas; os syncs de Jogos/Agenda continuam serializados e nunca são cancelados no meio de uma publicação. A suíte `node:test` passa a ser descoberta automaticamente por `.github/tests/*.test.mjs`, de modo que um novo teste versionado não precise ser lembrado manualmente no workflow.

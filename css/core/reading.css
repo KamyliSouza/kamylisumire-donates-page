@@ -1,0 +1,296 @@
+/* =========================================================
+   MODO LEITURA — V48.3.64
+
+   Preferência explícita do visitante (Configurações > Leitura), aplicada
+   pelo bootstrap do <head> e por js/core/preferences.js como
+   html[data-reading="on"]. Vale para o site inteiro e foca em leitura:
+
+   - superfícies 100% opacas, sem blur e sem a arte decorativa de fundo;
+   - texto e bordas com mais contraste, nos temas claro e escuro;
+   - tipografia de leitura (peso, entrelinha, medida e tamanho ajustável);
+   - links dentro de textos sempre sublinhados.
+
+   Este arquivo é carregado por último em todas as páginas: as regras daqui
+   sobrescrevem as dos demais CSS sem precisar de !important. Não cria
+   cores novas fora dos tokens abaixo e não depende de JavaScript além de
+   data-reading / data-reading-size.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   TOKENS — tema claro
+   --------------------------------------------------------- */
+
+:root[data-reading="on"] {
+    --reading-scale: 1;
+    --reading-measure: 43rem; /* ~68 caracteres por linha; cresce junto com o tamanho do texto */
+    --reading-line-height: 1.8;
+    --reading-weight: 500;
+
+    --blur-card: 0px;
+
+    --bg-color: #f3ecf3;
+    --card-bg: #ffffff;
+    --card-border: #cdb8cb;
+    --card-border-strong: #a98aa6;
+    --notice-bg: #f6eef6;
+    --footer-bg: #ffffff;
+    --nav-bg: #ffffff;
+
+    --text-color: #1d1a1d;
+    --subtitle-color: #4d444c;
+    --text-muted: #4d444c;
+    --notice-text: #3f373f;
+    --footer-text: #3f373f;
+
+    --primary-text: #7d2f79;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.06);
+
+    color-scheme: light;
+}
+
+/* ---------------------------------------------------------
+   TOKENS — tema escuro
+   --------------------------------------------------------- */
+
+:root[data-reading="on"][data-theme="dark"] {
+    --bg-color: #141114;
+    --card-bg: #1d181e;
+    --card-border: #4a3d4a;
+    --card-border-strong: #6e5a6d;
+    --notice-bg: #272028;
+    --footer-bg: #1d181e;
+    --nav-bg: #1d181e;
+
+    --text-color: #f3ecf3;
+    --subtitle-color: #cbbac9;
+    --text-muted: #cbbac9;
+    --notice-text: #e5d8e4;
+    --footer-text: #d8c9d6;
+
+    --primary-text: #e6a0e2;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.25);
+
+    color-scheme: dark;
+}
+
+/* ---------------------------------------------------------
+   TAMANHO DO TEXTO — escala o rem do site inteiro
+   --------------------------------------------------------- */
+
+:root[data-reading="on"][data-reading-size="large"] {
+    --reading-scale: 1.125;
+}
+
+:root[data-reading="on"][data-reading-size="xlarge"] {
+    --reading-scale: 1.25;
+}
+
+html[data-reading="on"] {
+    font-size: calc(100% * var(--reading-scale));
+    scroll-behavior: auto;
+}
+
+/* ---------------------------------------------------------
+   FUNDO — sem arte decorativa, sem camada fixa
+   --------------------------------------------------------- */
+
+:root[data-reading="on"] body {
+    background-image: none;
+    background-color: var(--bg-color);
+    background-attachment: scroll;
+}
+
+:root[data-reading="on"] body::before {
+    background-image: none;
+    background-color: var(--bg-color);
+}
+
+/* ---------------------------------------------------------
+   EFEITOS — nenhum backdrop-filter em nenhum elemento
+   (:where mantém a especificidade baixa: regras mais específicas
+   dos componentes continuam podendo decidir o resto do visual)
+   --------------------------------------------------------- */
+
+:root[data-reading="on"] :where(*, *::before, *::after) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* ---------------------------------------------------------
+   TIPOGRAFIA DE LEITURA
+   --------------------------------------------------------- */
+
+/* Textos corridos em geral: entrelinha e peso mais confortáveis */
+:root[data-reading="on"] :is(
+    .blog-article-body,
+    .blog-article-summary,
+    .blog-intro p,
+    .blog-post-summary,
+    .artes-intro p,
+    .jogos-intro p,
+    .jogos-notice p,
+    .not-found-card p,
+    .hero-text,
+    .body-copy,
+    .section-note,
+    .agenda-note,
+    .privacy-lead,
+    .privacy-section p,
+    .privacy-section li,
+    .site-footer p
+) {
+    font-weight: var(--reading-weight);
+    line-height: var(--reading-line-height);
+    letter-spacing: 0.005em;
+}
+
+/* Políticas e artigos: uma coluna só, na medida de leitura, sem sobra à direita */
+:root[data-reading="on"] .privacy-page {
+    width: min(calc(var(--reading-measure) + 120px), calc(100% - 32px));
+}
+
+:root[data-reading="on"] .blog-article-header {
+    max-width: var(--reading-measure);
+}
+
+/* Textos longos: medida confortável */
+:root[data-reading="on"] :is(
+    .blog-article-body,
+    .blog-article-summary,
+    .privacy-lead,
+    .privacy-section p,
+    .privacy-section ul,
+    .privacy-section ol
+) {
+    max-width: var(--reading-measure);
+}
+
+:root[data-reading="on"] .blog-article-body {
+    font-size: 1.0625rem;
+}
+
+:root[data-reading="on"] .blog-article-body :is(p, ul, ol, blockquote) {
+    margin-block: 0 1.15em;
+}
+
+:root[data-reading="on"] .blog-article-body :is(h2, h3, h4) {
+    line-height: 1.25;
+    text-wrap: balance;
+}
+
+/* Links dentro de textos nunca dependem só da cor */
+:root[data-reading="on"] :is(
+    .blog-article-body,
+    .privacy-section,
+    .privacy-lead,
+    .section-note,
+    .site-footer p
+) a {
+    color: var(--primary-text);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+}
+
+:root[data-reading="on"] :is(
+    .blog-article-body,
+    .privacy-section,
+    .privacy-lead,
+    .section-note,
+    .site-footer p
+) a:hover {
+    text-decoration-thickness: 0.14em;
+}
+
+/* Citações e código: fundo sólido, sem transparência */
+:root[data-reading="on"] .blog-article-body blockquote {
+    background-color: var(--notice-bg);
+    border-left-color: var(--card-border-strong);
+}
+
+:root[data-reading="on"] .blog-article-body :is(code, pre) {
+    background-color: var(--notice-bg);
+    border: 1px solid var(--card-border);
+}
+
+/* ---------------------------------------------------------
+   CONFIGURAÇÕES — novo grupo "Leitura"
+   --------------------------------------------------------- */
+
+.site-settings-subtitle {
+    margin: 12px 1px 6px;
+
+    color: var(--text-color);
+
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.site-settings-options-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* O painel ficou mais alto com o novo grupo: rola por dentro em telas baixas */
+.site-settings-popover {
+    max-height: calc(100vh - 96px);
+    max-height: calc(100dvh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* ---------------------------------------------------------
+   ATALHO NO ARTIGO — botão "Modo leitura" (data-reading-toggle)
+   --------------------------------------------------------- */
+
+.blog-article-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+
+    margin-bottom: 20px;
+}
+
+.blog-article-actions .blog-article-back {
+    margin-bottom: 0;
+}
+
+.reading-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    min-height: 38px;
+    padding: 7px 14px;
+
+    color: var(--text-color);
+    background-color: var(--card-bg);
+
+    border: 1.5px solid var(--card-border-strong);
+    border-radius: 999px;
+
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 800;
+    line-height: 1.2;
+
+    cursor: pointer;
+}
+
+.reading-toggle:hover {
+    border-color: var(--primary-text);
+}
+
+.reading-toggle:focus-visible {
+    outline: 3px solid var(--primary-text);
+    outline-offset: 2px;
+}
+
+.reading-toggle[aria-pressed="true"] {
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg-hover);
+}

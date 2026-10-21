@@ -60,7 +60,8 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
             "low-memory": "memória limitada",
             "low-cpu": "processamento limitado",
             "supported": "condições adequadas",
-            "manual": "escolha manual"
+            "manual": "escolha manual",
+            "reading": "modo leitura"
         };
 
         return labels[reason] || "condições do dispositivo";
@@ -85,6 +86,12 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
         const blurStatus = mount.querySelector(
             "#footerBlurStatus"
         );
+        const readingStatus = mount.querySelector(
+            "#footerReadingStatus"
+        );
+        const readingSizeStatus = mount.querySelector(
+            "#footerReadingSizeStatus"
+        );
         const themeInputs = [
             ...mount.querySelectorAll(
                 'input[name="site-theme-preference"]'
@@ -93,6 +100,16 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
         const blurInputs = [
             ...mount.querySelectorAll(
                 'input[name="site-blur-preference"]'
+            )
+        ];
+        const readingInputs = [
+            ...mount.querySelectorAll(
+                'input[name="site-reading-preference"]'
+            )
+        ];
+        const readingSizeInputs = [
+            ...mount.querySelectorAll(
+                'input[name="site-reading-size"]'
             )
         ];
 
@@ -155,16 +172,55 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
                     state.themePreference;
             });
 
+            const reading = state.reading === "on";
+
             blurInputs.forEach(input => {
                 input.checked =
                     input.value ===
                     state.blurPreference;
 
-                if (input.value === "on") {
-                    input.disabled =
-                        !state.blurSupported;
-                }
+                // O modo leitura desliga o blur; a escolha fica salva.
+                input.disabled =
+                    reading ||
+                    (
+                        input.value === "on" &&
+                        !state.blurSupported
+                    );
             });
+
+            readingInputs.forEach(input => {
+                input.checked =
+                    input.value ===
+                    state.reading;
+            });
+
+            readingSizeInputs.forEach(input => {
+                input.checked =
+                    input.value ===
+                    state.readingSize;
+
+                input.disabled = !reading;
+            });
+
+            if (readingStatus) {
+                readingStatus.textContent = reading
+                    ? "Modo leitura ligado: sem blur nem fundo decorativo, com texto e contraste reforçados."
+                    : "Modo leitura desligado.";
+            }
+
+            if (readingSizeStatus) {
+                const sizeNames = {
+                    normal: "padrão",
+                    large: "grande",
+                    xlarge: "maior"
+                };
+
+                readingSizeStatus.textContent = reading
+                    ? `Tamanho do texto: ${
+                        sizeNames[state.readingSize] || sizeNames.normal
+                    }.`
+                    : "O tamanho do texto vale quando o modo leitura está ligado.";
+            }
 
             if (themeStatus) {
                 if (
@@ -185,7 +241,10 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
             }
 
             if (blurStatus) {
-                if (!state.blurSupported) {
+                if (reading) {
+                    blurStatus.textContent =
+                        "Blur desligado pelo modo leitura.";
+                } else if (!state.blurSupported) {
                     blurStatus.textContent =
                         "Blur indisponível neste navegador; o efeito permanece desligado.";
                 } else if (
@@ -236,6 +295,28 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
             }
         }
 
+        function onReadingChange(event) {
+            if (
+                event.target instanceof HTMLInputElement &&
+                event.target.checked
+            ) {
+                uiPrefs?.setReading(
+                    event.target.value
+                );
+            }
+        }
+
+        function onReadingSizeChange(event) {
+            if (
+                event.target instanceof HTMLInputElement &&
+                event.target.checked
+            ) {
+                uiPrefs?.setReadingSize(
+                    event.target.value
+                );
+            }
+        }
+
         function onDocumentPointerDown(event) {
             if (
                 !popover.hidden &&
@@ -279,6 +360,20 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
             );
         });
 
+        readingInputs.forEach(input => {
+            input.addEventListener(
+                "change",
+                onReadingChange
+            );
+        });
+
+        readingSizeInputs.forEach(input => {
+            input.addEventListener(
+                "change",
+                onReadingSizeChange
+            );
+        });
+
         document.addEventListener(
             "pointerdown",
             onDocumentPointerDown
@@ -318,6 +413,20 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
                 input.removeEventListener(
                     "change",
                     onBlurChange
+                );
+            });
+
+            readingInputs.forEach(input => {
+                input.removeEventListener(
+                    "change",
+                    onReadingChange
+                );
+            });
+
+            readingSizeInputs.forEach(input => {
+                input.removeEventListener(
+                    "change",
+                    onReadingSizeChange
                 );
             });
 
@@ -551,6 +660,82 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
                             <p
                                 class="site-settings-status"
                                 id="footerThemeStatus"
+                                aria-live="polite"
+                            ></p>
+                        </fieldset>
+
+                        <fieldset class="site-settings-group">
+                            <legend>Leitura</legend>
+
+                            <div class="site-settings-options site-settings-options-two">
+                                <label class="site-settings-option">
+                                    <input
+                                        type="radio"
+                                        name="site-reading-preference"
+                                        value="off"
+                                    >
+                                    <span>Normal</span>
+                                </label>
+
+                                <label class="site-settings-option">
+                                    <input
+                                        type="radio"
+                                        name="site-reading-preference"
+                                        value="on"
+                                    >
+                                    <span>Modo leitura</span>
+                                </label>
+                            </div>
+
+                            <p
+                                class="site-settings-status"
+                                id="footerReadingStatus"
+                                aria-live="polite"
+                            ></p>
+
+                            <p
+                                class="site-settings-subtitle"
+                                id="footerReadingSizeLabel"
+                            >
+                                Tamanho do texto
+                            </p>
+
+                            <div
+                                class="site-settings-options"
+                                role="group"
+                                aria-labelledby="footerReadingSizeLabel"
+                            >
+                                <label class="site-settings-option">
+                                    <input
+                                        type="radio"
+                                        name="site-reading-size"
+                                        value="normal"
+                                    >
+                                    <span>Padrão</span>
+                                </label>
+
+                                <label class="site-settings-option">
+                                    <input
+                                        type="radio"
+                                        name="site-reading-size"
+                                        value="large"
+                                    >
+                                    <span>Grande</span>
+                                </label>
+
+                                <label class="site-settings-option">
+                                    <input
+                                        type="radio"
+                                        name="site-reading-size"
+                                        value="xlarge"
+                                    >
+                                    <span>Maior</span>
+                                </label>
+                            </div>
+
+                            <p
+                                class="site-settings-status"
+                                id="footerReadingSizeStatus"
                                 aria-live="polite"
                             ></p>
                         </fieldset>
