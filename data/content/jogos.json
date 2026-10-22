@@ -678,7 +678,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 1693980,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1693980/library_600x900.jpg"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1693980/library_600x900_2x.jpg"
       },
       "icon": {
         "provider": "steam-original",
@@ -2755,5 +2755,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-10-22T00:06:13.976Z"
+  "updatedAt": "2026-10-22T14:32:19.589Z"
 }
