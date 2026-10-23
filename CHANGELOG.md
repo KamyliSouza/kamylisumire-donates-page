@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.66 — Configurações na barra superior
+
+- move o botão de **Configurações** do rodapé para a barra superior, ao lado de "Apoiar", como um ícone de engrenagem (40 px no desktop, 38 px no celular): as pessoas deixam de descer a página inteira para trocar tema, modo leitura ou blur;
+- novo `js/core/settings.js`: monta o botão no slot `#site-nav-settings-slot` (criado por `navbar.js` dentro de `.site-nav-actions`, antes do slot opcional de Apoiar, que pode ficar oculto via `navbar.json`) e o painel em `<body>`, fora de `.site-nav` (que usa `backdrop-filter`);
+- o painel é fixo logo abaixo da barra, alinhado à borda direita do conteúdo no desktop e centralizado no celular; rola por dentro em telas baixas e ganhou superfície **opaca** (`--card-bg` composto sobre `--bg-color`), porque agora flutua sobre o texto da página; some durante o loader e a troca de página;
+- no celular o painel se registra no controlador de overlays (`mobile-overlay.js`): Menu, Redes e Configurações nunca ficam abertos juntos e o botão Voltar do navegador fecha o painel sem sair da página; Esc, clique fora e o × continuam fechando, e o foco volta para a engrenagem;
+- `footer.js` perde o widget de Configurações (e `uiPrefs`/`bindSettings`); `content.js` passa a aplicar os textos editoriais ao novo DOM (`applySettings`); ids renomeados de `footerSettings*`/`footerReadingStatus*` para `siteSettings*`/`siteReadingStatus*`;
+- `settingsOpen` em `buttons.json` (e no fallback de `buttons.js`) vira botão só de ícone: `text` vazio + `ariaLabel` "Abrir configurações" (o validador e o Kamyli Editor passam a aceitar texto vazio para essa chave);
+- adiciona `.github/tests/settings-placement.test.mjs` e `validate_settings_placement()` no validador; atualiza os pins de cache-buster para `48.3.66` (`navbar.js`, `settings.js`, `footer.js`, `content.js`, `buttons.js`, `global.css`, `navbar.css`, `reading.css`) nas 8 páginas; `preferences.js` continua em `48.3.64`.
+
 ## V48.3.65 — Correção dos botões no modo leitura
 
 - corrige o contraste dos botões "Voltar ao início", "Uso de IA" e "Política de Privacidade" no modo leitura: a regra que dá cor e sublinhado aos links de texto também atingia os botões `.button` dentro de `.privacy-section`, deixando o botão primário com texto roxo sobre fundo roxo; agora ela usa `a:not(.button)` e os botões mantêm as próprias cores;

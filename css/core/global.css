@@ -308,86 +308,35 @@ html.site-page-leaving .skip-link {
 
 
 /* =========================================================
-   CONFIGURAÇÕES NO RODAPÉ — V42
+   CONFIGURAÇÕES — V48.3.66
+   O botão (ícone de engrenagem) vive na barra superior; ver
+   .site-settings-toggle em navbar.css. O painel é montado em <body> por
+   js/core/settings.js e fica fixo logo abaixo da barra, alinhado à borda
+   direita do conteúdo da navbar. Como ele flutua sobre o texto da página,
+   a superfície é opaca: o card-bg translúcido é composto sobre --bg-color.
    ========================================================= */
 
-.site-footer-settings {
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.site-footer-settings-toggle {
-    min-height: 36px;
-    padding: 7px 11px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 7px;
-
-    color: var(--primary-text);
-    background-color: var(--notice-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-
-    font: inherit;
-    font-size: .8rem;
-    font-weight: 800;
-
-    cursor: pointer;
-
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease;
-}
-
-.site-footer-settings-toggle svg {
-    width: 16px;
-    height: 16px;
-
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.site-footer-settings-toggle:hover,
-.site-footer-settings-toggle:focus-visible,
-.site-footer-settings-toggle[aria-expanded="true"] {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-    border-color: var(--button-bg);
-
-    outline: none;
-}
-
-.site-footer-settings-toggle:hover {
-    transform: translateY(-1px);
-}
-
 .site-settings-popover {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 12px);
+    position: fixed;
+    top: 80px;
+    right: max(14px, calc((100% - 1120px) / 2));
     z-index: 1200;
 
-    width: min(340px, calc(100vw - 32px));
+    width: min(340px, calc(100vw - 28px));
+    max-height: calc(100vh - 96px);
+    max-height: calc(100dvh - 96px);
     padding: 18px;
 
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
     color: var(--text-color);
-    background-color: var(--card-bg);
+    background-color: var(--bg-color);
+    background-image: linear-gradient(var(--card-bg), var(--card-bg));
 
     border: 1px solid var(--card-border);
     border-radius: 20px;
     box-shadow: var(--shadow-card);
-
-    backdrop-filter: blur(var(--blur-card));
-    -webkit-backdrop-filter: blur(var(--blur-card));
 
     text-align: left;
 }
@@ -396,19 +345,16 @@ html.site-page-leaving .skip-link {
     display: none;
 }
 
-/*
- * V42.5 — backdrop-filter aninhado.
- *
- * O popover é descendente do footer, que também usa backdrop-filter.
- * Um ancestral filtrado cria um backdrop root e pode impedir que o blur do
- * popover enxergue corretamente a página atrás dele. Enquanto o menu estiver
- * aberto, o footer deixa de filtrar; o popover continua usando --blur-card.
- *
- * Ao fechar, o filtro normal do footer é restaurado.
- */
-.site-footer.site-settings-open {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+@media (max-width: 767px) {
+    .site-settings-popover {
+        top: 72px;
+        right: 0;
+        left: 0;
+
+        margin-inline: auto;
+        max-height: calc(100vh - 88px);
+        max-height: calc(100dvh - 88px);
+    }
 }
 
 .site-settings-header {
@@ -569,11 +515,6 @@ html.site-page-leaving .skip-link {
     line-height: 1.35 !important;
 }
 
-:root[data-blur="off"] .site-settings-popover {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
-
 @media (max-width: 760px) {
     /*
      * V42.4 — fundo mobile 9:16 fixo.
@@ -649,22 +590,6 @@ html.site-page-leaving .skip-link {
 }
 
 
-
-@media (max-width: 760px) {
-    .site-footer-settings {
-        width: 100%;
-        margin-top: 4px;
-    }
-
-    .site-footer-settings-toggle {
-        min-height: 38px;
-    }
-
-    .site-settings-popover {
-        right: 50%;
-        transform: translateX(50%);
-    }
-}
 
 /*
  * Quando o blur está desligado, removemos o filtro de fato.
@@ -1169,10 +1094,10 @@ html[data-performance="reduced"] .site-loader-logo {
     margin: 0;
 }
 
-/* Configurações do rodapé. */
-.site-footer-settings-toggle[data-button-key] {
-    --button-config-gap: 7px;
-    --button-config-icon-size: 16px;
+/* Botão de configurações na barra superior: só o ícone. */
+.site-settings-toggle[data-button-key] {
+    --button-config-gap: 0;
+    --button-config-icon-size: 19px;
 }
 
 .site-settings-close[data-button-key] {

@@ -427,8 +427,8 @@
         if (!prefs?.getState) return;
 
         const state = prefs.getState();
-        const themeStatus = document.getElementById("footerThemeStatus");
-        const blurStatus = document.getElementById("footerBlurStatus");
+        const themeStatus = document.getElementById("siteThemeStatus");
+        const blurStatus = document.getElementById("siteBlurStatus");
 
         if (themeStatus) {
             if (state.themePreference === "auto") {
@@ -449,8 +449,8 @@
             }
         }
 
-        const readingStatus = document.getElementById("footerReadingStatus");
-        const readingSizeStatus = document.getElementById("footerReadingSizeStatus");
+        const readingStatus = document.getElementById("siteReadingStatus");
+        const readingSizeStatus = document.getElementById("siteReadingSizeStatus");
         const reading = state.reading === "on";
 
         if (readingStatus) {
@@ -507,7 +507,7 @@
         }
     }
 
-    function applyFooter(copy) {
+    function applyFooter() {
         const footer = document.getElementById("site-footer");
         if (!footer) return false;
 
@@ -517,19 +517,36 @@
             globalData.interface.footer?.ariaLabel
         );
 
-        const toggle = footer.querySelector("#footerSettingsToggle");
-        setText(footer.querySelector("#footerSettingsTitle"), copy.titulo);
+        return Boolean(footer.querySelector(".site-footer-content"));
+    }
+
+    /*
+     * V48.3.66: o botão e o painel de configurações saíram do rodapé.
+     * settings.js os monta na barra superior (botão) e em <body> (painel).
+     */
+    function applySettings(copy) {
+        const toggle = document.getElementById("siteSettingsToggle");
+        const popover = document.getElementById("siteSettingsPopover");
+        if (!toggle || !popover) return false;
+
+        if (!toggle.disabled) {
+            setAttribute(toggle, "title", copy.titulo);
+        } else if (copy.preferenciasIndisponiveis) {
+            toggle.title = copy.preferenciasIndisponiveis;
+        }
+
+        setText(popover.querySelector("#siteSettingsTitle"), copy.titulo);
         setAttribute(
-            footer.querySelector("#footerSettingsClose"),
+            popover.querySelector("#siteSettingsClose"),
             "aria-label",
             copy.fecharAriaLabel
         );
 
-        const legends = footer.querySelectorAll(".site-settings-group legend");
+        const legends = popover.querySelectorAll(".site-settings-group legend");
         setText(legends[0], copy.aparencia);
         setText(legends[1], copy.leitura);
         setText(legends[2], copy.blur);
-        setText(footer.querySelector("#footerReadingSizeLabel"), copy.leituraTamanho);
+        setText(popover.querySelector("#siteReadingSizeLabel"), copy.leituraTamanho);
 
         setRadioLabel("site-theme-preference", "auto", copy.temaAutomatico);
         setRadioLabel("site-theme-preference", "light", copy.temaClaro);
@@ -543,13 +560,9 @@
         setRadioLabel("site-blur-preference", "on", copy.blurLigado);
         setRadioLabel("site-blur-preference", "off", copy.blurDesligado);
 
-        if (toggle?.disabled && copy.preferenciasIndisponiveis) {
-            toggle.title = copy.preferenciasIndisponiveis;
-        }
-
         requestAnimationFrame(() => applyPreferenceStatus(copy));
 
-        return Boolean(footer.querySelector(".site-footer-content"));
+        return true;
     }
 
     function applyHomeFallback(copy) {
@@ -677,7 +690,8 @@
 
     function applyGlobalContent() {
         applyNavbar(globalData.navbar);
-        applyFooter(globalData.interface.configuracoes);
+        applyFooter();
+        applySettings(globalData.interface.configuracoes);
         applyExternalDialog(globalData.interface.linksExternos);
 
         setAttribute(
@@ -705,6 +719,7 @@
         const mountedSelectors = [
             ".site-nav",
             ".site-footer-content",
+            ".site-settings-toggle",
             ".site-external-dialog"
         ];
 
@@ -819,7 +834,7 @@
     window.addEventListener(
         "kamyli:ui-preference-change",
         () => requestAnimationFrame(
-            () => applyFooter(globalData.interface.configuracoes)
+            () => applySettings(globalData.interface.configuracoes)
         )
     );
 

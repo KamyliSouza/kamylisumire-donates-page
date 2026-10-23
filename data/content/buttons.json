@@ -72,8 +72,9 @@
     "icon": "external-link"
   },
   "settingsOpen": {
-    "text": "Configurações",
-    "icon": "settings"
+    "text": "",
+    "icon": "settings",
+    "ariaLabel": "Abrir configurações"
   },
   "settingsClose": {
     "text": "",

@@ -75,6 +75,8 @@ REQUIRED_FILES = (
     ".github/tests/worker-auth.test.mjs",
     ".github/tests/workflow-hardening.test.mjs",
     ".github/tests/reading-mode.test.mjs",
+    ".github/tests/settings-placement.test.mjs",
+    "js/core/settings.js",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
     "js/pages/jogos/jogos.js",
@@ -169,7 +171,7 @@ REQUIRED_BUTTON_KEYS = {
 }
 
 BUTTON_KEYS_ALLOW_EMPTY_TEXT = {
-    "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
+    "settingsOpen", "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
 }
 
 NAVBAR_LINK_KEYS = (
@@ -1941,13 +1943,13 @@ def validate_architecture() -> None:
             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
         if "loader.js?v=48.3.57" not in html:
             error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
-        if "global.css?v=48.3.59" not in html:
-            error(f"{rel}: cache-buster do CSS global V48.3.58 ausente.")
+        if "global.css?v=48.3.66" not in html:
+            error(f"{rel}: cache-buster do CSS global V48.3.66 ausente.")
 
     if "loader.js?v=48.3.57" not in not_found:
         error("404.html: cache-buster do loader V48.3.57 ausente.")
-    if "global.css?v=48.3.59" not in not_found:
-        error("404.html: cache-buster do CSS global V48.3.58 ausente.")
+    if "global.css?v=48.3.66" not in not_found:
+        error("404.html: cache-buster do CSS global V48.3.66 ausente.")
 
     # O domínio próprio é a configuração deliberada desde V44.4.
     if "https://api.kamylisumire.com" not in config:
@@ -1957,17 +1959,17 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.6" not in html:
-            error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
+        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.66" not in html:
+            error(f"{rel}: módulos de botões/navbar V48.3.66 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.64",
+            "js/core/content.js?v=48.3.66",
             "js/core/mobile-overlay.js?v=48.3.47",
-            "js/core/navbar.js?v=48.3.47",
+            "js/core/navbar.js?v=48.3.66",
             "js/core/external-links.js?v=47",
-            "js/core/footer.js?v=48.3.64",
-            "css/core/navbar.css?v=48.3.58",
+            "js/core/footer.js?v=48.3.66",
+            "css/core/navbar.css?v=48.3.66",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -1996,9 +1998,9 @@ def validate_architecture() -> None:
     ):
         if "js/core/mobile-overlay.js?v=48.3.47" not in html:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
-        if "js/core/navbar.js?v=48.3.47" not in html:
+        if "js/core/navbar.js?v=48.3.66" not in html:
             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.64" not in html:
+        if "js/core/content.js?v=48.3.66" not in html:
             error(f"{rel}: cache-buster V48.3.64 ausente para js/core/content.js.")
 
     for asset in (
@@ -3798,8 +3800,9 @@ def validate_security_contracts() -> None:
         if needle not in worker:
             error(f"workers.js: hardening timing-safe ausente: {needle}")
 
-READING_MODE_VERSION = "48.3.64"  # preferences.js, footer.js e content.js
-READING_CSS_VERSION = "48.3.65"  # css/core/reading.css
+READING_MODE_VERSION = "48.3.64"  # preferences.js
+SETTINGS_VERSION = "48.3.66"  # settings.js, footer.js e content.js (Configurações na navbar)
+READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
 
 
 def validate_reading_mode() -> None:
@@ -3847,9 +3850,14 @@ def validate_reading_mode() -> None:
             if token not in bootstrap:
                 error(f"{rel}: bootstrap do modo leitura V48.3.64 incompleto: {token}")
 
-        for asset in ("preferences", "footer", "content"):
-            if f"js/core/{asset}.js?v={READING_MODE_VERSION}" not in html:
-                error(f"{rel}: cache-buster V{READING_MODE_VERSION} ausente para js/core/{asset}.js.")
+        for asset, version in (
+            ("preferences", READING_MODE_VERSION),
+            ("settings", SETTINGS_VERSION),
+            ("footer", SETTINGS_VERSION),
+            ("content", SETTINGS_VERSION),
+        ):
+            if f"js/core/{asset}.js?v={version}" not in html:
+                error(f"{rel}: cache-buster V{version} ausente para js/core/{asset}.js.")
 
     if len(set(bootstraps.values())) > 1:
         error("Páginas HTML: o bootstrap de tema/blur/leitura deve ser idêntico em todas (um único hash CSP).")
@@ -3866,15 +3874,15 @@ def validate_reading_mode() -> None:
         if token not in preferences_js:
             error(f"js/core/preferences.js: contrato do modo leitura V48.3.64 ausente: {token}")
 
-    footer_js = read_text("js/core/footer.js")
+    settings_js = read_text("js/core/settings.js")
     for token in (
         'name="site-reading-preference"',
         'name="site-reading-size"',
-        "footerReadingStatus",
-        "footerReadingSizeStatus",
+        "siteReadingStatus",
+        "siteReadingSizeStatus",
     ):
-        if token not in footer_js:
-            error(f"js/core/footer.js: controle do modo leitura V48.3.64 ausente: {token}")
+        if token not in settings_js:
+            error(f"js/core/settings.js: controle do modo leitura V48.3.64 ausente: {token}")
 
     interface = json.loads(read_text("data/content/interface.json"))
     settings = interface.get("configuracoes", {}) if isinstance(interface, dict) else {}
@@ -3939,6 +3947,97 @@ def validate_reading_mode() -> None:
             error(f".github/tests/reading-mode.test.mjs: cobertura V48.3.64 ausente: {token}")
 
 
+def validate_settings_placement() -> None:
+    """V48.3.66: o botão de Configurações fica na barra superior, não no rodapé.
+
+    - navbar.js reserva #site-nav-settings-slot dentro de .site-nav-actions,
+      antes do slot opcional de Apoiar (que pode ficar hidden via navbar.json);
+    - settings.js monta o botão no slot e o painel em <body> (fora de .site-nav,
+      que usa backdrop-filter) e participa do controlador de overlays mobile;
+    - footer.js e global.css não carregam mais o widget antigo;
+    - o painel é fixo, opaco e some durante o loader.
+    """
+
+    navbar_js = read_text("js/core/navbar.js")
+    actions = navbar_js.find('class="site-nav-actions"')
+    slot = navbar_js.find('id="site-nav-settings-slot"')
+    support = navbar_js.find('class="site-nav-support-wrap"')
+    if not (0 <= actions < slot < support):
+        error("js/core/navbar.js: #site-nav-settings-slot deve ficar em .site-nav-actions, antes de .site-nav-support-wrap (V48.3.66).")
+
+    settings_js = read_text("js/core/settings.js")
+    for token in (
+        'id="siteSettingsToggle"',
+        'aria-controls="siteSettingsPopover"',
+        'popover.id = "siteSettingsPopover"',
+        "document.body.appendChild(popover)",
+        "mobileOverlay?.register(OVERLAY_NAME",
+        'data-button-key="settingsOpen"',
+    ):
+        if token not in settings_js:
+            error(f"js/core/settings.js: contrato V48.3.66 ausente: {token}")
+
+    footer_js = read_text("js/core/footer.js")
+    for legacy in ("footerSettings", "site-footer-settings", "site-settings", "bindSettings", "KAMYLI_UI_PREFS"):
+        if legacy in footer_js:
+            error(f"js/core/footer.js: Configurações saíram do rodapé na V48.3.66 ({legacy}).")
+
+    global_css = read_text("css/core/global.css")
+    navbar_css = read_text("css/core/navbar.css")
+    for legacy in ("site-footer-settings", "site-settings-open"):
+        if legacy in global_css or legacy in navbar_css:
+            error(f"css: resquício do botão de Configurações no rodapé ({legacy}).")
+
+    popover_rule = re.search(r"\n\.site-settings-popover\s*\{([^}]*)\}", global_css)
+    if not popover_rule:
+        error("css/core/global.css: regra .site-settings-popover ausente.")
+    else:
+        body = popover_rule.group(1)
+        if "position: fixed" not in body:
+            error("css/core/global.css: .site-settings-popover deve ser position: fixed (painel em <body>).")
+        if "backdrop-filter" in body:
+            error("css/core/global.css: o painel de Configurações é opaco e não usa backdrop-filter.")
+        if "linear-gradient(var(--card-bg), var(--card-bg))" not in body:
+            error("css/core/global.css: superfície opaca do painel (card-bg sobre bg-color) ausente.")
+
+    for token in (".site-nav-actions", ".site-nav-settings-slot", ".site-settings-toggle", "html.site-page-leaving .site-settings-popover"):
+        if token not in navbar_css:
+            error(f"css/core/navbar.css: regra V48.3.66 ausente: {token}")
+
+    for rel in sorted(CORE_PAGES_SETTINGS):
+        html = read_text(rel)
+        navbar_pos = html.find("js/core/navbar.js")
+        settings_pos = html.find(f"js/core/settings.js?v={SETTINGS_VERSION}")
+        overlay_pos = html.find("js/core/mobile-overlay.js")
+        prefs_pos = html.find("js/core/preferences.js")
+        if settings_pos < 0:
+            error(f"{rel}: js/core/settings.js?v={SETTINGS_VERSION} ausente.")
+        elif not (0 <= prefs_pos < overlay_pos < navbar_pos < settings_pos):
+            error(f"{rel}: ordem esperada preferences.js → mobile-overlay.js → navbar.js → settings.js.")
+
+    buttons = json.loads(read_text("data/content/buttons.json"))
+    entry = buttons.get("settingsOpen", {}) if isinstance(buttons, dict) else {}
+    if entry.get("text") != "" or not str(entry.get("ariaLabel", "")).strip():
+        error("data/content/buttons.json: settingsOpen é um botão só de ícone (text vazio + ariaLabel) desde a V48.3.66.")
+    if 'settingsOpen: { text: "", icon: "settings", ariaLabel:' not in read_text("js/core/buttons.js"):
+        error("js/core/buttons.js: fallback de settingsOpen deve espelhar buttons.json (só ícone).")
+
+    placement_tests = read_text(".github/tests/settings-placement.test.mjs")
+    for token in (
+        "Configurações ficam na barra superior",
+        "painel é montado em <body>",
+        "footer.js não carrega mais as Configurações",
+    ):
+        if token not in placement_tests:
+            error(f".github/tests/settings-placement.test.mjs: cobertura V48.3.66 ausente: {token}")
+
+
+CORE_PAGES_SETTINGS = (
+    "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
+    "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
+)
+
+
 def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
@@ -3955,6 +4054,7 @@ def main() -> int:
     validate_agenda()
     validate_security_contracts()
     validate_reading_mode()
+    validate_settings_placement()
 
     # Valide referências locais de toda página HTML versionada. Isso cobre
     # páginas institucionais aninhadas e futuros artigos estáticos sem depender

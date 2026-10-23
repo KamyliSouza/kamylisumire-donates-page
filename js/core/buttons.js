@@ -21,7 +21,7 @@
         blogArticleBack: { text: "Voltar ao Blog", icon: "arrow-left" },
         externalCancel: { text: "Cancelar", icon: "x" },
         externalContinue: { text: "Continuar", icon: "external-link" },
-        settingsOpen: { text: "Configurações", icon: "settings" },
+        settingsOpen: { text: "", icon: "settings", ariaLabel: "Abrir configurações" },
         settingsClose: { text: "", icon: "x", ariaLabel: "Fechar configurações" },
         livesPrev: { text: "", icon: "chevron-left", ariaLabel: "Mostrar live anterior" },
         livesNext: { text: "", icon: "chevron-right", ariaLabel: "Mostrar próxima live" },

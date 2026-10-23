@@ -1,0 +1,2520 @@
+From 75322c5631f53c5d4b5f98d18b643352f429c73a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 22 Oct 2026 18:07:00 -0300
+Subject: [PATCH] =?UTF-8?q?feat:=20configura=C3=A7=C3=B5es=20na=20barra=20?=
+ =?UTF-8?q?superior=20(V48.3.66)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Move o botão de Configurações do rodapé para a barra superior, como um
+ícone de engrenagem ao lado de "Apoiar", para que as pessoas não precisem
+descer a página inteira para trocar tema, modo leitura ou blur.
+
+- js/core/settings.js (novo): monta o botão no slot #site-nav-settings-slot
+  (navbar.js, dentro de .site-nav-actions, antes do slot opcional de Apoiar)
+  e o painel em <body>, fora de .site-nav (backdrop-filter);
+- painel fixo, opaco e sem backdrop-filter; alinhado à borda direita da
+  navbar no desktop e centralizado no celular; some durante o loader;
+- no celular participa do KamyliMobileOverlay (exclusão mútua com Menu e
+  Redes, botão Voltar fecha o painel);
+- footer.js perde o widget; content.js aplica os textos via applySettings();
+- settingsOpen vira botão só de ícone (text vazio + ariaLabel);
+- novo settings-placement.test.mjs e validate_settings_placement();
+- cache-busters 48.3.66 nas 8 páginas.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Gfjv3rk9s98kaVGpDxmuEk
+---
+ .github/scripts/validate-content.py       | 146 +++++-
+ .github/tests/color-contrast.test.mjs     |   2 +-
+ .github/tests/reading-mode.test.mjs       |  36 +-
+ .github/tests/settings-placement.test.mjs | 129 +++++
+ 404.html                                  |  15 +-
+ AGENTS.md                                 |  12 +-
+ CHANGELOG.md                              |  10 +
+ DESIGN-SYSTEM.md                          |   6 +
+ README.md                                 |   4 +
+ artes/index.html                          |  15 +-
+ blog/index.html                           |  15 +-
+ css/core/global.css                       | 137 ++---
+ css/core/navbar.css                       | 101 +++-
+ css/core/reading.css                      |   8 -
+ data/content/buttons.json                 |   5 +-
+ doacoes/index.html                        |  15 +-
+ docs/ARQUITETURA.md                       |   1 +
+ index.html                                |  15 +-
+ jogos/index.html                          |  15 +-
+ js/core/buttons.js                        |   2 +-
+ js/core/content.js                        |  49 +-
+ js/core/footer.js                         | 600 ----------------------
+ js/core/navbar.js                         |  27 +-
+ js/core/settings.js                       | 415 +++++++++++++++
+ privacidade/index.html                    |  15 +-
+ uso-de-ia/index.html                      |  15 +-
+ 26 files changed, 965 insertions(+), 845 deletions(-)
+ create mode 100644 .github/tests/settings-placement.test.mjs
+ create mode 100644 js/core/settings.js
+
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index db24851..3703039 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -75,6 +75,8 @@ REQUIRED_FILES = (
+     ".github/tests/worker-auth.test.mjs",
+     ".github/tests/workflow-hardening.test.mjs",
+     ".github/tests/reading-mode.test.mjs",
++    ".github/tests/settings-placement.test.mjs",
++    "js/core/settings.js",
+     "js/pages/blog/blog.js",
+     "js/pages/artes/artes.js",
+     "js/pages/jogos/jogos.js",
+@@ -169,7 +171,7 @@ REQUIRED_BUTTON_KEYS = {
+ }
+ 
+ BUTTON_KEYS_ALLOW_EMPTY_TEXT = {
+-    "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
++    "settingsOpen", "settingsClose", "livesPrev", "livesNext", "agendaPrev", "agendaNext",
+ }
+ 
+ NAVBAR_LINK_KEYS = (
+@@ -1941,13 +1943,13 @@ def validate_architecture() -> None:
+             error(f"{rel}: cache-buster de page-transitions V46.3 ausente.")
+         if "loader.js?v=48.3.57" not in html:
+             error(f"{rel}: cache-buster do loader V48.3.57 ausente.")
+-        if "global.css?v=48.3.59" not in html:
+-            error(f"{rel}: cache-buster do CSS global V48.3.58 ausente.")
++        if "global.css?v=48.3.66" not in html:
++            error(f"{rel}: cache-buster do CSS global V48.3.66 ausente.")
+ 
+     if "loader.js?v=48.3.57" not in not_found:
+         error("404.html: cache-buster do loader V48.3.57 ausente.")
+-    if "global.css?v=48.3.59" not in not_found:
+-        error("404.html: cache-buster do CSS global V48.3.58 ausente.")
++    if "global.css?v=48.3.66" not in not_found:
++        error("404.html: cache-buster do CSS global V48.3.66 ausente.")
+ 
+     # O domínio próprio é a configuração deliberada desde V44.4.
+     if "https://api.kamylisumire.com" not in config:
+@@ -1957,17 +1959,17 @@ def validate_architecture() -> None:
+         )
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+-        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.6" not in html:
+-            error(f"{rel}: módulos de botões/navbar V48.3.6 não carregados.")
++        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.66" not in html:
++            error(f"{rel}: módulos de botões/navbar V48.3.66 não carregados.")
+ 
+     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
+         for asset in (
+-            "js/core/content.js?v=48.3.64",
++            "js/core/content.js?v=48.3.66",
+             "js/core/mobile-overlay.js?v=48.3.47",
+-            "js/core/navbar.js?v=48.3.47",
++            "js/core/navbar.js?v=48.3.66",
+             "js/core/external-links.js?v=47",
+-            "js/core/footer.js?v=48.3.64",
+-            "css/core/navbar.css?v=48.3.58",
++            "js/core/footer.js?v=48.3.66",
++            "css/core/navbar.css?v=48.3.66",
+         ):
+             if asset not in html:
+                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
+@@ -1996,9 +1998,9 @@ def validate_architecture() -> None:
+     ):
+         if "js/core/mobile-overlay.js?v=48.3.47" not in html:
+             error(f"{rel}: controlador mobile V48.3.47 ausente.")
+-        if "js/core/navbar.js?v=48.3.47" not in html:
++        if "js/core/navbar.js?v=48.3.66" not in html:
+             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
+-        if "js/core/content.js?v=48.3.64" not in html:
++        if "js/core/content.js?v=48.3.66" not in html:
+             error(f"{rel}: cache-buster V48.3.64 ausente para js/core/content.js.")
+ 
+     for asset in (
+@@ -3798,8 +3800,9 @@ def validate_security_contracts() -> None:
+         if needle not in worker:
+             error(f"workers.js: hardening timing-safe ausente: {needle}")
+ 
+-READING_MODE_VERSION = "48.3.64"  # preferences.js, footer.js e content.js
+-READING_CSS_VERSION = "48.3.65"  # css/core/reading.css
++READING_MODE_VERSION = "48.3.64"  # preferences.js
++SETTINGS_VERSION = "48.3.66"  # settings.js, footer.js e content.js (Configurações na navbar)
++READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
+ 
+ 
+ def validate_reading_mode() -> None:
+@@ -3847,9 +3850,14 @@ def validate_reading_mode() -> None:
+             if token not in bootstrap:
+                 error(f"{rel}: bootstrap do modo leitura V48.3.64 incompleto: {token}")
+ 
+-        for asset in ("preferences", "footer", "content"):
+-            if f"js/core/{asset}.js?v={READING_MODE_VERSION}" not in html:
+-                error(f"{rel}: cache-buster V{READING_MODE_VERSION} ausente para js/core/{asset}.js.")
++        for asset, version in (
++            ("preferences", READING_MODE_VERSION),
++            ("settings", SETTINGS_VERSION),
++            ("footer", SETTINGS_VERSION),
++            ("content", SETTINGS_VERSION),
++        ):
++            if f"js/core/{asset}.js?v={version}" not in html:
++                error(f"{rel}: cache-buster V{version} ausente para js/core/{asset}.js.")
+ 
+     if len(set(bootstraps.values())) > 1:
+         error("Páginas HTML: o bootstrap de tema/blur/leitura deve ser idêntico em todas (um único hash CSP).")
+@@ -3866,15 +3874,15 @@ def validate_reading_mode() -> None:
+         if token not in preferences_js:
+             error(f"js/core/preferences.js: contrato do modo leitura V48.3.64 ausente: {token}")
+ 
+-    footer_js = read_text("js/core/footer.js")
++    settings_js = read_text("js/core/settings.js")
+     for token in (
+         'name="site-reading-preference"',
+         'name="site-reading-size"',
+-        "footerReadingStatus",
+-        "footerReadingSizeStatus",
++        "siteReadingStatus",
++        "siteReadingSizeStatus",
+     ):
+-        if token not in footer_js:
+-            error(f"js/core/footer.js: controle do modo leitura V48.3.64 ausente: {token}")
++        if token not in settings_js:
++            error(f"js/core/settings.js: controle do modo leitura V48.3.64 ausente: {token}")
+ 
+     interface = json.loads(read_text("data/content/interface.json"))
+     settings = interface.get("configuracoes", {}) if isinstance(interface, dict) else {}
+@@ -3939,6 +3947,97 @@ def validate_reading_mode() -> None:
+             error(f".github/tests/reading-mode.test.mjs: cobertura V48.3.64 ausente: {token}")
+ 
+ 
++def validate_settings_placement() -> None:
++    """V48.3.66: o botão de Configurações fica na barra superior, não no rodapé.
++
++    - navbar.js reserva #site-nav-settings-slot dentro de .site-nav-actions,
++      antes do slot opcional de Apoiar (que pode ficar hidden via navbar.json);
++    - settings.js monta o botão no slot e o painel em <body> (fora de .site-nav,
++      que usa backdrop-filter) e participa do controlador de overlays mobile;
++    - footer.js e global.css não carregam mais o widget antigo;
++    - o painel é fixo, opaco e some durante o loader.
++    """
++
++    navbar_js = read_text("js/core/navbar.js")
++    actions = navbar_js.find('class="site-nav-actions"')
++    slot = navbar_js.find('id="site-nav-settings-slot"')
++    support = navbar_js.find('class="site-nav-support-wrap"')
++    if not (0 <= actions < slot < support):
++        error("js/core/navbar.js: #site-nav-settings-slot deve ficar em .site-nav-actions, antes de .site-nav-support-wrap (V48.3.66).")
++
++    settings_js = read_text("js/core/settings.js")
++    for token in (
++        'id="siteSettingsToggle"',
++        'aria-controls="siteSettingsPopover"',
++        'popover.id = "siteSettingsPopover"',
++        "document.body.appendChild(popover)",
++        "mobileOverlay?.register(OVERLAY_NAME",
++        'data-button-key="settingsOpen"',
++    ):
++        if token not in settings_js:
++            error(f"js/core/settings.js: contrato V48.3.66 ausente: {token}")
++
++    footer_js = read_text("js/core/footer.js")
++    for legacy in ("footerSettings", "site-footer-settings", "site-settings", "bindSettings", "KAMYLI_UI_PREFS"):
++        if legacy in footer_js:
++            error(f"js/core/footer.js: Configurações saíram do rodapé na V48.3.66 ({legacy}).")
++
++    global_css = read_text("css/core/global.css")
++    navbar_css = read_text("css/core/navbar.css")
++    for legacy in ("site-footer-settings", "site-settings-open"):
++        if legacy in global_css or legacy in navbar_css:
++            error(f"css: resquício do botão de Configurações no rodapé ({legacy}).")
++
++    popover_rule = re.search(r"\n\.site-settings-popover\s*\{([^}]*)\}", global_css)
++    if not popover_rule:
++        error("css/core/global.css: regra .site-settings-popover ausente.")
++    else:
++        body = popover_rule.group(1)
++        if "position: fixed" not in body:
++            error("css/core/global.css: .site-settings-popover deve ser position: fixed (painel em <body>).")
++        if "backdrop-filter" in body:
++            error("css/core/global.css: o painel de Configurações é opaco e não usa backdrop-filter.")
++        if "linear-gradient(var(--card-bg), var(--card-bg))" not in body:
++            error("css/core/global.css: superfície opaca do painel (card-bg sobre bg-color) ausente.")
++
++    for token in (".site-nav-actions", ".site-nav-settings-slot", ".site-settings-toggle", "html.site-page-leaving .site-settings-popover"):
++        if token not in navbar_css:
++            error(f"css/core/navbar.css: regra V48.3.66 ausente: {token}")
++
++    for rel in sorted(CORE_PAGES_SETTINGS):
++        html = read_text(rel)
++        navbar_pos = html.find("js/core/navbar.js")
++        settings_pos = html.find(f"js/core/settings.js?v={SETTINGS_VERSION}")
++        overlay_pos = html.find("js/core/mobile-overlay.js")
++        prefs_pos = html.find("js/core/preferences.js")
++        if settings_pos < 0:
++            error(f"{rel}: js/core/settings.js?v={SETTINGS_VERSION} ausente.")
++        elif not (0 <= prefs_pos < overlay_pos < navbar_pos < settings_pos):
++            error(f"{rel}: ordem esperada preferences.js → mobile-overlay.js → navbar.js → settings.js.")
++
++    buttons = json.loads(read_text("data/content/buttons.json"))
++    entry = buttons.get("settingsOpen", {}) if isinstance(buttons, dict) else {}
++    if entry.get("text") != "" or not str(entry.get("ariaLabel", "")).strip():
++        error("data/content/buttons.json: settingsOpen é um botão só de ícone (text vazio + ariaLabel) desde a V48.3.66.")
++    if 'settingsOpen: { text: "", icon: "settings", ariaLabel:' not in read_text("js/core/buttons.js"):
++        error("js/core/buttons.js: fallback de settingsOpen deve espelhar buttons.json (só ícone).")
++
++    placement_tests = read_text(".github/tests/settings-placement.test.mjs")
++    for token in (
++        "Configurações ficam na barra superior",
++        "painel é montado em <body>",
++        "footer.js não carrega mais as Configurações",
++    ):
++        if token not in placement_tests:
++            error(f".github/tests/settings-placement.test.mjs: cobertura V48.3.66 ausente: {token}")
++
++
++CORE_PAGES_SETTINGS = (
++    "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
++    "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
++)
++
++
+ def main() -> int:
+     validate_required_and_forbidden()
+     validate_all_json()
+@@ -3955,6 +4054,7 @@ def main() -> int:
+     validate_agenda()
+     validate_security_contracts()
+     validate_reading_mode()
++    validate_settings_placement()
+ 
+     # Valide referências locais de toda página HTML versionada. Isso cobre
+     # páginas institucionais aninhadas e futuros artigos estáticos sem depender
+diff --git a/.github/tests/color-contrast.test.mjs b/.github/tests/color-contrast.test.mjs
+index dbf728a..e232510 100644
+--- a/.github/tests/color-contrast.test.mjs
++++ b/.github/tests/color-contrast.test.mjs
+@@ -45,7 +45,7 @@ function token(block, name) {
+ 
+ const protectedSelectors = [
+   ["css/core/global.css", ".button-primary"],
+-  ["css/core/global.css", ".site-footer-settings-toggle[aria-expanded=\"true\"]"],
++  ["css/core/navbar.css", ".site-settings-toggle[aria-expanded=\"true\"]"],
+   ["css/core/global.css", ".site-settings-option input:checked + span"],
+   ["css/core/navbar.css", ".site-nav-donate"],
+   ["css/core/navbar.css", ".site-nav-mobile-support"],
+diff --git a/.github/tests/reading-mode.test.mjs b/.github/tests/reading-mode.test.mjs
+index a102e96..88c1b0a 100644
+--- a/.github/tests/reading-mode.test.mjs
++++ b/.github/tests/reading-mode.test.mjs
+@@ -19,8 +19,9 @@ const PAGES = [
+   "uso-de-ia/index.html",
+ ];
+ 
+-const READING_VERSION = "48.3.64"; // preferences.js, footer.js, content.js
+-const READING_CSS_VERSION = "48.3.65"; // css/core/reading.css
++const READING_VERSION = "48.3.64"; // preferences.js
++const SETTINGS_VERSION = "48.3.66"; // settings.js, footer.js, content.js (V48.3.66: Configurações na navbar)
++const READING_CSS_VERSION = "48.3.66"; // css/core/reading.css
+ const readingCss = read("css/core/reading.css");
+ 
+ /* ---------- utilidades ---------- */
+@@ -183,10 +184,15 @@ test("todas as páginas usam o mesmo bootstrap de tema/blur/leitura, com hash CS
+ test("scripts alterados carregam com cache-buster novo em todas as páginas", () => {
+   for (const rel of PAGES) {
+     const html = read(rel);
+-    for (const name of ["preferences", "footer", "content"]) {
++    for (const [name, version] of [
++      ["preferences", READING_VERSION],
++      ["settings", SETTINGS_VERSION],
++      ["footer", SETTINGS_VERSION],
++      ["content", SETTINGS_VERSION],
++    ]) {
+       assert.match(
+         html,
+-        new RegExp(`js/core/${name}\\.js\\?v=${READING_VERSION.replace(/\./g, "\\.")}`),
++        new RegExp(`js/core/${name}\\.js\\?v=${version.replace(/\./g, "\\.")}`),
+         `${rel}: cache-buster de ${name}.js desatualizado`
+       );
+     }
+@@ -319,18 +325,18 @@ test("preferences.js: preferências indisponíveis (sem storage) não quebram o
+   assert.equal(env.window.KAMYLI_UI_PREFS.getState().reading, "on");
+ });
+ 
+-/* ---------- configurações (footer + textos editoriais) ---------- */
++/* ---------- configurações (settings.js + textos editoriais) ---------- */
+ 
+-test("configurações: grupo Leitura no footer, textos em interface.json e fallback do content.js", () => {
+-  const footer = read("js/core/footer.js");
++test("configurações: grupo Leitura no settings.js, textos em interface.json e fallback do content.js", () => {
++  const settings = read("js/core/settings.js");
+   for (const name of ["site-reading-preference", "site-reading-size"]) {
+-    assert.ok(footer.includes(`name="${name}"`), `footer.js: grupo ${name} ausente`);
++    assert.ok(settings.includes(`name="${name}"`), `settings.js: grupo ${name} ausente`);
+   }
+-  for (const id of ["footerReadingStatus", "footerReadingSizeStatus", "footerReadingSizeLabel"]) {
+-    assert.ok(footer.includes(`id="${id}"`), `footer.js: #${id} ausente`);
++  for (const id of ["siteReadingStatus", "siteReadingSizeStatus", "siteReadingSizeLabel"]) {
++    assert.ok(settings.includes(`id="${id}"`), `settings.js: #${id} ausente`);
+   }
+-  assert.match(footer, /uiPrefs\?\.setReading\(/);
+-  assert.match(footer, /uiPrefs\?\.setReadingSize\(/);
++  assert.match(settings, /uiPrefs\?\.setReading\(/);
++  assert.match(settings, /uiPrefs\?\.setReadingSize\(/);
+ 
+   const copy = JSON.parse(read("data/content/interface.json")).configuracoes;
+   for (const key of [
+@@ -354,9 +360,9 @@ test("configurações: grupo Leitura no footer, textos em interface.json e fallb
+ });
+ 
+ test("configurações: o blur fica desabilitado enquanto o modo leitura está ligado", () => {
+-  const footer = read("js/core/footer.js");
+-  assert.match(footer, /input\.disabled =\s*reading \|\|/);
+-  assert.match(footer, /Blur desligado pelo modo leitura\./);
++  const settings = read("js/core/settings.js");
++  assert.match(settings, /input\.disabled =\s*reading \|\|/);
++  assert.match(settings, /Blur desligado pelo modo leitura\./);
+ });
+ 
+ /* ---------- CSS ---------- */
+diff --git a/.github/tests/settings-placement.test.mjs b/.github/tests/settings-placement.test.mjs
+new file mode 100644
+index 0000000..dc9b930
+--- /dev/null
++++ b/.github/tests/settings-placement.test.mjs
+@@ -0,0 +1,129 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
++const read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
++
++const PAGES = [
++  "index.html",
++  "404.html",
++  "doacoes/index.html",
++  "artes/index.html",
++  "blog/index.html",
++  "jogos/index.html",
++  "privacidade/index.html",
++  "uso-de-ia/index.html",
++];
++
++const SETTINGS_VERSION = "48.3.66";
++
++/** Corpos de todas as regras CSS cuja lista de seletores contém `selector` (inclusive dentro de @media). */
++function ruleBodies(css, selector) {
++  const clean = css.replace(/\/\*[\s\S]*?\*\//g, "");
++  const bodies = [];
++  for (const match of clean.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
++    const list = match[1].split(",").map((item) => item.trim());
++    if (list.includes(selector)) bodies.push(match[2]);
++  }
++  return bodies;
++}
++
++const ruleBody = (css, selector) => ruleBodies(css, selector)[0] ?? null;
++
++test("Configurações ficam na barra superior: slot próprio, antes do slot opcional de Apoiar", () => {
++  const navbar = read("js/core/navbar.js");
++  const actions = navbar.indexOf('class="site-nav-actions"');
++  const slot = navbar.indexOf('id="site-nav-settings-slot"');
++  const support = navbar.indexOf('class="site-nav-support-wrap"');
++  assert.ok(actions >= 0 && actions < slot && slot < support, "slot de Configurações deve preceder o de Apoiar, dentro de .site-nav-actions");
++
++  // O slot de Apoiar pode ficar hidden (navbar.json); a engrenagem não pode viver dentro dele.
++  const supportBlock = navbar.slice(support, navbar.indexOf("</nav>", support));
++  assert.ok(!supportBlock.includes("site-nav-settings-slot"), "engrenagem não pode ficar dentro de .site-nav-support-wrap");
++
++  const content = read("js/core/content.js");
++  assert.match(content, /\.site-settings-toggle/, "content.js: o observer global deve reagir à montagem do botão");
++  assert.match(content, /function applySettings\(copy\)/);
++});
++
++test("painel é montado em <body> e participa do controlador de overlays do celular", () => {
++  const settings = read("js/core/settings.js");
++  assert.match(settings, /document\.body\.appendChild\(popover\)/, "painel deve sair de .site-nav (backdrop-filter)");
++  assert.match(settings, /mobileOverlay\?\.register\(OVERLAY_NAME/);
++  assert.match(settings, /mobileOverlay\.open\(OVERLAY_NAME/);
++  assert.match(settings, /mobileOverlay\.close\(OVERLAY_NAME/);
++  assert.match(settings, /event\.key === "Escape"/);
++  assert.match(settings, /toggle\.focus\(\)/, "foco deve voltar para a engrenagem");
++  assert.match(settings, /aria-expanded/);
++  assert.match(settings, /aria-controls="siteSettingsPopover"/);
++  assert.match(settings, /data-button-key="settingsOpen"/);
++});
++
++test("footer.js não carrega mais as Configurações", () => {
++  const footer = read("js/core/footer.js");
++  for (const legacy of ["footerSettings", "site-footer-settings", "site-settings", "bindSettings", "KAMYLI_UI_PREFS"]) {
++    assert.ok(!footer.includes(legacy), `footer.js: resquício ${legacy}`);
++  }
++  for (const rel of ["css/core/global.css", "css/core/navbar.css", "css/core/reading.css"]) {
++    const css = read(rel);
++    assert.ok(!css.includes("site-footer-settings"), `${rel}: resquício site-footer-settings`);
++    assert.ok(!css.includes("site-settings-open"), `${rel}: resquício site-settings-open`);
++  }
++});
++
++test("painel: fixo, opaco, sem backdrop-filter, abaixo da barra e centralizado no celular", () => {
++  const css = read("css/core/global.css");
++  const body = ruleBody(css, ".site-settings-popover");
++  assert.ok(body, ".site-settings-popover ausente");
++  assert.match(body, /position:\s*fixed/);
++  assert.match(body, /background-color:\s*var\(--bg-color\)/);
++  assert.match(body, /linear-gradient\(var\(--card-bg\), var\(--card-bg\)\)/);
++  assert.ok(!/backdrop-filter/.test(body), "painel opaco não usa backdrop-filter");
++  assert.match(body, /overflow-y:\s*auto/, "painel rola por dentro em telas baixas");
++  assert.match(body, /right:\s*max\(14px, calc\(\(100% - 1120px\) \/ 2\)\)/, "alinha à borda direita do conteúdo da navbar");
++  assert.match(css, /@media \(max-width: 767px\)\s*\{\s*\.site-settings-popover\s*\{[^}]*margin-inline:\s*auto/, "celular: centralizado");
++
++  const navbarCss = read("css/core/navbar.css");
++  for (const state of ["site-loading-pending", "site-loading-visible", "site-navigation-loading", "site-page-leaving"]) {
++    assert.ok(navbarCss.includes(`html.${state} .site-settings-popover`), `painel deve sumir em ${state}`);
++  }
++});
++
++test("botão: só o ícone, com alvo de toque de 38–40 px e estado ativo com tokens de ação", () => {
++  const css = read("css/core/navbar.css");
++  const sizes = ruleBodies(css, ".site-settings-toggle").map((body) => body.match(/width:\s*(\d+)px;\s*height:\s*(\d+)px/)?.slice(1, 3).join("x"));
++  assert.ok(sizes.includes("40x40"), "desktop: 40x40");
++  assert.ok(sizes.includes("38x38"), "celular: 38x38");
++
++  const active = ruleBody(css, '.site-settings-toggle[aria-expanded="true"]');
++  assert.ok(active, "estado aberto do botão ausente");
++  assert.match(active, /color:\s*var\(--button-text\)/);
++  assert.match(active, /background-color:\s*var\(--button-bg\)/);
++
++  const buttons = JSON.parse(read("data/content/buttons.json")).settingsOpen;
++  assert.equal(buttons.text, "");
++  assert.equal(buttons.icon, "settings");
++  assert.ok(buttons.ariaLabel.trim(), "botão só de ícone precisa de ariaLabel");
++  assert.ok(
++    read("js/core/buttons.js").includes(
++      `settingsOpen: { text: "", icon: "settings", ariaLabel: "${buttons.ariaLabel}" }`
++    ),
++    "buttons.js: fallback deve espelhar buttons.json"
++  );
++});
++
++test("todas as páginas carregam settings.js depois do navbar.js e com o cache-buster atual", () => {
++  for (const rel of PAGES) {
++    const html = read(rel);
++    const prefs = html.indexOf("js/core/preferences.js");
++    const overlay = html.indexOf("js/core/mobile-overlay.js");
++    const navbar = html.indexOf("js/core/navbar.js");
++    const settings = html.indexOf(`js/core/settings.js?v=${SETTINGS_VERSION}`);
++    assert.ok(settings >= 0, `${rel}: settings.js ausente`);
++    assert.ok(prefs >= 0 && prefs < overlay && overlay < navbar && navbar < settings, `${rel}: ordem preferences → mobile-overlay → navbar → settings`);
++    assert.ok(!html.includes("footerSettings"), `${rel}: id antigo footerSettings*`);
++  }
++});
+diff --git a/404.html b/404.html
+index 6830bc6..a07f490 100644
+--- a/404.html
++++ b/404.html
+@@ -279,11 +279,11 @@
+     >
+ 
+     <link rel="stylesheet" href="css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="css/pages/404.css">
+-    <link rel="stylesheet" href="css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="css/core/reading.css?v=48.3.66">
+ </head>
+ 
+ <body>
+@@ -338,15 +338,16 @@
+ 
+     <script src="js/core/preferences.js?v=48.3.64"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.64"></script>
++    <script src="js/core/content.js?v=48.3.66"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="js/core/buttons.js?v=48.3.6"></script>
++    <script src="js/core/buttons.js?v=48.3.66"></script>
+     <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="js/core/navbar.js?v=48.3.47"></script>
++    <script src="js/core/navbar.js?v=48.3.66"></script>
++    <script src="js/core/settings.js?v=48.3.66"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.49"></script>
+     <script src="js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="js/core/footer.js?v=48.3.64"></script>
++    <script src="js/core/footer.js?v=48.3.66"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+diff --git a/AGENTS.md b/AGENTS.md
+index d609321..6b37469 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -581,7 +581,17 @@ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`,
+ - Estilo de link de texto (cor + sublinhado) deve sempre usar `a:not(.button)`: botões `.button` dentro de seções de texto (ex.: `.privacy-actions`) mantêm as próprias cores. Validador e `reading-mode.test.mjs` falham se uma regra `... a` perder o `:not(.button)`. Ao tocar em `reading.css`, subir o `?v=` dele nas 8 páginas (V48.3.65 atual) e o pin do validador.
+ - Atalhos em páginas usam `<button type="button" data-reading-toggle aria-pressed="false">`; o `preferences.js` cuida do clique por delegação e do `aria-pressed`. Sem `style=` nem `on*=` (CSP).
+ - Textos da interface em `data/content/interface.json` → `configuracoes.leitura*` e `motivosBlur.reading`; manter o espelho de fallback em `js/core/content.js`.
+-- Ao tocar em `preferences.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
++- Ao tocar em `preferences.js`, `settings.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
++
++### Configurações na barra superior — V48.3.66
++
++- O botão é só um ícone de engrenagem (`#siteSettingsToggle`, `data-button-key="settingsOpen"`, `text` vazio + `ariaLabel` em `buttons.json`) e vive no slot `#site-nav-settings-slot`, dentro de `.site-nav-actions`, **antes** do slot opcional de Apoiar. Nunca colocar a engrenagem dentro de `.site-nav-support-wrap`: esse slot pode ficar `hidden` por `navbar.json`.
++- `js/core/settings.js` monta o botão e o painel (`#siteSettingsPopover`). O painel é anexado a `<body>` — `.site-nav` tem `backdrop-filter`, que vira containing block de `position: fixed` e backdrop root. Não mover o painel para dentro da navbar nem do rodapé.
++- O painel é `position: fixed`, **opaco** (`--card-bg` composto sobre `--bg-color`) e sem `backdrop-filter`, porque flutua sobre o texto. No celular ele é centralizado; no desktop alinha à borda direita do conteúdo da navbar (`right: max(14px, calc((100% - 1120px) / 2))`).
++- No celular o painel é o overlay `settings` do `KamyliMobileOverlay` (exclusão mútua com Menu/Redes e botão Voltar). No desktop ele é independente (Esc, clique fora, ×; o foco volta para a engrenagem).
++- Ordem dos scripts nas 8 páginas: `preferences.js` → `mobile-overlay.js` → `navbar.js` → `settings.js`. `footer.js` não conhece mais as Configurações.
++- Ids: `siteSettings*`, `siteThemeStatus`, `siteReadingStatus`, `siteReadingSizeLabel`, `siteReadingSizeStatus`, `siteBlurStatus`. Textos editoriais continuam em `interface.json` → `configuracoes` e são aplicados por `applySettings()` em `content.js`.
++- Cobertura: `.github/tests/settings-placement.test.mjs` e `validate_settings_placement()`.
+ 
+ ### Hardening da CI — V48.3.63
+ 
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 7629371..24188e1 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,15 @@
+ # Changelog
+ 
++## V48.3.66 — Configurações na barra superior
++
++- move o botão de **Configurações** do rodapé para a barra superior, ao lado de "Apoiar", como um ícone de engrenagem (40 px no desktop, 38 px no celular): as pessoas deixam de descer a página inteira para trocar tema, modo leitura ou blur;
++- novo `js/core/settings.js`: monta o botão no slot `#site-nav-settings-slot` (criado por `navbar.js` dentro de `.site-nav-actions`, antes do slot opcional de Apoiar, que pode ficar oculto via `navbar.json`) e o painel em `<body>`, fora de `.site-nav` (que usa `backdrop-filter`);
++- o painel é fixo logo abaixo da barra, alinhado à borda direita do conteúdo no desktop e centralizado no celular; rola por dentro em telas baixas e ganhou superfície **opaca** (`--card-bg` composto sobre `--bg-color`), porque agora flutua sobre o texto da página; some durante o loader e a troca de página;
++- no celular o painel se registra no controlador de overlays (`mobile-overlay.js`): Menu, Redes e Configurações nunca ficam abertos juntos e o botão Voltar do navegador fecha o painel sem sair da página; Esc, clique fora e o × continuam fechando, e o foco volta para a engrenagem;
++- `footer.js` perde o widget de Configurações (e `uiPrefs`/`bindSettings`); `content.js` passa a aplicar os textos editoriais ao novo DOM (`applySettings`); ids renomeados de `footerSettings*`/`footerReadingStatus*` para `siteSettings*`/`siteReadingStatus*`;
++- `settingsOpen` em `buttons.json` (e no fallback de `buttons.js`) vira botão só de ícone: `text` vazio + `ariaLabel` "Abrir configurações" (o validador e o Kamyli Editor passam a aceitar texto vazio para essa chave);
++- adiciona `.github/tests/settings-placement.test.mjs` e `validate_settings_placement()` no validador; atualiza os pins de cache-buster para `48.3.66` (`navbar.js`, `settings.js`, `footer.js`, `content.js`, `buttons.js`, `global.css`, `navbar.css`, `reading.css`) nas 8 páginas; `preferences.js` continua em `48.3.64`.
++
+ ## V48.3.65 — Correção dos botões no modo leitura
+ 
+ - corrige o contraste dos botões "Voltar ao início", "Uso de IA" e "Política de Privacidade" no modo leitura: a regra que dá cor e sublinhado aos links de texto também atingia os botões `.button` dentro de `.privacy-section`, deixando o botão primário com texto roxo sobre fundo roxo; agora ela usa `a:not(.button)` e os botões mantêm as próprias cores;
+diff --git a/DESIGN-SYSTEM.md b/DESIGN-SYSTEM.md
+index c63f835..9b844f6 100644
+--- a/DESIGN-SYSTEM.md
++++ b/DESIGN-SYSTEM.md
+@@ -33,6 +33,11 @@ performance/acessibilidade.
+ Não forçar `backdrop-filter` quando `data-blur="off"` ou quando o perfil
+ adaptativo desabilitar o efeito.
+ 
++Exceção deliberada: o painel de Configurações (`.site-settings-popover`) flutua
++sobre o texto da página e por isso é **opaco** (`--card-bg` composto sobre
++`--bg-color`), sem `backdrop-filter`. Superfícies que flutuam sobre conteúdo
++legível não devem depender de blur para ficar legíveis.
++
+ ## Modo leitura
+ 
+ Preferência explícita (Configurações → Leitura) que prioriza a qualidade de leitura no site inteiro. Estado em `html[data-reading="on"]`; todo o visual em `css/core/reading.css`, carregado por último.
+@@ -128,6 +133,7 @@ Regras visuais:
+ - ícones são opcionais e vêm exclusivamente da biblioteca `button-icons.js`; nenhum caminho de imagem, SVG bruto ou asset editorial entra no JSON;
+ - texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
+ - o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
++- o botão de **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de Apoiar, no slot próprio `.site-nav-settings-slot`; aberto, usa os tokens de ação (`--button-bg`/`--button-text`). O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado no mobile);
+ - alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
+ - no mobile (até 767 px), a lista horizontal é substituída por um botão flutuante `Menu` no canto inferior esquerdo; o mesmo conjunto de links editoriais abre acima dele, enquanto o topo mostra logo, título/contexto atual e o CTA Apoiar quando `apoioFixoNoFim` está ativo; `@ Redes` permanece como contraponto flutuante à direita.
+ 
+diff --git a/README.md b/README.md
+index 0b984fa..1505a53 100644
+--- a/README.md
++++ b/README.md
+@@ -292,6 +292,10 @@ A V48.3.62 restringe `?key=` a `/oauth/authorize`; todas as rotas `/debug/*` pas
+ 
+ A V48.3.64 adiciona o **modo leitura** ao site inteiro, em Configurações → Leitura: superfícies opacas, sem blur e sem fundo decorativo, mais contraste, tipografia de leitura e tamanho de texto ajustável (padrão, grande, maior). É uma escolha do visitante, guardada no navegador e aplicada antes da primeira pintura. Os artigos criados pelo editor local ganham um atalho "Modo leitura" no topo. O visual fica em `css/core/reading.css` e a cobertura em `.github/tests/reading-mode.test.mjs`.
+ 
++### Configurações na barra superior — V48.3.66
++
++O botão de **Configurações** saiu do rodapé e virou um ícone de engrenagem na barra superior, ao lado de "Apoiar", acessível em qualquer ponto da página. O painel abre logo abaixo da barra (opaco, para ler bem sobre o conteúdo), fecha com Esc, clique fora ou ×, e no celular convive com Menu e Redes (um por vez; Voltar fecha o painel). Código em `js/core/settings.js`.
++
+ ### Hardening da CI — V48.3.63
+ 
+ A V48.3.63 limita a duração dos jobs do GitHub Actions (10 min para validação e 20 min para os syncs editoriais), fixa `actions/checkout` v4.2.2 por SHA completo e impede que o checkout somente-leitura da validação persista credenciais. Validações obsoletas da mesma ref são canceladas; os syncs de Jogos/Agenda continuam serializados e nunca são cancelados no meio de uma publicação. A suíte `node:test` passa a ser descoberta automaticamente por `.github/tests/*.test.mjs`, de modo que um novo teste versionado não precise ser lembrado manualmente no workflow.
+diff --git a/artes/index.html b/artes/index.html
+index 20be0b9..374fab9 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -291,11 +291,11 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/artes.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -431,16 +431,17 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+     <script src="../js/pages/artes/artes.js?v=48.3.59"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+diff --git a/blog/index.html b/blog/index.html
+index 7a84ea2..fe4554f 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -291,12 +291,12 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/components/blog.css?v=48.3.7">
+     <link rel="stylesheet" href="../css/pages/blog.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -431,16 +431,17 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+     <script src="../js/pages/blog/blog.js?v=48.3.19"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+diff --git a/css/core/global.css b/css/core/global.css
+index 1e03afb..fd2c0b3 100644
+--- a/css/core/global.css
++++ b/css/core/global.css
+@@ -308,87 +308,36 @@ html.site-page-leaving .skip-link {
+ 
+ 
+ /* =========================================================
+-   CONFIGURAÇÕES NO RODAPÉ — V42
++   CONFIGURAÇÕES — V48.3.66
++   O botão (ícone de engrenagem) vive na barra superior; ver
++   .site-settings-toggle em navbar.css. O painel é montado em <body> por
++   js/core/settings.js e fica fixo logo abaixo da barra, alinhado à borda
++   direita do conteúdo da navbar. Como ele flutua sobre o texto da página,
++   a superfície é opaca: o card-bg translúcido é composto sobre --bg-color.
+    ========================================================= */
+ 
+-.site-footer-settings {
+-    position: relative;
+-    flex: 0 0 auto;
+-}
+-
+-.site-footer-settings-toggle {
+-    min-height: 36px;
+-    padding: 7px 11px;
+-
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
+-
+-    gap: 7px;
+-
+-    color: var(--primary-text);
+-    background-color: var(--notice-bg);
+-
+-    border: 1px solid var(--card-border);
+-    border-radius: 12px;
+-
+-    font: inherit;
+-    font-size: .8rem;
+-    font-weight: 800;
+-
+-    cursor: pointer;
+-
+-    transition:
+-        color .18s ease,
+-        background-color .18s ease,
+-        border-color .18s ease,
+-        transform .18s ease;
+-}
+-
+-.site-footer-settings-toggle svg {
+-    width: 16px;
+-    height: 16px;
+-
+-    fill: none;
+-    stroke: currentColor;
+-    stroke-width: 1.8;
+-    stroke-linecap: round;
+-    stroke-linejoin: round;
+-}
+-
+-.site-footer-settings-toggle:hover,
+-.site-footer-settings-toggle:focus-visible,
+-.site-footer-settings-toggle[aria-expanded="true"] {
+-    color: var(--button-text);
+-    background-color: var(--button-bg);
+-    border-color: var(--button-bg);
+-
+-    outline: none;
+-}
+-
+-.site-footer-settings-toggle:hover {
+-    transform: translateY(-1px);
+-}
+-
+ .site-settings-popover {
+-    position: absolute;
+-    right: 0;
+-    bottom: calc(100% + 12px);
++    position: fixed;
++    top: 80px;
++    right: max(14px, calc((100% - 1120px) / 2));
+     z-index: 1200;
+ 
+-    width: min(340px, calc(100vw - 32px));
++    width: min(340px, calc(100vw - 28px));
++    max-height: calc(100vh - 96px);
++    max-height: calc(100dvh - 96px);
+     padding: 18px;
+ 
++    overflow-y: auto;
++    overscroll-behavior: contain;
++
+     color: var(--text-color);
+-    background-color: var(--card-bg);
++    background-color: var(--bg-color);
++    background-image: linear-gradient(var(--card-bg), var(--card-bg));
+ 
+     border: 1px solid var(--card-border);
+     border-radius: 20px;
+     box-shadow: var(--shadow-card);
+ 
+-    backdrop-filter: blur(var(--blur-card));
+-    -webkit-backdrop-filter: blur(var(--blur-card));
+-
+     text-align: left;
+ }
+ 
+@@ -396,19 +345,16 @@ html.site-page-leaving .skip-link {
+     display: none;
+ }
+ 
+-/*
+- * V42.5 — backdrop-filter aninhado.
+- *
+- * O popover é descendente do footer, que também usa backdrop-filter.
+- * Um ancestral filtrado cria um backdrop root e pode impedir que o blur do
+- * popover enxergue corretamente a página atrás dele. Enquanto o menu estiver
+- * aberto, o footer deixa de filtrar; o popover continua usando --blur-card.
+- *
+- * Ao fechar, o filtro normal do footer é restaurado.
+- */
+-.site-footer.site-settings-open {
+-    backdrop-filter: none;
+-    -webkit-backdrop-filter: none;
++@media (max-width: 767px) {
++    .site-settings-popover {
++        top: 72px;
++        right: 0;
++        left: 0;
++
++        margin-inline: auto;
++        max-height: calc(100vh - 88px);
++        max-height: calc(100dvh - 88px);
++    }
+ }
+ 
+ .site-settings-header {
+@@ -569,11 +515,6 @@ html.site-page-leaving .skip-link {
+     line-height: 1.35 !important;
+ }
+ 
+-:root[data-blur="off"] .site-settings-popover {
+-    backdrop-filter: none;
+-    -webkit-backdrop-filter: none;
+-}
+-
+ @media (max-width: 760px) {
+     /*
+      * V42.4 — fundo mobile 9:16 fixo.
+@@ -650,22 +591,6 @@ html.site-page-leaving .skip-link {
+ 
+ 
+ 
+-@media (max-width: 760px) {
+-    .site-footer-settings {
+-        width: 100%;
+-        margin-top: 4px;
+-    }
+-
+-    .site-footer-settings-toggle {
+-        min-height: 38px;
+-    }
+-
+-    .site-settings-popover {
+-        right: 50%;
+-        transform: translateX(50%);
+-    }
+-}
+-
+ /*
+  * Quando o blur está desligado, removemos o filtro de fato.
+  * A transparência continua vindo dos tokens de superfície.
+@@ -1169,10 +1094,10 @@ html[data-performance="reduced"] .site-loader-logo {
+     margin: 0;
+ }
+ 
+-/* Configurações do rodapé. */
+-.site-footer-settings-toggle[data-button-key] {
+-    --button-config-gap: 7px;
+-    --button-config-icon-size: 16px;
++/* Botão de configurações na barra superior: só o ícone. */
++.site-settings-toggle[data-button-key] {
++    --button-config-gap: 0;
++    --button-config-icon-size: 19px;
+ }
+ 
+ .site-settings-close[data-button-key] {
+diff --git a/css/core/navbar.css b/css/core/navbar.css
+index c485d79..982bdec 100644
+--- a/css/core/navbar.css
++++ b/css/core/navbar.css
+@@ -242,13 +242,18 @@
+     display: contents;
+ }
+ 
+-/* O Menu mobile fica fora de .site-nav para escapar do containing block
+-   criado por backdrop-filter no Chromium/Brave. Por isso ele também precisa
+-   replicar explicitamente o estado de visibilidade usado pelo loader. */
++/* O Menu mobile (e, desde a V48.3.66, o painel de Configurações) fica fora de
++   .site-nav para escapar do containing block criado por backdrop-filter no
++   Chromium/Brave. Por isso ele também precisa replicar explicitamente o estado
++   de visibilidade usado pelo loader. */
+ html.site-loading-pending .site-nav-mobile-layer,
+ html.site-loading-visible .site-nav-mobile-layer,
+ html.site-navigation-loading .site-nav-mobile-layer,
+-html.site-page-leaving .site-nav-mobile-layer {
++html.site-page-leaving .site-nav-mobile-layer,
++html.site-loading-pending .site-settings-popover,
++html.site-loading-visible .site-settings-popover,
++html.site-navigation-loading .site-settings-popover,
++html.site-page-leaving .site-settings-popover {
+     opacity: 0;
+     visibility: hidden;
+     pointer-events: none;
+@@ -342,13 +347,25 @@ html.site-page-leaving .site-nav-mobile-layer {
+         grid-column: 4;
+     }
+ 
+-    .site-nav-support-wrap:not([hidden]) {
++    .site-nav-actions {
+         grid-column: 5;
++        justify-content: flex-end;
++        min-width: 0;
++
++        gap: 6px;
++    }
++
++    .site-nav-support-wrap:not([hidden]) {
+         display: flex;
+         justify-content: flex-end;
+         min-width: 0;
+     }
+ 
++    .site-settings-toggle {
++        width: 38px;
++        height: 38px;
++    }
++
+     .site-nav-support-wrap .site-nav-link {
+         min-height: 38px;
+         padding: 8px 10px;
+@@ -831,6 +848,80 @@ html.site-mobile-drawer-open body {
+     flex: 0 0 auto;
+ }
+ 
++/*
++ * V48.3.66 — Configurações na barra superior.
++ * .site-nav-actions agrupa [engrenagem][Apoiar]. O slot de Apoiar continua
++ * opcional (hidden via navbar.json), por isso a engrenagem não vive dentro dele.
++ */
++.site-nav-actions {
++    display: flex;
++    align-items: center;
++    flex: 0 0 auto;
++
++    gap: 10px;
++}
++
++.site-nav-settings-slot {
++    display: flex;
++    align-items: center;
++}
++
++.site-nav-settings-slot:empty {
++    display: none;
++}
++
++.site-settings-toggle {
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++
++    width: 40px;
++    height: 40px;
++    padding: 0;
++
++    color: var(--primary-text);
++    background-color: var(--notice-bg);
++
++    border: 1px solid var(--card-border);
++    border-radius: 999px;
++
++    font: inherit;
++
++    cursor: pointer;
++
++    transition:
++        color .18s ease,
++        background-color .18s ease,
++        border-color .18s ease,
++        transform .18s ease;
++}
++
++.site-settings-toggle:hover,
++.site-settings-toggle:focus-visible,
++.site-settings-toggle[aria-expanded="true"] {
++    color: var(--button-text);
++    background-color: var(--button-bg);
++    border-color: var(--button-bg);
++
++    outline: none;
++}
++
++.site-settings-toggle:focus-visible {
++    outline: 3px solid var(--primary-text);
++    outline-offset: 2px;
++}
++
++.site-settings-toggle:disabled {
++    cursor: not-allowed;
++    opacity: .55;
++}
++
++@media (hover: hover) and (pointer: fine) {
++    .site-settings-toggle:hover {
++        transform: translateY(-1px);
++    }
++}
++
+ .site-nav-support-divider[hidden],
+ .site-nav-support-wrap[hidden] {
+     display: none;
+diff --git a/css/core/reading.css b/css/core/reading.css
+index bcd47a6..cefaa66 100644
+--- a/css/core/reading.css
++++ b/css/core/reading.css
+@@ -248,14 +248,6 @@ html[data-reading="on"] {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+ }
+ 
+-/* O painel ficou mais alto com o novo grupo: rola por dentro em telas baixas */
+-.site-settings-popover {
+-    max-height: calc(100vh - 96px);
+-    max-height: calc(100dvh - 96px);
+-    overflow-y: auto;
+-    overscroll-behavior: contain;
+-}
+-
+ /* ---------------------------------------------------------
+    ATALHO NO ARTIGO — botão "Modo leitura" (data-reading-toggle)
+    --------------------------------------------------------- */
+diff --git a/data/content/buttons.json b/data/content/buttons.json
+index 727a825..344f7ac 100644
+--- a/data/content/buttons.json
++++ b/data/content/buttons.json
+@@ -72,8 +72,9 @@
+     "icon": "external-link"
+   },
+   "settingsOpen": {
+-    "text": "Configurações",
+-    "icon": "settings"
++    "text": "",
++    "icon": "settings",
++    "ariaLabel": "Abrir configurações"
+   },
+   "settingsClose": {
+     "text": "",
+diff --git a/doacoes/index.html b/doacoes/index.html
+index c2c6b33..57115b3 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -291,12 +291,12 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/doacoes.css?v=48.3.58">
+     <link rel="stylesheet" href="../css/components/ranking.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -507,17 +507,18 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/api.js?v=48.3.61"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script src="../js/pages/doacoes/doacoes.js"></script>
+     <script src="../js/pages/doacoes/content.js?v=47"></script>
+     <script src="../js/pages/doacoes/ranking.js?v=48.3.60"></script>
+diff --git a/docs/ARQUITETURA.md b/docs/ARQUITETURA.md
+index 87000a0..53744e3 100644
+--- a/docs/ARQUITETURA.md
++++ b/docs/ARQUITETURA.md
+@@ -40,6 +40,7 @@ fallback de contingência.
+ - `config.js` — configuração compartilhada e caminho GitHub Pages;
+ - `content.js` — utilitários de conteúdo;
+ - `navbar.js` / `footer.js` — componentes compartilhados;
++- `settings.js` — botão de Configurações (engrenagem na navbar) e painel de preferências montado em `<body>`; depende de `preferences.js`, `mobile-overlay.js` e `navbar.js`;
+ - `external-links.js` — confirmação de navegação externa;
+ - `page-transitions.js` — transição de página;
+ - `loader.js` — loader local;
+diff --git a/index.html b/index.html
+index 272a781..8d8e840 100644
+--- a/index.html
++++ b/index.html
+@@ -300,15 +300,15 @@
+     >
+ 
+     <link rel="stylesheet" href="css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="css/pages/home.css?v=48.3.58">
+     <link rel="stylesheet" href="css/components/lives.css?v=48.3.7">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=48.3.58">
+     <link rel="stylesheet" href="css/components/blog.css?v=48.3.7">
+-    <link rel="stylesheet" href="css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -793,16 +793,17 @@
+ 
+     <script src="js/core/preferences.js?v=48.3.64"></script>
+     <script src="js/core/config.js"></script>
+-    <script src="js/core/content.js?v=48.3.64"></script>
++    <script src="js/core/content.js?v=48.3.66"></script>
+     <script src="js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="js/core/buttons.js?v=48.3.6"></script>
++    <script src="js/core/buttons.js?v=48.3.66"></script>
+     <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="js/core/navbar.js?v=48.3.47"></script>
++    <script src="js/core/navbar.js?v=48.3.66"></script>
++    <script src="js/core/settings.js?v=48.3.66"></script>
+     <script src="js/core/external-links.js?v=47"></script>
+     <script src="js/core/socials.js?v=48.3.49"></script>
+     <script src="js/core/page-transitions.js?v=46.3"></script>
+     <script src="js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="js/core/footer.js?v=48.3.64"></script>
++    <script src="js/core/footer.js?v=48.3.66"></script>
+     <script src="js/pages/home/carousel.js?v=46.2"></script>
+     <script src="js/pages/home/home.js?v=48.3.31"></script>
+     <script src="js/pages/home/content.js?v=48.3.60"></script>
+diff --git a/jogos/index.html b/jogos/index.html
+index c984ff8..b8d5d41 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -291,11 +291,11 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.22">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+     <script type="application/ld+json">
+@@ -383,16 +383,17 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/page-transitions.js?v=46.3"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
+     <script src="../js/pages/jogos/jogos.js?v=48.3.60"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+diff --git a/js/core/buttons.js b/js/core/buttons.js
+index 6b58427..cb18aba 100644
+--- a/js/core/buttons.js
++++ b/js/core/buttons.js
+@@ -21,7 +21,7 @@
+         blogArticleBack: { text: "Voltar ao Blog", icon: "arrow-left" },
+         externalCancel: { text: "Cancelar", icon: "x" },
+         externalContinue: { text: "Continuar", icon: "external-link" },
+-        settingsOpen: { text: "Configurações", icon: "settings" },
++        settingsOpen: { text: "", icon: "settings", ariaLabel: "Abrir configurações" },
+         settingsClose: { text: "", icon: "x", ariaLabel: "Fechar configurações" },
+         livesPrev: { text: "", icon: "chevron-left", ariaLabel: "Mostrar live anterior" },
+         livesNext: { text: "", icon: "chevron-right", ariaLabel: "Mostrar próxima live" },
+diff --git a/js/core/content.js b/js/core/content.js
+index fdb0438..5d9d0d5 100644
+--- a/js/core/content.js
++++ b/js/core/content.js
+@@ -427,8 +427,8 @@
+         if (!prefs?.getState) return;
+ 
+         const state = prefs.getState();
+-        const themeStatus = document.getElementById("footerThemeStatus");
+-        const blurStatus = document.getElementById("footerBlurStatus");
++        const themeStatus = document.getElementById("siteThemeStatus");
++        const blurStatus = document.getElementById("siteBlurStatus");
+ 
+         if (themeStatus) {
+             if (state.themePreference === "auto") {
+@@ -449,8 +449,8 @@
+             }
+         }
+ 
+-        const readingStatus = document.getElementById("footerReadingStatus");
+-        const readingSizeStatus = document.getElementById("footerReadingSizeStatus");
++        const readingStatus = document.getElementById("siteReadingStatus");
++        const readingSizeStatus = document.getElementById("siteReadingSizeStatus");
+         const reading = state.reading === "on";
+ 
+         if (readingStatus) {
+@@ -507,7 +507,7 @@
+         }
+     }
+ 
+-    function applyFooter(copy) {
++    function applyFooter() {
+         const footer = document.getElementById("site-footer");
+         if (!footer) return false;
+ 
+@@ -517,19 +517,36 @@
+             globalData.interface.footer?.ariaLabel
+         );
+ 
+-        const toggle = footer.querySelector("#footerSettingsToggle");
+-        setText(footer.querySelector("#footerSettingsTitle"), copy.titulo);
++        return Boolean(footer.querySelector(".site-footer-content"));
++    }
++
++    /*
++     * V48.3.66: o botão e o painel de configurações saíram do rodapé.
++     * settings.js os monta na barra superior (botão) e em <body> (painel).
++     */
++    function applySettings(copy) {
++        const toggle = document.getElementById("siteSettingsToggle");
++        const popover = document.getElementById("siteSettingsPopover");
++        if (!toggle || !popover) return false;
++
++        if (!toggle.disabled) {
++            setAttribute(toggle, "title", copy.titulo);
++        } else if (copy.preferenciasIndisponiveis) {
++            toggle.title = copy.preferenciasIndisponiveis;
++        }
++
++        setText(popover.querySelector("#siteSettingsTitle"), copy.titulo);
+         setAttribute(
+-            footer.querySelector("#footerSettingsClose"),
++            popover.querySelector("#siteSettingsClose"),
+             "aria-label",
+             copy.fecharAriaLabel
+         );
+ 
+-        const legends = footer.querySelectorAll(".site-settings-group legend");
++        const legends = popover.querySelectorAll(".site-settings-group legend");
+         setText(legends[0], copy.aparencia);
+         setText(legends[1], copy.leitura);
+         setText(legends[2], copy.blur);
+-        setText(footer.querySelector("#footerReadingSizeLabel"), copy.leituraTamanho);
++        setText(popover.querySelector("#siteReadingSizeLabel"), copy.leituraTamanho);
+ 
+         setRadioLabel("site-theme-preference", "auto", copy.temaAutomatico);
+         setRadioLabel("site-theme-preference", "light", copy.temaClaro);
+@@ -543,13 +560,9 @@
+         setRadioLabel("site-blur-preference", "on", copy.blurLigado);
+         setRadioLabel("site-blur-preference", "off", copy.blurDesligado);
+ 
+-        if (toggle?.disabled && copy.preferenciasIndisponiveis) {
+-            toggle.title = copy.preferenciasIndisponiveis;
+-        }
+-
+         requestAnimationFrame(() => applyPreferenceStatus(copy));
+ 
+-        return Boolean(footer.querySelector(".site-footer-content"));
++        return true;
+     }
+ 
+     function applyHomeFallback(copy) {
+@@ -677,7 +690,8 @@
+ 
+     function applyGlobalContent() {
+         applyNavbar(globalData.navbar);
+-        applyFooter(globalData.interface.configuracoes);
++        applyFooter();
++        applySettings(globalData.interface.configuracoes);
+         applyExternalDialog(globalData.interface.linksExternos);
+ 
+         setAttribute(
+@@ -705,6 +719,7 @@
+         const mountedSelectors = [
+             ".site-nav",
+             ".site-footer-content",
++            ".site-settings-toggle",
+             ".site-external-dialog"
+         ];
+ 
+@@ -819,7 +834,7 @@
+     window.addEventListener(
+         "kamyli:ui-preference-change",
+         () => requestAnimationFrame(
+-            () => applyFooter(globalData.interface.configuracoes)
++            () => applySettings(globalData.interface.configuracoes)
+         )
+     );
+ 
+diff --git a/js/core/footer.js b/js/core/footer.js
+index 5ea0914..8133a1e 100644
+--- a/js/core/footer.js
++++ b/js/core/footer.js
+@@ -6,9 +6,6 @@
+ 
+     const content = window.KamyliContent;
+     const year = new Date().getFullYear();
+-    const uiPrefs = window.KAMYLI_UI_PREFS;
+-
+-    let cleanupSettings = null;
+ 
+     const fallback = {
+         creditos: {
+@@ -52,409 +49,7 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
+         return safeHttpUrl(value) || safeHttpUrl(fallbackValue) || "#";
+     }
+ 
+-    function blurReasonLabel(reason) {
+-        const labels = {
+-            "unsupported": "não suportado pelo navegador",
+-            "reduced-transparency": "redução de transparência",
+-            "save-data": "economia de dados",
+-            "low-memory": "memória limitada",
+-            "low-cpu": "processamento limitado",
+-            "supported": "condições adequadas",
+-            "manual": "escolha manual",
+-            "reading": "modo leitura"
+-        };
+-
+-        return labels[reason] || "condições do dispositivo";
+-    }
+-
+-    function bindSettings() {
+-        const wrapper = mount.querySelector(
+-            ".site-footer-settings"
+-        );
+-        const toggle = mount.querySelector(
+-            "#footerSettingsToggle"
+-        );
+-        const popover = mount.querySelector(
+-            "#footerSettingsPopover"
+-        );
+-        const closeButton = mount.querySelector(
+-            "#footerSettingsClose"
+-        );
+-        const themeStatus = mount.querySelector(
+-            "#footerThemeStatus"
+-        );
+-        const blurStatus = mount.querySelector(
+-            "#footerBlurStatus"
+-        );
+-        const readingStatus = mount.querySelector(
+-            "#footerReadingStatus"
+-        );
+-        const readingSizeStatus = mount.querySelector(
+-            "#footerReadingSizeStatus"
+-        );
+-        const themeInputs = [
+-            ...mount.querySelectorAll(
+-                'input[name="site-theme-preference"]'
+-            )
+-        ];
+-        const blurInputs = [
+-            ...mount.querySelectorAll(
+-                'input[name="site-blur-preference"]'
+-            )
+-        ];
+-        const readingInputs = [
+-            ...mount.querySelectorAll(
+-                'input[name="site-reading-preference"]'
+-            )
+-        ];
+-        const readingSizeInputs = [
+-            ...mount.querySelectorAll(
+-                'input[name="site-reading-size"]'
+-            )
+-        ];
+-
+-        if (
+-            !wrapper ||
+-            !toggle ||
+-            !popover
+-        ) {
+-            return () => {};
+-        }
+-
+-        function setOpen(open, returnFocus = false) {
+-            popover.hidden = !open;
+-
+-            /*
+-             * V42.5: o footer já possui backdrop-filter.
+-             * Enquanto o popover estiver aberto, removemos temporariamente
+-             * esse backdrop root do ancestral para o card de configurações
+-             * poder borrar diretamente o conteúdo atrás dele.
+-             */
+-            mount.classList.toggle(
+-                "site-settings-open",
+-                open
+-            );
+-
+-            toggle.setAttribute(
+-                "aria-expanded",
+-                String(open)
+-            );
+-
+-            if (open) {
+-                const checked =
+-                    mount.querySelector(
+-                        '.site-settings-popover input:checked:not(:disabled)'
+-                    ) || closeButton;
+-
+-                window.requestAnimationFrame(
+-                    () => checked?.focus()
+-                );
+-            } else if (returnFocus) {
+-                toggle.focus();
+-            }
+-        }
+-
+-        function updateControls() {
+-            if (!uiPrefs) {
+-                toggle.disabled = true;
+-                toggle.title =
+-                    "Preferências indisponíveis";
+-                return;
+-            }
+-
+-            toggle.disabled = false;
+-
+-            const state = uiPrefs.getState();
+-
+-            themeInputs.forEach(input => {
+-                input.checked =
+-                    input.value ===
+-                    state.themePreference;
+-            });
+-
+-            const reading = state.reading === "on";
+-
+-            blurInputs.forEach(input => {
+-                input.checked =
+-                    input.value ===
+-                    state.blurPreference;
+-
+-                // O modo leitura desliga o blur; a escolha fica salva.
+-                input.disabled =
+-                    reading ||
+-                    (
+-                        input.value === "on" &&
+-                        !state.blurSupported
+-                    );
+-            });
+-
+-            readingInputs.forEach(input => {
+-                input.checked =
+-                    input.value ===
+-                    state.reading;
+-            });
+-
+-            readingSizeInputs.forEach(input => {
+-                input.checked =
+-                    input.value ===
+-                    state.readingSize;
+-
+-                input.disabled = !reading;
+-            });
+-
+-            if (readingStatus) {
+-                readingStatus.textContent = reading
+-                    ? "Modo leitura ligado: sem blur nem fundo decorativo, com texto e contraste reforçados."
+-                    : "Modo leitura desligado.";
+-            }
+-
+-            if (readingSizeStatus) {
+-                const sizeNames = {
+-                    normal: "padrão",
+-                    large: "grande",
+-                    xlarge: "maior"
+-                };
+-
+-                readingSizeStatus.textContent = reading
+-                    ? `Tamanho do texto: ${
+-                        sizeNames[state.readingSize] || sizeNames.normal
+-                    }.`
+-                    : "O tamanho do texto vale quando o modo leitura está ligado.";
+-            }
+-
+-            if (themeStatus) {
+-                if (
+-                    state.themePreference === "auto"
+-                ) {
+-                    themeStatus.textContent =
+-                        `Automático • sistema em modo ${
+-                            state.theme === "dark"
+-                                ? "escuro"
+-                                : "claro"
+-                        }.`;
+-                } else {
+-                    themeStatus.textContent =
+-                        state.theme === "dark"
+-                            ? "Modo escuro selecionado."
+-                            : "Modo claro selecionado.";
+-                }
+-            }
+-
+-            if (blurStatus) {
+-                if (reading) {
+-                    blurStatus.textContent =
+-                        "Blur desligado pelo modo leitura.";
+-                } else if (!state.blurSupported) {
+-                    blurStatus.textContent =
+-                        "Blur indisponível neste navegador; o efeito permanece desligado.";
+-                } else if (
+-                    state.blurPreference === "auto"
+-                ) {
+-                    blurStatus.textContent =
+-                        `Automático • atualmente ${
+-                            state.blur === "on"
+-                                ? "ligado"
+-                                : "desligado"
+-                        } (${blurReasonLabel(state.blurReason)}).`;
+-                } else {
+-                    blurStatus.textContent =
+-                        state.blur === "on"
+-                            ? "Blur ligado manualmente."
+-                            : "Blur desligado manualmente.";
+-                }
+-            }
+-        }
+-
+-        function onToggleClick() {
+-            setOpen(popover.hidden);
+-        }
+-
+-        function onCloseClick() {
+-            setOpen(false, true);
+-        }
+-
+-        function onThemeChange(event) {
+-            if (
+-                event.target instanceof HTMLInputElement &&
+-                event.target.checked
+-            ) {
+-                uiPrefs?.setTheme(
+-                    event.target.value
+-                );
+-            }
+-        }
+-
+-        function onBlurChange(event) {
+-            if (
+-                event.target instanceof HTMLInputElement &&
+-                event.target.checked
+-            ) {
+-                uiPrefs?.setBlur(
+-                    event.target.value
+-                );
+-            }
+-        }
+-
+-        function onReadingChange(event) {
+-            if (
+-                event.target instanceof HTMLInputElement &&
+-                event.target.checked
+-            ) {
+-                uiPrefs?.setReading(
+-                    event.target.value
+-                );
+-            }
+-        }
+-
+-        function onReadingSizeChange(event) {
+-            if (
+-                event.target instanceof HTMLInputElement &&
+-                event.target.checked
+-            ) {
+-                uiPrefs?.setReadingSize(
+-                    event.target.value
+-                );
+-            }
+-        }
+-
+-        function onDocumentPointerDown(event) {
+-            if (
+-                !popover.hidden &&
+-                !wrapper.contains(event.target)
+-            ) {
+-                setOpen(false);
+-            }
+-        }
+-
+-        function onDocumentKeyDown(event) {
+-            if (
+-                event.key === "Escape" &&
+-                !popover.hidden
+-            ) {
+-                event.preventDefault();
+-                setOpen(false, true);
+-            }
+-        }
+-
+-        toggle.addEventListener(
+-            "click",
+-            onToggleClick
+-        );
+-
+-        closeButton?.addEventListener(
+-            "click",
+-            onCloseClick
+-        );
+-
+-        themeInputs.forEach(input => {
+-            input.addEventListener(
+-                "change",
+-                onThemeChange
+-            );
+-        });
+-
+-        blurInputs.forEach(input => {
+-            input.addEventListener(
+-                "change",
+-                onBlurChange
+-            );
+-        });
+-
+-        readingInputs.forEach(input => {
+-            input.addEventListener(
+-                "change",
+-                onReadingChange
+-            );
+-        });
+-
+-        readingSizeInputs.forEach(input => {
+-            input.addEventListener(
+-                "change",
+-                onReadingSizeChange
+-            );
+-        });
+-
+-        document.addEventListener(
+-            "pointerdown",
+-            onDocumentPointerDown
+-        );
+-
+-        document.addEventListener(
+-            "keydown",
+-            onDocumentKeyDown
+-        );
+-
+-        window.addEventListener(
+-            "kamyli:ui-preference-change",
+-            updateControls
+-        );
+-
+-        updateControls();
+-
+-        return () => {
+-            toggle.removeEventListener(
+-                "click",
+-                onToggleClick
+-            );
+-
+-            closeButton?.removeEventListener(
+-                "click",
+-                onCloseClick
+-            );
+-
+-            themeInputs.forEach(input => {
+-                input.removeEventListener(
+-                    "change",
+-                    onThemeChange
+-                );
+-            });
+-
+-            blurInputs.forEach(input => {
+-                input.removeEventListener(
+-                    "change",
+-                    onBlurChange
+-                );
+-            });
+-
+-            readingInputs.forEach(input => {
+-                input.removeEventListener(
+-                    "change",
+-                    onReadingChange
+-                );
+-            });
+-
+-            readingSizeInputs.forEach(input => {
+-                input.removeEventListener(
+-                    "change",
+-                    onReadingSizeChange
+-                );
+-            });
+-
+-            document.removeEventListener(
+-                "pointerdown",
+-                onDocumentPointerDown
+-            );
+-
+-            document.removeEventListener(
+-                "keydown",
+-                onDocumentKeyDown
+-            );
+-
+-            window.removeEventListener(
+-                "kamyli:ui-preference-change",
+-                updateControls
+-            );
+-
+-            mount.classList.remove(
+-                "site-settings-open"
+-            );
+-        };
+-    }
+-
+     function render(data) {
+-        cleanupSettings?.();
+-        cleanupSettings = null;
+-
+         const fundo = {
+             ...fallback.creditos.fundo,
+             ...(data?.creditos?.fundo || {})
+@@ -587,203 +182,8 @@ if (typeof escapeHtml !== "function" || typeof safeHttpUrl !== "function") {
+                         </a>
+                     </span>
+                 </p>
+-
+-                <div class="site-footer-settings">
+-                    <button
+-                        class="site-footer-settings-toggle"
+-                        id="footerSettingsToggle"
+-                        data-button-key="settingsOpen"
+-                        type="button"
+-                        aria-expanded="false"
+-                        aria-controls="footerSettingsPopover"
+-                        aria-haspopup="dialog"
+-                    >
+-                        <span data-button-icon aria-hidden="true"></span>
+-                        <span data-button-label>Configurações</span>
+-                    </button>
+-
+-                    <div
+-                        class="site-settings-popover"
+-                        id="footerSettingsPopover"
+-                        role="dialog"
+-                        aria-modal="false"
+-                        aria-labelledby="footerSettingsTitle"
+-                        hidden
+-                    >
+-                        <div class="site-settings-header">
+-                            <h2 id="footerSettingsTitle">Configurações</h2>
+-
+-                            <button
+-                                class="site-settings-close"
+-                                id="footerSettingsClose"
+-                                data-button-key="settingsClose"
+-                                type="button"
+-                                aria-label="Fechar configurações"
+-                            >
+-                                <span data-button-icon aria-hidden="true">×</span>
+-                                <span data-button-label hidden></span>
+-                            </button>
+-                        </div>
+-
+-                        <fieldset class="site-settings-group">
+-                            <legend>Aparência</legend>
+-
+-                            <div class="site-settings-options">
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-theme-preference"
+-                                        value="auto"
+-                                    >
+-                                    <span>Automático</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-theme-preference"
+-                                        value="light"
+-                                    >
+-                                    <span>Claro</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-theme-preference"
+-                                        value="dark"
+-                                    >
+-                                    <span>Escuro</span>
+-                                </label>
+-                            </div>
+-
+-                            <p
+-                                class="site-settings-status"
+-                                id="footerThemeStatus"
+-                                aria-live="polite"
+-                            ></p>
+-                        </fieldset>
+-
+-                        <fieldset class="site-settings-group">
+-                            <legend>Leitura</legend>
+-
+-                            <div class="site-settings-options site-settings-options-two">
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-reading-preference"
+-                                        value="off"
+-                                    >
+-                                    <span>Normal</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-reading-preference"
+-                                        value="on"
+-                                    >
+-                                    <span>Modo leitura</span>
+-                                </label>
+-                            </div>
+-
+-                            <p
+-                                class="site-settings-status"
+-                                id="footerReadingStatus"
+-                                aria-live="polite"
+-                            ></p>
+-
+-                            <p
+-                                class="site-settings-subtitle"
+-                                id="footerReadingSizeLabel"
+-                            >
+-                                Tamanho do texto
+-                            </p>
+-
+-                            <div
+-                                class="site-settings-options"
+-                                role="group"
+-                                aria-labelledby="footerReadingSizeLabel"
+-                            >
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-reading-size"
+-                                        value="normal"
+-                                    >
+-                                    <span>Padrão</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-reading-size"
+-                                        value="large"
+-                                    >
+-                                    <span>Grande</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-reading-size"
+-                                        value="xlarge"
+-                                    >
+-                                    <span>Maior</span>
+-                                </label>
+-                            </div>
+-
+-                            <p
+-                                class="site-settings-status"
+-                                id="footerReadingSizeStatus"
+-                                aria-live="polite"
+-                            ></p>
+-                        </fieldset>
+-
+-                        <fieldset class="site-settings-group">
+-                            <legend>Blur</legend>
+-
+-                            <div class="site-settings-options">
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-blur-preference"
+-                                        value="auto"
+-                                    >
+-                                    <span>Automático</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-blur-preference"
+-                                        value="on"
+-                                    >
+-                                    <span>Ligado</span>
+-                                </label>
+-
+-                                <label class="site-settings-option">
+-                                    <input
+-                                        type="radio"
+-                                        name="site-blur-preference"
+-                                        value="off"
+-                                    >
+-                                    <span>Desligado</span>
+-                                </label>
+-                            </div>
+-
+-                            <p
+-                                class="site-settings-status"
+-                                id="footerBlurStatus"
+-                                aria-live="polite"
+-                            ></p>
+-                        </fieldset>
+-                    </div>
+-                </div>
+             </div>
+         `;
+-
+-        cleanupSettings = bindSettings();
+     }
+ 
+     render(fallback);
+diff --git a/js/core/navbar.js b/js/core/navbar.js
+index 95a7282..4330fa9 100644
+--- a/js/core/navbar.js
++++ b/js/core/navbar.js
+@@ -88,16 +88,23 @@
+                     aria-hidden="true"
+                 ></span>
+ 
+-                <div class="site-nav-support-wrap">
+-                    <a
+-                        class="site-nav-link site-nav-donate site-nav-support"
+-                        data-nav-key="apoio"
+-                        data-nav-page="doacoes"
+-                        href="${sitePath("/doacoes/")}"
+-                    >
+-                        <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
+-                        <span data-nav-label>Apoiar</span>
+-                    </a>
++                <div class="site-nav-actions">
++                    <div
++                        class="site-nav-settings-slot"
++                        id="site-nav-settings-slot"
++                    ></div>
++
++                    <div class="site-nav-support-wrap">
++                        <a
++                            class="site-nav-link site-nav-donate site-nav-support"
++                            data-nav-key="apoio"
++                            data-nav-page="doacoes"
++                            href="${sitePath("/doacoes/")}"
++                        >
++                            <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
++                            <span data-nav-label>Apoiar</span>
++                        </a>
++                    </div>
+                 </div>
+             </div>
+         </nav>
+diff --git a/js/core/settings.js b/js/core/settings.js
+new file mode 100644
+index 0000000..e0fe8ab
+--- /dev/null
++++ b/js/core/settings.js
+@@ -0,0 +1,415 @@
++/*
++ * CONFIGURAÇÕES DO SITE — V48.3.66
++ *
++ * O botão (só o ícone de engrenagem) fica na barra superior, no slot
++ * #site-nav-settings-slot criado por navbar.js, para que as pessoas não
++ * precisem descer a página até o rodapé. O painel é montado em <body>:
++ *
++ *   - .site-nav usa backdrop-filter e, por isso, viraria o containing block
++ *     de um painel position: fixed e também um backdrop root do blur dele;
++ *   - no celular o painel se registra no controlador de overlays
++ *     (mobile-overlay.js), então Menu, Redes e Configurações nunca ficam
++ *     abertos juntos e o botão Voltar do navegador fecha o painel aberto.
++ *
++ * Os textos abaixo são o fallback em português. Quando
++ * data/content/interface.json carrega, content.js reaplica a cópia editorial
++ * (applySettings) sobre este mesmo DOM.
++ */
++(() => {
++    "use strict";
++
++    const slot = document.getElementById("site-nav-settings-slot");
++
++    if (!slot || document.getElementById("siteSettingsPopover")) return;
++
++    const uiPrefs = window.KAMYLI_UI_PREFS;
++    const mobileOverlay = window.KamyliMobileOverlay;
++    const OVERLAY_NAME = "settings";
++    const mobileQuery = window.matchMedia("(max-width: 767px)");
++
++    function blurReasonLabel(reason) {
++        const labels = {
++            "unsupported": "não suportado pelo navegador",
++            "reduced-transparency": "redução de transparência",
++            "save-data": "economia de dados",
++            "low-memory": "memória limitada",
++            "low-cpu": "processamento limitado",
++            "supported": "condições adequadas",
++            "manual": "escolha manual",
++            "reading": "modo leitura"
++        };
++
++        return labels[reason] || "condições do dispositivo";
++    }
++
++    slot.innerHTML = `
++        <button
++            class="site-settings-toggle"
++            id="siteSettingsToggle"
++            data-button-key="settingsOpen"
++            type="button"
++            title="Configurações"
++            aria-label="Abrir configurações"
++            aria-expanded="false"
++            aria-controls="siteSettingsPopover"
++            aria-haspopup="dialog"
++        >
++            <span data-button-icon aria-hidden="true"></span>
++            <span data-button-label hidden></span>
++        </button>
++    `;
++
++    const popover = document.createElement("div");
++    popover.className = "site-settings-popover";
++    popover.id = "siteSettingsPopover";
++    popover.setAttribute("role", "dialog");
++    popover.setAttribute("aria-modal", "false");
++    popover.setAttribute("aria-labelledby", "siteSettingsTitle");
++    popover.hidden = true;
++
++    popover.innerHTML = `
++        <div class="site-settings-header">
++            <h2 id="siteSettingsTitle">Configurações</h2>
++
++            <button
++                class="site-settings-close"
++                id="siteSettingsClose"
++                data-button-key="settingsClose"
++                type="button"
++                aria-label="Fechar configurações"
++            >
++                <span data-button-icon aria-hidden="true">×</span>
++                <span data-button-label hidden></span>
++            </button>
++        </div>
++
++        <fieldset class="site-settings-group">
++            <legend>Aparência</legend>
++
++            <div class="site-settings-options">
++                <label class="site-settings-option">
++                    <input type="radio" name="site-theme-preference" value="auto">
++                    <span>Automático</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-theme-preference" value="light">
++                    <span>Claro</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-theme-preference" value="dark">
++                    <span>Escuro</span>
++                </label>
++            </div>
++
++            <p
++                class="site-settings-status"
++                id="siteThemeStatus"
++                aria-live="polite"
++            ></p>
++        </fieldset>
++
++        <fieldset class="site-settings-group">
++            <legend>Leitura</legend>
++
++            <div class="site-settings-options site-settings-options-two">
++                <label class="site-settings-option">
++                    <input type="radio" name="site-reading-preference" value="off">
++                    <span>Normal</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-reading-preference" value="on">
++                    <span>Modo leitura</span>
++                </label>
++            </div>
++
++            <p
++                class="site-settings-status"
++                id="siteReadingStatus"
++                aria-live="polite"
++            ></p>
++
++            <p
++                class="site-settings-subtitle"
++                id="siteReadingSizeLabel"
++            >
++                Tamanho do texto
++            </p>
++
++            <div
++                class="site-settings-options"
++                role="group"
++                aria-labelledby="siteReadingSizeLabel"
++            >
++                <label class="site-settings-option">
++                    <input type="radio" name="site-reading-size" value="normal">
++                    <span>Padrão</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-reading-size" value="large">
++                    <span>Grande</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-reading-size" value="xlarge">
++                    <span>Maior</span>
++                </label>
++            </div>
++
++            <p
++                class="site-settings-status"
++                id="siteReadingSizeStatus"
++                aria-live="polite"
++            ></p>
++        </fieldset>
++
++        <fieldset class="site-settings-group">
++            <legend>Blur</legend>
++
++            <div class="site-settings-options">
++                <label class="site-settings-option">
++                    <input type="radio" name="site-blur-preference" value="auto">
++                    <span>Automático</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-blur-preference" value="on">
++                    <span>Ligado</span>
++                </label>
++
++                <label class="site-settings-option">
++                    <input type="radio" name="site-blur-preference" value="off">
++                    <span>Desligado</span>
++                </label>
++            </div>
++
++            <p
++                class="site-settings-status"
++                id="siteBlurStatus"
++                aria-live="polite"
++            ></p>
++        </fieldset>
++    `;
++
++    document.body.appendChild(popover);
++
++    const toggle = slot.querySelector("#siteSettingsToggle");
++    const closeButton = popover.querySelector("#siteSettingsClose");
++    const themeStatus = popover.querySelector("#siteThemeStatus");
++    const blurStatus = popover.querySelector("#siteBlurStatus");
++    const readingStatus = popover.querySelector("#siteReadingStatus");
++    const readingSizeStatus = popover.querySelector("#siteReadingSizeStatus");
++
++    const radios = name => [
++        ...popover.querySelectorAll(`input[name="${name}"]`)
++    ];
++
++    const themeInputs = radios("site-theme-preference");
++    const blurInputs = radios("site-blur-preference");
++    const readingInputs = radios("site-reading-preference");
++    const readingSizeInputs = radios("site-reading-size");
++
++    function setOpen(open, { returnFocus = false, focusInside = true } = {}) {
++        popover.hidden = !open;
++        toggle.setAttribute("aria-expanded", String(open));
++
++        if (open) {
++            if (focusInside) {
++                const target =
++                    popover.querySelector(
++                        "input:checked:not(:disabled)"
++                    ) || closeButton;
++
++                window.requestAnimationFrame(() => target?.focus());
++            }
++        } else if (returnFocus) {
++            toggle.focus();
++        }
++    }
++
++    function isOpen() {
++        return !popover.hidden;
++    }
++
++    /*
++     * No celular o controlador de overlays é o dono do estado (histórico,
++     * exclusão mútua com Menu/Redes). No desktop o painel é independente.
++     */
++    function viaOverlay() {
++        return Boolean(mobileOverlay) && mobileQuery.matches;
++    }
++
++    function requestOpen() {
++        if (viaOverlay()) {
++            mobileOverlay.open(OVERLAY_NAME, { focus: true });
++        } else {
++            setOpen(true);
++        }
++    }
++
++    function requestClose(returnFocus = false) {
++        if (!isOpen()) return;
++
++        if (viaOverlay() && mobileOverlay.isOpen(OVERLAY_NAME)) {
++            mobileOverlay.close(OVERLAY_NAME, { restoreFocus: returnFocus });
++        } else {
++            setOpen(false, { returnFocus });
++        }
++    }
++
++    function updateControls() {
++        if (!uiPrefs) {
++            toggle.disabled = true;
++            toggle.title = "Preferências indisponíveis";
++            return;
++        }
++
++        toggle.disabled = false;
++
++        const state = uiPrefs.getState();
++        const reading = state.reading === "on";
++
++        themeInputs.forEach(input => {
++            input.checked = input.value === state.themePreference;
++        });
++
++        blurInputs.forEach(input => {
++            input.checked = input.value === state.blurPreference;
++
++            // O modo leitura desliga o blur; a escolha fica salva.
++            input.disabled =
++                reading ||
++                (input.value === "on" && !state.blurSupported);
++        });
++
++        readingInputs.forEach(input => {
++            input.checked = input.value === state.reading;
++        });
++
++        readingSizeInputs.forEach(input => {
++            input.checked = input.value === state.readingSize;
++            input.disabled = !reading;
++        });
++
++        if (readingStatus) {
++            readingStatus.textContent = reading
++                ? "Modo leitura ligado: sem blur nem fundo decorativo, com texto e contraste reforçados."
++                : "Modo leitura desligado.";
++        }
++
++        if (readingSizeStatus) {
++            const sizeNames = {
++                normal: "padrão",
++                large: "grande",
++                xlarge: "maior"
++            };
++
++            readingSizeStatus.textContent = reading
++                ? `Tamanho do texto: ${
++                    sizeNames[state.readingSize] || sizeNames.normal
++                }.`
++                : "O tamanho do texto vale quando o modo leitura está ligado.";
++        }
++
++        if (themeStatus) {
++            if (state.themePreference === "auto") {
++                themeStatus.textContent =
++                    `Automático • sistema em modo ${
++                        state.theme === "dark" ? "escuro" : "claro"
++                    }.`;
++            } else {
++                themeStatus.textContent =
++                    state.theme === "dark"
++                        ? "Modo escuro selecionado."
++                        : "Modo claro selecionado.";
++            }
++        }
++
++        if (blurStatus) {
++            if (reading) {
++                blurStatus.textContent =
++                    "Blur desligado pelo modo leitura.";
++            } else if (!state.blurSupported) {
++                blurStatus.textContent =
++                    "Blur indisponível neste navegador; o efeito permanece desligado.";
++            } else if (state.blurPreference === "auto") {
++                blurStatus.textContent =
++                    `Automático • atualmente ${
++                        state.blur === "on" ? "ligado" : "desligado"
++                    } (${blurReasonLabel(state.blurReason)}).`;
++            } else {
++                blurStatus.textContent =
++                    state.blur === "on"
++                        ? "Blur ligado manualmente."
++                        : "Blur desligado manualmente.";
++            }
++        }
++    }
++
++    function bindRadios(inputs, apply) {
++        inputs.forEach(input => {
++            input.addEventListener("change", () => {
++                if (input.checked) apply(input.value);
++            });
++        });
++    }
++
++    bindRadios(themeInputs, value => uiPrefs?.setTheme(value));
++    bindRadios(blurInputs, value => uiPrefs?.setBlur(value));
++    bindRadios(readingInputs, value => uiPrefs?.setReading(value));
++    bindRadios(readingSizeInputs, value => uiPrefs?.setReadingSize(value));
++
++    toggle.addEventListener("click", () => {
++        if (isOpen()) {
++            requestClose(true);
++        } else {
++            requestOpen();
++        }
++    });
++
++    closeButton?.addEventListener("click", () => requestClose(true));
++
++    document.addEventListener("pointerdown", event => {
++        if (
++            isOpen() &&
++            event.target instanceof Node &&
++            !popover.contains(event.target) &&
++            !toggle.contains(event.target)
++        ) {
++            requestClose(false);
++        }
++    });
++
++    document.addEventListener("keydown", event => {
++        if (event.key === "Escape" && isOpen()) {
++            event.preventDefault();
++            requestClose(true);
++        }
++    });
++
++    // Ao cruzar o breakpoint o painel fecha, para não ficar órfão do controlador.
++    mobileQuery.addEventListener?.("change", () => {
++        if (isOpen()) setOpen(false);
++    });
++
++    window.addEventListener("pagehide", () => {
++        if (isOpen()) setOpen(false);
++    });
++
++    window.addEventListener(
++        "kamyli:ui-preference-change",
++        updateControls
++    );
++
++    mobileOverlay?.register(OVERLAY_NAME, {
++        isOpen,
++        open: () => setOpen(true),
++        close: () => setOpen(false),
++        focusTrigger: () => toggle.focus()
++    });
++
++    updateControls();
++})();
+diff --git a/privacidade/index.html b/privacidade/index.html
+index bfc3271..1aa5b3a 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -280,11 +280,11 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ </head>
+ 
+ <body>
+@@ -592,15 +592,16 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index 1573af6..65a6b07 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -280,11 +280,11 @@
+     >
+ 
+     <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+-    <link rel="stylesheet" href="../css/core/global.css?v=48.3.59">
+-    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.58">
++    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
++    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+     <link rel="stylesheet" href="../css/pages/privacidade.css?v=48.3.7">
+-    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.65">
++    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ </head>
+ 
+ <body>
+@@ -391,15 +391,16 @@
+ 
+     <script src="../js/core/preferences.js?v=48.3.64"></script>
+     <script src="../js/core/config.js"></script>
+-    <script src="../js/core/content.js?v=48.3.64"></script>
++    <script src="../js/core/content.js?v=48.3.66"></script>
+     <script src="../js/core/button-icons.js?v=48.3.44"></script>
+-    <script src="../js/core/buttons.js?v=48.3.6"></script>
++    <script src="../js/core/buttons.js?v=48.3.66"></script>
+     <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+-    <script src="../js/core/navbar.js?v=48.3.47"></script>
++    <script src="../js/core/navbar.js?v=48.3.66"></script>
++    <script src="../js/core/settings.js?v=48.3.66"></script>
+     <script src="../js/core/external-links.js?v=47"></script>
+     <script src="../js/core/socials.js?v=48.3.49"></script>
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+-    <script src="../js/core/footer.js?v=48.3.64"></script>
++    <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script>
+         window.KAMYLI_PAGE_CONTENT_READY = true;
+     </script>
+-- 
+2.43.0
+

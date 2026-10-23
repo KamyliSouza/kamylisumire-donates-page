@@ -242,13 +242,18 @@
     display: contents;
 }
 
-/* O Menu mobile fica fora de .site-nav para escapar do containing block
-   criado por backdrop-filter no Chromium/Brave. Por isso ele também precisa
-   replicar explicitamente o estado de visibilidade usado pelo loader. */
+/* O Menu mobile (e, desde a V48.3.66, o painel de Configurações) fica fora de
+   .site-nav para escapar do containing block criado por backdrop-filter no
+   Chromium/Brave. Por isso ele também precisa replicar explicitamente o estado
+   de visibilidade usado pelo loader. */
 html.site-loading-pending .site-nav-mobile-layer,
 html.site-loading-visible .site-nav-mobile-layer,
 html.site-navigation-loading .site-nav-mobile-layer,
-html.site-page-leaving .site-nav-mobile-layer {
+html.site-page-leaving .site-nav-mobile-layer,
+html.site-loading-pending .site-settings-popover,
+html.site-loading-visible .site-settings-popover,
+html.site-navigation-loading .site-settings-popover,
+html.site-page-leaving .site-settings-popover {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -342,11 +347,23 @@ html.site-page-leaving .site-nav-mobile-layer {
         grid-column: 4;
     }
 
-    .site-nav-support-wrap:not([hidden]) {
+    .site-nav-actions {
         grid-column: 5;
+        justify-content: flex-end;
+        min-width: 0;
+
+        gap: 6px;
+    }
+
+    .site-nav-support-wrap:not([hidden]) {
         display: flex;
         justify-content: flex-end;
         min-width: 0;
+    }
+
+    .site-settings-toggle {
+        width: 38px;
+        height: 38px;
     }
 
     .site-nav-support-wrap .site-nav-link {
@@ -829,6 +846,80 @@ html.site-mobile-drawer-open body {
     display: flex;
     align-items: center;
     flex: 0 0 auto;
+}
+
+/*
+ * V48.3.66 — Configurações na barra superior.
+ * .site-nav-actions agrupa [engrenagem][Apoiar]. O slot de Apoiar continua
+ * opcional (hidden via navbar.json), por isso a engrenagem não vive dentro dele.
+ */
+.site-nav-actions {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+
+    gap: 10px;
+}
+
+.site-nav-settings-slot {
+    display: flex;
+    align-items: center;
+}
+
+.site-nav-settings-slot:empty {
+    display: none;
+}
+
+.site-settings-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    color: var(--primary-text);
+    background-color: var(--notice-bg);
+
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+
+    font: inherit;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.site-settings-toggle:hover,
+.site-settings-toggle:focus-visible,
+.site-settings-toggle[aria-expanded="true"] {
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
+
+    outline: none;
+}
+
+.site-settings-toggle:focus-visible {
+    outline: 3px solid var(--primary-text);
+    outline-offset: 2px;
+}
+
+.site-settings-toggle:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .site-settings-toggle:hover {
+        transform: translateY(-1px);
+    }
 }
 
 .site-nav-support-divider[hidden],

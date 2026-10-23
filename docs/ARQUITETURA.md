@@ -40,6 +40,7 @@ fallback de contingência.
 - `config.js` — configuração compartilhada e caminho GitHub Pages;
 - `content.js` — utilitários de conteúdo;
 - `navbar.js` / `footer.js` — componentes compartilhados;
+- `settings.js` — botão de Configurações (engrenagem na navbar) e painel de preferências montado em `<body>`; depende de `preferences.js`, `mobile-overlay.js` e `navbar.js`;
 - `external-links.js` — confirmação de navegação externa;
 - `page-transitions.js` — transição de página;
 - `loader.js` — loader local;

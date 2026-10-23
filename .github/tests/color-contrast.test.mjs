@@ -45,7 +45,7 @@ function token(block, name) {
 
 const protectedSelectors = [
   ["css/core/global.css", ".button-primary"],
-  ["css/core/global.css", ".site-footer-settings-toggle[aria-expanded=\"true\"]"],
+  ["css/core/navbar.css", ".site-settings-toggle[aria-expanded=\"true\"]"],
   ["css/core/global.css", ".site-settings-option input:checked + span"],
   ["css/core/navbar.css", ".site-nav-donate"],
   ["css/core/navbar.css", ".site-nav-mobile-support"],

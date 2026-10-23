@@ -581,7 +581,17 @@ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`,
 - Estilo de link de texto (cor + sublinhado) deve sempre usar `a:not(.button)`: botões `.button` dentro de seções de texto (ex.: `.privacy-actions`) mantêm as próprias cores. Validador e `reading-mode.test.mjs` falham se uma regra `... a` perder o `:not(.button)`. Ao tocar em `reading.css`, subir o `?v=` dele nas 8 páginas (V48.3.65 atual) e o pin do validador.
 - Atalhos em páginas usam `<button type="button" data-reading-toggle aria-pressed="false">`; o `preferences.js` cuida do clique por delegação e do `aria-pressed`. Sem `style=` nem `on*=` (CSP).
 - Textos da interface em `data/content/interface.json` → `configuracoes.leitura*` e `motivosBlur.reading`; manter o espelho de fallback em `js/core/content.js`.
-- Ao tocar em `preferences.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
+- Ao tocar em `preferences.js`, `settings.js`, `footer.js`, `content.js` ou `reading.css`, atualizar o `?v=` em todas as páginas e nos pins do validador.
+
+### Configurações na barra superior — V48.3.66
+
+- O botão é só um ícone de engrenagem (`#siteSettingsToggle`, `data-button-key="settingsOpen"`, `text` vazio + `ariaLabel` em `buttons.json`) e vive no slot `#site-nav-settings-slot`, dentro de `.site-nav-actions`, **antes** do slot opcional de Apoiar. Nunca colocar a engrenagem dentro de `.site-nav-support-wrap`: esse slot pode ficar `hidden` por `navbar.json`.
+- `js/core/settings.js` monta o botão e o painel (`#siteSettingsPopover`). O painel é anexado a `<body>` — `.site-nav` tem `backdrop-filter`, que vira containing block de `position: fixed` e backdrop root. Não mover o painel para dentro da navbar nem do rodapé.
+- O painel é `position: fixed`, **opaco** (`--card-bg` composto sobre `--bg-color`) e sem `backdrop-filter`, porque flutua sobre o texto. No celular ele é centralizado; no desktop alinha à borda direita do conteúdo da navbar (`right: max(14px, calc((100% - 1120px) / 2))`).
+- No celular o painel é o overlay `settings` do `KamyliMobileOverlay` (exclusão mútua com Menu/Redes e botão Voltar). No desktop ele é independente (Esc, clique fora, ×; o foco volta para a engrenagem).
+- Ordem dos scripts nas 8 páginas: `preferences.js` → `mobile-overlay.js` → `navbar.js` → `settings.js`. `footer.js` não conhece mais as Configurações.
+- Ids: `siteSettings*`, `siteThemeStatus`, `siteReadingStatus`, `siteReadingSizeLabel`, `siteReadingSizeStatus`, `siteBlurStatus`. Textos editoriais continuam em `interface.json` → `configuracoes` e são aplicados por `applySettings()` em `content.js`.
+- Cobertura: `.github/tests/settings-placement.test.mjs` e `validate_settings_placement()`.
 
 ### Hardening da CI — V48.3.63
 

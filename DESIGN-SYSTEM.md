@@ -33,6 +33,11 @@ performance/acessibilidade.
 Não forçar `backdrop-filter` quando `data-blur="off"` ou quando o perfil
 adaptativo desabilitar o efeito.
 
+Exceção deliberada: o painel de Configurações (`.site-settings-popover`) flutua
+sobre o texto da página e por isso é **opaco** (`--card-bg` composto sobre
+`--bg-color`), sem `backdrop-filter`. Superfícies que flutuam sobre conteúdo
+legível não devem depender de blur para ficar legíveis.
+
 ## Modo leitura
 
 Preferência explícita (Configurações → Leitura) que prioriza a qualidade de leitura no site inteiro. Estado em `html[data-reading="on"]`; todo o visual em `css/core/reading.css`, carregado por último.
@@ -128,6 +133,7 @@ Regras visuais:
 - ícones são opcionais e vêm exclusivamente da biblioteca `button-icons.js`; nenhum caminho de imagem, SVG bruto ou asset editorial entra no JSON;
 - texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
 - o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
+- o botão de **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de Apoiar, no slot próprio `.site-nav-settings-slot`; aberto, usa os tokens de ação (`--button-bg`/`--button-text`). O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado no mobile);
 - alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
 - no mobile (até 767 px), a lista horizontal é substituída por um botão flutuante `Menu` no canto inferior esquerdo; o mesmo conjunto de links editoriais abre acima dele, enquanto o topo mostra logo, título/contexto atual e o CTA Apoiar quando `apoioFixoNoFim` está ativo; `@ Redes` permanece como contraponto flutuante à direita.
 

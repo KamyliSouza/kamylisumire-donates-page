@@ -19,8 +19,9 @@ const PAGES = [
   "uso-de-ia/index.html",
 ];
 
-const READING_VERSION = "48.3.64"; // preferences.js, footer.js, content.js
-const READING_CSS_VERSION = "48.3.65"; // css/core/reading.css
+const READING_VERSION = "48.3.64"; // preferences.js
+const SETTINGS_VERSION = "48.3.66"; // settings.js, footer.js, content.js (V48.3.66: Configurações na navbar)
+const READING_CSS_VERSION = "48.3.66"; // css/core/reading.css
 const readingCss = read("css/core/reading.css");
 
 /* ---------- utilidades ---------- */
@@ -183,10 +184,15 @@ test("todas as páginas usam o mesmo bootstrap de tema/blur/leitura, com hash CS
 test("scripts alterados carregam com cache-buster novo em todas as páginas", () => {
   for (const rel of PAGES) {
     const html = read(rel);
-    for (const name of ["preferences", "footer", "content"]) {
+    for (const [name, version] of [
+      ["preferences", READING_VERSION],
+      ["settings", SETTINGS_VERSION],
+      ["footer", SETTINGS_VERSION],
+      ["content", SETTINGS_VERSION],
+    ]) {
       assert.match(
         html,
-        new RegExp(`js/core/${name}\\.js\\?v=${READING_VERSION.replace(/\./g, "\\.")}`),
+        new RegExp(`js/core/${name}\\.js\\?v=${version.replace(/\./g, "\\.")}`),
         `${rel}: cache-buster de ${name}.js desatualizado`
       );
     }
@@ -319,18 +325,18 @@ test("preferences.js: preferências indisponíveis (sem storage) não quebram o 
   assert.equal(env.window.KAMYLI_UI_PREFS.getState().reading, "on");
 });
 
-/* ---------- configurações (footer + textos editoriais) ---------- */
+/* ---------- configurações (settings.js + textos editoriais) ---------- */
 
-test("configurações: grupo Leitura no footer, textos em interface.json e fallback do content.js", () => {
-  const footer = read("js/core/footer.js");
+test("configurações: grupo Leitura no settings.js, textos em interface.json e fallback do content.js", () => {
+  const settings = read("js/core/settings.js");
   for (const name of ["site-reading-preference", "site-reading-size"]) {
-    assert.ok(footer.includes(`name="${name}"`), `footer.js: grupo ${name} ausente`);
+    assert.ok(settings.includes(`name="${name}"`), `settings.js: grupo ${name} ausente`);
   }
-  for (const id of ["footerReadingStatus", "footerReadingSizeStatus", "footerReadingSizeLabel"]) {
-    assert.ok(footer.includes(`id="${id}"`), `footer.js: #${id} ausente`);
+  for (const id of ["siteReadingStatus", "siteReadingSizeStatus", "siteReadingSizeLabel"]) {
+    assert.ok(settings.includes(`id="${id}"`), `settings.js: #${id} ausente`);
   }
-  assert.match(footer, /uiPrefs\?\.setReading\(/);
-  assert.match(footer, /uiPrefs\?\.setReadingSize\(/);
+  assert.match(settings, /uiPrefs\?\.setReading\(/);
+  assert.match(settings, /uiPrefs\?\.setReadingSize\(/);
 
   const copy = JSON.parse(read("data/content/interface.json")).configuracoes;
   for (const key of [
@@ -354,9 +360,9 @@ test("configurações: grupo Leitura no footer, textos em interface.json e fallb
 });
 
 test("configurações: o blur fica desabilitado enquanto o modo leitura está ligado", () => {
-  const footer = read("js/core/footer.js");
-  assert.match(footer, /input\.disabled =\s*reading \|\|/);
-  assert.match(footer, /Blur desligado pelo modo leitura\./);
+  const settings = read("js/core/settings.js");
+  assert.match(settings, /input\.disabled =\s*reading \|\|/);
+  assert.match(settings, /Blur desligado pelo modo leitura\./);
 });
 
 /* ---------- CSS ---------- */

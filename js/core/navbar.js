@@ -88,16 +88,23 @@
                     aria-hidden="true"
                 ></span>
 
-                <div class="site-nav-support-wrap">
-                    <a
-                        class="site-nav-link site-nav-donate site-nav-support"
-                        data-nav-key="apoio"
-                        data-nav-page="doacoes"
-                        href="${sitePath("/doacoes/")}"
-                    >
-                        <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
-                        <span data-nav-label>Apoiar</span>
-                    </a>
+                <div class="site-nav-actions">
+                    <div
+                        class="site-nav-settings-slot"
+                        id="site-nav-settings-slot"
+                    ></div>
+
+                    <div class="site-nav-support-wrap">
+                        <a
+                            class="site-nav-link site-nav-donate site-nav-support"
+                            data-nav-key="apoio"
+                            data-nav-page="doacoes"
+                            href="${sitePath("/doacoes/")}"
+                        >
+                            <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
+                            <span data-nav-label>Apoiar</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
