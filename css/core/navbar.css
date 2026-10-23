@@ -896,19 +896,26 @@ html.site-mobile-drawer-open body {
         transform .18s ease;
 }
 
-.site-settings-toggle:hover,
-.site-settings-toggle:focus-visible,
+/*
+ * V48.3.67 — o destaque preenchido significa "painel aberto" e só isso.
+ * Hover, foco e toque não podem reproduzi-lo: o hover "gruda" depois de um
+ * toque em telas sensíveis e o foco volta para o botão ao fechar com Esc, o
+ * que deixava a engrenagem destacada com o painel já fechado.
+ */
 .site-settings-toggle[aria-expanded="true"] {
     color: var(--button-text);
     background-color: var(--button-bg);
     border-color: var(--button-bg);
-
-    outline: none;
 }
 
+/* Foco de teclado: só contorno, sem preenchimento. */
 .site-settings-toggle:focus-visible {
     outline: 3px solid var(--primary-text);
     outline-offset: 2px;
+}
+
+.site-settings-toggle:focus:not(:focus-visible) {
+    outline: none;
 }
 
 .site-settings-toggle:disabled {
@@ -916,8 +923,10 @@ html.site-mobile-drawer-open body {
     opacity: .55;
 }
 
+/* Hover (só com mouse): realça o contorno, nunca o preenchimento. */
 @media (hover: hover) and (pointer: fine) {
-    .site-settings-toggle:hover {
+    .site-settings-toggle:hover:not([aria-expanded="true"]):not(:disabled) {
+        border-color: var(--primary-text);
         transform: translateY(-1px);
     }
 }

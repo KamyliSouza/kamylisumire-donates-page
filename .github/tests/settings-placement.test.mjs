@@ -19,6 +19,7 @@ const PAGES = [
 ];
 
 const SETTINGS_VERSION = "48.3.66";
+const NAVBAR_CSS_VERSION = "48.3.67"; // correção do destaque da engrenagem
 
 /** Corpos de todas as regras CSS cuja lista de seletores contém `selector` (inclusive dentro de @media). */
 function ruleBodies(css, selector) {
@@ -125,5 +126,47 @@ test("todas as páginas carregam settings.js depois do navbar.js e com o cache-b
     assert.ok(settings >= 0, `${rel}: settings.js ausente`);
     assert.ok(prefs >= 0 && prefs < overlay && overlay < navbar && navbar < settings, `${rel}: ordem preferences → mobile-overlay → navbar → settings`);
     assert.ok(!html.includes("footerSettings"), `${rel}: id antigo footerSettings*`);
+  }
+});
+
+test("destaque da engrenagem: preenchimento só com o painel aberto; hover só com mouse e só no contorno", () => {
+  const css = read("css/core/navbar.css").replace(/\/\*[\s\S]*?\*\//g, "");
+
+  // Nenhum estado transitório (hover, foco, toque) pode preencher o botão ou imitar o estado aberto.
+  let transient = 0;
+  for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selectors = match[1].split(",").map((item) => item.trim());
+    const hits = selectors.filter((item) => /\.site-settings-toggle[^,]*:(hover|focus|focus-visible|active)\b/.test(item));
+    if (!hits.length) continue;
+    transient += 1;
+    assert.ok(!/background/.test(match[2]), `${hits[0]}: estado transitório não pode alterar o fundo`);
+    assert.ok(!/(^|[;\s])color:\s*var\(--button-text\)/.test(match[2]), `${hits[0]}: estado transitório não pode usar --button-text`);
+    assert.ok(!/border-color:\s*var\(--button-bg\)/.test(match[2]), `${hits[0]}: estado transitório não pode usar --button-bg`);
+  }
+  assert.ok(transient >= 2, "regras de foco e hover da engrenagem ausentes");
+
+  // O único preenchimento do botão vem de aria-expanded="true".
+  const filled = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(
+    (match) => /\.site-settings-toggle/.test(match[1]) && /background-color:\s*var\(--button-bg\)/.test(match[2])
+  );
+  assert.equal(filled.length, 1, "apenas uma regra pode preencher a engrenagem");
+  assert.match(filled[0][1], /\[aria-expanded="true"\]/);
+
+  // Hover só em dispositivos com mouse: o hover "gruda" depois de um toque.
+  const hover = css.search(/\.site-settings-toggle:hover/);
+  assert.ok(hover > 0, "regra de hover ausente");
+  const before = css.slice(0, hover);
+  const media = before.lastIndexOf("@media");
+  const depth = [...before.slice(media)].reduce((n, ch) => n + (ch === "{" ? 1 : ch === "}" ? -1 : 0), 0);
+  assert.ok(media >= 0 && depth >= 1, "hover deve ficar dentro de um @media");
+  assert.match(before.slice(media), /^@media \(hover: hover\) and \(pointer: fine\)/);
+
+  // Foco de teclado continua visível (só contorno).
+  assert.match(css, /\.site-settings-toggle:focus-visible\s*\{[^}]*outline:\s*3px solid var\(--primary-text\)/);
+});
+
+test("todas as páginas carregam navbar.css com o cache-buster da correção do destaque", () => {
+  for (const rel of PAGES) {
+    assert.ok(read(rel).includes(`css/core/navbar.css?v=${NAVBAR_CSS_VERSION}`), `${rel}: navbar.css?v=${NAVBAR_CSS_VERSION} ausente`);
   }
 });

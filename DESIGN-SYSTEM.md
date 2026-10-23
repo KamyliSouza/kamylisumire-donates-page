@@ -133,7 +133,7 @@ Regras visuais:
 - ícones são opcionais e vêm exclusivamente da biblioteca `button-icons.js`; nenhum caminho de imagem, SVG bruto ou asset editorial entra no JSON;
 - texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
 - o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
-- o botão de **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de Apoiar, no slot próprio `.site-nav-settings-slot`; aberto, usa os tokens de ação (`--button-bg`/`--button-text`). O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado no mobile);
+- o botão de **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de Apoiar, no slot próprio `.site-nav-settings-slot`; o preenchimento com os tokens de ação (`--button-bg`/`--button-text`) significa "painel aberto" e só isso (foco = contorno; hover só com mouse e só no contorno). O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado no mobile);
 - alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
 - no mobile (até 767 px), a lista horizontal é substituída por um botão flutuante `Menu` no canto inferior esquerdo; o mesmo conjunto de links editoriais abre acima dele, enquanto o topo mostra logo, título/contexto atual e o CTA Apoiar quando `apoioFixoNoFim` está ativo; `@ Redes` permanece como contraponto flutuante à direita.
 

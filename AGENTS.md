@@ -591,6 +591,7 @@ Preservar a ocultação de `.site-nav-mobile-layer` para `site-loading-pending`,
 - No celular o painel é o overlay `settings` do `KamyliMobileOverlay` (exclusão mútua com Menu/Redes e botão Voltar). No desktop ele é independente (Esc, clique fora, ×; o foco volta para a engrenagem).
 - Ordem dos scripts nas 8 páginas: `preferences.js` → `mobile-overlay.js` → `navbar.js` → `settings.js`. `footer.js` não conhece mais as Configurações.
 - Ids: `siteSettings*`, `siteThemeStatus`, `siteReadingStatus`, `siteReadingSizeLabel`, `siteReadingSizeStatus`, `siteBlurStatus`. Textos editoriais continuam em `interface.json` → `configuracoes` e são aplicados por `applySettings()` em `content.js`.
+- O destaque preenchido da engrenagem significa **painel aberto** (`[aria-expanded="true"]`) e mais nada. Hover, foco e toque nunca preenchem o botão: o hover "gruda" após um toque e o foco volta ao botão ao fechar com Esc. Foco de teclado = só contorno; hover só dentro de `@media (hover: hover) and (pointer: fine)` e só no contorno.
 - Cobertura: `.github/tests/settings-placement.test.mjs` e `validate_settings_placement()`.
 
 ### Hardening da CI — V48.3.63

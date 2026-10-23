@@ -1969,7 +1969,7 @@ def validate_architecture() -> None:
             "js/core/navbar.js?v=48.3.66",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=48.3.66",
-            "css/core/navbar.css?v=48.3.66",
+            "css/core/navbar.css?v=48.3.67",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -3802,6 +3802,7 @@ def validate_security_contracts() -> None:
 
 READING_MODE_VERSION = "48.3.64"  # preferences.js
 SETTINGS_VERSION = "48.3.66"  # settings.js, footer.js e content.js (Configurações na navbar)
+NAVBAR_CSS_VERSION = "48.3.67"  # css/core/navbar.css (destaque da engrenagem só com o painel aberto)
 READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
 
 
@@ -4004,8 +4005,41 @@ def validate_settings_placement() -> None:
         if token not in navbar_css:
             error(f"css/core/navbar.css: regra V48.3.66 ausente: {token}")
 
+    # V48.3.67: o preenchimento da engrenagem significa "painel aberto" e só isso.
+    navbar_css_clean = re.sub(r"/\*[\s\S]*?\*/", "", navbar_css)
+    transient_rules = 0
+    filled_rules = []
+    for selectors, declarations in re.findall(r"([^{}]+)\{([^{}]*)\}", navbar_css_clean):
+        parts = [item.strip() for item in selectors.split(",")]
+        transient = [
+            item for item in parts
+            if re.search(r"\.site-settings-toggle[^,]*:(hover|focus|focus-visible|active)\b", item)
+        ]
+        if transient:
+            transient_rules += 1
+            if "background" in declarations or re.search(r"(^|[;\s])color:\s*var\(--button-text\)", declarations) \
+                    or re.search(r"border-color:\s*var\(--button-bg\)", declarations):
+                error(f"css/core/navbar.css: {transient[0]} não pode preencher a engrenagem (só aria-expanded=\"true\", V48.3.67).")
+        if ".site-settings-toggle" in selectors and re.search(r"background-color:\s*var\(--button-bg\)", declarations):
+            filled_rules.append(selectors.strip())
+    if transient_rules < 2:
+        error("css/core/navbar.css: regras de foco/hover da engrenagem ausentes (V48.3.67).")
+    if len(filled_rules) != 1 or 'aria-expanded="true"' not in filled_rules[0]:
+        error("css/core/navbar.css: apenas .site-settings-toggle[aria-expanded=\"true\"] pode preencher a engrenagem (V48.3.67).")
+    hover_at = navbar_css_clean.find(".site-settings-toggle:hover")
+    if hover_at < 0:
+        error("css/core/navbar.css: regra de hover da engrenagem ausente (V48.3.67).")
+    else:
+        before = navbar_css_clean[:hover_at]
+        media_at = before.rfind("@media")
+        depth = before[media_at:].count("{") - before[media_at:].count("}") if media_at >= 0 else 0
+        if media_at < 0 or depth < 1 or not before[media_at:].startswith("@media (hover: hover) and (pointer: fine)"):
+            error("css/core/navbar.css: o hover da engrenagem deve ficar em @media (hover: hover) and (pointer: fine) (V48.3.67).")
+
     for rel in sorted(CORE_PAGES_SETTINGS):
         html = read_text(rel)
+        if f"css/core/navbar.css?v={NAVBAR_CSS_VERSION}" not in html:
+            error(f"{rel}: css/core/navbar.css?v={NAVBAR_CSS_VERSION} ausente.")
         navbar_pos = html.find("js/core/navbar.js")
         settings_pos = html.find(f"js/core/settings.js?v={SETTINGS_VERSION}")
         overlay_pos = html.find("js/core/mobile-overlay.js")
@@ -4027,6 +4061,7 @@ def validate_settings_placement() -> None:
         "Configurações ficam na barra superior",
         "painel é montado em <body>",
         "footer.js não carrega mais as Configurações",
+        "destaque da engrenagem: preenchimento só com o painel aberto",
     ):
         if token not in placement_tests:
             error(f".github/tests/settings-placement.test.mjs: cobertura V48.3.66 ausente: {token}")

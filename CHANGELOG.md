@@ -1,5 +1,12 @@
 # Changelog
 
+## V48.3.67 — Destaque da engrenagem só com o painel aberto
+
+- corrige o destaque da engrenagem de Configurações que podia ficar preso com o painel fechado: o preenchimento era compartilhado entre `:hover`, `:focus-visible` e `[aria-expanded="true"]`, então fechar pelo próprio botão (mouse em cima ou toque, que "gruda" o hover) ou com Esc (o foco volta ao botão) deixava a engrenagem destacada;
+- agora **só** `.site-settings-toggle[aria-expanded="true"]` preenche o botão (`--button-bg`/`--button-text`); o foco de teclado mostra apenas o contorno (3 px), e o hover — restrito a `@media (hover: hover) and (pointer: fine)` — só realça a borda e levanta 1 px;
+- `settings-placement.test.mjs` e `validate_settings_placement()` passam a falhar se hover, foco ou toque voltarem a alterar o fundo/cores de ação do botão, se o hover sair do `@media` de mouse ou se mais de uma regra preencher a engrenagem;
+- atualiza o cache-buster de `css/core/navbar.css` para `48.3.67` nas 8 páginas.
+
 ## V48.3.66 — Configurações na barra superior
 
 - move o botão de **Configurações** do rodapé para a barra superior, ao lado de "Apoiar", como um ícone de engrenagem (40 px no desktop, 38 px no celular): as pessoas deixam de descer a página inteira para trocar tema, modo leitura ou blur;
