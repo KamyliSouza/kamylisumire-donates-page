@@ -1,4 +1,12 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
+import {
+  addDays,
+  checkCardDate,
+  formatIsoDate,
+  parseIsoDate,
+  parseWeekSetting,
+  resolveWeekStart,
+} from "./agenda-week.mjs";
 
 const BOARD_ID = process.env.TRELLO_AGENDA_BOARD_ID;
 const TRELLO_KEY = process.env.TRELLO_API_KEY;
@@ -57,43 +65,21 @@ function normalize(value) {
     .trim();
 }
 
-function parseIsoDate(value, label) {
-  const text = String(value || "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`${label}: data deve usar YYYY-MM-DD.`);
-  const date = new Date(`${text}T00:00:00Z`);
-  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== text) {
-    throw new Error(`${label}: data inválida.`);
-  }
-  return date;
-}
-
-function formatIsoDate(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function addDays(date, amount) {
-  const next = new Date(date.getTime());
-  next.setUTCDate(next.getUTCDate() + amount);
-  return next;
-}
-
-function weekStartFor(date) {
-  return addDays(date, -date.getUTCDay());
-}
-
 function parseBoardSettings(description) {
   let weekStart = null;
+  let weekDeclared = false;
   let observation = null;
 
   for (const rawLine of String(description || "").split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line) continue;
 
-    const weekMatch = line.match(/^semana\s*:\s*(\d{4}-\d{2}-\d{2})\s*$/i);
+    // "Semana: YYYY-MM-DD" (domingo) fixa a semana; "Semana: automática" segue a data de hoje.
+    const weekMatch = line.match(/^semana\s*:\s*(.*)$/i);
     if (weekMatch) {
-      if (weekStart) throw new Error("Trello Agenda: mais de uma linha Semana: na descrição do quadro.");
-      weekStart = parseIsoDate(weekMatch[1], "Trello Agenda: Semana");
-      if (weekStart.getUTCDay() !== 0) throw new Error("Trello Agenda: Semana: deve apontar para um domingo.");
+      if (weekDeclared) throw new Error("Trello Agenda: mais de uma linha Semana: na descrição do quadro.");
+      weekDeclared = true;
+      weekStart = parseWeekSetting(weekMatch[1]).date || null;
       continue;
     }
 
@@ -332,27 +318,26 @@ for (const card of cardsRaw.filter(item => !item.closed)) {
   parsedCards.push({ day, card: parsed });
 }
 
-let weekStart = settings.weekStart;
-if (!weekStart) {
-  const datedCards = parsedCards.filter(item => item.card.date);
-  if (!datedCards.length) {
-    throw new Error("Trello Agenda: informe Semana: YYYY-MM-DD (domingo) na descrição do quadro ou Data: em pelo menos um card.");
-  }
-  const inferred = weekStartFor(parseIsoDate(datedCards[0].card.date, "Trello Agenda"));
-  for (const item of datedCards) {
-    const candidate = weekStartFor(parseIsoDate(item.card.date, `Trello Agenda: Data de "${item.card.title}"`));
-    if (candidate.getTime() !== inferred.getTime()) {
-      throw new Error("Trello Agenda: existem cards de semanas diferentes; ajuste Semana:/Data: antes de publicar.");
-    }
-  }
-  weekStart = inferred;
-}
+// V48.3.68: a semana publicada acompanha a data de hoje (America/Sao_Paulo). "Semana:" e
+// "Data:" só valem quando apontam para a semana atual ou uma futura; veja agenda-week.mjs.
+const weekChoice = resolveWeekStart({
+  boardWeek: settings.weekStart,
+  cardDates: parsedCards
+    .filter(item => item.card.date)
+    .map(item => ({ title: item.card.title, date: item.card.date })),
+});
+const weekStart = weekChoice.weekStart;
+const notices = [...weekChoice.warnings];
 
 const liveBuckets = new Map(DAY_DEFINITIONS.map(day => [day.id, []]));
 for (const item of parsedCards) {
   const expectedDate = formatIsoDate(addDays(weekStart, item.day.offset));
-  if (item.card.date && item.card.date !== expectedDate) {
+  const dateCheck = checkCardDate({ date: item.card.date, expectedDate, weekStart });
+  if (dateCheck === "mismatch") {
     throw new Error(`Trello Agenda: "${item.card.title}" está em ${item.day.name}, mas Data: ${item.card.date} não corresponde a ${expectedDate}.`);
+  }
+  if (dateCheck === "stale") {
+    notices.push(`"${item.card.title}" (${item.day.name}) tem Data: ${item.card.date} de uma semana anterior; ignorada, publicando ${expectedDate}.`);
   }
   liveBuckets.get(item.day.id).push(item.card);
 }
@@ -402,4 +387,26 @@ const output = {
 
 await writeFile(OUT, `${JSON.stringify(output, null, 2)}\n`);
 const totalLives = days.reduce((sum, day) => sum + day.lives.length, 0);
-console.log(`Agenda sincronizada: semana ${formatIsoDate(weekStart)}, ${totalLives} live(s), quadro ${boardRaw?.shortUrl || BOARD_ID}.`);
+const weekEnd = formatIsoDate(addDays(weekStart, 6));
+const sourceLabels = {
+  semana: "linha Semana: do quadro",
+  cards: "linhas Data: dos cards",
+  automatica: "automática, pela data de hoje",
+};
+const summary = `Agenda sincronizada: semana ${formatIsoDate(weekStart)} a ${weekEnd} (${sourceLabels[weekChoice.source]}), ${totalLives} live(s), quadro ${boardRaw?.shortUrl || BOARD_ID}.`;
+console.log(summary);
+for (const notice of notices) console.log(`::warning title=Agenda::${notice}`);
+
+// Resumo na página da execução do GitHub Actions (o que o botão "Run workflow" publicou).
+if (process.env.GITHUB_STEP_SUMMARY) {
+  const lines = [
+    "### Agenda sincronizada",
+    "",
+    `- Semana publicada: **${formatIsoDate(weekStart)} a ${weekEnd}** (${sourceLabels[weekChoice.source]})`,
+    `- Lives: ${totalLives}`,
+    `- Última atualização no site: ${output.ultimaAtualizacao}${changed ? "" : " (nada mudou desde a sincronização anterior)"}`,
+    ...notices.map(notice => `- Aviso: ${notice}`),
+    "",
+  ];
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
+}

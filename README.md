@@ -54,8 +54,12 @@ a API ao navegador. O contrato legado de cada dia é preservado e o campo aditiv
 
 Para o quadro da Agenda, use exatamente sete listas (`Domingo`, `Segunda-feira`,
 `Terça-feira`, `Quarta-feira`, `Quinta-feira`, `Sexta-feira`, `Sábado`) e um card
-por live. Na descrição do quadro, defina `Semana: YYYY-MM-DD` usando o domingo da
-semana publicada; `Observacao: ...` é opcional. Em cada card, use por exemplo:
+por live. As datas da Agenda seguem a **semana atual** (domingo a sábado, fuso
+`America/Sao_Paulo`) automaticamente; não é preciso reescrever nada no Trello toda
+semana. Na descrição do quadro, `Semana: YYYY-MM-DD` (um domingo) só serve para
+**planejar a próxima semana** e só vale se for a semana atual ou futura; uma `Semana:`
+que já passou é ignorada com aviso, e `Semana: automática` (ou nenhuma linha) segue
+sempre a data de hoje. `Observacao: ...` é opcional. Em cada card, use por exemplo:
 
 ```text
 Horario: 20:00
@@ -65,7 +69,8 @@ Descricao: Vamos jogar alguma coisa!
 ```
 
 `Horario: A definir` também é aceito. `Data: YYYY-MM-DD` é opcional e funciona
-como validação extra: quando informada, precisa corresponder à lista e à semana.
+como validação extra: quando informada, precisa corresponder à lista e à semana
+publicada (uma `Data:` de semana que já passou é ignorada com aviso).
 `SteamAppID:` também é opcional; quando presente, a Agenda procura esse App ID no
 catálogo local `data/content/jogos.json` e reutiliza somente o ícone oficial da
 Steam já resolvido pelo sync de Jogos. A Agenda não faz uma segunda consulta à
@@ -74,6 +79,12 @@ sem imagem. Cards no mesmo dia são ordenados pelo horário; empates e horários
 indefinidos preservam a ordem do Trello. O ID/short link do quadro deve ficar na Repository
 Variable `TRELLO_AGENDA_BOARD_ID`; os secrets `TRELLO_API_KEY` e `TRELLO_TOKEN`
 já usados pela sincronização de Jogos são reutilizados.
+
+A Agenda é sincronizada às 06:29 e 18:29 e, na virada da semana, no domingo às 00:10
+(horário de São Paulo). Para atualizar **na hora**, abra no GitHub *Actions → Sync
+agenda from Trello → Run workflow* (o link também aparece na tela "Agenda e jogos" do
+Kamyli Editor); o resumo da execução mostra a semana publicada e os avisos. Depois,
+use "Atualizar do GitHub" no editor para trazer o novo `data/agenda.json`.
 
 As Lives usam duas abas no mesmo componente visual. **Twitch é a aba padrão** e
 recebe as últimas transmissões gravadas por `https://api.kamylisumire.com/twitch/videos`.

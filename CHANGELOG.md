@@ -1,5 +1,15 @@
 # Changelog
 
+## V48.3.68 — Datas da Agenda acompanham a semana atual
+
+- corrige a Agenda sincronizada pelo Trello que atualizava as lives, mas deixava as **datas presas numa semana antiga**: `sync-agenda.mjs` só obtinha a semana da linha `Semana: AAAA-MM-DD` da descrição do quadro (ou das linhas `Data:` dos cards) e nunca da data de hoje, então, sem alguém reescrever essa linha toda semana, `data/agenda.json` continuava com os dias da semana anterior (ex.: lives atualizadas em 21/10 com datas de 20 a 26/09);
+- novo `.github/scripts/agenda-week.mjs` (funções puras, testáveis): a semana publicada agora é, nesta ordem, (1) `Semana:` do quadro, **se for a semana atual ou futura**; (2) `Data:` dos cards, se alguma for da semana atual ou futura; (3) a **semana atual em America/Sao_Paulo** (domingo a sábado). Uma semana que já passou nunca é publicada: a linha `Semana:` antiga é ignorada com aviso, e `Data:` antiga em card é ignorada card a card. `Semana: automática` (ou apagar a linha) deixa tudo por conta da data de hoje; planejar a próxima semana com `Semana:` futura continua funcionando;
+- `Data:` no dia errado da semana publicada (ou em semana posterior) continua barrando a publicação, preservando o último `data/agenda.json` válido;
+- `sync-agenda.yml` ganha uma rodada extra **domingo 00:10 em São Paulo** (`10 3 * * 0`, UTC-3), para a semana virar logo depois da meia-noite em vez de esperar as 06:29; as rodadas das 06:29 e 18:29 continuam;
+- **atualização manual:** o botão *Run workflow* (`workflow_dispatch`) já existia, mas não era documentado. Agora a execução mostra, no resumo da página do GitHub Actions, a semana publicada, a origem dela (`Semana:`, `Data:` ou automática), o número de lives e os avisos; os avisos também aparecem como anotações `::warning`;
+- novos `.github/tests/agenda-week.test.mjs` (14 testes: fuso e virada de domingo, `Semana:` antiga/futura/automática, `Data:` antiga/atual/futura/mistura, e o `sync-agenda.mjs` de ponta a ponta com Trello e relógio simulados, incluindo o caso do quadro preso em 20/09) e `validate_agenda_week()` na validação de conteúdo; `node --check` de `agenda-week.mjs` nos dois workflows;
+- sem mudança de HTML, CSS ou JavaScript do site: nenhum cache-buster muda.
+
 ## V48.3.67 — Destaque da engrenagem só com o painel aberto
 
 - corrige o destaque da engrenagem de Configurações que podia ficar preso com o painel fechado: o preenchimento era compartilhado entre `:hover`, `:focus-visible` e `[aria-expanded="true"]`, então fechar pelo próprio botão (mouse em cima ou toque, que "gruda" o hover) ou com Esc (o foco volta ao botão) deixava a engrenagem destacada;

@@ -185,11 +185,21 @@ Desde V48.3.26, o arquivo pode ser gerado por `.github/scripts/sync-agenda.mjs` 
 partir de um quadro Trello dedicado. O navegador nunca consulta a API do Trello.
 
 No quadro, cada lista representa um dia da semana e cada card representa uma live.
-A descrição do quadro pode declarar `Semana: YYYY-MM-DD` apontando para o domingo
-da semana publicada e `Observacao: ...`. Em cada card, `Horario:` pode ser HH:MM
-ou `A definir`, `Plataformas:` aceita YouTube/Twitch e `Descricao:` é opcional;
+A descrição do quadro pode declarar `Semana: YYYY-MM-DD` (domingo) ou
+`Semana: automática`, além de `Observacao: ...`. Em cada card, `Horario:` pode ser
+HH:MM ou `A definir`, `Plataformas:` aceita YouTube/Twitch e `Descricao:` é opcional;
 `Data:` também é opcional e, quando presente, deve coincidir com o dia/lista da
-semana publicada. `SteamAppID:` é opcional e serve somente para associar a live
+semana publicada.
+
+**Semana publicada (V48.3.68):** é decidida por `.github/scripts/agenda-week.mjs`, nunca
+só pelo texto do Trello: (1) `Semana:` do quadro, se for a semana atual ou futura;
+(2) `Data:` dos cards, se alguma for da semana atual ou futura; (3) a semana atual em
+`America/Sao_Paulo`. Semana que já passou nunca é publicada (a linha antiga é ignorada
+com aviso e `Data:` antiga em card é ignorada card a card); `Data:` no dia errado da
+semana publicada continua sendo erro. Não reintroduza uma regra que dependa apenas de
+`Semana:`/`Data:` mantidos à mão: foi isso que deixava as datas presas numa semana
+antiga. Mantenha `agenda-week.mjs` sem rede, sem variáveis de ambiente e coberto por
+`.github/tests/agenda-week.test.mjs`. `SteamAppID:` é opcional e serve somente para associar a live
 a um ícone oficial já resolvido em `data/content/jogos.json`. O sync da Agenda não
 deve consultar a Steam diretamente nem manter um segundo cache de assets. Cards
 arquivados não entram na agenda.
@@ -208,7 +218,10 @@ igual ao de `lives[0]` e o omite se esse título for alterado, evitando associa�
 visual incorreta até a próxima sincronização pelo Trello. Um dia com horário vazio
 deve aparecer como “A definir”.
 
-O workflow `.github/workflows/sync-agenda.yml` usa os mesmos secrets do Trello já
+O workflow `.github/workflows/sync-agenda.yml` roda às 06:29 e 18:29, no domingo às
+00:10 (virada da semana, horário de São Paulo) e por `workflow_dispatch` (botão
+*Run workflow*, a atualização manual; o resumo da execução informa a semana publicada).
+Ele usa os mesmos secrets do Trello já
 existentes e lê o ID do quadro em `vars.TRELLO_AGENDA_BOARD_ID`. Se o Trello estiver
 indisponível ou o quadro tiver estrutura/dados inválidos, a sincronização deve falhar
 antes do commit, preservando o último `data/agenda.json` válido.

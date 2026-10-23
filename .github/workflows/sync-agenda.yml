@@ -1,9 +1,12 @@
 name: Sync agenda from Trello
 
 on:
+  # Atualização manual: GitHub > Actions > "Sync agenda from Trello" > Run workflow.
   workflow_dispatch:
   schedule:
     - cron: "29 9,21 * * *"
+    # Domingo 00:10 em America/Sao_Paulo (03:10 UTC): vira a semana da Agenda.
+    - cron: "10 3 * * 0"
 
 permissions:
   contents: write
@@ -34,6 +37,7 @@ jobs:
           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
           node --check workers.js
           node --check .github/scripts/sync-agenda.mjs
+          node --check .github/scripts/agenda-week.mjs
 
       - name: Commit only when agenda changed
         run: |

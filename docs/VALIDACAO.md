@@ -1,3 +1,14 @@
+## V48.3.68 — datas da Agenda acompanham a semana atual
+
+Validação recomendada:
+
+1. executar `node --test .github/tests/agenda-week.test.mjs` e confirmar 14 testes passando;
+2. num quadro de teste com `Semana:` de uma semana passada, executar *Run workflow* em *Sync agenda from Trello* e confirmar no resumo da execução a semana atual, o aviso "já passou" e, em `data/agenda.json`, `dias[0].data` igual ao domingo desta semana;
+3. trocar a descrição por `Semana: automática` e depois por uma `Semana:` futura (domingo) e confirmar que a futura é publicada sem aviso;
+4. colocar `Data:` no dia errado de um card da semana atual e confirmar que a execução falha sem alterar `data/agenda.json`;
+5. confirmar no `sync-agenda.yml` as três entradas de disparo (manual, `29 9,21 * * *` e `10 3 * * 0`);
+6. executar `python .github/scripts/validate-content.py`, `node --check` dos `.mjs` e `git diff --check`.
+
 ## V48.3.63 — hardening da CI
 
 Validação recomendada:

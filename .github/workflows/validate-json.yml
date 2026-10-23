@@ -83,6 +83,7 @@ jobs:
           node --check workers.js
           node --check .github/scripts/sync-jogos.mjs
           node --check .github/scripts/sync-agenda.mjs
+          node --check .github/scripts/agenda-week.mjs
 
       - name: Run automated tests
         run: node --test .github/tests/*.test.mjs

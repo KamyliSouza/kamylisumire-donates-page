@@ -65,6 +65,7 @@ REQUIRED_FILES = (
     ".github/scripts/sync-jogos.mjs",
     ".github/workflows/sync-jogos.yml",
     ".github/scripts/sync-agenda.mjs",
+    ".github/scripts/agenda-week.mjs",
     ".github/workflows/sync-agenda.yml",
     ".github/tests/worker-ranking.test.mjs",
     ".github/tests/worker-robustness.test.mjs",
@@ -76,6 +77,7 @@ REQUIRED_FILES = (
     ".github/tests/workflow-hardening.test.mjs",
     ".github/tests/reading-mode.test.mjs",
     ".github/tests/settings-placement.test.mjs",
+    ".github/tests/agenda-week.test.mjs",
     "js/core/settings.js",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
@@ -4073,6 +4075,67 @@ CORE_PAGES_SETTINGS = (
 )
 
 
+def validate_agenda_week() -> None:
+    """V48.3.68: a semana da Agenda acompanha a data de hoje (America/Sao_Paulo).
+
+    Antes, a semana vinha só de "Semana:" na descrição do quadro (ou dos "Data:" dos
+    cards). Se a linha não fosse atualizada, as lives sincronizavam mas as datas ficavam
+    presas numa semana antiga. A regra agora vive em agenda-week.mjs:
+
+    - "Semana:" e "Data:" só valem para a semana atual ou futura; semana passada é
+      ignorada com aviso; "Semana: automática" (ou sem linha) segue o relógio;
+    - o workflow tem botão manual (workflow_dispatch) e uma rodada extra na virada de
+      domingo (00:10 em São Paulo);
+    - a lógica fica coberta por .github/tests/agenda-week.test.mjs.
+    """
+
+    week_js = read_text(".github/scripts/agenda-week.mjs")
+    for token in (
+        'export const AGENDA_TIME_ZONE = "America/Sao_Paulo";',
+        "export function currentWeekStart(",
+        "export function resolveWeekStart(",
+        "export function checkCardDate(",
+        "export function parseWeekSetting(",
+        "boardWeek.getTime() >= current.getTime()",
+    ):
+        if token not in week_js:
+            error(f".github/scripts/agenda-week.mjs: regra V48.3.68 ausente: {token}")
+
+    sync_js = read_text(".github/scripts/sync-agenda.mjs")
+    for token in (
+        'from "./agenda-week.mjs"',
+        "resolveWeekStart({",
+        "checkCardDate({",
+        "process.env.GITHUB_STEP_SUMMARY",
+    ):
+        if token not in sync_js:
+            error(f".github/scripts/sync-agenda.mjs: V48.3.68 ausente: {token}")
+    if "weekStartFor(parseIsoDate(datedCards" in sync_js:
+        error(".github/scripts/sync-agenda.mjs: a semana não pode voltar a depender só das datas dos cards (V48.3.68).")
+
+    workflow = read_text(".github/workflows/sync-agenda.yml")
+    for token in (
+        "workflow_dispatch:",
+        'cron: "29 9,21 * * *"',
+        'cron: "10 3 * * 0"',
+        "node --check .github/scripts/agenda-week.mjs",
+    ):
+        if token not in workflow:
+            error(f".github/workflows/sync-agenda.yml: V48.3.68 ausente: {token}")
+
+    if "node --check .github/scripts/agenda-week.mjs" not in read_text(".github/workflows/validate-json.yml"):
+        error(".github/workflows/validate-json.yml: node --check de agenda-week.mjs ausente (V48.3.68).")
+
+    week_tests = read_text(".github/tests/agenda-week.test.mjs")
+    for token in (
+        "Semana: antiga (o bug original)",
+        "a semana vira no domingo 00:10 de São Paulo",
+        "continua barrando a publicação",
+    ):
+        if token not in week_tests:
+            error(f".github/tests/agenda-week.test.mjs: cobertura V48.3.68 ausente: {token}")
+
+
 def main() -> int:
     validate_required_and_forbidden()
     validate_all_json()
@@ -4090,6 +4153,7 @@ def main() -> int:
     validate_security_contracts()
     validate_reading_mode()
     validate_settings_placement()
+    validate_agenda_week()
 
     # Valide referências locais de toda página HTML versionada. Isso cobre
     # páginas institucionais aninhadas e futuros artigos estáticos sem depender
