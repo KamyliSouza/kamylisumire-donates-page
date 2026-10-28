@@ -1221,7 +1221,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 3812600,
-        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1790169325"
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3812600/e5b5c644ea016beccffb56e76cf61ca78b552a14/library_capsule_2x.jpg?t=1793135799"
       },
       "icon": {
         "provider": "steam-original",
@@ -2003,7 +2003,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 3043580,
-        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3043580/35b34662003d80ae57559db6b654ba220bc8152d/library_capsule_2x.jpg?t=1788529941"
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3043580/35b34662003d80ae57559db6b654ba220bc8152d/library_capsule_2x.jpg?t=1793144574"
       },
       "icon": {
         "provider": "steam-original",
@@ -2755,5 +2755,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-10-22T14:32:19.589Z"
+  "updatedAt": "2026-10-28T00:32:33.605Z"
 }
