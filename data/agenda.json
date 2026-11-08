@@ -1,11 +1,11 @@
 {
-  "ultimaAtualizacao": "01/11/2026",
+  "ultimaAtualizacao": "08/11/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
       "id": "domingo",
       "nome": "Domingo",
-      "data": "2026-11-01",
+      "data": "2026-11-08",
       "temLive": false,
       "horario": "",
       "titulo": "",
@@ -19,7 +19,7 @@
     {
       "id": "segunda",
       "nome": "Segunda-feira",
-      "data": "2026-11-02",
+      "data": "2026-11-09",
       "temLive": true,
       "horario": "20:00",
       "titulo": "DARK SOULS™ II",
@@ -49,7 +49,7 @@
     {
       "id": "terca",
       "nome": "Terça-feira",
-      "data": "2026-11-03",
+      "data": "2026-11-10",
       "temLive": true,
       "horario": "20:00",
       "titulo": "The Witch's Bakery",
@@ -79,7 +79,7 @@
     {
       "id": "quarta",
       "nome": "Quarta-feira",
-      "data": "2026-11-04",
+      "data": "2026-11-11",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Kena: Bridge of Spirits",
@@ -109,7 +109,7 @@
     {
       "id": "quinta",
       "nome": "Quinta-feira",
-      "data": "2026-11-05",
+      "data": "2026-11-12",
       "temLive": true,
       "horario": "20:00",
       "titulo": "ReStory: Chill Electronics Repairs",
@@ -139,7 +139,7 @@
     {
       "id": "sexta",
       "nome": "Sexta-feira",
-      "data": "2026-11-06",
+      "data": "2026-11-13",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Kena: Bridge of Spirits",
@@ -169,7 +169,7 @@
     {
       "id": "sabado",
       "nome": "Sábado",
-      "data": "2026-11-07",
+      "data": "2026-11-14",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Baldur's Gate 3",
