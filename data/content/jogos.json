@@ -43,6 +43,63 @@
   ],
   "games": [
     {
+      "id": "6a918de403bda7275ace22ad",
+      "name": "Kena: Bridge of Spirits",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488044032,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1954200,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1954200,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
+      },
+      "steamAppId": 1954200,
+      "steamUrl": "https://store.steampowered.com/app/1954200/"
+    },
+    {
+      "id": "69f803c6bc8f6fae77d6a82e",
+      "name": "Dark Souls II",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488060416,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 236430,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 236430,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
+      },
+      "steamAppId": 236430,
+      "steamUrl": "https://store.steampowered.com/app/236430/"
+    },
+    {
+      "id": "6ac78f54120b899e0b9edf72",
+      "name": "Out of Sight",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488068608,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2526310,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2526310/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2526310,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2526310/2a5af6560364be1f7902c8456ad0a95cf2c66f47.jpg"
+      },
+      "steamAppId": 2526310,
+      "steamUrl": "https://store.steampowered.com/app/2526310/"
+    },
+    {
       "id": "69f61e47d6aa01a3d7cf48f9",
       "name": "INDIKA",
       "listId": "69f610396e6fb0d017a97829",
@@ -290,6 +347,44 @@
       "steamUrl": "https://store.steampowered.com/app/2915460/"
     },
     {
+      "id": "6af443d3cb30e05d851e3c45",
+      "name": "Phantom Blade Zero",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488233472,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 4115450,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4115450/471e77854910665c03eb9a53ad06f2ac12903acd/library_capsule_2x.jpg?t=1793261976"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 4115450,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/4115450/ce420dc458dd3d7af276f48fbaa44a05876760dc.jpg"
+      },
+      "steamAppId": 4115450,
+      "steamUrl": "https://store.steampowered.com/app/4115450/"
+    },
+    {
+      "id": "6a8c27dec02f32f6e36cbb39",
+      "name": "Warhammer Vermintide 2",
+      "listId": "6a8c261ebc3d1ca81f06e55b",
+      "listName": "Em Espera",
+      "pos": 140737488233472,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 552500,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 552500,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/552500/a671f2ddf7359beba9702ac097baf6d50cb07202.jpg"
+      },
+      "steamAppId": 552500,
+      "steamUrl": "https://store.steampowered.com/app/552500/"
+    },
+    {
       "id": "6a918bc1a0397e78cbee0088",
       "name": "Metaphor: ReFantazio",
       "listId": "69f610ad5891e07aa88e7636",
@@ -364,6 +459,25 @@
       },
       "steamAppId": 2967950,
       "steamUrl": "https://store.steampowered.com/app/2967950/"
+    },
+    {
+      "id": "6ac780fe4d2f284f965e9233",
+      "name": "Steelrising",
+      "listId": "6a8c261ebc3d1ca81f06e55b",
+      "listName": "Em Espera",
+      "pos": 140737488249856,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1283400,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1283400/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1283400,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1283400/64b546456f2ab6ca25eaf11ee0254654b0391ae0.jpg"
+      },
+      "steamAppId": 1283400,
+      "steamUrl": "https://store.steampowered.com/app/1283400/"
     },
     {
       "id": "69f612306dd0c50e4a5772ff",
@@ -478,25 +592,6 @@
       },
       "steamAppId": 1569580,
       "steamUrl": "https://store.steampowered.com/app/1569580/"
-    },
-    {
-      "id": "6a918de403bda7275ace22ad",
-      "name": "Kena: Bridge of Spirits",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488282624,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1954200,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1954200/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1954200,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
-      },
-      "steamAppId": 1954200,
-      "steamUrl": "https://store.steampowered.com/app/1954200/"
     },
     {
       "id": "6a773b3b29dd1551286cf2f0",
@@ -860,25 +955,6 @@
       "steamUrl": "https://store.steampowered.com/app/678960/"
     },
     {
-      "id": "6a45076724ceaca4cb34ad3a",
-      "name": "Baldur's Gate III (2023)",
-      "listId": "6a8c261ebc3d1ca81f06e55b",
-      "listName": "Em Espera",
-      "pos": 140737488338944,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1086940,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1086940,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1086940/d866cae7ea1e471fdbc206287111f1b642373bd9.jpg"
-      },
-      "steamAppId": 1086940,
-      "steamUrl": "https://store.steampowered.com/app/1086940/"
-    },
-    {
       "id": "69f61042fcdfa31f8baf4458",
       "name": "Elden Ring",
       "listId": "69f610396e6fb0d017a97829",
@@ -926,25 +1002,6 @@
       "icon": null,
       "steamAppId": 2778580,
       "steamUrl": "https://store.steampowered.com/app/2778580/"
-    },
-    {
-      "id": "6ac78f54120b899e0b9edf72",
-      "name": "Out of Sight",
-      "listId": "6a3eeff29abc42268c0088ef",
-      "listName": "Pedidos",
-      "pos": 140737488345088,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 2526310,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2526310/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 2526310,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2526310/2a5af6560364be1f7902c8456ad0a95cf2c66f47.jpg"
-      },
-      "steamAppId": 2526310,
-      "steamUrl": "https://store.steampowered.com/app/2526310/"
     },
     {
       "id": "69f610465bf55bcb7a7bee91",
@@ -1270,25 +1327,6 @@
       "steamUrl": "https://store.steampowered.com/app/2466900/"
     },
     {
-      "id": "6ac780fe4d2f284f965e9233",
-      "name": "Steelrising",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488388096,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1283400,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1283400/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1283400,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1283400/64b546456f2ab6ca25eaf11ee0254654b0391ae0.jpg"
-      },
-      "steamAppId": 1283400,
-      "steamUrl": "https://store.steampowered.com/app/1283400/"
-    },
-    {
       "id": "69f611b23512ada964ce76be",
       "name": "Celeste",
       "listId": "6a8c261ebc3d1ca81f06e55b",
@@ -1355,25 +1393,6 @@
       "icon": null,
       "steamAppId": 1117850,
       "steamUrl": "https://store.steampowered.com/app/1117850/"
-    },
-    {
-      "id": "69f803c6bc8f6fae77d6a82e",
-      "name": "Dark Souls II",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488396288,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 236430,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/236430/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 236430,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
-      },
-      "steamAppId": 236430,
-      "steamUrl": "https://store.steampowered.com/app/236430/"
     },
     {
       "id": "69f6102c3c7cf7092c6dfb53",
@@ -1452,23 +1471,23 @@
       "steamUrl": "https://store.steampowered.com/app/1196590/"
     },
     {
-      "id": "6a8c27dec02f32f6e36cbb39",
-      "name": "Warhammer Vermintide 2",
+      "id": "6a45076724ceaca4cb34ad3a",
+      "name": "Baldur's Gate III (2023)",
       "listId": "69f61020cf0e4ae8a9494226",
       "listName": "Em Andamento",
       "pos": 140737488429056,
       "artwork": {
         "provider": "steam-original",
-        "steamAppId": 552500,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/552500/library_600x900.jpg"
+        "steamAppId": 1086940,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
       },
       "icon": {
         "provider": "steam-original",
-        "steamAppId": 552500,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/552500/a671f2ddf7359beba9702ac097baf6d50cb07202.jpg"
+        "steamAppId": 1086940,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1086940/d866cae7ea1e471fdbc206287111f1b642373bd9.jpg"
       },
-      "steamAppId": 552500,
-      "steamUrl": "https://store.steampowered.com/app/552500/"
+      "steamAppId": 1086940,
+      "steamUrl": "https://store.steampowered.com/app/1086940/"
     },
     {
       "id": "69f610544e75b88a5fc7edc2",
@@ -2755,5 +2774,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-05T17:28:38.671Z"
+  "updatedAt": "2026-11-11T17:12:09.466Z"
 }
