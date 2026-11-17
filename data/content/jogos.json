@@ -271,25 +271,6 @@
       "steamUrl": "https://store.steampowered.com/app/1627720/"
     },
     {
-      "id": "6ac786cf44d431a5e8ed0b6a",
-      "name": "NieR: Automata",
-      "listId": "69f610ad5891e07aa88e7636",
-      "listName": "Jogar",
-      "pos": 140737488220160,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 524220,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/524220/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 524220,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/524220/ec431ecb2a5178c5a01bb15550f112f93af029bb.jpg"
-      },
-      "steamAppId": 524220,
-      "steamUrl": "https://store.steampowered.com/app/524220/"
-    },
-    {
       "id": "69f61138d3eaa850adc1966f",
       "name": "Momodora: Reverie Under The Moonlight",
       "listId": "69f610396e6fb0d017a97829",
@@ -404,6 +385,44 @@
       "steamUrl": "https://store.steampowered.com/app/2679460/"
     },
     {
+      "id": "6ac780be5c055a504686072a",
+      "name": "Beyond: Two Souls",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488237568,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
+      },
+      "steamAppId": 960990,
+      "steamUrl": "https://store.steampowered.com/app/960990/"
+    },
+    {
+      "id": "6ad8b090209b6c9ad8332e99",
+      "name": "The Witch's Bakery",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488239616,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 2967950,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2967950/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 2967950,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
+      },
+      "steamAppId": 2967950,
+      "steamUrl": "https://store.steampowered.com/app/2967950/"
+    },
+    {
       "id": "69f61218b15ee55ae8c0d463",
       "name": "Ai Limit",
       "listId": "69f610396e6fb0d017a97829",
@@ -423,6 +442,25 @@
       "steamUrl": "https://store.steampowered.com/app/2407270/"
     },
     {
+      "id": "6ac786cf44d431a5e8ed0b6a",
+      "name": "NieR: Automata",
+      "listId": "69f61020cf0e4ae8a9494226",
+      "listName": "Em Andamento",
+      "pos": 140737488241664,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 524220,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/524220/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 524220,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/524220/ec431ecb2a5178c5a01bb15550f112f93af029bb.jpg"
+      },
+      "steamAppId": 524220,
+      "steamUrl": "https://store.steampowered.com/app/524220/"
+    },
+    {
       "id": "6ac78187e3d71dff514cdbdd",
       "name": "Darkest Dungeon",
       "listId": "69f610ad5891e07aa88e7636",
@@ -440,25 +478,6 @@
       },
       "steamAppId": 262060,
       "steamUrl": "https://store.steampowered.com/app/262060/"
-    },
-    {
-      "id": "6ad8b090209b6c9ad8332e99",
-      "name": "The Witch's Bakery",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488249856,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 2967950,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2967950/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 2967950,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
-      },
-      "steamAppId": 2967950,
-      "steamUrl": "https://store.steampowered.com/app/2967950/"
     },
     {
       "id": "6ac780fe4d2f284f965e9233",
@@ -516,25 +535,6 @@
       },
       "steamAppId": 813230,
       "steamUrl": "https://store.steampowered.com/app/813230/"
-    },
-    {
-      "id": "6ac780be5c055a504686072a",
-      "name": "Beyond: Two Souls",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488266240,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 960990,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 960990,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
-      },
-      "steamAppId": 960990,
-      "steamUrl": "https://store.steampowered.com/app/960990/"
     },
     {
       "id": "6aad40d75b30964698d1793c",
@@ -2774,5 +2774,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-12T17:38:47.917Z"
+  "updatedAt": "2026-11-17T12:44:42.050Z"
 }
