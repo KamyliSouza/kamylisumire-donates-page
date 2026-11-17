@@ -7,6 +7,7 @@ const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
 const STEAM_WEB_API_KEY = process.env.STEAM_WEB_API_KEY;
 const OUT = "data/content/jogos.json";
 const CACHE = "data/content/jogos-artwork-cache.json";
+const ARTWORK_OUT = "data/content/jogos-artwork.json";
 
 if (!TRELLO_KEY || !TRELLO_TOKEN || !STEAM_WEB_API_KEY) {
   throw new Error("TRELLO_API_KEY, TRELLO_TOKEN e STEAM_WEB_API_KEY são obrigatórios.");
@@ -92,22 +93,48 @@ async function urlExists(url) {
 }
 
 function buildSteamStoreAssetUrl(appId, assets, filename) {
-  const file = String(filename || "").trim().replace(/^\/+/, "");
-  if (!file) return null;
+  if (!Number.isSafeInteger(appId) || appId <= 0) return null;
 
+  const file = String(filename || "").trim();
+
+  // Aceita nome simples ou diretório de hash SHA-1 da Steam.
+  if (!/^(?:[a-f0-9]{40}\/)?[a-z0-9][a-z0-9._-]*$/i.test(file)) {
+    return null;
+  }
+
+  const expectedPrefix = `steam/apps/${appId}/`;
   const fallbackFormat = "steam/apps/" + appId + "/${FILENAME}";
-  const format = String(assets?.asset_url_format || fallbackFormat);
-  const expanded = format.includes("${FILENAME}") ? format.replace("${FILENAME}", file) : fallbackFormat.replace("${FILENAME}", file);
-  const appPath = `steam/apps/${appId}/`;
-  const offset = expanded.indexOf(appPath);
-  if (offset < 0) return null;
+  const format = String(assets?.asset_url_format || fallbackFormat).trim();
 
-  const url = new URL(expanded.slice(offset), STEAM_STORE_ASSET_BASE);
-  if (url.protocol !== "https:" || url.hostname !== "shared.fastly.steamstatic.com") return null;
-  if (!url.pathname.startsWith(`/store_item_assets/${appPath}`)) return null;
+  // Exige o formato relativo exato do AppID, com ou sem parâmetro de cache.
+  const formatMatch =
+    /^steam\/apps\/([1-9]\d*)\/\$\{FILENAME\}(?:\?t=([0-9]+))?$/.exec(format);
+
+  if (!formatMatch || Number(formatMatch[1]) !== appId) return null;
+
+  const url = new URL(
+    `${expectedPrefix}${file}`,
+    STEAM_STORE_ASSET_BASE
+  );
+
+  if (formatMatch[2]) {
+    url.searchParams.set("t", formatMatch[2]);
+  }
+
+  if (
+    url.protocol !== "https:" ||
+    url.hostname !== "shared.fastly.steamstatic.com" ||
+    url.port ||
+    url.username ||
+    url.password ||
+    url.hash ||
+    url.pathname !== `/store_item_assets/${expectedPrefix}${file}`
+  ) {
+    return null;
+  }
+
   return url.toString();
 }
-
 async function getStoreBrowsePortrait(appId) {
   const endpoint = new URL("IStoreBrowseService/GetItems/v1/", STEAM_API_BASE);
   endpoint.searchParams.set("input_json", JSON.stringify({
@@ -134,6 +161,34 @@ function buildSteamCommunityIconUrl(appId, hash) {
   return `${STEAM_COMMUNITY_ICON_BASE}${appId}/${iconHash}.jpg`;
 }
 
+// Card assets são extraídos da mesma resposta GetItems já usada para os
+// community icons. Este bloco não adiciona chamadas à Steam.
+// page_background/page_bg_generated são deliberadamente excluídos: são fundos
+// estilizados da página da loja, não artes horizontais de card.
+const STEAM_CARD_ART_FIELDS = [
+  ["header", "header"],
+  ["main_capsule", "main-capsule"],
+  ["small_capsule", "small-capsule"],
+  ["library_hero_2x", "library-hero-2x"],
+  ["library_hero", "library-hero"],
+  ["library_capsule_2x", "library-capsule-2x"],
+  ["library_capsule", "library-capsule"]
+];
+
+function buildSteamCardCandidates(appId, assets) {
+  const candidates = [];
+  const seen = new Set();
+  for (const [field, kind] of STEAM_CARD_ART_FIELDS) {
+    const url = buildSteamStoreAssetUrl(appId, assets, assets?.[field]);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    candidates.push({ kind, url });
+  }
+  return candidates;
+}
+
+const steamCardCandidates = new Map();
+
 async function getSteamCommunityIcons(appIds) {
   const uniqueAppIds = [...new Set(appIds.filter(appId => Number.isSafeInteger(appId) && appId > 0))];
   const icons = new Map();
@@ -152,6 +207,9 @@ async function getSteamCommunityIcons(appIds) {
       const payload = await getJson(endpoint, { headers: steamApiHeaders });
       for (const item of payload?.response?.store_items || []) {
         const appId = Number(item?.appid);
+        const assets = item?.assets || {};
+        const candidates = buildSteamCardCandidates(appId, assets);
+        if (candidates.length) steamCardCandidates.set(appId, candidates);
         const url = buildSteamCommunityIconUrl(appId, item?.assets?.community_icon);
         if (url) icons.set(appId, { provider: "steam-original", steamAppId: appId, url });
       }
@@ -372,4 +430,43 @@ const changed = JSON.stringify(stable) !== JSON.stringify(previousStable);
 const output = { ...stable, updatedAt: changed ? new Date().toISOString() : (previous?.updatedAt || null) };
 await writeFile(OUT, `${JSON.stringify(output, null, 2)}\n`);
 await writeFile(CACHE, `${JSON.stringify(cache, null, 2)}\n`);
+// Public metadata-only manifest for the independent Agenda Publisher.
+// No image bytes are downloaded, copied, or committed by this step.
+const artworkGames = games
+  .filter(game => Number.isSafeInteger(Number(game.steamAppId)) && Number(game.steamAppId) > 0)
+  .map(game => {
+    const appId = Number(game.steamAppId);
+    const candidates = [...(steamCardCandidates.get(appId) || [])];
+    const existingArtworkUrl = String(game.artwork?.url || "").trim();
+    let existingArtworkAllowed = false;
+    try {
+      const parsed = new URL(existingArtworkUrl);
+      existingArtworkAllowed = parsed.protocol === "https:"
+        && ["shared.fastly.steamstatic.com", "shared.akamai.steamstatic.com", "cdn.cloudflare.steamstatic.com"].includes(parsed.hostname)
+        && !parsed.username && !parsed.password && !parsed.port && !parsed.hash
+        && !/page_bg|page_background|storepagebackground/i.test(parsed.pathname);
+    } catch {}
+    if (existingArtworkAllowed && !candidates.some(candidate => candidate.url === existingArtworkUrl)) {
+      candidates.push({ kind: "existing-library-artwork", url: existingArtworkUrl });
+    }
+    return {
+      steamAppId: appId,
+      name: game.name,
+      steamUrl: game.steamUrl,
+      cardCandidates: candidates
+    };
+  });
+
+const artworkStable = { version: 1, source: "existing-site-game-sync", games: artworkGames };
+let previousArtwork = null;
+try { previousArtwork = JSON.parse(await readFile(ARTWORK_OUT, "utf8")); } catch {}
+const previousArtworkStable = previousArtwork
+  ? { version: previousArtwork.version, source: previousArtwork.source, games: previousArtwork.games }
+  : null;
+const artworkChanged = JSON.stringify(artworkStable) !== JSON.stringify(previousArtworkStable);
+const artworkOutput = {
+  ...artworkStable,
+  updatedAt: artworkChanged ? new Date().toISOString() : (previousArtwork?.updatedAt || null)
+};
+await writeFile(ARTWORK_OUT, `${JSON.stringify(artworkOutput, null, 2)}\n`);
 console.log(`Sincronização concluída: ${lists.length} listas, ${games.length} jogos.`);
