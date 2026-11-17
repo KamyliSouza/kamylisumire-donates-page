@@ -1,5 +1,5 @@
 {
-  "ultimaAtualizacao": "15/11/2026",
+  "ultimaAtualizacao": "17/11/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
@@ -22,8 +22,8 @@
       "data": "2026-11-16",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "DARK SOULS™ II",
-      "descricao": "Primeira Vez Pela SEGUNDA VEZ!",
+      "titulo": "Phantom Blade Zero",
+      "descricao": "O Hype da Vez!",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -31,17 +31,17 @@
       "lives": [
         {
           "horario": "20:00",
-          "titulo": "DARK SOULS™ II",
-          "descricao": "Primeira Vez Pela SEGUNDA VEZ!",
+          "titulo": "Phantom Blade Zero",
+          "descricao": "O Hype da Vez!",
           "plataformas": [
             "YouTube",
             "Twitch"
           ],
-          "steamAppId": 236430,
+          "steamAppId": 4115450,
           "icon": {
             "provider": "steam-original",
-            "steamAppId": 236430,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/236430/8d5b3da903efb047d4efb670c08714a4d1071e83.jpg"
+            "steamAppId": 4115450,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/4115450/ce420dc458dd3d7af276f48fbaa44a05876760dc.jpg"
           }
         }
       ]
@@ -52,7 +52,7 @@
       "data": "2026-11-17",
       "temLive": true,
       "horario": "20:00",
-      "titulo": "The Witch's Bakery",
+      "titulo": "Beyond Two Souls",
       "descricao": "Vamos Curar Corações!",
       "plataformas": [
         "YouTube",
@@ -61,98 +61,8 @@
       "lives": [
         {
           "horario": "20:00",
-          "titulo": "The Witch's Bakery",
+          "titulo": "Beyond Two Souls",
           "descricao": "Vamos Curar Corações!",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 2967950,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 2967950,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "quarta",
-      "nome": "Quarta-feira",
-      "data": "2026-11-18",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Kena: Bridge of Spirits",
-      "descricao": "Na espera pela continuação.",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "Kena: Bridge of Spirits",
-          "descricao": "Na espera pela continuação.",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 1954200,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 1954200,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1954200/6aa6d99f50212e2b13ca564cdd5359f7db6b18be.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "quinta",
-      "nome": "Quinta-feira",
-      "data": "2026-11-19",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "ReStory: Chill Electronics Repairs",
-      "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "ReStory: Chill Electronics Repairs",
-          "descricao": "Abri Minha ASSISTÊNCIA TÉCNICA!",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 3812600,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 3812600,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/3812600/223fc3dfb2c254906f0d311e682cbcaedab4f181.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "sexta",
-      "nome": "Sexta-feira",
-      "data": "2026-11-20",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Kena: Bridge of Spirits",
-      "descricao": "Uma Trama PSICOLÓGICA.",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "Kena: Bridge of Spirits",
-          "descricao": "Uma Trama PSICOLÓGICA.",
           "plataformas": [
             "YouTube",
             "Twitch"
@@ -167,13 +77,87 @@
       ]
     },
     {
+      "id": "quarta",
+      "nome": "Quarta-feira",
+      "data": "2026-11-18",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Witch's Bakery",
+      "descricao": "Pães que Curam corações!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Witch's Bakery",
+          "descricao": "Pães que Curam corações!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 2967950,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 2967950,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quinta",
+      "nome": "Quinta-feira",
+      "data": "2026-11-19",
+      "temLive": false,
+      "horario": "",
+      "titulo": "",
+      "descricao": "",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": []
+    },
+    {
+      "id": "sexta",
+      "nome": "Sexta-feira",
+      "data": "2026-11-20",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Nier: Automata",
+      "descricao": "Robôs Também CHORAM?",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Nier: Automata",
+          "descricao": "Robôs Também CHORAM?",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 524220,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 524220,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/524220/ec431ecb2a5178c5a01bb15550f112f93af029bb.jpg"
+          }
+        }
+      ]
+    },
+    {
       "id": "sabado",
       "nome": "Sábado",
       "data": "2026-11-21",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Baldur's Gate 3",
-      "descricao": "Rumo ao ATO 2! O Que Será Que Nos Espera?",
+      "descricao": "A Volta dos que não se foram.",
       "plataformas": [
         "YouTube",
         "Twitch"
@@ -182,7 +166,7 @@
         {
           "horario": "20:00",
           "titulo": "Baldur's Gate 3",
-          "descricao": "Rumo ao ATO 2! O Que Será Que Nos Espera?",
+          "descricao": "A Volta dos que não se foram.",
           "plataformas": [
             "YouTube",
             "Twitch"
