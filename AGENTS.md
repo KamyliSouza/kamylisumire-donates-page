@@ -114,6 +114,18 @@ placeholder local mesmo quando o App ID estiver confirmado. `steamAppId` e
 pode publicar também `icon`, derivado do `community_icon` oficial da Steam, para
 uso compacto pela Agenda; isso não substitui a Library Capsule exibida em Jogos.
 
+Todo acesso à Steam (Web API e CDN) passa por `.github/scripts/steam-client.mjs`:
+User-Agent identificado, intervalo mínimo entre requisições, repetição com espera
+crescente para falhas transitórias e disjuntor — HTTP 429, 403 na Web API, 5 respostas
+403 seguidas no CDN ou 3 requisições seguidas com falha interrompem a Steam naquela
+execução. Ao interromper, o sync continua com o cache e com o último estado publicado
+(capa, ícone, `steamAppId` e candidatas do manifesto não são apagados por falha
+temporária) e emite um `::warning` no Actions. Os assets de cada app ficam em
+`data/content/jogos-artwork-cache.json` → `apps` (14 dias; resultado "sem asset" 3 dias;
+falhas nunca viram cache negativo), então uma execução com cache válido não faz nenhuma
+requisição à Steam. `IStoreBrowseService/GetItems` não é documentado pela Valve: manter
+uma única função que o chama (`ensureSteamItems`), em lote e só para apps sem cache válido.
+
 A quantidade de cards por página não pertence ao JSON gerado pelo sync. Ela é
 configuração editorial independente em `data/content/jogos-config.json`, no campo
 inteiro `jogosPorPagina` (1 a 60). O frontend deve usar esse valor em toda a

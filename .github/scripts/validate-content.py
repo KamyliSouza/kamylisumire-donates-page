@@ -63,6 +63,7 @@ REQUIRED_FILES = (
     "js/pages/home/twitch-live.js",
     "js/pages/home/home-interactions.js",
     ".github/scripts/sync-jogos.mjs",
+    ".github/scripts/steam-client.mjs",
     ".github/workflows/sync-jogos.yml",
     ".github/scripts/sync-agenda.mjs",
     ".github/scripts/agenda-week.mjs",
@@ -78,6 +79,7 @@ REQUIRED_FILES = (
     ".github/tests/reading-mode.test.mjs",
     ".github/tests/settings-placement.test.mjs",
     ".github/tests/agenda-week.test.mjs",
+    ".github/tests/steam-client.test.mjs",
     "js/core/settings.js",
     "js/pages/blog/blog.js",
     "js/pages/artes/artes.js",
@@ -2309,6 +2311,31 @@ def validate_architecture() -> None:
     ):
         if token not in sync_jogos_js:
             error(f".github/scripts/sync-jogos.mjs: ícone Steam V48.3.28 ausente: {token}")
+
+    # Acesso à Steam: todo tráfego passa pelo cliente protegido (User-Agent, intervalo,
+    # backoff e disjuntor) e os assets por app são reaproveitados do cache.
+    steam_client_js = read_text(".github/scripts/steam-client.mjs")
+    for token in (
+        'import { createSteamGuard, isFresh, STEAM_ITEMS_TTL_MS, STEAM_NEGATIVE_TTL_MS, SteamHalt } from "./steam-client.mjs";',
+        "const steam = createSteamGuard();",
+        'steam.request(url, { kind: "cdn", method: "HEAD" })',
+        'steam.json(endpoint, { kind: "api", headers: steamApiHeaders })',
+        "async function ensureSteamItems(appIds",
+        "function steamAppEntry(appId)",
+        "function steamDegraded()",
+    ):
+        if token not in sync_jogos_js:
+            error(f".github/scripts/sync-jogos.mjs: contrato de acesso à Steam ausente: {token}")
+    for token in (
+        "export const STEAM_USER_AGENT",
+        "export class SteamHalt",
+        'halt("HTTP 429")',
+        "export function createSteamGuard",
+    ):
+        if token not in steam_client_js:
+            error(f".github/scripts/steam-client.mjs: contrato do disjuntor ausente: {token}")
+    if "node --check .github/scripts/steam-client.mjs" not in sync_jogos_workflow:
+        error(".github/workflows/sync-jogos.yml: steam-client.mjs precisa passar por node --check")
 
     for token in (
         'datetime="2026-09-18"',

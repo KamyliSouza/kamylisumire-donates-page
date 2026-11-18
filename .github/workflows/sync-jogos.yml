@@ -35,6 +35,7 @@ jobs:
           find js -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
           node --check workers.js
           node --check .github/scripts/sync-jogos.mjs
+          node --check .github/scripts/steam-client.mjs
           node -e 'const fs=require("node:fs"); const m=JSON.parse(fs.readFileSync("data/content/jogos-artwork.json","utf8")); const hosts=new Set(["shared.fastly.steamstatic.com","shared.akamai.steamstatic.com","cdn.cloudflare.steamstatic.com"]); if(m.version!==1||!Array.isArray(m.games)) throw new Error("jogos-artwork.json inválido"); for(const g of m.games){if(!Number.isSafeInteger(g.steamAppId)||g.steamAppId<=0||!Array.isArray(g.cardCandidates)) throw new Error("Entrada de jogo inválida"); for(const c of g.cardCandidates){const u=new URL(c.url); if(u.protocol!=="https:"||!hosts.has(u.hostname)||u.username||u.password||u.port||/page_bg|page_background|storepagebackground/i.test(u.pathname)) throw new Error("URL de arte não permitida no manifesto");}}'
 
       - name: Commit only when content changed

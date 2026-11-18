@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { createSteamGuard, isFresh, STEAM_ITEMS_TTL_MS, STEAM_NEGATIVE_TTL_MS, SteamHalt } from "./steam-client.mjs";
 
 const BOARD_ID = process.env.TRELLO_BOARD_ID || "IfgV0jXS";
 const BOARD_URL = "https://trello.com/b/IfgV0jXS/jogos-das-lives";
@@ -39,6 +40,10 @@ function trelloUrl(path, params = {}) {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const steamApiHeaders = { "x-webapi-key": STEAM_WEB_API_KEY };
+// Todo acesso à Steam (API e CDN) passa por este cliente: User-Agent identificado,
+// intervalo mínimo entre requisições, backoff para falhas transitórias e disjuntor
+// (HTTP 429, 403 na API ou falhas seguidas interrompem a Steam nesta execução).
+const steam = createSteamGuard();
 const STEAM_API_BASE = "https://api.steampowered.com/";
 const STEAM_STORE_ASSET_BASE = "https://shared.fastly.steamstatic.com/store_item_assets/";
 const STEAM_LEGACY_ASSET_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
@@ -85,9 +90,10 @@ function getSteamAppIdFromDescription(card) {
 
 async function urlExists(url) {
   try {
-    const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+    const response = await steam.request(url, { kind: "cdn", method: "HEAD" });
     return response.ok;
-  } catch {
+  } catch (error) {
+    if (error instanceof SteamHalt) throw error;
     return false;
   }
 }
@@ -135,22 +141,69 @@ function buildSteamStoreAssetUrl(appId, assets, filename) {
 
   return url.toString();
 }
+// Cache por app (data/content/jogos-artwork-cache.json -> apps). Assets mudam raramente,
+// então a Steam só é consultada de novo quando a entrada expira (STEAM_ITEMS_TTL_MS;
+// resultados negativos expiram em STEAM_NEGATIVE_TTL_MS). Falhas nunca viram cache negativo.
+function steamAppEntry(appId) {
+  return (cache.apps[String(appId)] ??= {});
+}
+
+let steamItemsErrors = 0;
+
+// Verdadeiro quando a Steam foi interrompida ou alguma renovação de assets falhou nesta execução.
+function steamDegraded() {
+  return Boolean(steam.halted) || steamItemsErrors > 0;
+}
+
+function steamItemsFresh(items) {
+  return Boolean(items) && isFresh(items.checkedAt, items.found ? STEAM_ITEMS_TTL_MS : STEAM_NEGATIVE_TTL_MS);
+}
+
+// Única função que chama IStoreBrowseService/GetItems: consulta em lote só os apps sem
+// entrada válida e grava candidatas, capas verticais e ícone no cache por app.
+async function ensureSteamItems(appIds, { throwOnError = false } = {}) {
+  const wanted = [...new Set(appIds.filter(appId => Number.isSafeInteger(appId) && appId > 0))]
+    .filter(appId => !steamItemsFresh(steamAppEntry(appId).items));
+  const batchSize = 50;
+
+  for (let offset = 0; offset < wanted.length; offset += batchSize) {
+    const batch = wanted.slice(offset, offset + batchSize);
+    const endpoint = new URL("IStoreBrowseService/GetItems/v1/", STEAM_API_BASE);
+    endpoint.searchParams.set("input_json", JSON.stringify({
+      ids: batch.map(appid => ({ appid })),
+      context: { language: "english", country_code: "BR" },
+      data_request: { include_assets: true }
+    }));
+
+    try {
+      const payload = await steam.json(endpoint, { kind: "api", headers: steamApiHeaders });
+      const returned = payload?.response?.store_items || [];
+      for (const appId of batch) {
+        const item = returned.find(entry => Number(entry?.appid) === appId);
+        const available = Boolean(item) && (item.success == null || Number(item.success) === 1);
+        const assets = available ? (item.assets || {}) : {};
+        steamAppEntry(appId).items = {
+          checkedAt: new Date().toISOString(),
+          found: available,
+          candidates: buildSteamCardCandidates(appId, assets),
+          portrait: [assets.library_capsule_2x, assets.library_capsule]
+            .map(filename => buildSteamStoreAssetUrl(appId, assets, filename))
+            .filter(Boolean),
+          icon: buildSteamCommunityIconUrl(appId, item?.assets?.community_icon)
+        };
+      }
+    } catch (error) {
+      if (error instanceof SteamHalt || throwOnError) throw error;
+      steamItemsErrors += 1;
+      console.warn(`Steam GetItems: lote ${Math.floor(offset / batchSize) + 1}: ${error.message}; usando o cache existente.`);
+    }
+  }
+}
+
 async function getStoreBrowsePortrait(appId) {
-  const endpoint = new URL("IStoreBrowseService/GetItems/v1/", STEAM_API_BASE);
-  endpoint.searchParams.set("input_json", JSON.stringify({
-    ids: [{ appid: appId }],
-    context: { language: "english", country_code: "BR" },
-    data_request: { include_assets: true }
-  }));
-
-  const payload = await getJson(endpoint, { headers: steamApiHeaders });
-  const item = (payload?.response?.store_items || []).find(entry => Number(entry?.appid) === appId);
-  if (!item || (item.success != null && Number(item.success) !== 1)) return null;
-
-  const assets = item.assets || {};
-  for (const filename of [assets.library_capsule_2x, assets.library_capsule]) {
-    const url = buildSteamStoreAssetUrl(appId, assets, filename);
-    if (url && await urlExists(url)) return url;
+  await ensureSteamItems([appId], { throwOnError: true });
+  for (const url of steamAppEntry(appId).items?.portrait || []) {
+    if (await urlExists(url)) return url;
   }
   return null;
 }
@@ -192,38 +245,25 @@ const steamCardCandidates = new Map();
 async function getSteamCommunityIcons(appIds) {
   const uniqueAppIds = [...new Set(appIds.filter(appId => Number.isSafeInteger(appId) && appId > 0))];
   const icons = new Map();
-  const batchSize = 50;
 
-  for (let offset = 0; offset < uniqueAppIds.length; offset += batchSize) {
-    const batch = uniqueAppIds.slice(offset, offset + batchSize);
-    const endpoint = new URL("IStoreBrowseService/GetItems/v1/", STEAM_API_BASE);
-    endpoint.searchParams.set("input_json", JSON.stringify({
-      ids: batch.map(appid => ({ appid })),
-      context: { language: "english", country_code: "BR" },
-      data_request: { include_assets: true }
-    }));
+  try {
+    await ensureSteamItems(uniqueAppIds);
+  } catch (error) {
+    if (!(error instanceof SteamHalt)) throw error;
+    console.warn(`Steam GetItems: ${error.message} Usando o cache existente.`);
+  }
 
-    try {
-      const payload = await getJson(endpoint, { headers: steamApiHeaders });
-      for (const item of payload?.response?.store_items || []) {
-        const appId = Number(item?.appid);
-        const assets = item?.assets || {};
-        const candidates = buildSteamCardCandidates(appId, assets);
-        if (candidates.length) steamCardCandidates.set(appId, candidates);
-        const url = buildSteamCommunityIconUrl(appId, item?.assets?.community_icon);
-        if (url) icons.set(appId, { provider: "steam-original", steamAppId: appId, url });
-      }
-    } catch (error) {
-      console.warn(`Steam community icons: lote ${Math.floor(offset / batchSize) + 1}: ${error.message}; continuando sem ícone.`);
-    }
-
-    if (offset + batchSize < uniqueAppIds.length) await sleep(100);
+  // Mesmo entradas vencidas continuam valendo quando a renovação falhou.
+  for (const appId of uniqueAppIds) {
+    const items = steamAppEntry(appId).items;
+    if (items?.candidates?.length) steamCardCandidates.set(appId, items.candidates);
+    if (items?.icon) icons.set(appId, { provider: "steam-original", steamAppId: appId, url: items.icon });
   }
 
   return icons;
 }
 
-async function hasOriginalSteamPortrait(appId) {
+async function lookupOriginalSteamPortrait(appId) {
   const directCandidates = [
     `${STEAM_STORE_ASSET_BASE}steam/apps/${appId}/library_capsule_2x.jpg`,
     `${STEAM_STORE_ASSET_BASE}steam/apps/${appId}/library_capsule.jpg`,
@@ -239,11 +279,24 @@ async function hasOriginalSteamPortrait(appId) {
   // Nesse caso, a consulta permanece dentro da infraestrutura oficial da Steam e
   // serve apenas para obter o caminho do asset; a identificação do jogo é feita
   // pela Web API documentada IStoreService/GetAppList.
+  return getStoreBrowsePortrait(appId);
+}
+
+async function hasOriginalSteamPortrait(appId) {
+  const entry = steamAppEntry(appId);
+  const cached = entry.portrait;
+  if (cached && isFresh(cached.checkedAt, cached.url ? STEAM_ITEMS_TTL_MS : STEAM_NEGATIVE_TTL_MS)) return cached.url;
+
   try {
-    return await getStoreBrowsePortrait(appId);
+    const url = await lookupOriginalSteamPortrait(appId);
+    entry.portrait = { checkedAt: new Date().toISOString(), url };
+    return url;
   } catch (error) {
-    console.warn(`Steam Store assets: app ${appId}: ${error.message}.`);
-    return null;
+    if (cached?.url) {
+      console.warn(`Steam Store assets: app ${appId}: ${String(error.message).replace(/\.$/, "")}; usando a capa em cache.`);
+      return cached.url;
+    }
+    throw error;
   }
 }
 
@@ -265,7 +318,7 @@ async function getSteamAppCatalog() {
     if (lastAppId > 0) input.last_appid = lastAppId;
     endpoint.searchParams.set("input_json", JSON.stringify(input));
 
-    const payload = await getJson(endpoint, { headers: steamApiHeaders });
+    const payload = await steam.json(endpoint, { kind: "api", headers: steamApiHeaders });
     const response = payload?.response || {};
     const pageApps = Array.isArray(response.apps) ? response.apps : [];
     for (const app of pageApps) {
@@ -312,9 +365,12 @@ function findSteamApp(name, index) {
 }
 
 function migrateArtworkCache(raw) {
-  if (raw?.version === 3 && raw.entries && typeof raw.entries === "object") return raw;
+  if (raw?.version === 3 && raw.entries && typeof raw.entries === "object") {
+    if (!raw.apps || typeof raw.apps !== "object" || Array.isArray(raw.apps)) raw.apps = {};
+    return raw;
+  }
 
-  const migrated = { version: 3, entries: {} };
+  const migrated = { version: 3, entries: {}, apps: {} };
   if (raw?.version !== 2 || !raw.entries || typeof raw.entries !== "object") return migrated;
 
   for (const [key, entry] of Object.entries(raw.entries)) {
@@ -381,6 +437,14 @@ const cards = cardsRaw.filter(item => !item.closed && listMap.has(item.idList)).
 let rawCache = null;
 try { rawCache = JSON.parse(await readFile(CACHE, "utf8")); } catch {}
 const cache = migrateArtworkCache(rawCache);
+let previous = null;
+try { previous = JSON.parse(await readFile(OUT, "utf8")); } catch {}
+let previousArtwork = null;
+try { previousArtwork = JSON.parse(await readFile(ARTWORK_OUT, "utf8")); } catch {}
+// Se a Steam falhar ou for interrompida pelo disjuntor, o último estado publicado de um
+// jogo é preservado em vez de apagar capa/ícone/candidatas por causa de uma falha transitória.
+const previousGameByCardId = new Map((previous?.games || []).map(game => [game.id, game]));
+const previousCandidatesByAppId = new Map((previousArtwork?.games || []).map(game => [Number(game.steamAppId), game.cardCandidates || []]));
 let steamIndexPromise = null;
 const getSteamIndex = async () => {
   if (!steamIndexPromise) steamIndexPromise = getSteamAppCatalog().then(buildSteamNameIndex);
@@ -400,6 +464,8 @@ for (const card of cards) {
       console.log(`Steam via descrição do Trello: ${card.name} -> ${steamAppId}${url ? " (capa original)" : " (sem capa vertical original)"}`);
     } catch (error) {
       console.warn(`Steam via descrição do Trello: ${card.name}: ${error.message}`);
+      const kept = previousGameByCardId.get(card.id);
+      if (kept?.artwork && Number(kept.steamAppId) === steamAppId) artwork = kept.artwork;
     }
   } else {
     try {
@@ -408,6 +474,11 @@ for (const card of cards) {
       if (match.status === "resolved") artwork = { provider: "steam-original", steamAppId: match.steamAppId, url: match.url };
     } catch (error) {
       console.warn(`Steam Web API: ${card.name}: ${error.message}`);
+      const kept = previousGameByCardId.get(card.id);
+      if (kept?.steamAppId) {
+        steamAppId = kept.steamAppId;
+        artwork = kept.artwork || null;
+      }
     }
   }
 
@@ -419,11 +490,16 @@ const steamCommunityIcons = await getSteamCommunityIcons(games.map(game => game.
 for (const game of games) {
   if (Number.isSafeInteger(game.steamAppId) && game.steamAppId > 0) {
     game.icon = steamCommunityIcons.get(game.steamAppId) || null;
+    if (!game.icon && steamDegraded()) game.icon = previousGameByCardId.get(game.id)?.icon || null;
   }
 }
 
-let previous = null;
-try { previous = JSON.parse(await readFile(OUT, "utf8")); } catch {}
+// O cache por app só guarda jogos que ainda estão no quadro.
+const activeAppIds = new Set(games.map(game => String(game.steamAppId)).filter(id => /^[1-9][0-9]*$/.test(id)));
+for (const key of Object.keys(cache.apps)) {
+  if (!activeAppIds.has(key)) delete cache.apps[key];
+}
+
 const stable = { version: 1, board: { id: BOARD_ID, url: BOARD_URL }, lists, games };
 const previousStable = previous ? { version: previous.version, board: previous.board, lists: previous.lists, games: previous.games } : null;
 const changed = JSON.stringify(stable) !== JSON.stringify(previousStable);
@@ -437,6 +513,7 @@ const artworkGames = games
   .map(game => {
     const appId = Number(game.steamAppId);
     const candidates = [...(steamCardCandidates.get(appId) || [])];
+    if (!candidates.length && steamDegraded()) candidates.push(...(previousCandidatesByAppId.get(appId) || []));
     const existingArtworkUrl = String(game.artwork?.url || "").trim();
     let existingArtworkAllowed = false;
     try {
@@ -458,8 +535,6 @@ const artworkGames = games
   });
 
 const artworkStable = { version: 1, source: "existing-site-game-sync", games: artworkGames };
-let previousArtwork = null;
-try { previousArtwork = JSON.parse(await readFile(ARTWORK_OUT, "utf8")); } catch {}
 const previousArtworkStable = previousArtwork
   ? { version: previousArtwork.version, source: previousArtwork.source, games: previousArtwork.games }
   : null;
@@ -469,4 +544,9 @@ const artworkOutput = {
   updatedAt: artworkChanged ? new Date().toISOString() : (previousArtwork?.updatedAt || null)
 };
 await writeFile(ARTWORK_OUT, `${JSON.stringify(artworkOutput, null, 2)}\n`);
+const steamStats = steam.stats();
+console.log(`Steam: ${steamStats.requests} requisições nesta execução${steamStats.halted ? `; acesso interrompido (${steamStats.halted})` : ""}.`);
+if (steamDegraded()) {
+  console.log("::warning title=Steam::Acesso à Steam interrompido ou com falhas nesta execução; dados em cache e o último estado publicado foram preservados.");
+}
 console.log(`Sincronização concluída: ${lists.length} listas, ${games.length} jogos.`);
