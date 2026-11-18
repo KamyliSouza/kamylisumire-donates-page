@@ -2022,7 +2022,7 @@
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 3043580,
-        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3043580/35b34662003d80ae57559db6b654ba220bc8152d/library_capsule.jpg?t=1793144574"
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3043580/35b34662003d80ae57559db6b654ba220bc8152d/library_capsule_2x.jpg?t=1793144574"
       },
       "icon": {
         "provider": "steam-original",
@@ -2774,5 +2774,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-17T20:49:00.938Z"
+  "updatedAt": "2026-11-18T02:55:28.954Z"
 }
