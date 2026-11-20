@@ -285,8 +285,8 @@
 /* No tema claro, reduz o véu para manter as capas dos jogos visíveis. */
 :root[data-theme="light"] .agenda-panel {
     --ag-card-veil:
-        linear-gradient(180deg, rgba(255, 247, 255, .34) 0%, rgba(255, 247, 255, .22) 28%, rgba(255, 247, 255, .58) 56%, rgba(255, 247, 255, .84) 100%),
-        linear-gradient(90deg, rgba(255, 247, 255, .18), transparent 76%);
+        linear-gradient(180deg, rgba(255, 247, 255, .10) 0%, rgba(255, 247, 255, .06) 28%, rgba(255, 247, 255, .24) 56%, rgba(255, 247, 255, .48) 100%),
+        linear-gradient(90deg, rgba(255, 247, 255, .06), transparent 76%);
 }
 @media (prefers-reduced-motion: no-preference) {
     .agenda-day { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
