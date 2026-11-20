@@ -28,7 +28,7 @@
     "agenda": {
       "texto": "Agenda",
       "icone": "none",
-      "url": "/#agenda"
+      "url": "/agenda/"
     },
     "artes": {
       "texto": "Artes",

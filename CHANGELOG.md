@@ -1,5 +1,16 @@
 # Changelog
 
+## V48.3.69 — Página /agenda/
+
+- nova página **`/agenda/`** com a semana publicada em `data/agenda.json`: sete dias de domingo a sábado (inclusive sem nenhuma live), painel com arte panorâmica própria e cards horizontais com a arte do jogo, na mesma composição do gerador de PNG do Discord;
+- dia sem live usa o placeholder de `/jogos/` (superfície translúcida, halo e logo como máscara); o desfoque usa `--blur-card`, então respeita Blur desligado e modo leitura;
+- arte por `steamAppId` **somente** a partir de `data/content/jogos-artwork.json` (nenhuma URL inventada); card usa `header` → `main-capsule` → `library-hero`, o fundo usa só `library-hero`/`library-hero-2x` e capas verticais nunca são promovidas; hosts limitados aos de imagem da Steam; sem arte, o card mantém o gradiente da marca;
+- o fundo da semana é escolhido de forma determinística pelo início da semana entre os jogos elegíveis; Save-Data e perfil reduzido dispensam o fundo decorativo;
+- o navegador não consulta Steam Web API nem Trello: apenas `/data/agenda.json` e `/data/content/jogos-artwork.json` (o manifesto é opcional);
+- `data/content/navbar.json` e o fallback de `content.js`: o item **Agenda** passa a apontar para `/agenda/` (necessário para a navbar marcar a página como ativa). Efeito na Home: o clique nesse item abre a página em vez de rolar até a seção #agenda, e o scrollspy deixa de destacá-lo naquela seção;
+- `content.js` sobe para `?v=48.3.69` (e o validador/testes separam `CONTENT_JS_VERSION` de `SETTINGS_VERSION`); navbar, footer, redes, tema, loader e demais scripts globais não mudaram;
+- novos `js/pages/agenda/agenda-model.js` (puro, testável), `agenda.js`, `css/pages/agenda.css` e `.github/tests/agenda-page.test.mjs`; `/agenda/` entra no `sitemap.xml` e no validador.
+
 ## V48.3.68 — Datas da Agenda acompanham a semana atual
 
 - corrige a Agenda sincronizada pelo Trello que atualizava as lives, mas deixava as **datas presas numa semana antiga**: `sync-agenda.mjs` só obtinha a semana da linha `Semana: AAAA-MM-DD` da descrição do quadro (ou das linhas `Data:` dos cards) e nunca da data de hoje, então, sem alguém reescrever essa linha toda semana, `data/agenda.json` continuava com os dias da semana anterior (ex.: lives atualizadas em 21/10 com datas de 20 a 26/09);

@@ -245,6 +245,16 @@ interface compacta, ele deve usar o disclosure nativo `<details>`/`<summary>`, c
 O conteúdo deve continuar cobrindo apresentação conforme disponível/sem garantias e
 independência/não afiliação; não depender somente do aviso existente em `/jogos/`.
 
+**Página /agenda/ (V48.3.69):** `agenda/index.html` + `css/pages/agenda.css` +
+`js/pages/agenda/agenda-model.js` (regras puras: sete dias, lives, escolha de arte) e
+`agenda.js` (DOM). Consome só `/data/agenda.json` e `/data/content/jogos-artwork.json`;
+nunca Trello nem Steam Web API, e nunca monta URL de imagem a partir do App ID. Arte de
+card (`header`, `main-capsule`, `library-hero`) e fundo panorâmico (`library-hero`,
+`library-hero-2x`) são tipos distintos: não promova um a outro nem aceite hosts fora
+dos de imagem da Steam. Textos entram por `textContent`. O item Agenda da navbar aponta
+para `/agenda/` em `navbar.json` (e no fallback do `content.js`); a Home continua com a
+sua seção #agenda. Não duplique navbar, footer ou redes na página.
+
 ## CTAs de apoio e carrosséis
 
 Na Home:

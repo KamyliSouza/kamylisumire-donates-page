@@ -20,7 +20,8 @@ const PAGES = [
 ];
 
 const READING_VERSION = "48.3.64"; // preferences.js
-const SETTINGS_VERSION = "48.3.66"; // settings.js, footer.js, content.js (V48.3.66: Configurações na navbar)
+const SETTINGS_VERSION = "48.3.66"; // settings.js, footer.js (V48.3.66: Configurações na navbar)
+const CONTENT_JS_VERSION = "48.3.69"; // content.js (V48.3.69: item Agenda da navbar aponta para /agenda/)
 const READING_CSS_VERSION = "48.3.66"; // css/core/reading.css
 const readingCss = read("css/core/reading.css");
 
@@ -188,7 +189,7 @@ test("scripts alterados carregam com cache-buster novo em todas as páginas", ()
       ["preferences", READING_VERSION],
       ["settings", SETTINGS_VERSION],
       ["footer", SETTINGS_VERSION],
-      ["content", SETTINGS_VERSION],
+      ["content", CONTENT_JS_VERSION],
     ]) {
       assert.match(
         html,

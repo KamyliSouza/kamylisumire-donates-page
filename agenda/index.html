@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UGnkBm0UIahFGAk+gz8v3WqeiWq3ZkxdkvnnDHqgQF0=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+
+    <title>Agenda | Kamyli Sumire</title>
+    <meta name="description" content="Veja a agenda da semana da Kamyli Sumire: dia, horário, jogo e plataforma de cada live, de domingo a sábado.">
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+    <meta name="theme-color" content="#B35EAF">
+
+    <link rel="canonical" href="https://kamylisumire.com/agenda/">
+
+    <link rel="preconnect" href="https://assets.kamylisumire.com">
+
+    <link rel="icon" type="image/webp" href="https://assets.kamylisumire.com/favicon.webp">
+    <link rel="icon" type="image/png" href="https://assets.kamylisumire.com/favicon.png">
+    <link rel="preload" as="image" href="https://assets.kamylisumire.com/favicon.webp" type="image/webp">
+
+    <!-- Preview social — mantém os textos históricos da branch main -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Kamyli Sumire">
+    <meta property="og:title" content="Agenda da Semana da Kamyli Sumire">
+    <meta property="og:description" content="Dia, horário, jogo e plataforma de cada live da semana.">
+    <meta property="og:url" content="https://kamylisumire.com/agenda/">
+    <meta property="og:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:secure_url" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Agenda da Semana da Kamyli Sumire">
+
+    <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Agenda da Semana da Kamyli Sumire">
+    <meta name="twitter:description" content="Dia, horário, jogo e plataforma de cada live da semana.">
+    <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta name="twitter:image:alt" content="Agenda da Semana da Kamyli Sumire">
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const THEME_KEY = "kamyli:ui-theme";
+            const BLUR_KEY = "kamyli:ui-blur";
+            const READING_KEY = "kamyli:ui-reading";
+            const READING_SIZE_KEY = "kamyli:ui-reading-size";
+            const LOW_MEMORY_GB = 2;
+            const LOW_CPU_THREADS = 2;
+
+            const read = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            };
+
+            const media = (query) => {
+                try {
+                    return window.matchMedia(query).matches;
+                } catch {
+                    return false;
+                }
+            };
+
+            const connection =
+                navigator.connection ||
+                navigator.mozConnection ||
+                navigator.webkitConnection ||
+                null;
+
+            const supportsBlur = Boolean(
+                window.CSS &&
+                typeof window.CSS.supports === "function" &&
+                (
+                    window.CSS.supports("backdrop-filter", "blur(8px)") ||
+                    window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+                )
+            );
+
+            const savedTheme = read(THEME_KEY);
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
+                    ? savedTheme
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
+
+            const savedBlur = read(BLUR_KEY);
+            const blurPreference =
+                savedBlur === "on" || savedBlur === "off"
+                    ? savedBlur
+                    : "auto";
+
+            let performanceProfile = "normal";
+            let performanceReason = "standard";
+
+            if (connection?.saveData) {
+                performanceProfile = "reduced";
+                performanceReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-cpu";
+            }
+
+            const readingPreference =
+                read(READING_KEY) === "on" ? "on" : "off";
+
+            const savedReadingSize = read(READING_SIZE_KEY);
+            const readingSize =
+                savedReadingSize === "large" ||
+                savedReadingSize === "xlarge"
+                    ? savedReadingSize
+                    : "normal";
+
+            let blur = "on";
+            let blurReason = "supported";
+
+            if (readingPreference === "on") {
+                blur = "off";
+                blurReason = "reading";
+            } else if (!supportsBlur) {
+                blur = "off";
+                blurReason = "unsupported";
+            } else if (blurPreference !== "auto") {
+                blur = blurPreference;
+                blurReason = "manual";
+            } else if (media("(prefers-reduced-transparency: reduce)")) {
+                blur = "off";
+                blurReason = "reduced-transparency";
+            } else if (connection?.saveData) {
+                blur = "off";
+                blurReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                blur = "off";
+                blurReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                blur = "off";
+                blurReason = "low-cpu";
+            }
+
+            root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
+            root.dataset.blur = blur;
+            root.dataset.blurMode =
+                blurPreference === "auto" ? "auto" : "manual";
+            root.dataset.blurPreference = blurPreference;
+            root.dataset.blurReason = blurReason;
+            root.dataset.reading = readingPreference;
+            root.dataset.readingSize = readingSize;
+            root.dataset.performance = performanceProfile;
+            root.dataset.performanceReason = performanceReason;
+            root.style.colorScheme = theme;
+
+            window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
+                theme,
+                themePreference,
+                blur,
+                blurPreference,
+                blurReason,
+                blurSupported: supportsBlur,
+                reading: readingPreference,
+                readingSize,
+                performance: performanceProfile,
+                performanceReason
+            });
+
+            /*
+             * V45.2 — fundo crítico para backdrop-filter.
+             *
+             * O CSS dos painéis borra a arte de fundo. Se a imagem ainda não
+             * estiver disponível quando o loader sai, o navegador recompõe o
+             * backdrop depois e isso parece um "blur atrasado".
+             *
+             * Só antecipamos a imagem quando blur está ligado, o perfil de
+             * performance é normal e Save-Data não está ativo.
+             */
+            if (
+                blur === "on" &&
+                performanceProfile === "normal" &&
+                !connection?.saveData
+            ) {
+                const isMobile =
+                    media("(max-width: 760px)");
+
+                const backdropUrl =
+                    isMobile
+                        ? "https://assets.kamylisumire.com/fundo-mobile.avif"
+                        : "https://assets.kamylisumire.com/fundo.avif";
+
+                const backdropPreload =
+                    document.createElement("link");
+
+                backdropPreload.rel = "preload";
+                backdropPreload.as = "image";
+                backdropPreload.type = "image/avif";
+                backdropPreload.href = backdropUrl;
+                backdropPreload.fetchPriority = "low";
+
+                window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                window.KAMYLI_BACKDROP_PRELOAD_READY =
+                    new Promise(resolve => {
+                        backdropPreload.addEventListener(
+                            "load",
+                            () => resolve("loaded"),
+                            { once: true }
+                        );
+                        backdropPreload.addEventListener(
+                            "error",
+                            () => resolve("error"),
+                            { once: true }
+                        );
+                    });
+
+                document.head.appendChild(backdropPreload);
+            }
+        })();
+    </script>
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            window.KAMYLI_LOADER_STARTED_AT = performance.now();
+            root.classList.add("site-loading-pending");
+
+            window.KAMYLI_LOADER_FAILSAFE_TIMER = window.setTimeout(() => {
+                window.KAMYLI_LOADER_FAILSAFE_FIRED = true;
+                window.KAMYLI_LOADER_FAILSAFE_TIMER = null;
+
+                root.classList.remove(
+                    "site-loading-pending",
+                    "site-loading-visible",
+                    "site-navigation-loading",
+                    "site-page-arriving",
+                    "site-page-delay",
+                    "site-page-leaving",
+                    "site-revealing"
+                );
+                root.classList.add("site-ready");
+
+                delete root.dataset.pageTransition;
+                delete root.dataset.blurPreparing;
+
+                const loader = document.getElementById("site-loader");
+                if (loader) {
+                    loader.setAttribute("aria-hidden", "true");
+                    loader.classList.add("is-leaving");
+                }
+            }, 6000);
+        })();
+    </script>
+
+    <link
+        rel="preload"
+        href="../assets/fonts/nunito-variable.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    >
+
+    <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
+    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
+    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.69">
+    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+
+    <!-- Dados estruturados para mecanismos de busca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://kamylisumire.com/agenda/#pagina",
+      "url": "https://kamylisumire.com/agenda/",
+      "name": "Agenda | Kamyli Sumire",
+      "description": "Dia, horário, jogo e plataforma de cada live da semana.",
+      "inLanguage": "pt-BR",
+      "isPartOf": { "@id": "https://kamylisumire.com/#website" }
+    }
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#agendaPage">Pular para o conteúdo</a>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span class="site-loader-logo" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader { display: none !important; }
+        </style>
+    </noscript>
+
+    <header id="site-navbar"></header>
+
+    <main class="agenda-shell" id="agendaPage" tabindex="-1">
+        <header class="glass-panel agenda-intro">
+            <span class="eyebrow">Programação</span>
+            <h1>Agenda</h1>
+            <p>Um lugarzinho para saber quando a próxima aventura começa.</p>
+        </header>
+
+        <p class="glass-panel agenda-state" id="agendaStatus" role="status">Carregando agenda...</p>
+
+        <section class="agenda-panel" id="agendaPanel" aria-labelledby="agendaTitle" hidden>
+            <div class="agenda-panel-art" id="agendaPanelArt" aria-hidden="true"></div>
+            <div class="agenda-panel-head">
+                <h2 id="agendaTitle">Agenda da semana</h2>
+                <p class="agenda-period" id="agendaPeriod"></p>
+            </div>
+            <div class="agenda-days" id="agendaGrid"></div>
+            <div class="agenda-panel-foot">
+                <p id="agendaNote"></p>
+                <strong id="agendaUpdated"></strong>
+            </div>
+        </section>
+
+        <aside class="glass-panel agenda-legal" aria-labelledby="agendaLegalTitle">
+            <h2 id="agendaLegalTitle">Sobre nomes, marcas e imagens</h2>
+            <p>As artes dos jogos são materiais oficiais disponibilizados pela Steam, exibidos apenas para identificar as transmissões da semana. Dados e materiais da Steam são apresentados no estado em que se encontram e conforme disponíveis, sem garantia de precisão, disponibilidade, continuidade, adequação a finalidade específica ou ausência de erros. Na máxima extensão permitida pela legislação aplicável, Valve, publicadores, desenvolvedores e fornecedores não respondem por danos decorrentes do uso desses dados. Este site é independente e não é afiliado, patrocinado ou endossado pela Valve Corporation, Steam ou pelos titulares dos jogos apresentados. Marcas e materiais pertencem aos respectivos titulares.</p>
+        </aside>
+    </main>
+
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
+
+    <script src="../js/core/preferences.js?v=48.3.64"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js?v=48.3.69"></script>
+    <script src="../js/core/button-icons.js?v=48.3.44"></script>
+    <script src="../js/core/buttons.js?v=48.3.66"></script>
+    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+    <script src="../js/core/navbar.js?v=48.3.66"></script>
+    <script src="../js/core/settings.js?v=48.3.66"></script>
+    <script src="../js/core/external-links.js?v=47"></script>
+    <script src="../js/core/socials.js?v=48.3.49"></script>
+    <script src="../js/core/page-transitions.js?v=46.3"></script>
+    <script src="../js/core/sanitize.js?v=48.3.60"></script>
+    <script src="../js/core/footer.js?v=48.3.66"></script>
+    <script src="../js/pages/agenda/agenda-model.js?v=48.3.69"></script>
+    <script src="../js/pages/agenda/agenda.js?v=48.3.69"></script>
+    <script src="../js/core/loader.js?v=48.3.57"></script>
+</body>
+</html>

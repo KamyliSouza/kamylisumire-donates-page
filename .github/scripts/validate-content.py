@@ -28,6 +28,11 @@ ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
 REQUIRED_FILES = (
+    "agenda/index.html",
+    "css/pages/agenda.css",
+    "js/pages/agenda/agenda-model.js",
+    "js/pages/agenda/agenda.js",
+    ".github/tests/agenda-page.test.mjs",
     "index.html",
     "doacoes/index.html",
     "blog/index.html",
@@ -1968,7 +1973,7 @@ def validate_architecture() -> None:
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
-            "js/core/content.js?v=48.3.66",
+            "js/core/content.js?v=48.3.69",
             "js/core/mobile-overlay.js?v=48.3.47",
             "js/core/navbar.js?v=48.3.66",
             "js/core/external-links.js?v=47",
@@ -1996,6 +2001,7 @@ def validate_architecture() -> None:
         ("blog/index.html", blog_index),
         ("artes/index.html", artes_index),
         ("jogos/index.html", jogos_index),
+        ("agenda/index.html", read_text("agenda/index.html")),
         ("404.html", not_found),
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
@@ -2004,7 +2010,7 @@ def validate_architecture() -> None:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
         if "js/core/navbar.js?v=48.3.66" not in html:
             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
-        if "js/core/content.js?v=48.3.66" not in html:
+        if "js/core/content.js?v=48.3.69" not in html:
             error(f"{rel}: cache-buster V48.3.64 ausente para js/core/content.js.")
 
     for asset in (
@@ -2569,6 +2575,7 @@ def validate_architecture() -> None:
         'artes/index.html': 'artesPage',
         'blog/index.html': 'blogIndexPage',
         'jogos/index.html': 'jogosPage',
+        'agenda/index.html': 'agendaPage',
         'privacidade/index.html': 'conteudo',
         'uso-de-ia/index.html': 'conteudo',
         '404.html': 'conteudo',
@@ -2739,6 +2746,7 @@ def validate_architecture() -> None:
         ),
         "artes/index.html": ("css/core/variables.css?v=48.3.58",),
         "jogos/index.html": ("css/core/variables.css?v=48.3.58",),
+        "agenda/index.html": ("css/core/variables.css?v=48.3.58",),
         "privacidade/index.html": (
             "css/core/variables.css?v=48.3.58",
             "css/pages/privacidade.css?v=48.3.7",
@@ -2806,6 +2814,7 @@ def validate_architecture() -> None:
         ("artes/index.html", artes_index),
         ("blog/index.html", blog_index),
         ("jogos/index.html", jogos_index),
+        ("agenda/index.html", read_text("agenda/index.html")),
         ("privacidade/index.html", privacy_html),
         ("uso-de-ia/index.html", read_text("uso-de-ia/index.html")),
     ):
@@ -3145,7 +3154,7 @@ def validate_architecture() -> None:
 
     for rel in (
         "index.html", "404.html", "doacoes/index.html", "blog/index.html",
-        "artes/index.html", "jogos/index.html", "privacidade/index.html",
+        "artes/index.html", "jogos/index.html", "agenda/index.html", "privacidade/index.html",
         "uso-de-ia/index.html",
     ):
         html = read_text(rel)
@@ -3632,6 +3641,7 @@ def validate_seo_and_deployment() -> None:
         "https://kamylisumire.com/",
         "https://kamylisumire.com/doacoes/",
         "https://kamylisumire.com/jogos/",
+        "https://kamylisumire.com/agenda/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
@@ -3679,6 +3689,7 @@ def validate_seo_and_deployment() -> None:
         ("index.html", index),
         ("doacoes/index.html", donations),
         ("jogos/index.html", jogos_index),
+        ("agenda/index.html", read_text("agenda/index.html")),
         ("privacidade/index.html", privacy_index),
         ("uso-de-ia/index.html", ai_index),
     ):
@@ -3830,7 +3841,8 @@ def validate_security_contracts() -> None:
             error(f"workers.js: hardening timing-safe ausente: {needle}")
 
 READING_MODE_VERSION = "48.3.64"  # preferences.js
-SETTINGS_VERSION = "48.3.66"  # settings.js, footer.js e content.js (Configurações na navbar)
+SETTINGS_VERSION = "48.3.66"  # settings.js e footer.js (Configurações na navbar)
+CONTENT_JS_VERSION = "48.3.69"  # content.js (V48.3.69: item Agenda da navbar aponta para /agenda/)
 NAVBAR_CSS_VERSION = "48.3.67"  # css/core/navbar.css (destaque da engrenagem só com o painel aberto)
 READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
 
@@ -3850,7 +3862,7 @@ def validate_reading_mode() -> None:
     reading_link = f"css/core/reading.css?v={READING_CSS_VERSION}"
     core_pages = {
         "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
-        "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
+        "jogos/index.html", "agenda/index.html", "privacidade/index.html", "uso-de-ia/index.html",
     }
 
     bootstraps: dict[str, str] = {}
@@ -3884,7 +3896,7 @@ def validate_reading_mode() -> None:
             ("preferences", READING_MODE_VERSION),
             ("settings", SETTINGS_VERSION),
             ("footer", SETTINGS_VERSION),
-            ("content", SETTINGS_VERSION),
+            ("content", CONTENT_JS_VERSION),
         ):
             if f"js/core/{asset}.js?v={version}" not in html:
                 error(f"{rel}: cache-buster V{version} ausente para js/core/{asset}.js.")
@@ -4098,7 +4110,7 @@ def validate_settings_placement() -> None:
 
 CORE_PAGES_SETTINGS = (
     "index.html", "404.html", "doacoes/index.html", "artes/index.html", "blog/index.html",
-    "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html",
+    "jogos/index.html", "agenda/index.html", "privacidade/index.html", "uso-de-ia/index.html",
 )
 
 
