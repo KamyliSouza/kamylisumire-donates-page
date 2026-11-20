@@ -533,6 +533,41 @@
       ]
     },
     {
+      "steamAppId": 4019220,
+      "name": "Dressmaker",
+      "steamUrl": "https://store.steampowered.com/app/4019220/",
+      "cardCandidates": [
+        {
+          "kind": "header",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/f1cd08127872e60e4c47a4bc3e40d682d94741bf/header.jpg?t=1794041965"
+        },
+        {
+          "kind": "main-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/dde8e789013d3ff938c10dffa3689e6977b0672c/capsule_616x353.jpg?t=1794041965"
+        },
+        {
+          "kind": "small-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/7f07d1dd7a97e00694481ee7747940989dc5820c/capsule_231x87.jpg?t=1794041965"
+        },
+        {
+          "kind": "library-hero-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/122eb9b7e28c9db5679448517302037834d70309/library_hero_2x.jpg?t=1794041965"
+        },
+        {
+          "kind": "library-hero",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/122eb9b7e28c9db5679448517302037834d70309/library_hero.jpg?t=1794041965"
+        },
+        {
+          "kind": "library-capsule-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/6182ce74d95456b557ef361a78866173dc157b58/library_capsule_2x.jpg?t=1794041965"
+        },
+        {
+          "kind": "library-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/6182ce74d95456b557ef361a78866173dc157b58/library_capsule.jpg?t=1794041965"
+        }
+      ]
+    },
+    {
       "steamAppId": 2915460,
       "name": "OneShot: World Machine Edition",
       "steamUrl": "https://store.steampowered.com/app/2915460/",
@@ -568,6 +603,45 @@
         {
           "kind": "existing-library-artwork",
           "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
+        }
+      ]
+    },
+    {
+      "steamAppId": 1569580,
+      "name": "Blue Prince",
+      "steamUrl": "https://store.steampowered.com/app/1569580/",
+      "cardCandidates": [
+        {
+          "kind": "header",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/879ac248a3b548a6bbc32771b950756378e7e922/header.jpg?t=1794319403"
+        },
+        {
+          "kind": "main-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/e69fbec887a2120c40b63d8b47d1697e9f733ae0/capsule_616x353.jpg?t=1794319403"
+        },
+        {
+          "kind": "small-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/4f81a42ebaca088b16d5501914c6885e49f6c411/capsule_231x87.jpg?t=1794319403"
+        },
+        {
+          "kind": "library-hero-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_hero_2x.jpg?t=1794319403"
+        },
+        {
+          "kind": "library-hero",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_hero.jpg?t=1794319403"
+        },
+        {
+          "kind": "library-capsule-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_600x900_2x.jpg?t=1794319403"
+        },
+        {
+          "kind": "library-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_600x900.jpg?t=1794319403"
+        },
+        {
+          "kind": "existing-library-artwork",
+          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
         }
       ]
     },
@@ -1067,45 +1141,6 @@
         {
           "kind": "existing-library-artwork",
           "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1801110/library_600x900_2x.jpg"
-        }
-      ]
-    },
-    {
-      "steamAppId": 1569580,
-      "name": "Blue Prince",
-      "steamUrl": "https://store.steampowered.com/app/1569580/",
-      "cardCandidates": [
-        {
-          "kind": "header",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/879ac248a3b548a6bbc32771b950756378e7e922/header.jpg?t=1794319403"
-        },
-        {
-          "kind": "main-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/e69fbec887a2120c40b63d8b47d1697e9f733ae0/capsule_616x353.jpg?t=1794319403"
-        },
-        {
-          "kind": "small-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/4f81a42ebaca088b16d5501914c6885e49f6c411/capsule_231x87.jpg?t=1794319403"
-        },
-        {
-          "kind": "library-hero-2x",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_hero_2x.jpg?t=1794319403"
-        },
-        {
-          "kind": "library-hero",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_hero.jpg?t=1794319403"
-        },
-        {
-          "kind": "library-capsule-2x",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_600x900_2x.jpg?t=1794319403"
-        },
-        {
-          "kind": "library-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1569580/library_600x900.jpg?t=1794319403"
-        },
-        {
-          "kind": "existing-library-artwork",
-          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
         }
       ]
     },
@@ -3233,45 +3268,6 @@
       ]
     },
     {
-      "steamAppId": 2915460,
-      "name": "OneShot (2020)",
-      "steamUrl": "https://store.steampowered.com/app/2915460/",
-      "cardCandidates": [
-        {
-          "kind": "header",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/header.jpg?t=1747673376"
-        },
-        {
-          "kind": "main-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/capsule_616x353.jpg?t=1747673376"
-        },
-        {
-          "kind": "small-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/capsule_231x87.jpg?t=1747673376"
-        },
-        {
-          "kind": "library-hero-2x",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/library_hero_2x.jpg?t=1747673376"
-        },
-        {
-          "kind": "library-hero",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/library_hero.jpg?t=1747673376"
-        },
-        {
-          "kind": "library-capsule-2x",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/library_600x900_2x.jpg?t=1747673376"
-        },
-        {
-          "kind": "library-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2915460/library_600x900.jpg?t=1747673376"
-        },
-        {
-          "kind": "existing-library-artwork",
-          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
-        }
-      ]
-    },
-    {
       "steamAppId": 1369630,
       "name": "ENDER LILIES (2021)",
       "steamUrl": "https://store.steampowered.com/app/1369630/",
@@ -5383,5 +5379,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-18T02:55:29.021Z"
+  "updatedAt": "2026-11-20T16:32:30.917Z"
 }

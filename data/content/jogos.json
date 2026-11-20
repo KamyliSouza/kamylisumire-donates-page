@@ -309,11 +309,30 @@
       "steamUrl": "https://store.steampowered.com/app/1497440/"
     },
     {
+      "id": "6b004baee0ef9845cb40223d",
+      "name": "Dressmaker",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488228480,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 4019220,
+        "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4019220/6182ce74d95456b557ef361a78866173dc157b58/library_capsule_2x.jpg?t=1794041965"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 4019220,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/4019220/128e00218502419d54f0e88b190ddb84845593e3.jpg"
+      },
+      "steamAppId": 4019220,
+      "steamUrl": "https://store.steampowered.com/app/4019220/"
+    },
+    {
       "id": "6ac7864531552b70cfbd8715",
       "name": "OneShot: World Machine Edition",
       "listId": "69f610ad5891e07aa88e7636",
       "listName": "Jogar",
-      "pos": 140737488232448,
+      "pos": 140737488228608,
       "artwork": {
         "provider": "steam-original",
         "steamAppId": 2915460,
@@ -326,6 +345,25 @@
       },
       "steamAppId": 2915460,
       "steamUrl": "https://store.steampowered.com/app/2915460/"
+    },
+    {
+      "id": "69f61e232c5170bd3197b66d",
+      "name": "Blue Prince",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488228864,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 1569580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 1569580,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1569580/a550431c3163f52ec65f00ddf701f9c0900da45c.jpg"
+      },
+      "steamAppId": 1569580,
+      "steamUrl": "https://store.steampowered.com/app/1569580/"
     },
     {
       "id": "6af443d3cb30e05d851e3c45",
@@ -501,8 +539,8 @@
     {
       "id": "69f612306dd0c50e4a5772ff",
       "name": "Star Wars Jedi: Survivor",
-      "listId": "69f610ad5891e07aa88e7636",
-      "listName": "Jogar",
+      "listId": "69f611e83d599afb6522f751",
+      "listName": "Engavetados",
       "pos": 140737488252928,
       "artwork": {
         "provider": "steam-original",
@@ -573,25 +611,6 @@
       },
       "steamAppId": 1801110,
       "steamUrl": "https://store.steampowered.com/app/1801110/"
-    },
-    {
-      "id": "69f61e232c5170bd3197b66d",
-      "name": "Blue Prince",
-      "listId": "69f6115a8bd043c829ca0fb1",
-      "listName": "Comprar",
-      "pos": 140737488273408,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 1569580,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 1569580,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1569580/a550431c3163f52ec65f00ddf701f9c0900da45c.jpg"
-      },
-      "steamAppId": 1569580,
-      "steamUrl": "https://store.steampowered.com/app/1569580/"
     },
     {
       "id": "6a773b3b29dd1551286cf2f0",
@@ -1659,25 +1678,6 @@
       },
       "steamAppId": 1903620,
       "steamUrl": "https://store.steampowered.com/app/1903620/"
-    },
-    {
-      "id": "69f61c0c2609069b16f5227b",
-      "name": "OneShot (2020)",
-      "listId": "69f6115a8bd043c829ca0fb1",
-      "listName": "Comprar",
-      "pos": 140737488502784,
-      "artwork": {
-        "provider": "steam-original",
-        "steamAppId": 2915460,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2915460/library_600x900_2x.jpg"
-      },
-      "icon": {
-        "provider": "steam-original",
-        "steamAppId": 2915460,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2915460/27a30a7f76b1cb23a0fb22c5a26f8e2319edfe99.jpg"
-      },
-      "steamAppId": 2915460,
-      "steamUrl": "https://store.steampowered.com/app/2915460/"
     },
     {
       "id": "69f610e9c8bb97409422c527",
@@ -2774,5 +2774,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-18T02:55:28.954Z"
+  "updatedAt": "2026-11-20T16:32:30.912Z"
 }
