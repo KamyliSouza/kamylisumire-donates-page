@@ -13,6 +13,9 @@
  */
 .agenda-panel {
     --ag-sh: 0, 0, 0;
+    --ag-art-dark-text: #fffaff;
+    --ag-art-dark-muted: #f0e6f0;
+    --ag-art-dark-subtle: #e0d3e3;
     --ag-text: #fff8ff;
     --ag-panel-bg: #17131b;
     --ag-panel-border: rgba(209, 120, 205, .34);
@@ -303,18 +306,18 @@
         linear-gradient(90deg, rgba(255, 247, 255, .06), transparent 76%);
 }
 :root[data-theme="light"] .agenda-day.has-live[data-art-top-tone="dark"] {
-    --ag-card-top-name: #fffaff;
-    --ag-card-top-date: #f0e6f0;
+    --ag-card-top-name: var(--ag-art-dark-text);
+    --ag-card-top-date: var(--ag-art-dark-muted);
     --ag-card-top-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
     --ag-card-veil-top-start: rgba(7, 5, 10, .12);
     --ag-card-veil-top-mid: rgba(7, 5, 10, .06);
 }
 :root[data-theme="light"] .agenda-day.has-live[data-art-bottom-tone="dark"] {
-    --ag-card-bottom-title: #fffaff;
-    --ag-card-bottom-desc: #f0e6f0;
-    --ag-card-bottom-platforms: #e0d3e3;
+    --ag-card-bottom-title: var(--ag-art-dark-text);
+    --ag-card-bottom-desc: var(--ag-art-dark-muted);
+    --ag-card-bottom-platforms: var(--ag-art-dark-subtle);
     --ag-card-bottom-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
-    --ag-card-time-text: #fffaff;
+    --ag-card-time-text: var(--ag-art-dark-text);
     --ag-card-time-bg: rgba(28, 18, 32, .86);
     --ag-card-time-border: rgba(255, 255, 255, .5);
     --ag-card-veil-bottom-mid: rgba(7, 5, 10, .08);
