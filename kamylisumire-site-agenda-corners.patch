@@ -1,0 +1,71 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 606f4df..0afa10c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,9 @@
+ # Changelog
+ 
++## V48.3.72 — Quinas dos dias sem live na /agenda/
++
++- a camada de desfoque dos cards "sem live" tinha `inset: -3px` sem raio: com Blur ligado o `backdrop-filter` vazava um quadrado claro para fora das quinas arredondadas e a borda parecia quebrada. Agora a camada fica dentro da borda, com raio de 22px; a borda desses cards também ficou um pouco mais visível (.28 → .40 no escuro, .32 → .42 no claro). `agenda.css` sobe para `?v=48.3.72`.
++
+ ## V48.3.71 — Tema claro/escuro na página /agenda/
+ 
+ - o painel da agenda passa a seguir o tema do site: as cores viraram variáveis `--ag-*` em `.agenda-panel`; escuro continua idêntico ao anterior (conferido pixel a pixel) e o claro vale com `data-theme="light"` ou, sem preferência salva, quando o sistema não pede escuro. No claro o véu sobre a arte é claro e o texto escuro, para manter a leitura sobre qualquer capa;
+diff --git a/agenda/index.html b/agenda/index.html
+index cdfc7f8..e927cbb 100644
+--- a/agenda/index.html
++++ b/agenda/index.html
+@@ -316,7 +316,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+-    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.71">
++    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.72">
+     <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+diff --git a/css/pages/agenda.css b/css/pages/agenda.css
+index 13cc2a0..9511807 100644
+--- a/css/pages/agenda.css
++++ b/css/pages/agenda.css
+@@ -47,7 +47,7 @@
+     --ag-desc: #e6d8e8;
+     --ag-platforms: #d6c3d8;
+     --ag-nolive-text: #c9bdcc;
+-    --ag-nolive-border: rgba(209, 120, 205, .28);
++    --ag-nolive-border: rgba(209, 120, 205, .4);
+     --ag-nolive-surface: linear-gradient(145deg, rgba(34, 27, 38, .68), rgba(20, 17, 24, .78));
+     --ag-nolive-glow:
+         radial-gradient(circle at 50% 48%, rgba(209, 120, 205, .08), transparent 58%),
+@@ -93,7 +93,7 @@
+     --ag-desc: #4a3a4d;
+     --ag-platforms: #5b4a5e;
+     --ag-nolive-text: #5b4a5e;
+-    --ag-nolive-border: rgba(155, 77, 151, .32);
++    --ag-nolive-border: rgba(155, 77, 151, .42);
+     --ag-nolive-surface: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(246, 234, 246, .84));
+     --ag-nolive-glow:
+         radial-gradient(circle at 50% 48%, rgba(179, 94, 175, .08), transparent 58%),
+@@ -140,7 +140,7 @@
+         --ag-desc: #4a3a4d;
+         --ag-platforms: #5b4a5e;
+         --ag-nolive-text: #5b4a5e;
+-        --ag-nolive-border: rgba(155, 77, 151, .32);
++        --ag-nolive-border: rgba(155, 77, 151, .42);
+         --ag-nolive-surface: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(246, 234, 246, .84));
+         --ag-nolive-glow:
+             radial-gradient(circle at 50% 48%, rgba(179, 94, 175, .08), transparent 58%),
+@@ -238,8 +238,11 @@
+ .agenda-day.no-live::before {
+     content: "";
+     position: absolute;
+-    inset: -3px;
++    /* Dentro da borda e com o mesmo raio interno (23px - 1px de borda): com inset negativo o
++       backdrop-filter vazava um quadrado claro para fora das quinas arredondadas. */
++    inset: 0;
+     z-index: -2;
++    border-radius: 22px;
+     background:
+         radial-gradient(circle at 50% 46%, var(--primary-soft), transparent 59%),
+         var(--ag-nolive-surface);

@@ -32,3 +32,12 @@ test('Home: o carrossel rola sozinho até o card de hoje só na abertura e respe
   assert.match(js, /\["pointerdown", "wheel", "touchstart", "keydown"\]/, 'para ao interagir');
   assert.match(js, /setTimeout\(stopAgendaTodayScroll, \d+\)/, 'tem limite de tempo');
 });
+
+test('Página /agenda/: cores do painel seguem o tema claro/escuro do site', () => {
+  const css = read('css/pages/agenda.css');
+  assert.match(css, /\.agenda-panel\s*\{\s*--ag-sh: 0, 0, 0;/, 'escuro continua como padrão histórico');
+  assert.match(css, /:root\[data-theme="light"\] \.agenda-panel\s*\{/);
+  assert.match(css, /@media \(prefers-color-scheme: light\)\s*\{\s*:root:not\(\[data-theme\]\) \.agenda-panel/);
+  assert.doesNotMatch(css.slice(css.indexOf('/* ---------- Painel')), /#(?:fff|17131b|211825|f0dcef|e0d3e3)\b/i, 'sem cores escuras fixas fora das variáveis');
+});
+

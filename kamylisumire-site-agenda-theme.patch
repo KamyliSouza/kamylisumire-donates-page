@@ -1,0 +1,342 @@
+diff --git a/.github/tests/agenda-today.test.mjs b/.github/tests/agenda-today.test.mjs
+index 8c772f0..81810be 100644
+--- a/.github/tests/agenda-today.test.mjs
++++ b/.github/tests/agenda-today.test.mjs
+@@ -32,3 +32,12 @@ test('Home: o carrossel rola sozinho até o card de hoje só na abertura e respe
+   assert.match(js, /\["pointerdown", "wheel", "touchstart", "keydown"\]/, 'para ao interagir');
+   assert.match(js, /setTimeout\(stopAgendaTodayScroll, \d+\)/, 'tem limite de tempo');
+ });
++
++test('Página /agenda/: cores do painel seguem o tema claro/escuro do site', () => {
++  const css = read('css/pages/agenda.css');
++  assert.match(css, /\.agenda-panel\s*\{\s*--ag-sh: 0, 0, 0;/, 'escuro continua como padrão histórico');
++  assert.match(css, /:root\[data-theme="light"\] \.agenda-panel\s*\{/);
++  assert.match(css, /@media \(prefers-color-scheme: light\)\s*\{\s*:root:not\(\[data-theme\]\) \.agenda-panel/);
++  assert.doesNotMatch(css.slice(css.indexOf('/* ---------- Painel')), /#(?:fff|17131b|211825|f0dcef|e0d3e3)\b/i, 'sem cores escuras fixas fora das variáveis');
++});
++
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index cf1a9f4..606f4df 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,10 @@
+ # Changelog
+ 
++## V48.3.71 — Tema claro/escuro na página /agenda/
++
++- o painel da agenda passa a seguir o tema do site: as cores viraram variáveis `--ag-*` em `.agenda-panel`; escuro continua idêntico ao anterior (conferido pixel a pixel) e o claro vale com `data-theme="light"` ou, sem preferência salva, quando o sistema não pede escuro. No claro o véu sobre a arte é claro e o texto escuro, para manter a leitura sobre qualquer capa;
++- `agenda.css` sobe para `?v=48.3.71`.
++
+ ## V48.3.70 — Carregamento paralelo e dia atual na Agenda do Home
+ 
+ - **desempenho:** a CSP declarada em `<meta>` fazia o Chromium deixar de descobrir antecipadamente os scripts do fim do `<body>`, e os 13–21 scripts de cada página eram baixados **um depois do outro**. Todas as páginas agora têm `<link rel="preload" as="script">` para os próprios scripts (mesma ordem; a execução não muda). Medido com latência simulada de 80 ms: Home pronta em ~1,8 s → ~0,8 s; página revelada em ~2,7 s → ~1,3 s. Com 150 ms: 4,5 s → 1,9 s;
+diff --git a/agenda/index.html b/agenda/index.html
+index c1b5ac3..cdfc7f8 100644
+--- a/agenda/index.html
++++ b/agenda/index.html
+@@ -316,7 +316,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+-    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.69">
++    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.71">
+     <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+diff --git a/css/pages/agenda.css b/css/pages/agenda.css
+index ce2aef5..13cc2a0 100644
+--- a/css/pages/agenda.css
++++ b/css/pages/agenda.css
+@@ -6,39 +6,183 @@
+ .agenda-state { margin: 0; padding: 18px 20px; color: var(--subtitle-color); font-weight: 700; text-align: center; }
+ .agenda-state[hidden], .agenda-panel[hidden] { display: none; }
+ 
++/*
++ * Tema: as cores do painel ficam em variáveis --ag-* (escuro é o padrão histórico).
++ * Claro vale com data-theme="light" e, sem data-theme, quando o sistema não pede escuro —
++ * a mesma regra de css/core/variables.css.
++ */
++.agenda-panel {
++    --ag-sh: 0, 0, 0;
++    --ag-text: #fff8ff;
++    --ag-panel-bg: #17131b;
++    --ag-panel-border: rgba(209, 120, 205, .34);
++    --ag-art-bg: #211825;
++    --ag-art-filter: blur(2px) brightness(.66) saturate(.9);
++    --ag-panel-veil:
++        linear-gradient(90deg, rgba(13, 10, 16, .74) 0%, rgba(13, 10, 16, .48) 48%, rgba(13, 10, 16, .28) 100%),
++        linear-gradient(180deg, rgba(10, 8, 13, .22) 0%, rgba(10, 8, 13, .08) 42%, rgba(8, 7, 10, .46) 100%),
++        radial-gradient(ellipse at 4% 95%, rgba(90, 54, 105, .24), transparent 42%);
++    --ag-head-line: rgba(209, 120, 205, .42);
++    --ag-pill-text: #f0dcef;
++    --ag-pill-bg: rgba(25, 16, 29, .58);
++    --ag-pill-border: rgba(209, 120, 205, .38);
++    --ag-pill-shadow: rgba(0, 0, 0, .15);
++    --ag-foot-text: #e0d3e3;
++    --ag-foot-line: rgba(255, 255, 255, .18);
++    --ag-card-text: #fff;
++    --ag-card-bg: linear-gradient(135deg, #64446a, #251c31 70%);
++    --ag-card-border: rgba(209, 120, 205, .48);
++    --ag-card-veil:
++        linear-gradient(180deg, rgba(7, 5, 10, .36) 0%, rgba(7, 5, 10, .17) 28%, rgba(7, 5, 10, .52) 56%, rgba(7, 5, 10, .94) 100%),
++        linear-gradient(90deg, rgba(7, 5, 10, .22), transparent 76%);
++    --ag-date: #e0d0e2;
++    --ag-chip-text: #ffd7fa;
++    --ag-chip-bg: rgba(36, 19, 39, .82);
++    --ag-chip-border: rgba(230, 154, 222, .62);
++    --ag-chip-shadow: rgba(0, 0, 0, .25);
++    --ag-time-text: #ffe3fb;
++    --ag-time-bg: rgba(55, 30, 60, .91);
++    --ag-time-border: rgba(220, 146, 214, .62);
++    --ag-title: #fffaff;
++    --ag-desc: #e6d8e8;
++    --ag-platforms: #d6c3d8;
++    --ag-nolive-text: #c9bdcc;
++    --ag-nolive-border: rgba(209, 120, 205, .28);
++    --ag-nolive-surface: linear-gradient(145deg, rgba(34, 27, 38, .68), rgba(20, 17, 24, .78));
++    --ag-nolive-glow:
++        radial-gradient(circle at 50% 48%, rgba(209, 120, 205, .08), transparent 58%),
++        linear-gradient(180deg, rgba(8, 7, 10, .12), rgba(8, 7, 10, .30));
++    --ag-nolive-solid: linear-gradient(145deg, rgba(34, 27, 38, .94), rgba(20, 17, 24, .96));
++    --ag-ph-title: #f0e6f0;
++    --ag-ph-desc: #d0c1d2;
++    --ag-hover-border: rgba(235, 170, 232, .9);
++    --ag-hover-shadow: rgba(0, 0, 0, .28);
++}
++:root[data-theme="light"] .agenda-panel {
++    --ag-sh: 255, 255, 255;
++    --ag-text: #2b1f2d;
++    --ag-panel-bg: #f4e8f4;
++    --ag-panel-border: rgba(179, 94, 175, .42);
++    --ag-art-bg: #eadcea;
++    --ag-art-filter: blur(2px) brightness(1.1) saturate(.75);
++    --ag-panel-veil:
++        linear-gradient(90deg, rgba(250, 242, 250, .86) 0%, rgba(250, 242, 250, .7) 48%, rgba(250, 242, 250, .58) 100%),
++        radial-gradient(ellipse at 4% 95%, rgba(179, 94, 175, .16), transparent 42%);
++    --ag-head-line: rgba(155, 77, 151, .42);
++    --ag-pill-text: #5a2f58;
++    --ag-pill-bg: rgba(255, 255, 255, .78);
++    --ag-pill-border: rgba(155, 77, 151, .4);
++    --ag-pill-shadow: rgba(80, 30, 80, .1);
++    --ag-foot-text: #4a3a4d;
++    --ag-foot-line: rgba(70, 30, 70, .2);
++    --ag-card-text: #2b1f2d;
++    --ag-card-bg: linear-gradient(135deg, #f1d8f0, #fff 70%);
++    --ag-card-border: rgba(155, 77, 151, .5);
++    --ag-card-veil:
++        linear-gradient(180deg, rgba(255, 247, 255, .6) 0%, rgba(255, 247, 255, .44) 28%, rgba(255, 247, 255, .74) 56%, rgba(255, 247, 255, .97) 100%),
++        linear-gradient(90deg, rgba(255, 247, 255, .3), transparent 76%);
++    --ag-date: #5b4a5e;
++    --ag-chip-text: #6b2a68;
++    --ag-chip-bg: rgba(255, 255, 255, .88);
++    --ag-chip-border: rgba(155, 77, 151, .5);
++    --ag-chip-shadow: rgba(80, 30, 80, .16);
++    --ag-time-text: #5a2057;
++    --ag-time-bg: rgba(255, 255, 255, .92);
++    --ag-time-border: rgba(155, 77, 151, .5);
++    --ag-title: #231626;
++    --ag-desc: #4a3a4d;
++    --ag-platforms: #5b4a5e;
++    --ag-nolive-text: #5b4a5e;
++    --ag-nolive-border: rgba(155, 77, 151, .32);
++    --ag-nolive-surface: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(246, 234, 246, .84));
++    --ag-nolive-glow:
++        radial-gradient(circle at 50% 48%, rgba(179, 94, 175, .08), transparent 58%),
++        linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .22));
++    --ag-nolive-solid: linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(246, 234, 246, .97));
++    --ag-ph-title: #2b1f2d;
++    --ag-ph-desc: #5b4a5e;
++    --ag-hover-border: rgba(155, 77, 151, .85);
++    --ag-hover-shadow: rgba(80, 30, 80, .22);
++}
++@media (prefers-color-scheme: light) {
++    :root:not([data-theme]) .agenda-panel {
++        --ag-sh: 255, 255, 255;
++        --ag-text: #2b1f2d;
++        --ag-panel-bg: #f4e8f4;
++        --ag-panel-border: rgba(179, 94, 175, .42);
++        --ag-art-bg: #eadcea;
++        --ag-art-filter: blur(2px) brightness(1.1) saturate(.75);
++        --ag-panel-veil:
++            linear-gradient(90deg, rgba(250, 242, 250, .86) 0%, rgba(250, 242, 250, .7) 48%, rgba(250, 242, 250, .58) 100%),
++            radial-gradient(ellipse at 4% 95%, rgba(179, 94, 175, .16), transparent 42%);
++        --ag-head-line: rgba(155, 77, 151, .42);
++        --ag-pill-text: #5a2f58;
++        --ag-pill-bg: rgba(255, 255, 255, .78);
++        --ag-pill-border: rgba(155, 77, 151, .4);
++        --ag-pill-shadow: rgba(80, 30, 80, .1);
++        --ag-foot-text: #4a3a4d;
++        --ag-foot-line: rgba(70, 30, 70, .2);
++        --ag-card-text: #2b1f2d;
++        --ag-card-bg: linear-gradient(135deg, #f1d8f0, #fff 70%);
++        --ag-card-border: rgba(155, 77, 151, .5);
++        --ag-card-veil:
++            linear-gradient(180deg, rgba(255, 247, 255, .6) 0%, rgba(255, 247, 255, .44) 28%, rgba(255, 247, 255, .74) 56%, rgba(255, 247, 255, .97) 100%),
++            linear-gradient(90deg, rgba(255, 247, 255, .3), transparent 76%);
++        --ag-date: #5b4a5e;
++        --ag-chip-text: #6b2a68;
++        --ag-chip-bg: rgba(255, 255, 255, .88);
++        --ag-chip-border: rgba(155, 77, 151, .5);
++        --ag-chip-shadow: rgba(80, 30, 80, .16);
++        --ag-time-text: #5a2057;
++        --ag-time-bg: rgba(255, 255, 255, .92);
++        --ag-time-border: rgba(155, 77, 151, .5);
++        --ag-title: #231626;
++        --ag-desc: #4a3a4d;
++        --ag-platforms: #5b4a5e;
++        --ag-nolive-text: #5b4a5e;
++        --ag-nolive-border: rgba(155, 77, 151, .32);
++        --ag-nolive-surface: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(246, 234, 246, .84));
++        --ag-nolive-glow:
++            radial-gradient(circle at 50% 48%, rgba(179, 94, 175, .08), transparent 58%),
++            linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .22));
++        --ag-nolive-solid: linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(246, 234, 246, .97));
++        --ag-ph-title: #2b1f2d;
++        --ag-ph-desc: #5b4a5e;
++        --ag-hover-border: rgba(155, 77, 151, .85);
++        --ag-hover-shadow: rgba(80, 30, 80, .22);
++    }
++}
++
+ /* ---------- Painel ---------- */
+ .agenda-panel {
+     position: relative;
+     isolation: isolate;
+     overflow: hidden;
+     padding: clamp(20px, 3vw, 32px);
+-    color: #fff8ff;
+-    background: #17131b;
+-    border: 1px solid rgba(209, 120, 205, .34);
++    color: var(--ag-text);
++    background: var(--ag-panel-bg);
++    border: 1px solid var(--ag-panel-border);
+     border-radius: 28px;
+     box-shadow: var(--shadow-card);
+ }
+ /* Fundo panorâmico: arte própria, independente das artes dos cards. */
+-.agenda-panel-art { position: absolute; inset: -2px; z-index: -2; pointer-events: none; background-color: #211825; }
+-.agenda-panel-art img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 42%; filter: blur(2px) brightness(.66) saturate(.9); transform: scale(1.015); }
++.agenda-panel-art { position: absolute; inset: -2px; z-index: -2; pointer-events: none; background-color: var(--ag-art-bg); }
++.agenda-panel-art img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 42%; filter: var(--ag-art-filter); transform: scale(1.015); }
+ .agenda-panel::after {
+     content: "";
+     position: absolute;
+     inset: 0;
+     z-index: -1;
+     pointer-events: none;
+-    background:
+-        linear-gradient(90deg, rgba(13, 10, 16, .74) 0%, rgba(13, 10, 16, .48) 48%, rgba(13, 10, 16, .28) 100%),
+-        linear-gradient(180deg, rgba(10, 8, 13, .22) 0%, rgba(10, 8, 13, .08) 42%, rgba(8, 7, 10, .46) 100%),
+-        radial-gradient(ellipse at 4% 95%, rgba(90, 54, 105, .24), transparent 42%);
++    background: var(--ag-panel-veil);
+ }
+-.agenda-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 17px; border-bottom: 1px solid rgba(209, 120, 205, .42); }
+-.agenda-panel-head h2 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 900; letter-spacing: .025em; text-transform: uppercase; text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
+-.agenda-period { margin: 0; padding: 7px 11px; color: #f0dcef; background: rgba(25, 16, 29, .58); border: 1px solid rgba(209, 120, 205, .38); border-radius: 999px; box-shadow: 0 3px 14px rgba(0, 0, 0, .15); font-size: .85rem; font-weight: 850; white-space: nowrap; }
++.agenda-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 17px; border-bottom: 1px solid var(--ag-head-line); }
++.agenda-panel-head h2 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 900; letter-spacing: .025em; text-transform: uppercase; text-shadow: 0 2px 14px rgba(var(--ag-sh), .55); }
++.agenda-period { margin: 0; padding: 7px 11px; color: var(--ag-pill-text); background: var(--ag-pill-bg); border: 1px solid var(--ag-pill-border); border-radius: 999px; box-shadow: 0 3px 14px var(--ag-pill-shadow); font-size: .85rem; font-weight: 850; white-space: nowrap; }
+ .agenda-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 21px; }
+-.agenda-panel-foot { display: flex; justify-content: space-between; gap: 14px; margin-top: 19px; padding-top: 14px; color: #e0d3e3; border-top: 1px solid rgba(255, 255, 255, .18); font-size: .75rem; line-height: 1.45; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
++.agenda-panel-foot { display: flex; justify-content: space-between; gap: 14px; margin-top: 19px; padding-top: 14px; color: var(--ag-foot-text); border-top: 1px solid var(--ag-foot-line); font-size: .75rem; line-height: 1.45; text-shadow: 0 1px 8px rgba(var(--ag-sh), .5); }
+ .agenda-panel-foot p { margin: 0; }
+-.agenda-panel-foot strong { color: #f0dcef; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; }
++.agenda-panel-foot strong { color: var(--ag-pill-text); font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; }
+ 
+ /* ---------- Cards dos dias ---------- */
+ .agenda-day {
+@@ -54,9 +198,9 @@
+     flex-direction: column;
+     justify-content: space-between;
+     padding: 18px 21px 17px;
+-    color: #fff;
+-    background: linear-gradient(135deg, #64446a, #251c31 70%);
+-    border: 1px solid rgba(209, 120, 205, .48);
++    color: var(--ag-card-text);
++    background: var(--ag-card-bg);
++    border: 1px solid var(--ag-card-border);
+     border-radius: 23px;
+ }
+ .agenda-day.has-multiple-lives { aspect-ratio: auto; }
+@@ -71,28 +215,26 @@
+     inset: 0;
+     z-index: -1;
+     pointer-events: none;
+-    background:
+-        linear-gradient(180deg, rgba(7, 5, 10, .36) 0%, rgba(7, 5, 10, .17) 28%, rgba(7, 5, 10, .52) 56%, rgba(7, 5, 10, .94) 100%),
+-        linear-gradient(90deg, rgba(7, 5, 10, .22), transparent 76%);
++    background: var(--ag-card-veil);
+ }
+ .agenda-day-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-width: 0; }
+-.agenda-day-name { margin: 0; font-size: .92rem; font-weight: 950; letter-spacing: .035em; line-height: 1.2; text-transform: uppercase; text-shadow: 0 2px 12px rgba(0, 0, 0, .8); }
+-.agenda-day-date { display: block; margin-top: 4px; color: #e0d0e2; font-size: .76rem; text-shadow: 0 2px 10px rgba(0, 0, 0, .8); }
+-.agenda-chip { flex: none; padding: 5px 9px; color: #ffd7fa; background: rgba(36, 19, 39, .82); border: 1px solid rgba(230, 154, 222, .62); border-radius: 999px; box-shadow: 0 2px 9px rgba(0, 0, 0, .25); font-size: .64rem; font-weight: 950; letter-spacing: .045em; white-space: nowrap; }
++.agenda-day-name { margin: 0; font-size: .92rem; font-weight: 950; letter-spacing: .035em; line-height: 1.2; text-transform: uppercase; text-shadow: 0 2px 12px rgba(var(--ag-sh), .8); }
++.agenda-day-date { display: block; margin-top: 4px; color: var(--ag-date); font-size: .76rem; text-shadow: 0 2px 10px rgba(var(--ag-sh), .8); }
++.agenda-chip { flex: none; padding: 5px 9px; color: var(--ag-chip-text); background: var(--ag-chip-bg); border: 1px solid var(--ag-chip-border); border-radius: 999px; box-shadow: 0 2px 9px var(--ag-chip-shadow); font-size: .64rem; font-weight: 950; letter-spacing: .045em; white-space: nowrap; }
+ .agenda-event-info { display: grid; gap: 9px; min-width: 0; margin-top: auto; padding-top: 26px; }
+ .agenda-event { min-width: 0; }
+ .agenda-event-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
+-.agenda-time { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 68px; padding: 6px 9px; color: #ffe3fb; background: rgba(55, 30, 60, .91); border: 1px solid rgba(220, 146, 214, .62); border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, .22); font-size: .76rem; font-weight: 950; }
+-.agenda-event-title { min-width: 0; margin: 0; color: #fffaff; font-size: clamp(1.02rem, 1.6vw, 1.2rem); font-weight: 950; line-height: 1.12; overflow-wrap: anywhere; text-shadow: 0 2px 12px rgba(0, 0, 0, .95); }
+-.agenda-event-description { margin: 7px 0 0; color: #e6d8e8; font-size: .76rem; line-height: 1.35; text-shadow: 0 2px 9px rgba(0, 0, 0, .8); }
+-.agenda-platforms { margin: 8px 0 0; color: #d6c3d8; font-size: .69rem; font-weight: 800; text-shadow: 0 2px 9px rgba(0, 0, 0, .8); }
++.agenda-time { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 68px; padding: 6px 9px; color: var(--ag-time-text); background: var(--ag-time-bg); border: 1px solid var(--ag-time-border); border-radius: 10px; box-shadow: 0 2px 10px var(--ag-chip-shadow); font-size: .76rem; font-weight: 950; }
++.agenda-event-title { min-width: 0; margin: 0; color: var(--ag-title); font-size: clamp(1.02rem, 1.6vw, 1.2rem); font-weight: 950; line-height: 1.12; overflow-wrap: anywhere; text-shadow: 0 2px 12px rgba(var(--ag-sh), .95); }
++.agenda-event-description { margin: 7px 0 0; color: var(--ag-desc); font-size: .76rem; line-height: 1.35; text-shadow: 0 2px 9px rgba(var(--ag-sh), .8); }
++.agenda-platforms { margin: 8px 0 0; color: var(--ag-platforms); font-size: .69rem; font-weight: 800; text-shadow: 0 2px 9px rgba(var(--ag-sh), .8); }
+ 
+ /*
+  * Dia sem live: mesmo padrão de placeholder de /jogos/ — superfície translúcida
+  * com halo da cor primária e a marca do site como máscara. O desfoque usa
+  * --blur-card, então respeita Blur desligado, Save-Data e modo leitura.
+  */
+-.agenda-day.no-live { color: #c9bdcc; background: transparent; border-color: rgba(209, 120, 205, .28); }
++.agenda-day.no-live { color: var(--ag-nolive-text); background: transparent; border-color: var(--ag-nolive-border); }
+ .agenda-day.no-live::before {
+     content: "";
+     position: absolute;
+@@ -100,7 +242,7 @@
+     z-index: -2;
+     background:
+         radial-gradient(circle at 50% 46%, var(--primary-soft), transparent 59%),
+-        linear-gradient(145deg, rgba(34, 27, 38, .68), rgba(20, 17, 24, .78));
++        var(--ag-nolive-surface);
+     -webkit-backdrop-filter: blur(calc(var(--blur-card) * 1.3)) saturate(115%);
+     backdrop-filter: blur(calc(var(--blur-card) * 1.3)) saturate(115%);
+ }
+@@ -111,8 +253,7 @@
+     z-index: -1;
+     pointer-events: none;
+     background:
+-        radial-gradient(circle at 50% 48%, rgba(209, 120, 205, .08), transparent 58%),
+-        linear-gradient(180deg, rgba(8, 7, 10, .12), rgba(8, 7, 10, .30));
++        var(--ag-nolive-glow);
+ }
+ .agenda-day-placeholder { flex: 1; min-height: 0; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 12px 6px 2px; text-align: center; }
+ .agenda-day-mark {
+@@ -125,12 +266,12 @@
+     filter: drop-shadow(0 6px 16px var(--primary-soft));
+     opacity: .86;
+ }
+-.agenda-day-placeholder-copy .agenda-event-title { color: #f0e6f0; font-size: 1.04rem; text-shadow: 0 2px 10px rgba(0, 0, 0, .5); }
+-.agenda-day-placeholder-copy .agenda-event-description { margin-top: 4px; color: #d0c1d2; text-shadow: 0 2px 9px rgba(0, 0, 0, .42); }
++.agenda-day-placeholder-copy .agenda-event-title { color: var(--ag-ph-title); font-size: 1.04rem; text-shadow: 0 2px 10px rgba(var(--ag-sh), .5); }
++.agenda-day-placeholder-copy .agenda-event-description { margin-top: 4px; color: var(--ag-ph-desc); text-shadow: 0 2px 9px rgba(var(--ag-sh), .42); }
+ @supports not ((mask-image: url("")) or (-webkit-mask-image: url(""))) {
+     .agenda-day-mark { background: transparent url('https://assets.kamylisumire.com/logo.webp') center / contain no-repeat; }
+ }
+-:root[data-blur="off"] .agenda-day.no-live::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(145deg, rgba(34, 27, 38, .94), rgba(20, 17, 24, .96)); }
++:root[data-blur="off"] .agenda-day.no-live::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--ag-nolive-solid); }
+ 
+ /* ---------- Aviso legal ---------- */
+ .agenda-legal { padding: 18px 20px; }
+@@ -140,7 +281,7 @@
+ /* ---------- Movimento ---------- */
+ @media (prefers-reduced-motion: no-preference) {
+     .agenda-day { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+-    .agenda-day:hover { transform: translateY(-2px); border-color: rgba(235, 170, 232, .9); box-shadow: 0 12px 28px rgba(0, 0, 0, .28); }
++    .agenda-day:hover { transform: translateY(-2px); border-color: var(--ag-hover-border); box-shadow: 0 12px 28px var(--ag-hover-shadow); }
+ }
+ 
+ /* ---------- Responsivo (o dock de redes ocupa a lateral esquerda até 1279 px) ---------- */

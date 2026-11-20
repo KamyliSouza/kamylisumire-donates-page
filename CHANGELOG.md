@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.72 — Quinas dos dias sem live na /agenda/
+
+- a camada de desfoque dos cards "sem live" tinha `inset: -3px` sem raio: com Blur ligado o `backdrop-filter` vazava um quadrado claro para fora das quinas arredondadas e a borda parecia quebrada. Agora a camada fica dentro da borda, com raio de 22px; a borda desses cards também ficou um pouco mais visível (.28 → .40 no escuro, .32 → .42 no claro). `agenda.css` sobe para `?v=48.3.72`.
+
+## V48.3.71 — Tema claro/escuro na página /agenda/
+
+- o painel da agenda passa a seguir o tema do site: as cores viraram variáveis `--ag-*` em `.agenda-panel`; escuro continua idêntico ao anterior (conferido pixel a pixel) e o claro vale com `data-theme="light"` ou, sem preferência salva, quando o sistema não pede escuro. No claro o véu sobre a arte é claro e o texto escuro, para manter a leitura sobre qualquer capa;
+- `agenda.css` sobe para `?v=48.3.71`.
+
 ## V48.3.70 — Carregamento paralelo e dia atual na Agenda do Home
 
 - **desempenho:** a CSP declarada em `<meta>` fazia o Chromium deixar de descobrir antecipadamente os scripts do fim do `<body>`, e os 13–21 scripts de cada página eram baixados **um depois do outro**. Todas as páginas agora têm `<link rel="preload" as="script">` para os próprios scripts (mesma ordem; a execução não muda). Medido com latência simulada de 80 ms: Home pronta em ~1,8 s → ~0,8 s; página revelada em ~2,7 s → ~1,3 s. Com 150 ms: 4,5 s → 1,9 s;
