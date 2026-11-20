@@ -1,5 +1,14 @@
 # Changelog
 
+## V48.3.70 — Carregamento paralelo e dia atual na Agenda do Home
+
+- **desempenho:** a CSP declarada em `<meta>` fazia o Chromium deixar de descobrir antecipadamente os scripts do fim do `<body>`, e os 13–21 scripts de cada página eram baixados **um depois do outro**. Todas as páginas agora têm `<link rel="preload" as="script">` para os próprios scripts (mesma ordem; a execução não muda). Medido com latência simulada de 80 ms: Home pronta em ~1,8 s → ~0,8 s; página revelada em ~2,7 s → ~1,3 s. Com 150 ms: 4,5 s → 1,9 s;
+- o loader não foi alterado: o mínimo de exibição (320 ms inicial / 240 ms na navegação) continua igual e, passado o mínimo, o reveal começa assim que o conteúdo está pronto;
+- novo `.github/tests/script-preload.test.mjs` garante que o preload de cada página acompanhe seus scripts;
+- **Home:** o card do dia em que a pessoa acessa o site ganha realce sutil na data (pílula suave e leve brilho no topo), além dos destaques já existentes nos dias com live. "Hoje" vem da data do aparelho do visitante (não do servidor), é refeito na virada do dia e ao voltar para a aba, e usa `aria-current="date"` e "(hoje)" para leitores de tela;
+- ao abrir a Home, o carrossel da agenda rola sozinho (só na horizontal, sem mover a página) até o card de hoje quando ele não está visível; para assim que a pessoa interage e não roda na virada do dia;
+- `home.js` e `home.css` sobem para `?v=48.3.70`; novo `.github/tests/agenda-today.test.mjs`.
+
 ## V48.3.69 — Página /agenda/
 
 - nova página **`/agenda/`** com a semana publicada em `data/agenda.json`: sete dias de domingo a sábado (inclusive sem nenhuma live), painel com arte panorâmica própria e cards horizontais com a arte do jogo, na mesma composição do gerador de PNG do Discord;

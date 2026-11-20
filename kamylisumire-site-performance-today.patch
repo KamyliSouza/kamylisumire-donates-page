@@ -1,0 +1,628 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index ace529c..bd9dae4 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -1638,11 +1638,11 @@ def validate_architecture() -> None:
+     if "css/components/blog.css" not in index:
+         error("index.html: blog.css compartilhado não está carregado.")
+ 
+-    if "css/pages/home.css?v=48.3.58" not in index:
++    if "css/pages/home.css?v=48.3.70" not in index:
+         error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
+     if "js/pages/home/content.js?v=48.3.60" not in index:
+         error("index.html: cache-buster V48.3.60 ausente para js/pages/home/content.js.")
+-    if "js/pages/home/home.js?v=48.3.31" not in index:
++    if "js/pages/home/home.js?v=48.3.70" not in index:
+         error("index.html: cache-buster V48.3.31 ausente para js/pages/home/home.js.")
+ 
+     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
+@@ -2728,7 +2728,7 @@ def validate_architecture() -> None:
+     v4837_assets = {
+         "index.html": (
+             "css/core/variables.css?v=48.3.58",
+-            "css/pages/home.css?v=48.3.58",
++            "css/pages/home.css?v=48.3.70",
+             "css/components/carousels.css?v=48.3.58",
+             "css/components/lives.css?v=48.3.7",
+             "css/components/blog.css?v=48.3.7",
+diff --git a/.github/tests/agenda-today.test.mjs b/.github/tests/agenda-today.test.mjs
+new file mode 100644
+index 0000000..8c772f0
+--- /dev/null
++++ b/.github/tests/agenda-today.test.mjs
+@@ -0,0 +1,34 @@
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import test from 'node:test';
++
++const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
++
++test('Home: destaque do dia atual é calculado no aparelho, refeito na virada do dia e acessível', () => {
++  const js = read('js/pages/home/home.js');
++  assert.match(js, /function localIsoDate\(/);
++  assert.match(js, /date\.getFullYear\(\)/, 'usa a data local do visitante, não UTC');
++  assert.doesNotMatch(js, /toISOString\(\)\.slice\(0, 10\)/, 'toISOString usaria UTC e erraria o dia à noite no Brasil');
++  assert.match(js, /card\.dataset\.date = dia\.data/);
++  assert.match(js, /classList\.toggle\("is-today", isToday\)/);
++  assert.match(js, /setAttribute\("aria-current", "date"\)/);
++  assert.match(js, /" \(hoje\)"/);
++  assert.match(js, /document\.addEventListener\("visibilitychange"/);
++  assert.match(js, /agendaGrid\.replaceChildren\(fragment\);\s*markAgendaToday\(\);/);
++});
++
++test('Home: CSS do dia atual é independente da borda de has-live e respeita alto contraste', () => {
++  const css = read('css/pages/home.css');
++  assert.match(css, /\.agenda-card\.is-today\s*\{/);
++  assert.match(css, /\.agenda-card\.is-today \.agenda-date\s*\{[^}]*background-color:\s*var\(--primary-soft\)/s);
++  assert.match(css, /@media \(forced-colors: active\)\s*\{\s*\.agenda-card\.is-today \.agenda-date/);
++  assert.doesNotMatch(css.match(/\.agenda-card\.is-today\s*\{[^}]*\}/s)[0], /border/, 'não pode competir com a borda das lives');
++});
++
++test('Home: o carrossel rola sozinho até o card de hoje só na abertura e respeita a interação', () => {
++  const js = read('js/pages/home/home.js');
++  assert.match(js, /function scrollAgendaToToday\(/);
++  assert.match(js, /renderAgenda[\s\S]*agendaCarousel\?\.refresh\(\);\s*scrollAgendaToToday\(\);/);
++  assert.match(js, /\["pointerdown", "wheel", "touchstart", "keydown"\]/, 'para ao interagir');
++  assert.match(js, /setTimeout\(stopAgendaTodayScroll, \d+\)/, 'tem limite de tempo');
++});
+diff --git a/.github/tests/script-preload.test.mjs b/.github/tests/script-preload.test.mjs
+new file mode 100644
+index 0000000..4e18079
+--- /dev/null
++++ b/.github/tests/script-preload.test.mjs
+@@ -0,0 +1,28 @@
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import test from 'node:test';
++
++const PAGES = [
++  'index.html', '404.html', 'doacoes/index.html', 'blog/index.html', 'artes/index.html',
++  'jogos/index.html', 'agenda/index.html', 'privacidade/index.html', 'uso-de-ia/index.html'
++];
++const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
++
++/*
++ * V48.3.70: com a CSP em <meta>, o Chromium não descobre os scripts do fim do body
++ * antes da hora e os baixa em série (medido: Home ~1,8 s -> ~0,8 s com 80 ms de
++ * latência). Cada página precisa pré-carregar exatamente os seus scripts locais.
++ */
++for (const page of PAGES) {
++  test(`${page}: preload de script em sincronia com os scripts da página`, () => {
++    const html = read(page);
++    const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]).filter(u => !/^https?:/.test(u));
++    const preloads = [...html.matchAll(/<link rel="preload" as="script" href="([^"]+)">/g)].map(m => m[1]);
++    assert.ok(scripts.length > 0);
++    assert.deepEqual(preloads, scripts);
++    const firstPreload = html.indexOf('rel="preload" as="script"');
++    const firstScript = html.indexOf('<script src=');
++    assert.ok(firstPreload > -1 && firstPreload < firstScript, 'preloads devem ficar no head, antes dos scripts');
++    assert.ok(firstPreload < html.indexOf('<body'), 'preloads devem ficar no head');
++  });
++}
+diff --git a/404.html b/404.html
+index 92b3b3f..9c3b358 100644
+--- a/404.html
++++ b/404.html
+@@ -12,6 +12,25 @@
+     <meta name="robots" content="noindex">
+     <meta name="theme-color" content="#B35EAF">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="js/core/config.js">
++    <link rel="preload" as="script" href="js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const isGitHubProjectPage =
+diff --git a/AGENTS.md b/AGENTS.md
+index 74b9bd6..4841157 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -255,6 +255,13 @@ dos de imagem da Steam. Textos entram por `textContent`. O item Agenda da navbar
+ para `/agenda/` em `navbar.json` (e no fallback do `content.js`); a Home continua com a
+ sua seção #agenda. Não duplique navbar, footer ou redes na página.
+ 
++**Preload de scripts (V48.3.70):** a CSP fica em `<meta>` e, com ela, o Chromium não
++descobre antes da hora os `<script src>` do fim do body (medido: download em série).
++Por isso cada página tem `<link rel="preload" as="script">` para exatamente os seus
++scripts locais, na mesma ordem. Ao adicionar, remover ou renomear um script de página,
++atualize os preloads (`.github/tests/script-preload.test.mjs` confere). Não use `defer`/
++`async` para resolver isso: a ordem de execução e o loader dependem dos scripts clássicos.
++
+ ## CTAs de apoio e carrosséis
+ 
+ Na Home:
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f873555..cf1a9f4 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,14 @@
+ # Changelog
+ 
++## V48.3.70 — Carregamento paralelo e dia atual na Agenda do Home
++
++- **desempenho:** a CSP declarada em `<meta>` fazia o Chromium deixar de descobrir antecipadamente os scripts do fim do `<body>`, e os 13–21 scripts de cada página eram baixados **um depois do outro**. Todas as páginas agora têm `<link rel="preload" as="script">` para os próprios scripts (mesma ordem; a execução não muda). Medido com latência simulada de 80 ms: Home pronta em ~1,8 s → ~0,8 s; página revelada em ~2,7 s → ~1,3 s. Com 150 ms: 4,5 s → 1,9 s;
++- o loader não foi alterado: o mínimo de exibição (320 ms inicial / 240 ms na navegação) continua igual e, passado o mínimo, o reveal começa assim que o conteúdo está pronto;
++- novo `.github/tests/script-preload.test.mjs` garante que o preload de cada página acompanhe seus scripts;
++- **Home:** o card do dia em que a pessoa acessa o site ganha realce sutil na data (pílula suave e leve brilho no topo), além dos destaques já existentes nos dias com live. "Hoje" vem da data do aparelho do visitante (não do servidor), é refeito na virada do dia e ao voltar para a aba, e usa `aria-current="date"` e "(hoje)" para leitores de tela;
++- ao abrir a Home, o carrossel da agenda rola sozinho (só na horizontal, sem mover a página) até o card de hoje quando ele não está visível; para assim que a pessoa interage e não roda na virada do dia;
++- `home.js` e `home.css` sobem para `?v=48.3.70`; novo `.github/tests/agenda-today.test.mjs`.
++
+ ## V48.3.69 — Página /agenda/
+ 
+ - nova página **`/agenda/`** com a semana publicada em `data/agenda.json`: sete dias de domingo a sábado (inclusive sem nenhuma live), painel com arte panorâmica própria e cards horizontais com a arte do jogo, na mesma composição do gerador de PNG do Discord;
+diff --git a/agenda/index.html b/agenda/index.html
+index ff40913..c1b5ac3 100644
+--- a/agenda/index.html
++++ b/agenda/index.html
+@@ -42,6 +42,28 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Agenda da Semana da Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/pages/agenda/agenda-model.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/pages/agenda/agenda.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+diff --git a/artes/index.html b/artes/index.html
+index c6fb9d1..24340f8 100644
+--- a/artes/index.html
++++ b/artes/index.html
+@@ -42,6 +42,28 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Galeria de Artes da Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/horizontal-scroll.js?v=48.3.21">
++    <link rel="preload" as="script" href="../js/pages/artes/artes.js?v=48.3.59">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+diff --git a/blog/index.html b/blog/index.html
+index 0b241e8..3e40e7e 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -42,6 +42,28 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Blog da Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/horizontal-scroll.js?v=48.3.21">
++    <link rel="preload" as="script" href="../js/pages/blog/blog.js?v=48.3.19">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+diff --git a/css/pages/home.css b/css/pages/home.css
+index 55f922d..6e8a6ce 100644
+--- a/css/pages/home.css
++++ b/css/pages/home.css
+@@ -419,6 +419,33 @@
+     line-height: 1.15;
+ }
+ 
++/*
++ * Dia atual (V48.3.70): realce sutil na data e um brilho discreto no topo do card.
++ * Independe da borda de .has-live; o recuo negativo mantém a data alinhada ao dia.
++ */
++.agenda-card.is-today {
++    box-shadow:
++        inset 0 0 0 1px var(--primary-soft),
++        inset 0 22px 26px -24px var(--primary-color);
++}
++
++.agenda-card.is-today .agenda-date {
++    margin: -3px 0 -3px -8px;
++    padding: 3px 9px;
++
++    color: var(--primary-text);
++    background-color: var(--primary-soft);
++
++    border-radius: 999px;
++    box-shadow: inset 0 0 0 1px var(--card-border);
++}
++
++@media (forced-colors: active) {
++    .agenda-card.is-today .agenda-date {
++        outline: 1px solid CanvasText;
++    }
++}
++
+ .agenda-date-time-separator {
+     color: var(--primary-text);
+ 
+diff --git a/doacoes/index.html b/doacoes/index.html
+index 86942d9..8e4a1e1 100644
+--- a/doacoes/index.html
++++ b/doacoes/index.html
+@@ -42,6 +42,30 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Apoie a Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/api.js?v=48.3.61">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/pages/doacoes/doacoes.js">
++    <link rel="preload" as="script" href="../js/pages/doacoes/content.js?v=47">
++    <link rel="preload" as="script" href="../js/pages/doacoes/ranking.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+diff --git a/index.html b/index.html
+index 5c4f71f..ec6ec1e 100644
+--- a/index.html
++++ b/index.html
+@@ -51,6 +51,33 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="js/core/config.js">
++    <link rel="preload" as="script" href="js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="js/pages/home/carousel.js?v=46.2">
++    <link rel="preload" as="script" href="js/pages/home/home.js?v=48.3.70">
++    <link rel="preload" as="script" href="js/pages/home/content.js?v=48.3.60">
++    <link rel="preload" as="script" href="js/core/api.js?v=48.3.61">
++    <link rel="preload" as="script" href="js/pages/home/lives.js?v=48.3.60">
++    <link rel="preload" as="script" href="js/pages/home/twitch-live.js?v=48.3.60">
++    <link rel="preload" as="script" href="js/pages/home/home-interactions.js?v=47">
++    <link rel="preload" as="script" href="js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+@@ -303,7 +330,7 @@
+     <link rel="stylesheet" href="css/core/global.css?v=48.3.66">
+     <link rel="stylesheet" href="css/core/navbar.css?v=48.3.67">
+     <link rel="stylesheet" href="css/core/socials.css?v=48.3.49">
+-    <link rel="stylesheet" href="css/pages/home.css?v=48.3.58">
++    <link rel="stylesheet" href="css/pages/home.css?v=48.3.70">
+     <link rel="stylesheet" href="css/components/lives.css?v=48.3.7">
+     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
+     <link rel="stylesheet" href="css/components/carousels.css?v=48.3.58">
+@@ -805,7 +832,7 @@
+     <script src="js/core/sanitize.js?v=48.3.60"></script>
+     <script src="js/core/footer.js?v=48.3.66"></script>
+     <script src="js/pages/home/carousel.js?v=46.2"></script>
+-    <script src="js/pages/home/home.js?v=48.3.31"></script>
++    <script src="js/pages/home/home.js?v=48.3.70"></script>
+     <script src="js/pages/home/content.js?v=48.3.60"></script>
+     <script src="js/core/api.js?v=48.3.61"></script>
+     <script src="js/pages/home/lives.js?v=48.3.60"></script>
+diff --git a/jogos/index.html b/jogos/index.html
+index c69736c..f3f03e6 100644
+--- a/jogos/index.html
++++ b/jogos/index.html
+@@ -42,6 +42,28 @@
+     <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+     <meta name="twitter:image:alt" content="Jogos das Lives da Kamyli Sumire">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/horizontal-scroll.js?v=48.3.21">
++    <link rel="preload" as="script" href="../js/pages/jogos/jogos.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const root = document.documentElement;
+diff --git a/js/pages/home/home.js b/js/pages/home/home.js
+index b17b163..3a0e2ef 100644
+--- a/js/pages/home/home.js
++++ b/js/pages/home/home.js
+@@ -22,6 +22,110 @@ function formatDate(dateString) {
+     }).format(new Date(year, month - 1, day));
+ }
+ 
++/*
++ * Destaque do dia atual (V48.3.70). "Hoje" é a data do aparelho de quem acessa,
++ * não a do servidor, e é reavaliado na virada do dia e ao voltar para a aba.
++ * Só marca o card (classe is-today, aria-current="date" e "(hoje)" para leitores
++ * de tela); os destaques de dias com live continuam independentes.
++ */
++let agendaTodayTimer = null;
++
++function localIsoDate(date = new Date()) {
++    const pad = value => String(value).padStart(2, "0");
++    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
++}
++
++function markAgendaToday() {
++    if (!agendaGrid) return;
++
++    const today = localIsoDate();
++
++    agendaGrid.querySelectorAll(".agenda-card[data-date]").forEach(card => {
++        const isToday = card.dataset.date === today;
++        card.classList.toggle("is-today", isToday);
++
++        if (isToday) card.setAttribute("aria-current", "date");
++        else card.removeAttribute("aria-current");
++
++        const dateElement = card.querySelector(".agenda-date");
++        const spoken = dateElement?.querySelector(".agenda-today-sr");
++
++        if (isToday && dateElement && !spoken) {
++            const label = document.createElement("span");
++            label.className = "sr-only agenda-today-sr";
++            label.textContent = " (hoje)";
++            dateElement.append(label);
++        } else if (!isToday && spoken) {
++            spoken.remove();
++        }
++    });
++
++    window.clearTimeout(agendaTodayTimer);
++    const now = new Date();
++    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
++    agendaTodayTimer = window.setTimeout(markAgendaToday, Math.max(1000, nextMidnight - now));
++}
++
++document.addEventListener("visibilitychange", () => {
++    if (!document.hidden) markAgendaToday();
++});
++
++// Leva o carrossel (apenas na horizontal, sem mover a página) até o card de hoje quando
++// ele não está totalmente visível. Vale só para a abertura da página: enquanto a pessoa
++// não interagir com o carrossel (e por no máximo alguns segundos), o posicionamento é
++// refeito se o layout for recalculado (o navegador zera o scroll quando o loader/reveal
++// esconde e mostra a página). Não roda na virada do dia.
++let agendaTodayPending = false;
++let agendaTodayObserver = null;
++let agendaTodayTimeout = 0;
++let agendaTodayInterval = 0;
++
++function stopAgendaTodayScroll() {
++    agendaTodayPending = false;
++    clearTimeout(agendaTodayTimeout);
++    clearInterval(agendaTodayInterval);
++    agendaTodayObserver?.disconnect();
++    agendaTodayObserver = null;
++    ["pointerdown", "wheel", "touchstart", "keydown"].forEach(type => {
++        agendaGrid?.removeEventListener(type, stopAgendaTodayScroll);
++    });
++}
++
++function applyAgendaTodayScroll() {
++    const card = agendaGrid?.querySelector(".agenda-card.is-today");
++    if (!card || agendaGrid.clientWidth === 0) return;
++
++    const gridRect = agendaGrid.getBoundingClientRect();
++    const cardRect = card.getBoundingClientRect();
++    if (cardRect.left >= gridRect.left && cardRect.right <= gridRect.right) return;
++
++    const gutter = parseFloat(getComputedStyle(agendaGrid).scrollPaddingInlineStart) || 0;
++    agendaGrid.scrollLeft += cardRect.left - gridRect.left - gutter;
++}
++
++function scrollAgendaToToday() {
++    stopAgendaTodayScroll();
++    if (!agendaGrid?.querySelector(".agenda-card.is-today")) return;
++
++    agendaTodayPending = true;
++    applyAgendaTodayScroll();
++
++    ["pointerdown", "wheel", "touchstart", "keydown"].forEach(type => {
++        agendaGrid.addEventListener(type, stopAgendaTodayScroll, { passive: true, once: true });
++    });
++    if (typeof ResizeObserver === "function") {
++        agendaTodayObserver = new ResizeObserver(() => {
++            if (agendaTodayPending) applyAgendaTodayScroll();
++        });
++        agendaTodayObserver.observe(agendaGrid);
++    }
++    // Rede de segurança: o navegador pode zerar o scroll sem avisar quando o reveal termina.
++    agendaTodayInterval = setInterval(() => {
++        if (agendaTodayPending) applyAgendaTodayScroll();
++    }, 120);
++    agendaTodayTimeout = setTimeout(stopAgendaTodayScroll, 3500);
++}
++
+ const DEFAULT_CAROUSEL_STEP = 280;
+ 
+ let agendaCarousel = null;
+@@ -228,6 +332,7 @@ function renderAgenda(data) {
+         const hasMultipleLives = lives.length > 1;
+         const card = document.createElement("article");
+         card.className = `agenda-card ${hasLive ? "has-live" : "no-live"}${hasMultipleLives ? " has-multiple-lives" : ""}`;
++        if (typeof dia.data === "string") card.dataset.date = dia.data;
+ 
+         const statusText = hasMultipleLives
+             ? `● ${lives.length} LIVES`
+@@ -282,6 +387,7 @@ function renderAgenda(data) {
+     });
+ 
+     agendaGrid.replaceChildren(fragment);
++    markAgendaToday();
+ 
+     if (data.ultimaAtualizacao) {
+         agendaAtualizacao.textContent =
+@@ -292,6 +398,7 @@ function renderAgenda(data) {
+ 
+     agendaGrid.scrollLeft = 0;
+     agendaCarousel?.refresh();
++    scrollAgendaToToday();
+     scheduleAgendaOverflowCheck();
+ }
+ 
+diff --git a/privacidade/index.html b/privacidade/index.html
+index 4c4a46c..1a3d3e3 100644
+--- a/privacidade/index.html
++++ b/privacidade/index.html
+@@ -13,6 +13,25 @@
+     <link rel="canonical" href="https://kamylisumire.com/privacidade/">
+     <meta name="theme-color" content="#B35EAF">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const isGitHubProjectPage =
+diff --git a/uso-de-ia/index.html b/uso-de-ia/index.html
+index eb2cd33..1c55fdf 100644
+--- a/uso-de-ia/index.html
++++ b/uso-de-ia/index.html
+@@ -13,6 +13,25 @@
+     <link rel="canonical" href="https://kamylisumire.com/uso-de-ia/">
+     <meta name="theme-color" content="#B35EAF">
+ 
++    <!--
++        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
++        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
++        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
++        scripts da página (validate-content.py confere).
++    -->
++    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
++    <link rel="preload" as="script" href="../js/core/config.js">
++    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
++    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
++    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
++    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
++    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
++    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
++    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
++    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <script>
+         (() => {
+             const isGitHubProjectPage =

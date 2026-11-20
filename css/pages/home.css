@@ -419,6 +419,33 @@
     line-height: 1.15;
 }
 
+/*
+ * Dia atual (V48.3.70): realce sutil na data e um brilho discreto no topo do card.
+ * Independe da borda de .has-live; o recuo negativo mantém a data alinhada ao dia.
+ */
+.agenda-card.is-today {
+    box-shadow:
+        inset 0 0 0 1px var(--primary-soft),
+        inset 0 22px 26px -24px var(--primary-color);
+}
+
+.agenda-card.is-today .agenda-date {
+    margin: -3px 0 -3px -8px;
+    padding: 3px 9px;
+
+    color: var(--primary-text);
+    background-color: var(--primary-soft);
+
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--card-border);
+}
+
+@media (forced-colors: active) {
+    .agenda-card.is-today .agenda-date {
+        outline: 1px solid CanvasText;
+    }
+}
+
 .agenda-date-time-separator {
     color: var(--primary-text);
 

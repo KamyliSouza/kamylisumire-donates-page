@@ -1638,11 +1638,11 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.58" not in index:
+    if "css/pages/home.css?v=48.3.70" not in index:
         error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.3.60" not in index:
         error("index.html: cache-buster V48.3.60 ausente para js/pages/home/content.js.")
-    if "js/pages/home/home.js?v=48.3.31" not in index:
+    if "js/pages/home/home.js?v=48.3.70" not in index:
         error("index.html: cache-buster V48.3.31 ausente para js/pages/home/home.js.")
 
     # Busca por campo: Galeria e Blog mantêm UI consistente sem alterar schemas.
@@ -2728,7 +2728,7 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.58",
-            "css/pages/home.css?v=48.3.58",
+            "css/pages/home.css?v=48.3.70",
             "css/components/carousels.css?v=48.3.58",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",

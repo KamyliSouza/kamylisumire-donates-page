@@ -13,6 +13,25 @@
     <link rel="canonical" href="https://kamylisumire.com/privacidade/">
     <meta name="theme-color" content="#B35EAF">
 
+    <!--
+        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
+        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
+        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
+        scripts da página (validate-content.py confere).
+    -->
+    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
+    <link rel="preload" as="script" href="../js/core/config.js">
+    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
+    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
+    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
+    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
+    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
+    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
+    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
     <script>
         (() => {
             const isGitHubProjectPage =

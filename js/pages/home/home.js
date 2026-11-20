@@ -22,6 +22,110 @@ function formatDate(dateString) {
     }).format(new Date(year, month - 1, day));
 }
 
+/*
+ * Destaque do dia atual (V48.3.70). "Hoje" é a data do aparelho de quem acessa,
+ * não a do servidor, e é reavaliado na virada do dia e ao voltar para a aba.
+ * Só marca o card (classe is-today, aria-current="date" e "(hoje)" para leitores
+ * de tela); os destaques de dias com live continuam independentes.
+ */
+let agendaTodayTimer = null;
+
+function localIsoDate(date = new Date()) {
+    const pad = value => String(value).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function markAgendaToday() {
+    if (!agendaGrid) return;
+
+    const today = localIsoDate();
+
+    agendaGrid.querySelectorAll(".agenda-card[data-date]").forEach(card => {
+        const isToday = card.dataset.date === today;
+        card.classList.toggle("is-today", isToday);
+
+        if (isToday) card.setAttribute("aria-current", "date");
+        else card.removeAttribute("aria-current");
+
+        const dateElement = card.querySelector(".agenda-date");
+        const spoken = dateElement?.querySelector(".agenda-today-sr");
+
+        if (isToday && dateElement && !spoken) {
+            const label = document.createElement("span");
+            label.className = "sr-only agenda-today-sr";
+            label.textContent = " (hoje)";
+            dateElement.append(label);
+        } else if (!isToday && spoken) {
+            spoken.remove();
+        }
+    });
+
+    window.clearTimeout(agendaTodayTimer);
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
+    agendaTodayTimer = window.setTimeout(markAgendaToday, Math.max(1000, nextMidnight - now));
+}
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) markAgendaToday();
+});
+
+// Leva o carrossel (apenas na horizontal, sem mover a página) até o card de hoje quando
+// ele não está totalmente visível. Vale só para a abertura da página: enquanto a pessoa
+// não interagir com o carrossel (e por no máximo alguns segundos), o posicionamento é
+// refeito se o layout for recalculado (o navegador zera o scroll quando o loader/reveal
+// esconde e mostra a página). Não roda na virada do dia.
+let agendaTodayPending = false;
+let agendaTodayObserver = null;
+let agendaTodayTimeout = 0;
+let agendaTodayInterval = 0;
+
+function stopAgendaTodayScroll() {
+    agendaTodayPending = false;
+    clearTimeout(agendaTodayTimeout);
+    clearInterval(agendaTodayInterval);
+    agendaTodayObserver?.disconnect();
+    agendaTodayObserver = null;
+    ["pointerdown", "wheel", "touchstart", "keydown"].forEach(type => {
+        agendaGrid?.removeEventListener(type, stopAgendaTodayScroll);
+    });
+}
+
+function applyAgendaTodayScroll() {
+    const card = agendaGrid?.querySelector(".agenda-card.is-today");
+    if (!card || agendaGrid.clientWidth === 0) return;
+
+    const gridRect = agendaGrid.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    if (cardRect.left >= gridRect.left && cardRect.right <= gridRect.right) return;
+
+    const gutter = parseFloat(getComputedStyle(agendaGrid).scrollPaddingInlineStart) || 0;
+    agendaGrid.scrollLeft += cardRect.left - gridRect.left - gutter;
+}
+
+function scrollAgendaToToday() {
+    stopAgendaTodayScroll();
+    if (!agendaGrid?.querySelector(".agenda-card.is-today")) return;
+
+    agendaTodayPending = true;
+    applyAgendaTodayScroll();
+
+    ["pointerdown", "wheel", "touchstart", "keydown"].forEach(type => {
+        agendaGrid.addEventListener(type, stopAgendaTodayScroll, { passive: true, once: true });
+    });
+    if (typeof ResizeObserver === "function") {
+        agendaTodayObserver = new ResizeObserver(() => {
+            if (agendaTodayPending) applyAgendaTodayScroll();
+        });
+        agendaTodayObserver.observe(agendaGrid);
+    }
+    // Rede de segurança: o navegador pode zerar o scroll sem avisar quando o reveal termina.
+    agendaTodayInterval = setInterval(() => {
+        if (agendaTodayPending) applyAgendaTodayScroll();
+    }, 120);
+    agendaTodayTimeout = setTimeout(stopAgendaTodayScroll, 3500);
+}
+
 const DEFAULT_CAROUSEL_STEP = 280;
 
 let agendaCarousel = null;
@@ -228,6 +332,7 @@ function renderAgenda(data) {
         const hasMultipleLives = lives.length > 1;
         const card = document.createElement("article");
         card.className = `agenda-card ${hasLive ? "has-live" : "no-live"}${hasMultipleLives ? " has-multiple-lives" : ""}`;
+        if (typeof dia.data === "string") card.dataset.date = dia.data;
 
         const statusText = hasMultipleLives
             ? `● ${lives.length} LIVES`
@@ -282,6 +387,7 @@ function renderAgenda(data) {
     });
 
     agendaGrid.replaceChildren(fragment);
+    markAgendaToday();
 
     if (data.ultimaAtualizacao) {
         agendaAtualizacao.textContent =
@@ -292,6 +398,7 @@ function renderAgenda(data) {
 
     agendaGrid.scrollLeft = 0;
     agendaCarousel?.refresh();
+    scrollAgendaToToday();
     scheduleAgendaOverflowCheck();
 }
 

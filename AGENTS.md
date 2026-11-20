@@ -255,6 +255,13 @@ dos de imagem da Steam. Textos entram por `textContent`. O item Agenda da navbar
 para `/agenda/` em `navbar.json` (e no fallback do `content.js`); a Home continua com a
 sua seção #agenda. Não duplique navbar, footer ou redes na página.
 
+**Preload de scripts (V48.3.70):** a CSP fica em `<meta>` e, com ela, o Chromium não
+descobre antes da hora os `<script src>` do fim do body (medido: download em série).
+Por isso cada página tem `<link rel="preload" as="script">` para exatamente os seus
+scripts locais, na mesma ordem. Ao adicionar, remover ou renomear um script de página,
+atualize os preloads (`.github/tests/script-preload.test.mjs` confere). Não use `defer`/
+`async` para resolver isso: a ordem de execução e o loader dependem dos scripts clássicos.
+
 ## CTAs de apoio e carrosséis
 
 Na Home:
