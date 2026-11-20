@@ -35,12 +35,15 @@
      * Tenta as URLs em ordem; se nenhuma carregar, remove a imagem e o fundo
      * padrão do componente (gradiente da marca) continua legível.
      */
-    function artImage(urls, { eager = false } = {}) {
+    function artImage(urls, { eager = false, onLoad = null } = {}) {
         const image = document.createElement("img");
         image.alt = "";
         image.decoding = "async";
         image.loading = eager ? "eager" : "lazy";
         image.referrerPolicy = "no-referrer";
+        if (typeof onLoad === "function") {
+            image.addEventListener("load", () => onLoad(image));
+        }
         let attempt = 0;
         const load = () => { image.src = urls[attempt]; };
         image.addEventListener("error", () => {
@@ -50,6 +53,79 @@
         });
         load();
         return image;
+    }
+
+    /*
+     * Lê somente duas pequenas regiões da capa, sem alterar a imagem exibida.
+     * Se a origem não liberar CORS, mantém a paleta padrão sem afetar o card.
+     */
+    function averageLuminance(pixels, width, height, bounds) {
+        const startX = Math.max(0, Math.floor(width * bounds.x1));
+        const endX = Math.min(width, Math.ceil(width * bounds.x2));
+        const startY = Math.max(0, Math.floor(height * bounds.y1));
+        const endY = Math.min(height, Math.ceil(height * bounds.y2));
+        let total = 0;
+        let count = 0;
+
+        for (let y = startY; y < endY; y += 1) {
+            for (let x = startX; x < endX; x += 1) {
+                const offset = (y * width + x) * 4;
+                const channels = [pixels[offset], pixels[offset + 1], pixels[offset + 2]]
+                    .map(value => value / 255)
+                    .map(value => value <= 0.04045
+                        ? value / 12.92
+                        : ((value + 0.055) / 1.055) ** 2.4);
+                total += channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+                count += 1;
+            }
+        }
+
+        return count ? total / count : 1;
+    }
+
+    function analyzeCardArtwork(visibleImage, card) {
+        const source = visibleImage.currentSrc || visibleImage.src;
+        if (!source) return;
+
+        const probe = new Image();
+        probe.crossOrigin = "anonymous";
+        probe.referrerPolicy = "no-referrer";
+        probe.onload = () => {
+            try {
+                const rect = card.getBoundingClientRect();
+                const boxWidth = rect.width || 478;
+                const boxHeight = rect.height || 238;
+                const scale = Math.max(boxWidth / probe.naturalWidth, boxHeight / probe.naturalHeight);
+                const cropWidth = boxWidth / scale;
+                const cropHeight = boxHeight / scale;
+                const sourceX = (probe.naturalWidth - cropWidth) * 0.5;
+                const sourceY = (probe.naturalHeight - cropHeight) * 0.44;
+                const canvas = document.createElement("canvas");
+                canvas.width = 48;
+                canvas.height = 24;
+                const context = canvas.getContext("2d", { willReadFrequently: true });
+                if (!context) return;
+
+                context.drawImage(
+                    probe,
+                    sourceX, sourceY, cropWidth, cropHeight,
+                    0, 0, canvas.width, canvas.height
+                );
+                const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+                const top = averageLuminance(pixels, canvas.width, canvas.height, {
+                    x1: 0, x2: 0.78, y1: 0.02, y2: 0.34
+                });
+                const bottom = averageLuminance(pixels, canvas.width, canvas.height, {
+                    x1: 0, x2: 1, y1: 0.52, y2: 0.98
+                });
+
+                card.dataset.artTopTone = top < 0.42 ? "dark" : "light";
+                card.dataset.artBottomTone = bottom < 0.42 ? "dark" : "light";
+            } catch {
+                /* Falha de CORS/canvas é não crítica: preserva o contraste padrão. */
+            }
+        };
+        probe.src = source;
     }
 
     /* Save-Data e perfil reduzido preservam só o conteúdo: o fundo do painel é decorativo. */
@@ -70,7 +146,9 @@
         if (day.hasLive && day.art.length) {
             const media = element("div", "agenda-day-art");
             media.setAttribute("aria-hidden", "true");
-            media.append(artImage(day.art));
+            media.append(artImage(day.art, {
+                onLoad: image => analyzeCardArtwork(image, card)
+            }));
             card.append(media);
         }
 

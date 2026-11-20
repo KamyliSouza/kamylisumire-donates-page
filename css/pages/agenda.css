@@ -218,16 +218,16 @@
     background: var(--ag-card-veil);
 }
 .agenda-day-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-width: 0; }
-.agenda-day-name { margin: 0; font-size: .92rem; font-weight: 950; letter-spacing: .035em; line-height: 1.2; text-transform: uppercase; text-shadow: 0 2px 12px rgba(var(--ag-sh), .8); }
-.agenda-day-date { display: block; margin-top: 4px; color: var(--ag-date); font-size: .76rem; text-shadow: 0 2px 10px rgba(var(--ag-sh), .8); }
+.agenda-day-name { margin: 0; color: var(--ag-card-top-name, var(--ag-card-text)); font-size: .92rem; font-weight: 950; letter-spacing: .035em; line-height: 1.2; text-transform: uppercase; text-shadow: var(--ag-card-top-shadow, 0 2px 12px rgba(var(--ag-sh), .8)); }
+.agenda-day-date { display: block; margin-top: 4px; color: var(--ag-card-top-date, var(--ag-date)); font-size: .76rem; text-shadow: var(--ag-card-top-shadow, 0 2px 10px rgba(var(--ag-sh), .8)); }
 .agenda-chip { flex: none; padding: 5px 9px; color: var(--ag-chip-text); background: var(--ag-chip-bg); border: 1px solid var(--ag-chip-border); border-radius: 999px; box-shadow: 0 2px 9px var(--ag-chip-shadow); font-size: .64rem; font-weight: 950; letter-spacing: .045em; white-space: nowrap; }
 .agenda-event-info { display: grid; gap: 9px; min-width: 0; margin-top: auto; padding-top: 26px; }
 .agenda-event { min-width: 0; }
 .agenda-event-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.agenda-time { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 68px; padding: 6px 9px; color: var(--ag-time-text); background: var(--ag-time-bg); border: 1px solid var(--ag-time-border); border-radius: 10px; box-shadow: 0 2px 10px var(--ag-chip-shadow); font-size: .76rem; font-weight: 950; }
-.agenda-event-title { min-width: 0; margin: 0; color: var(--ag-title); font-size: clamp(1.02rem, 1.6vw, 1.2rem); font-weight: 950; line-height: 1.12; overflow-wrap: anywhere; text-shadow: 0 2px 12px rgba(var(--ag-sh), .95); }
-.agenda-event-description { margin: 7px 0 0; color: var(--ag-desc); font-size: .76rem; line-height: 1.35; text-shadow: 0 2px 9px rgba(var(--ag-sh), .8); }
-.agenda-platforms { margin: 8px 0 0; color: var(--ag-platforms); font-size: .69rem; font-weight: 800; text-shadow: 0 2px 9px rgba(var(--ag-sh), .8); }
+.agenda-time { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 68px; padding: 6px 9px; color: var(--ag-card-time-text, var(--ag-time-text)); background: var(--ag-card-time-bg, var(--ag-time-bg)); border: 1px solid var(--ag-card-time-border, var(--ag-time-border)); border-radius: 10px; box-shadow: 0 2px 10px var(--ag-chip-shadow); font-size: .76rem; font-weight: 950; }
+.agenda-event-title { min-width: 0; margin: 0; color: var(--ag-card-bottom-title, var(--ag-title)); font-size: clamp(1.02rem, 1.6vw, 1.2rem); font-weight: 950; line-height: 1.12; overflow-wrap: anywhere; text-shadow: var(--ag-card-bottom-shadow, 0 2px 12px rgba(var(--ag-sh), .95)); }
+.agenda-event-description { margin: 7px 0 0; color: var(--ag-card-bottom-desc, var(--ag-desc)); font-size: .76rem; line-height: 1.35; text-shadow: var(--ag-card-bottom-shadow, 0 2px 9px rgba(var(--ag-sh), .8)); }
+.agenda-platforms { margin: 8px 0 0; color: var(--ag-card-bottom-platforms, var(--ag-platforms)); font-size: .69rem; font-weight: 800; text-shadow: var(--ag-card-bottom-shadow, 0 2px 9px rgba(var(--ag-sh), .8)); }
 
 /*
  * Dia sem live: mesmo padrão de placeholder de /jogos/ — superfície translúcida
@@ -282,11 +282,43 @@
 .agenda-legal p { margin: 0; color: var(--subtitle-color); font-size: .84rem; font-weight: 600; line-height: 1.6; }
 
 /* ---------- Movimento ---------- */
-/* No tema claro, reduz o véu para manter as capas dos jogos visíveis. */
-:root[data-theme="light"] .agenda-panel {
+/* O tema claro adapta cores e véu de cada card após analisar a capa do jogo. */
+:root[data-theme="light"] .agenda-day.has-live {
+    --ag-card-top-name: var(--ag-card-text);
+    --ag-card-top-date: var(--ag-date);
+    --ag-card-top-shadow: 0 2px 12px rgba(255, 255, 255, .88);
+    --ag-card-bottom-title: var(--ag-title);
+    --ag-card-bottom-desc: var(--ag-desc);
+    --ag-card-bottom-platforms: var(--ag-platforms);
+    --ag-card-bottom-shadow: 0 2px 12px rgba(255, 255, 255, .88);
+    --ag-card-time-text: var(--ag-time-text);
+    --ag-card-time-bg: var(--ag-time-bg);
+    --ag-card-time-border: var(--ag-time-border);
+    --ag-card-veil-top-start: rgba(255, 247, 255, .10);
+    --ag-card-veil-top-mid: rgba(255, 247, 255, .06);
+    --ag-card-veil-bottom-mid: rgba(255, 247, 255, .24);
+    --ag-card-veil-bottom-end: rgba(255, 247, 255, .48);
     --ag-card-veil:
-        linear-gradient(180deg, rgba(255, 247, 255, .10) 0%, rgba(255, 247, 255, .06) 28%, rgba(255, 247, 255, .24) 56%, rgba(255, 247, 255, .48) 100%),
+        linear-gradient(180deg, var(--ag-card-veil-top-start) 0%, var(--ag-card-veil-top-mid) 28%, var(--ag-card-veil-bottom-mid) 56%, var(--ag-card-veil-bottom-end) 100%),
         linear-gradient(90deg, rgba(255, 247, 255, .06), transparent 76%);
+}
+:root[data-theme="light"] .agenda-day.has-live[data-art-top-tone="dark"] {
+    --ag-card-top-name: #fffaff;
+    --ag-card-top-date: #f0e6f0;
+    --ag-card-top-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
+    --ag-card-veil-top-start: rgba(7, 5, 10, .12);
+    --ag-card-veil-top-mid: rgba(7, 5, 10, .06);
+}
+:root[data-theme="light"] .agenda-day.has-live[data-art-bottom-tone="dark"] {
+    --ag-card-bottom-title: #fffaff;
+    --ag-card-bottom-desc: #f0e6f0;
+    --ag-card-bottom-platforms: #e0d3e3;
+    --ag-card-bottom-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
+    --ag-card-time-text: #fffaff;
+    --ag-card-time-bg: rgba(28, 18, 32, .86);
+    --ag-card-time-border: rgba(255, 255, 255, .5);
+    --ag-card-veil-bottom-mid: rgba(7, 5, 10, .08);
+    --ag-card-veil-bottom-end: rgba(7, 5, 10, .22);
 }
 @media (prefers-reduced-motion: no-preference) {
     .agenda-day { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
