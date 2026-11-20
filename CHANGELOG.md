@@ -1,4 +1,10 @@
 # Changelog
+## V48.3.77 — Favicon adaptativo e contraste da Agenda
+
+- o favicon passa a reutilizar `logo.webp` como máscara, preenchida pela cor `--primary-color` do tema ativo, seguindo o mesmo tratamento visual da logo da Navbar; a imagem é convertida em PNG no navegador e atualizada quando a preferência de tema muda;
+- a conversão usa Canvas com CORS anônimo. Se a logo não carregar, o Canvas não estiver disponível ou a exportação falhar, os favicons originais (`favicon.webp`/`favicon.png`) continuam como fallback; `data:` foi liberado somente em `img-src` para permitir o ícone PNG gerado, sem ampliar `script-src`;
+- na `/agenda/`, o véu claro foi reduzido para preservar as capas. O JavaScript analisa a luminosidade das regiões superior e inferior de cada arte e adapta separadamente os textos, sombras e selo de horário, sem modificar a imagem; falhas de CORS mantêm o contraste padrão;
+- atualiza `agenda.css` para `?v=48.3.76` e `agenda.js` para `?v=48.3.70`; novo `js/core/favicon.js?v=48.3.77` em todas as páginas, com preload compartilhado e teste de regressão para tema, fallback e CSP.
 
 ## V48.3.72 — Quinas dos dias sem live na /agenda/
 

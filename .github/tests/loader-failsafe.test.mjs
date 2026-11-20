@@ -23,6 +23,7 @@ function read(rel) {
 }
 
 function bootstrapFrom(html) {
+  html = html.replace(/\r\n?/g, "\n");
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   const match = scripts.find((entry) => entry[1].includes("KAMYLI_LOADER_STARTED_AT"));
   assert.ok(match, "bootstrap inline do loader deve existir");

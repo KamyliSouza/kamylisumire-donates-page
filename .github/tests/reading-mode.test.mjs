@@ -28,6 +28,7 @@ const readingCss = read("css/core/reading.css");
 /* ---------- utilidades ---------- */
 
 function bootstrapFrom(html) {
+  html = html.replace(/\r\n?/g, "\n");
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   const match = scripts.find((entry) => entry[1].includes("THEME_KEY"));
   assert.ok(match, "bootstrap inline de tema/blur deve existir");

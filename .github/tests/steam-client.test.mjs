@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -196,7 +196,11 @@ globalThis.fetch = async (input, init = {}) => {
 function runSync(dir, mode = 'ok') {
   const logPath = join(dir, 'steam.log');
   writeFileSync(logPath, '');
-  const result = spawnSync(process.execPath, ['--import', join(dir, 'stub.mjs'), repoPath('.github/scripts/sync-jogos.mjs')], {
+  const result = spawnSync(process.execPath, [
+    '--import',
+    './stub.mjs',
+    relative(dir, repoPath('.github/scripts/sync-jogos.mjs')),
+  ], {
     cwd: dir,
     encoding: 'utf8',
     timeout: 60_000,

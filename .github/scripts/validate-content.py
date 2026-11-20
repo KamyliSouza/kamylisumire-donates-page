@@ -32,7 +32,9 @@ REQUIRED_FILES = (
     "css/pages/agenda.css",
     "js/pages/agenda/agenda-model.js",
     "js/pages/agenda/agenda.js",
+    "js/core/favicon.js",
     ".github/tests/agenda-page.test.mjs",
+    ".github/tests/favicon.test.mjs",
     "index.html",
     "doacoes/index.html",
     "blog/index.html",
@@ -3732,6 +3734,8 @@ def _csp_hash(body: str) -> str:
 
 
 def _inline_csp_hashes(html: str) -> tuple[set[str], set[str]]:
+    # O parser HTML normaliza CRLF/CR para LF antes de calcular hashes CSP.
+    html = html.replace("\r\n", "\n").replace("\r", "\n")
     script_hashes: set[str] = set()
     style_hashes: set[str] = set()
 
@@ -3845,6 +3849,7 @@ SETTINGS_VERSION = "48.3.66"  # settings.js e footer.js (Configurações na navb
 CONTENT_JS_VERSION = "48.3.69"  # content.js (V48.3.69: item Agenda da navbar aponta para /agenda/)
 NAVBAR_CSS_VERSION = "48.3.67"  # css/core/navbar.css (destaque da engrenagem só com o painel aberto)
 READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
+FAVICON_JS_VERSION = "48.3.77"  # favicon.js: ícone gerado com a cor do tema
 
 
 def validate_reading_mode() -> None:
@@ -3897,6 +3902,7 @@ def validate_reading_mode() -> None:
             ("settings", SETTINGS_VERSION),
             ("footer", SETTINGS_VERSION),
             ("content", CONTENT_JS_VERSION),
+            ("favicon", FAVICON_JS_VERSION),
         ):
             if f"js/core/{asset}.js?v={version}" not in html:
                 error(f"{rel}: cache-buster V{version} ausente para js/core/{asset}.js.")
