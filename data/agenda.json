@@ -1,5 +1,5 @@
 {
-  "ultimaAtualizacao": "18/11/2026",
+  "ultimaAtualizacao": "21/11/2026",
   "observacao": "A programação pode mudar. Quando houver alteração de última hora, aviso no Discord.",
   "dias": [
     {
@@ -20,36 +20,6 @@
       "id": "segunda",
       "nome": "Segunda-feira",
       "data": "2026-11-16",
-      "temLive": true,
-      "horario": "20:00",
-      "titulo": "Phantom Blade Zero",
-      "descricao": "O Hype da Vez!",
-      "plataformas": [
-        "YouTube",
-        "Twitch"
-      ],
-      "lives": [
-        {
-          "horario": "20:00",
-          "titulo": "Phantom Blade Zero",
-          "descricao": "O Hype da Vez!",
-          "plataformas": [
-            "YouTube",
-            "Twitch"
-          ],
-          "steamAppId": 4115450,
-          "icon": {
-            "provider": "steam-original",
-            "steamAppId": 4115450,
-            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/4115450/ce420dc458dd3d7af276f48fbaa44a05876760dc.jpg"
-          }
-        }
-      ]
-    },
-    {
-      "id": "terca",
-      "nome": "Terça-feira",
-      "data": "2026-11-17",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Beyond Two Souls",
@@ -77,9 +47,9 @@
       ]
     },
     {
-      "id": "quarta",
-      "nome": "Quarta-feira",
-      "data": "2026-11-18",
+      "id": "terca",
+      "nome": "Terça-feira",
+      "data": "2026-11-17",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Witch's Bakery",
@@ -102,6 +72,36 @@
             "provider": "steam-original",
             "steamAppId": 2967950,
             "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/2967950/b4cc007c0830270140678d845aad75fb24ac84ac.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quarta",
+      "nome": "Quarta-feira",
+      "data": "2026-11-18",
+      "temLive": true,
+      "horario": "20:00",
+      "titulo": "Phantom Blade Zero",
+      "descricao": "O Hype da Vez!",
+      "plataformas": [
+        "YouTube",
+        "Twitch"
+      ],
+      "lives": [
+        {
+          "horario": "20:00",
+          "titulo": "Phantom Blade Zero",
+          "descricao": "O Hype da Vez!",
+          "plataformas": [
+            "YouTube",
+            "Twitch"
+          ],
+          "steamAppId": 4115450,
+          "icon": {
+            "provider": "steam-original",
+            "steamAppId": 4115450,
+            "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/4115450/ce420dc458dd3d7af276f48fbaa44a05876760dc.jpg"
           }
         }
       ]
