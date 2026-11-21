@@ -7,6 +7,14 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.3.78 — Contraste adaptativo da Agenda com véu mínimo
+
+- novo `js/pages/agenda/agenda-contrast.js` (regras puras): para o topo e a base de cada card, escolhe texto claro ou escuro e calcula o menor véu que atinge 4,5:1 (teto de 0,40); capas que já têm contraste não recebem véu. A decisão usa percentil alto/baixo de luminância (pior pixel) e o véu aplicado, em vez da média;
+- a adaptação vale nos temas claro e escuro (antes só no claro) e é reanalisada quando o card muda de tamanho;
+- o véu padrão (sem análise, por CORS ou sem JS) ficou mais leve nos dois temas para a capa aparecer mais;
+- `forced-colors` oculta a arte dos cards; novo teste `agenda-contrast.test.mjs`;
+- `agenda.css` e `agenda.js` passam a `?v=48.3.78`; novo `agenda-contrast.js?v=48.3.78` com preload.
+
 ## V48.3.77 — Favicon adaptativo e contraste da Agenda
 
 - o favicon passa a reutilizar `logo.webp` como máscara, preenchida pela cor `--primary-color` do tema ativo, seguindo o mesmo tratamento visual da logo da Navbar; a imagem é convertida em PNG no navegador e atualizada quando a preferência de tema muda;

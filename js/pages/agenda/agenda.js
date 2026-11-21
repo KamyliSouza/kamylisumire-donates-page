@@ -13,6 +13,7 @@
     const AGENDA_URL = "/data/agenda.json";
     const MANIFEST_URL = "/data/content/jogos-artwork.json";
     const model = window.KamyliAgendaModel;
+    const contrast = window.KamyliAgendaContrast;
 
     const els = {
         panel: document.getElementById("agendaPanel"),
@@ -56,74 +57,80 @@
     }
 
     /*
-     * Lê somente duas pequenas regiões da capa, sem alterar a imagem exibida.
-     * Se a origem não liberar CORS, mantém a paleta padrão sem afetar o card.
+     * Contraste adaptativo: lê duas pequenas regiões da capa (topo e base) numa
+     * cópia reduzida, sem alterar a imagem exibida, e pede ao
+     * `agenda-contrast.js` o tom do texto e o menor véu que dê leitura.
+     * Sem CORS/canvas, ou sem o módulo, o card mantém o véu leve padrão do CSS.
      */
-    function averageLuminance(pixels, width, height, bounds) {
-        const startX = Math.max(0, Math.floor(width * bounds.x1));
-        const endX = Math.min(width, Math.ceil(width * bounds.x2));
-        const startY = Math.max(0, Math.floor(height * bounds.y1));
-        const endY = Math.min(height, Math.ceil(height * bounds.y2));
-        let total = 0;
-        let count = 0;
+    const CANVAS_WIDTH = 64;
+    const CANVAS_HEIGHT = 32;
+    const RESIZE_DELAY = 150;
 
-        for (let y = startY; y < endY; y += 1) {
-            for (let x = startX; x < endX; x += 1) {
-                const offset = (y * width + x) * 4;
-                const channels = [pixels[offset], pixels[offset + 1], pixels[offset + 2]]
-                    .map(value => value / 255)
-                    .map(value => value <= 0.04045
-                        ? value / 12.92
-                        : ((value + 0.055) / 1.055) ** 2.4);
-                total += channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
-                count += 1;
+    function applyContrastPlan(card, plan) {
+        card.dataset.artTopText = plan.top.tone;
+        card.dataset.artBottomText = plan.bottom.tone;
+        card.style.setProperty("--ag-art-veil-top", String(plan.top.alpha));
+        card.style.setProperty("--ag-art-veil-bottom", String(plan.bottom.alpha));
+    }
+
+    function sampleCard(probe, card) {
+        const rect = card.getBoundingClientRect();
+        const boxWidth = rect.width || 478;
+        const boxHeight = rect.height || 238;
+        /* Mesmo recorte de `object-fit: cover; object-position: center 44%`. */
+        const scale = Math.max(boxWidth / probe.naturalWidth, boxHeight / probe.naturalHeight);
+        const cropWidth = boxWidth / scale;
+        const cropHeight = boxHeight / scale;
+        const sourceX = (probe.naturalWidth - cropWidth) * 0.5;
+        const sourceY = (probe.naturalHeight - cropHeight) * 0.44;
+        const canvas = document.createElement("canvas");
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        if (!context) return null;
+        context.drawImage(probe, sourceX, sourceY, cropWidth, cropHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const pixels = context.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
+        return contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
+    }
+
+    /* O recorte muda com o tamanho do card (colunas, rotação): reanalisa com debounce. */
+    function watchCardSize(card, run) {
+        if (typeof ResizeObserver !== "function") return;
+        let width = card.clientWidth;
+        let height = card.clientHeight;
+        let timer = 0;
+        const observer = new ResizeObserver(() => {
+            if (!card.isConnected) {
+                observer.disconnect();
+                return;
             }
-        }
-
-        return count ? total / count : 1;
+            if (Math.abs(card.clientWidth - width) < 3 && Math.abs(card.clientHeight - height) < 3) return;
+            width = card.clientWidth;
+            height = card.clientHeight;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(run, RESIZE_DELAY);
+        });
+        observer.observe(card);
     }
 
     function analyzeCardArtwork(visibleImage, card) {
         const source = visibleImage.currentSrc || visibleImage.src;
-        if (!source) return;
+        if (!source || !contrast) return;
 
         const probe = new Image();
         probe.crossOrigin = "anonymous";
         probe.referrerPolicy = "no-referrer";
         probe.onload = () => {
-            try {
-                const rect = card.getBoundingClientRect();
-                const boxWidth = rect.width || 478;
-                const boxHeight = rect.height || 238;
-                const scale = Math.max(boxWidth / probe.naturalWidth, boxHeight / probe.naturalHeight);
-                const cropWidth = boxWidth / scale;
-                const cropHeight = boxHeight / scale;
-                const sourceX = (probe.naturalWidth - cropWidth) * 0.5;
-                const sourceY = (probe.naturalHeight - cropHeight) * 0.44;
-                const canvas = document.createElement("canvas");
-                canvas.width = 48;
-                canvas.height = 24;
-                const context = canvas.getContext("2d", { willReadFrequently: true });
-                if (!context) return;
-
-                context.drawImage(
-                    probe,
-                    sourceX, sourceY, cropWidth, cropHeight,
-                    0, 0, canvas.width, canvas.height
-                );
-                const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-                const top = averageLuminance(pixels, canvas.width, canvas.height, {
-                    x1: 0, x2: 0.78, y1: 0.02, y2: 0.34
-                });
-                const bottom = averageLuminance(pixels, canvas.width, canvas.height, {
-                    x1: 0, x2: 1, y1: 0.52, y2: 0.98
-                });
-
-                card.dataset.artTopTone = top < 0.42 ? "dark" : "light";
-                card.dataset.artBottomTone = bottom < 0.42 ? "dark" : "light";
-            } catch {
-                /* Falha de CORS/canvas é não crítica: preserva o contraste padrão. */
-            }
+            const run = () => {
+                try {
+                    const plan = sampleCard(probe, card);
+                    if (plan) applyContrastPlan(card, plan);
+                } catch {
+                    /* Falha de CORS/canvas é não crítica: preserva o contraste padrão. */
+                }
+            };
+            run();
+            watchCardSize(card, run);
         };
         probe.src = source;
     }

@@ -1,0 +1,589 @@
+diff --git a/.github/scripts/validate-content.py b/.github/scripts/validate-content.py
+index bcfe2f4..0bd69ec 100644
+--- a/.github/scripts/validate-content.py
++++ b/.github/scripts/validate-content.py
+@@ -31,9 +31,11 @@ REQUIRED_FILES = (
+     "agenda/index.html",
+     "css/pages/agenda.css",
+     "js/pages/agenda/agenda-model.js",
++    "js/pages/agenda/agenda-contrast.js",
+     "js/pages/agenda/agenda.js",
+     "js/core/favicon.js",
+     ".github/tests/agenda-page.test.mjs",
++    ".github/tests/agenda-contrast.test.mjs",
+     ".github/tests/favicon.test.mjs",
+     "index.html",
+     "doacoes/index.html",
+diff --git a/pb/.github/tests/agenda-contrast.test.mjs b/.github/tests/agenda-contrast.test.mjs
+new file mode 100644
+index 0000000..dbc09a5
+--- /dev/null
++++ b/.github/tests/agenda-contrast.test.mjs
+@@ -0,0 +1,99 @@
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import test from 'node:test';
++import vm from 'node:vm';
++
++const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
++
++const sandbox = {};
++sandbox.globalThis = sandbox;
++vm.runInNewContext(read('js/pages/agenda/agenda-contrast.js'), sandbox);
++const C = sandbox.KamyliAgendaContrast;
++
++/* Imagem cinza uniforme (luminância linear `y`) em RGBA. */
++function gray(y, width = 64, height = 32) {
++  const value = Math.round((y <= 0.0031308 ? y * 12.92 : 1.055 * y ** (1 / 2.4) - 0.055) * 255);
++  const pixels = new Uint8ClampedArray(width * height * 4);
++  for (let i = 0; i < pixels.length; i += 4) pixels.set([value, value, value, 255], i);
++  return pixels;
++}
++const plan = y => C.planCard(gray(y), 64, 32);
++
++test('capa escura usa texto claro sem nenhum véu', () => {
++  const result = plan(0.02);
++  assert.equal(result.top.tone, 'light');
++  assert.equal(result.bottom.tone, 'light');
++  assert.equal(result.top.alpha, 0);
++  assert.equal(result.bottom.alpha, 0);
++});
++
++test('capa clara usa texto escuro sem nenhum véu', () => {
++  const result = plan(0.85);
++  assert.equal(result.top.tone, 'dark');
++  assert.equal(result.top.alpha, 0);
++  assert.equal(result.bottom.alpha, 0);
++});
++
++test('em qualquer luminância o véu fica pequeno e o contraste atinge o alvo', () => {
++  for (let y = 0; y <= 1.0001; y += 0.02) {
++    const { top, bottom } = plan(Math.min(1, y));
++    for (const region of [top, bottom]) {
++      assert.ok(region.met, `luminância ${y.toFixed(2)} não atinge ${C.TARGET_RATIO}:1`);
++      assert.ok(region.ratio >= C.TARGET_RATIO);
++      assert.ok(region.alpha <= 0.14, `véu de ${region.alpha} em ${y.toFixed(2)} cobre demais a capa`);
++    }
++  }
++});
++
++test('o pior pixel decide: um trecho claro no topo escurece o texto claro', () => {
++  const width = 64;
++  const height = 32;
++  const pixels = gray(0.03, width, height);
++  /* 20% da região do topo é branca: a média ainda parece escura. */
++  for (let y = 1; y < 11; y += 1) {
++    for (let x = 0; x < 13; x += 1) pixels.set([255, 255, 255, 255], (y * width + x) * 4);
++  }
++  const result = C.planCard(pixels, width, height);
++  assert.ok(result.top.tone === 'dark' || result.top.alpha > 0.1);
++  assert.equal(result.bottom.tone, 'light');
++});
++
++test('sem pixels opacos não há plano (mantém o véu padrão)', () => {
++  assert.equal(C.planCard(new Uint8ClampedArray(64 * 32 * 4), 64, 32), null);
++});
++
++test('véu nunca passa do teto, mesmo quando o alvo é inalcançável', () => {
++  const region = C.minimumVeil(0.21, 'light');
++  assert.ok(region.alpha <= C.MAX_VEIL);
++});
++
++test('cores de texto do CSS coincidem com as do módulo', () => {
++  const css = read('css/pages/agenda.css');
++  const hex = rgb => `#${rgb.map(v => v.toString(16).padStart(2, '0')).join('')}`;
++  assert.ok(css.includes(`--ag-card-bottom-platforms: ${hex(C.TONES.light.weakest)}`));
++  assert.ok(css.includes(`--ag-card-top-date: ${hex(C.TONES.light.weakest)}`));
++  assert.ok(css.includes(`--ag-card-bottom-platforms: ${hex(C.TONES.dark.weakest)}`));
++  assert.ok(css.includes(`--ag-card-top-date: ${hex(C.TONES.dark.weakest)}`));
++  assert.ok(css.includes(`--ag-veil-top-rgb: ${C.TONES.light.veil.join(', ')}`));
++  assert.ok(css.includes(`--ag-veil-top-rgb: ${C.TONES.dark.veil.join(', ')}`));
++});
++
++test('CSS adaptativo vale para os dois temas e o véu padrão é leve', () => {
++  const css = read('css/pages/agenda.css');
++  assert.ok(!/data-theme="light"\]\s+\.agenda-day\.has-live\[data-art/.test(css), 'a adaptação não pode ser só do tema claro');
++  assert.match(css, /\[data-art-top-text\]\[data-art-bottom-text\]::after/);
++  assert.match(css, /forced-colors: active/);
++  for (const [, alpha] of css.matchAll(/rgba\((?:7, 5, 10|255, 247, 255), (\.\d+)\) 100%\)/g)) {
++    assert.ok(Number(alpha) <= 0.7, `véu padrão de ${alpha} na base é pesado demais`);
++  }
++});
++
++test('agenda.js usa o módulo, reanalisa ao redimensionar e preserva o fallback', () => {
++  const js = read('js/pages/agenda/agenda.js');
++  assert.match(js, /KamyliAgendaContrast/);
++  assert.match(js, /ResizeObserver/);
++  assert.match(js, /Falha de CORS\/canvas é não crítica/);
++  const html = read('agenda/index.html');
++  assert.ok(html.indexOf('agenda-model.js') < html.indexOf('agenda-contrast.js'));
++  assert.ok(html.indexOf('agenda-contrast.js') < html.indexOf('agenda/agenda.js'));
++});
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ec3fd8f..0f4b725 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -7,6 +7,14 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do
+ contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
+ publicadas ou não foram registradas aqui.
+ 
++## V48.3.78 — Contraste adaptativo da Agenda com véu mínimo
++
++- novo `js/pages/agenda/agenda-contrast.js` (regras puras): para o topo e a base de cada card, escolhe texto claro ou escuro e calcula o menor véu que atinge 4,5:1 (teto de 0,40); capas que já têm contraste não recebem véu. A decisão usa percentil alto/baixo de luminância (pior pixel) e o véu aplicado, em vez da média;
++- a adaptação vale nos temas claro e escuro (antes só no claro) e é reanalisada quando o card muda de tamanho;
++- o véu padrão (sem análise, por CORS ou sem JS) ficou mais leve nos dois temas para a capa aparecer mais;
++- `forced-colors` oculta a arte dos cards; novo teste `agenda-contrast.test.mjs`;
++- `agenda.css` e `agenda.js` passam a `?v=48.3.78`; novo `agenda-contrast.js?v=48.3.78` com preload.
++
+ ## V48.3.77 — Favicon adaptativo e contraste da Agenda
+ 
+ - o favicon passa a reutilizar `logo.webp` como máscara, preenchida pela cor `--primary-color` do tema ativo, seguindo o mesmo tratamento visual da logo da Navbar; a imagem é convertida em PNG no navegador e atualizada quando a preferência de tema muda;
+diff --git a/agenda/index.html b/agenda/index.html
+index 2586b2e..443dd2a 100644
+--- a/agenda/index.html
++++ b/agenda/index.html
+@@ -62,7 +62,8 @@
+     <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
+     <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
+     <link rel="preload" as="script" href="../js/pages/agenda/agenda-model.js?v=48.3.69">
+-    <link rel="preload" as="script" href="../js/pages/agenda/agenda.js?v=48.3.70">
++    <link rel="preload" as="script" href="../js/pages/agenda/agenda-contrast.js?v=48.3.78">
++    <link rel="preload" as="script" href="../js/pages/agenda/agenda.js?v=48.3.78">
+     <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+     <link rel="preload" as="script" href="../js/core/favicon.js?v=48.3.77">
+     <script>
+@@ -317,7 +318,7 @@
+     <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
+     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
+     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+-    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.76">
++    <link rel="stylesheet" href="../css/pages/agenda.css?v=48.3.78">
+     <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+ 
+     <!-- Dados estruturados para mecanismos de busca -->
+@@ -404,7 +405,8 @@
+     <script src="../js/core/sanitize.js?v=48.3.60"></script>
+     <script src="../js/core/footer.js?v=48.3.66"></script>
+     <script src="../js/pages/agenda/agenda-model.js?v=48.3.69"></script>
+-    <script src="../js/pages/agenda/agenda.js?v=48.3.70"></script>
++    <script src="../js/pages/agenda/agenda-contrast.js?v=48.3.78"></script>
++    <script src="../js/pages/agenda/agenda.js?v=48.3.78"></script>
+     <script src="../js/core/loader.js?v=48.3.57"></script>
+     <script src="../js/core/favicon.js?v=48.3.77"></script>
+ </body>
+diff --git a/css/pages/agenda.css b/css/pages/agenda.css
+index 2db33b3..856d480 100644
+--- a/css/pages/agenda.css
++++ b/css/pages/agenda.css
+@@ -36,8 +36,8 @@
+     --ag-card-bg: linear-gradient(135deg, #64446a, #251c31 70%);
+     --ag-card-border: rgba(209, 120, 205, .48);
+     --ag-card-veil:
+-        linear-gradient(180deg, rgba(7, 5, 10, .36) 0%, rgba(7, 5, 10, .17) 28%, rgba(7, 5, 10, .52) 56%, rgba(7, 5, 10, .94) 100%),
+-        linear-gradient(90deg, rgba(7, 5, 10, .22), transparent 76%);
++        linear-gradient(180deg, rgba(7, 5, 10, .22) 0%, rgba(7, 5, 10, .08) 28%, rgba(7, 5, 10, .30) 56%, rgba(7, 5, 10, .64) 100%),
++        linear-gradient(90deg, rgba(7, 5, 10, .12), transparent 70%);
+     --ag-date: #e0d0e2;
+     --ag-chip-text: #ffd7fa;
+     --ag-chip-bg: rgba(36, 19, 39, .82);
+@@ -82,8 +82,8 @@
+     --ag-card-bg: linear-gradient(135deg, #f1d8f0, #fff 70%);
+     --ag-card-border: rgba(155, 77, 151, .5);
+     --ag-card-veil:
+-        linear-gradient(180deg, rgba(255, 247, 255, .6) 0%, rgba(255, 247, 255, .44) 28%, rgba(255, 247, 255, .74) 56%, rgba(255, 247, 255, .97) 100%),
+-        linear-gradient(90deg, rgba(255, 247, 255, .3), transparent 76%);
++        linear-gradient(180deg, rgba(255, 247, 255, .30) 0%, rgba(255, 247, 255, .14) 28%, rgba(255, 247, 255, .34) 56%, rgba(255, 247, 255, .66) 100%),
++        linear-gradient(90deg, rgba(255, 247, 255, .14), transparent 70%);
+     --ag-date: #5b4a5e;
+     --ag-chip-text: #6b2a68;
+     --ag-chip-bg: rgba(255, 255, 255, .88);
+@@ -129,8 +129,8 @@
+         --ag-card-bg: linear-gradient(135deg, #f1d8f0, #fff 70%);
+         --ag-card-border: rgba(155, 77, 151, .5);
+         --ag-card-veil:
+-            linear-gradient(180deg, rgba(255, 247, 255, .6) 0%, rgba(255, 247, 255, .44) 28%, rgba(255, 247, 255, .74) 56%, rgba(255, 247, 255, .97) 100%),
+-            linear-gradient(90deg, rgba(255, 247, 255, .3), transparent 76%);
++            linear-gradient(180deg, rgba(255, 247, 255, .30) 0%, rgba(255, 247, 255, .14) 28%, rgba(255, 247, 255, .34) 56%, rgba(255, 247, 255, .66) 100%),
++            linear-gradient(90deg, rgba(255, 247, 255, .14), transparent 70%);
+         --ag-date: #5b4a5e;
+         --ag-chip-text: #6b2a68;
+         --ag-chip-bg: rgba(255, 255, 255, .88);
+@@ -211,7 +211,7 @@
+ /* A arte do jogo ocupa todo o card (cover, sem distorcer). */
+ .agenda-day-art { position: absolute; inset: 0; z-index: -2; }
+ .agenda-day-art img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 44%; transform: scale(1.005); }
+-/* Véu geral leve e degradê inferior forte, como no gerador. */
++/* Véu padrão leve (a capa continua visível). Com análise da capa, ver "Contraste adaptativo". */
+ .agenda-day.has-live::after {
+     content: "";
+     position: absolute;
+@@ -285,43 +285,54 @@
+ .agenda-legal p { margin: 0; color: var(--subtitle-color); font-size: .84rem; font-weight: 600; line-height: 1.6; }
+ 
+ /* ---------- Movimento ---------- */
+-/* O tema claro adapta cores e véu de cada card após analisar a capa do jogo. */
+-:root[data-theme="light"] .agenda-day.has-live {
+-    --ag-card-top-name: var(--ag-card-text);
+-    --ag-card-top-date: var(--ag-date);
+-    --ag-card-top-shadow: 0 2px 12px rgba(255, 255, 255, .88);
+-    --ag-card-bottom-title: var(--ag-title);
+-    --ag-card-bottom-desc: var(--ag-desc);
+-    --ag-card-bottom-platforms: var(--ag-platforms);
+-    --ag-card-bottom-shadow: 0 2px 12px rgba(255, 255, 255, .88);
+-    --ag-card-time-text: var(--ag-time-text);
+-    --ag-card-time-bg: var(--ag-time-bg);
+-    --ag-card-time-border: var(--ag-time-border);
+-    --ag-card-veil-top-start: rgba(255, 247, 255, .10);
+-    --ag-card-veil-top-mid: rgba(255, 247, 255, .06);
+-    --ag-card-veil-bottom-mid: rgba(255, 247, 255, .24);
+-    --ag-card-veil-bottom-end: rgba(255, 247, 255, .48);
+-    --ag-card-veil:
+-        linear-gradient(180deg, var(--ag-card-veil-top-start) 0%, var(--ag-card-veil-top-mid) 28%, var(--ag-card-veil-bottom-mid) 56%, var(--ag-card-veil-bottom-end) 100%),
+-        linear-gradient(90deg, rgba(255, 247, 255, .06), transparent 76%);
++/*
++ * Contraste adaptativo (independe do tema). agenda.js analisa a capa e define, por card,
++ * data-art-top-text / data-art-bottom-text ("light" | "dark") e o véu MÍNIMO em
++ * --ag-art-veil-top / --ag-art-veil-bottom (0 a 0.4; é 0 na maioria das capas e no máximo ~13% na faixa de luminância média).
++ * As cores de texto abaixo precisam coincidir com js/pages/agenda/agenda-contrast.js
++ * (conferido por .github/tests/agenda-contrast.test.mjs). Sem análise (CORS, sem JS),
++ * valem o véu padrão leve e as cores do tema.
++ */
++.agenda-day.has-live[data-art-top-text="light"] {
++    --ag-veil-top-rgb: 7, 5, 10;
++    --ag-card-top-name: #fffaff;
++    --ag-card-top-date: #f5ecf5;
++    --ag-card-top-shadow: 0 1px 2px rgba(0, 0, 0, .55), 0 2px 10px rgba(0, 0, 0, .4);
++}
++.agenda-day.has-live[data-art-top-text="dark"] {
++    --ag-veil-top-rgb: 255, 247, 255;
++    --ag-card-top-name: #1b1020;
++    --ag-card-top-date: #2f2231;
++    --ag-card-top-shadow: 0 1px 2px rgba(255, 255, 255, .7), 0 2px 10px rgba(255, 255, 255, .55);
+ }
+-:root[data-theme="light"] .agenda-day.has-live[data-art-top-tone="dark"] {
+-    --ag-card-top-name: var(--ag-art-dark-text);
+-    --ag-card-top-date: var(--ag-art-dark-muted);
+-    --ag-card-top-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
+-    --ag-card-veil-top-start: rgba(7, 5, 10, .12);
+-    --ag-card-veil-top-mid: rgba(7, 5, 10, .06);
++.agenda-day.has-live[data-art-bottom-text="light"] {
++    --ag-veil-bottom-rgb: 7, 5, 10;
++    --ag-card-bottom-title: #fffaff;
++    --ag-card-bottom-desc: #faf3fa;
++    --ag-card-bottom-platforms: #f5ecf5;
++    --ag-card-bottom-shadow: 0 1px 2px rgba(0, 0, 0, .55), 0 2px 10px rgba(0, 0, 0, .4);
++    --ag-card-time-text: #fffaff;
++    --ag-card-time-bg: rgba(28, 18, 32, .84);
++    --ag-card-time-border: rgba(255, 255, 255, .42);
++}
++.agenda-day.has-live[data-art-bottom-text="dark"] {
++    --ag-veil-bottom-rgb: 255, 247, 255;
++    --ag-card-bottom-title: #1b1020;
++    --ag-card-bottom-desc: #241829;
++    --ag-card-bottom-platforms: #2f2231;
++    --ag-card-bottom-shadow: 0 1px 2px rgba(255, 255, 255, .7), 0 2px 10px rgba(255, 255, 255, .55);
++    --ag-card-time-text: #2b1f2d;
++    --ag-card-time-bg: rgba(255, 255, 255, .9);
++    --ag-card-time-border: rgba(43, 31, 45, .3);
++}
++.agenda-day.has-live[data-art-top-text][data-art-bottom-text]::after {
++    background:
++        linear-gradient(180deg, rgba(var(--ag-veil-top-rgb), var(--ag-art-veil-top, 0)) 0%, rgba(var(--ag-veil-top-rgb), var(--ag-art-veil-top, 0)) 34%, rgba(var(--ag-veil-top-rgb), 0) 50%),
++        linear-gradient(180deg, rgba(var(--ag-veil-bottom-rgb), 0) 38%, rgba(var(--ag-veil-bottom-rgb), var(--ag-art-veil-bottom, 0)) 54%, rgba(var(--ag-veil-bottom-rgb), var(--ag-art-veil-bottom, 0)) 100%);
+ }
+-:root[data-theme="light"] .agenda-day.has-live[data-art-bottom-tone="dark"] {
+-    --ag-card-bottom-title: var(--ag-art-dark-text);
+-    --ag-card-bottom-desc: var(--ag-art-dark-muted);
+-    --ag-card-bottom-platforms: var(--ag-art-dark-subtle);
+-    --ag-card-bottom-shadow: 0 2px 3px rgba(0, 0, 0, .95), 0 2px 12px rgba(0, 0, 0, .82);
+-    --ag-card-time-text: var(--ag-art-dark-text);
+-    --ag-card-time-bg: rgba(28, 18, 32, .86);
+-    --ag-card-time-border: rgba(255, 255, 255, .5);
+-    --ag-card-veil-bottom-mid: rgba(7, 5, 10, .08);
+-    --ag-card-veil-bottom-end: rgba(7, 5, 10, .22);
++/* Cores forçadas: sem a arte, o texto usa só as cores do sistema. */
++@media (forced-colors: active) {
++    .agenda-day-art, .agenda-day.has-live::after { display: none; }
+ }
+ @media (prefers-reduced-motion: no-preference) {
+     .agenda-day { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+diff --git a/pb/js/pages/agenda/agenda-contrast.js b/js/pages/agenda/agenda-contrast.js
+new file mode 100644
+index 0000000..a0a5ff9
+--- /dev/null
++++ b/js/pages/agenda/agenda-contrast.js
+@@ -0,0 +1,125 @@
++/*
++ * Agenda semanal — contraste adaptativo (regras puras, sem DOM e sem rede).
++ *
++ * Objetivo: manter o texto legível sobre a capa do jogo alterando a capa o
++ * mínimo possível. Para cada região de texto (topo e base do card):
++ *
++ *   1. escolhe entre texto claro e texto escuro (o que pede menos véu);
++ *   2. calcula o véu mínimo (alfa) para atingir TARGET_RATIO;
++ *   3. limita o véu a MAX_VEIL; acima disso o halo do texto complementa.
++ *
++ * Capas em que um dos dois textos já passa não recebem véu nenhum.
++ *
++ * O pior pixel é o que decide: para texto claro vale o percentil alto de
++ * luminância da região; para texto escuro, o percentil baixo. Por isso a
++ * média não é usada. As cores abaixo espelham `agenda.css`
++ * (`[data-art-top-text]` / `[data-art-bottom-text]`) e são conferidas em
++ * `.github/tests/agenda-contrast.test.mjs`.
++ */
++(() => {
++    "use strict";
++
++    const TARGET_RATIO = 4.5;
++    const MAX_VEIL = 0.4;
++    const VEIL_STEP = 0.01;
++    const PERCENTILE = 0.9;
++
++    /* Texto mais fraco de cada tom (platforms) e cor do véu correspondente. */
++    const TONES = Object.freeze({
++        light: Object.freeze({ weakest: [245, 236, 245], veil: [7, 5, 10] }),
++        dark: Object.freeze({ weakest: [47, 34, 49], veil: [255, 247, 255] })
++    });
++
++    function toLinear(value) {
++        const channel = value / 255;
++        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
++    }
++
++    function fromLinear(value) {
++        const clamped = Math.min(1, Math.max(0, value));
++        const channel = clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055;
++        return channel * 255;
++    }
++
++    function luminance(rgb) {
++        return 0.2126 * toLinear(rgb[0]) + 0.7152 * toLinear(rgb[1]) + 0.0722 * toLinear(rgb[2]);
++    }
++
++    function contrastRatio(a, b) {
++        const high = Math.max(a, b);
++        const low = Math.min(a, b);
++        return (high + 0.05) / (low + 0.05);
++    }
++
++    /* Luminância de um fundo cinza de luminância `bgLum` coberto por um véu de cor `veil` e alfa `alpha`. */
++    function veiledLuminance(bgLum, veil, alpha) {
++        const gray = fromLinear(bgLum);
++        return luminance(veil.map(channel => gray * (1 - alpha) + channel * alpha));
++    }
++
++    function minimumVeil(bgLum, tone) {
++        const { weakest, veil } = TONES[tone];
++        const textLum = luminance(weakest);
++        let best = { alpha: MAX_VEIL, ratio: 0, met: false };
++        for (let alpha = 0; alpha <= MAX_VEIL + 1e-9; alpha += VEIL_STEP) {
++            const rounded = Math.round(alpha * 100) / 100;
++            const ratio = contrastRatio(textLum, veiledLuminance(bgLum, veil, rounded));
++            best = { alpha: rounded, ratio, met: ratio >= TARGET_RATIO };
++            if (best.met) return best;
++        }
++        return best;
++    }
++
++    /* Luminâncias (alta e baixa) da região, em percentil; `bounds` em frações 0–1. */
++    function regionStats(pixels, width, height, bounds) {
++        const startX = Math.max(0, Math.floor(width * bounds.x1));
++        const endX = Math.min(width, Math.ceil(width * bounds.x2));
++        const startY = Math.max(0, Math.floor(height * bounds.y1));
++        const endY = Math.min(height, Math.ceil(height * bounds.y2));
++        const values = [];
++        for (let y = startY; y < endY; y += 1) {
++            for (let x = startX; x < endX; x += 1) {
++                const offset = (y * width + x) * 4;
++                /* Pixels transparentes não dizem nada sobre o fundo. */
++                if (pixels[offset + 3] < 8) continue;
++                values.push(luminance([pixels[offset], pixels[offset + 1], pixels[offset + 2]]));
++            }
++        }
++        if (!values.length) return null;
++        values.sort((a, b) => a - b);
++        const last = values.length - 1;
++        return {
++            high: values[Math.min(last, Math.floor(PERCENTILE * last))],
++            low: values[Math.max(0, Math.floor((1 - PERCENTILE) * last))]
++        };
++    }
++
++    /* Decide tom do texto e véu mínimo; null quando não há dados. */
++    function planRegion(stats) {
++        if (!stats) return null;
++        const light = { tone: "light", ...minimumVeil(stats.high, "light") };
++        const dark = { tone: "dark", ...minimumVeil(stats.low, "dark") };
++        if (light.met !== dark.met) return light.met ? light : dark;
++        if (!light.met) return light.ratio >= dark.ratio ? light : dark;
++        return light.alpha <= dark.alpha ? light : dark;
++    }
++
++    function planCard(pixels, width, height) {
++        const top = planRegion(regionStats(pixels, width, height, { x1: 0, x2: 0.78, y1: 0.02, y2: 0.34 }));
++        const bottom = planRegion(regionStats(pixels, width, height, { x1: 0, x2: 1, y1: 0.52, y2: 0.98 }));
++        return top && bottom ? { top, bottom } : null;
++    }
++
++    globalThis.KamyliAgendaContrast = Object.freeze({
++        TARGET_RATIO,
++        MAX_VEIL,
++        TONES,
++        luminance,
++        contrastRatio,
++        veiledLuminance,
++        minimumVeil,
++        regionStats,
++        planRegion,
++        planCard
++    });
++})();
+diff --git a/js/pages/agenda/agenda.js b/js/pages/agenda/agenda.js
+index 43da81d..5919f5a 100644
+--- a/js/pages/agenda/agenda.js
++++ b/js/pages/agenda/agenda.js
+@@ -13,6 +13,7 @@
+     const AGENDA_URL = "/data/agenda.json";
+     const MANIFEST_URL = "/data/content/jogos-artwork.json";
+     const model = window.KamyliAgendaModel;
++    const contrast = window.KamyliAgendaContrast;
+ 
+     const els = {
+         panel: document.getElementById("agendaPanel"),
+@@ -56,74 +57,80 @@
+     }
+ 
+     /*
+-     * Lê somente duas pequenas regiões da capa, sem alterar a imagem exibida.
+-     * Se a origem não liberar CORS, mantém a paleta padrão sem afetar o card.
++     * Contraste adaptativo: lê duas pequenas regiões da capa (topo e base) numa
++     * cópia reduzida, sem alterar a imagem exibida, e pede ao
++     * `agenda-contrast.js` o tom do texto e o menor véu que dê leitura.
++     * Sem CORS/canvas, ou sem o módulo, o card mantém o véu leve padrão do CSS.
+      */
+-    function averageLuminance(pixels, width, height, bounds) {
+-        const startX = Math.max(0, Math.floor(width * bounds.x1));
+-        const endX = Math.min(width, Math.ceil(width * bounds.x2));
+-        const startY = Math.max(0, Math.floor(height * bounds.y1));
+-        const endY = Math.min(height, Math.ceil(height * bounds.y2));
+-        let total = 0;
+-        let count = 0;
++    const CANVAS_WIDTH = 64;
++    const CANVAS_HEIGHT = 32;
++    const RESIZE_DELAY = 150;
+ 
+-        for (let y = startY; y < endY; y += 1) {
+-            for (let x = startX; x < endX; x += 1) {
+-                const offset = (y * width + x) * 4;
+-                const channels = [pixels[offset], pixels[offset + 1], pixels[offset + 2]]
+-                    .map(value => value / 255)
+-                    .map(value => value <= 0.04045
+-                        ? value / 12.92
+-                        : ((value + 0.055) / 1.055) ** 2.4);
+-                total += channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+-                count += 1;
+-            }
+-        }
++    function applyContrastPlan(card, plan) {
++        card.dataset.artTopText = plan.top.tone;
++        card.dataset.artBottomText = plan.bottom.tone;
++        card.style.setProperty("--ag-art-veil-top", String(plan.top.alpha));
++        card.style.setProperty("--ag-art-veil-bottom", String(plan.bottom.alpha));
++    }
++
++    function sampleCard(probe, card) {
++        const rect = card.getBoundingClientRect();
++        const boxWidth = rect.width || 478;
++        const boxHeight = rect.height || 238;
++        /* Mesmo recorte de `object-fit: cover; object-position: center 44%`. */
++        const scale = Math.max(boxWidth / probe.naturalWidth, boxHeight / probe.naturalHeight);
++        const cropWidth = boxWidth / scale;
++        const cropHeight = boxHeight / scale;
++        const sourceX = (probe.naturalWidth - cropWidth) * 0.5;
++        const sourceY = (probe.naturalHeight - cropHeight) * 0.44;
++        const canvas = document.createElement("canvas");
++        canvas.width = CANVAS_WIDTH;
++        canvas.height = CANVAS_HEIGHT;
++        const context = canvas.getContext("2d", { willReadFrequently: true });
++        if (!context) return null;
++        context.drawImage(probe, sourceX, sourceY, cropWidth, cropHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
++        const pixels = context.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
++        return contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
++    }
+ 
+-        return count ? total / count : 1;
++    /* O recorte muda com o tamanho do card (colunas, rotação): reanalisa com debounce. */
++    function watchCardSize(card, run) {
++        if (typeof ResizeObserver !== "function") return;
++        let width = card.clientWidth;
++        let height = card.clientHeight;
++        let timer = 0;
++        const observer = new ResizeObserver(() => {
++            if (!card.isConnected) {
++                observer.disconnect();
++                return;
++            }
++            if (Math.abs(card.clientWidth - width) < 3 && Math.abs(card.clientHeight - height) < 3) return;
++            width = card.clientWidth;
++            height = card.clientHeight;
++            window.clearTimeout(timer);
++            timer = window.setTimeout(run, RESIZE_DELAY);
++        });
++        observer.observe(card);
+     }
+ 
+     function analyzeCardArtwork(visibleImage, card) {
+         const source = visibleImage.currentSrc || visibleImage.src;
+-        if (!source) return;
++        if (!source || !contrast) return;
+ 
+         const probe = new Image();
+         probe.crossOrigin = "anonymous";
+         probe.referrerPolicy = "no-referrer";
+         probe.onload = () => {
+-            try {
+-                const rect = card.getBoundingClientRect();
+-                const boxWidth = rect.width || 478;
+-                const boxHeight = rect.height || 238;
+-                const scale = Math.max(boxWidth / probe.naturalWidth, boxHeight / probe.naturalHeight);
+-                const cropWidth = boxWidth / scale;
+-                const cropHeight = boxHeight / scale;
+-                const sourceX = (probe.naturalWidth - cropWidth) * 0.5;
+-                const sourceY = (probe.naturalHeight - cropHeight) * 0.44;
+-                const canvas = document.createElement("canvas");
+-                canvas.width = 48;
+-                canvas.height = 24;
+-                const context = canvas.getContext("2d", { willReadFrequently: true });
+-                if (!context) return;
+-
+-                context.drawImage(
+-                    probe,
+-                    sourceX, sourceY, cropWidth, cropHeight,
+-                    0, 0, canvas.width, canvas.height
+-                );
+-                const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+-                const top = averageLuminance(pixels, canvas.width, canvas.height, {
+-                    x1: 0, x2: 0.78, y1: 0.02, y2: 0.34
+-                });
+-                const bottom = averageLuminance(pixels, canvas.width, canvas.height, {
+-                    x1: 0, x2: 1, y1: 0.52, y2: 0.98
+-                });
+-
+-                card.dataset.artTopTone = top < 0.42 ? "dark" : "light";
+-                card.dataset.artBottomTone = bottom < 0.42 ? "dark" : "light";
+-            } catch {
+-                /* Falha de CORS/canvas é não crítica: preserva o contraste padrão. */
+-            }
++            const run = () => {
++                try {
++                    const plan = sampleCard(probe, card);
++                    if (plan) applyContrastPlan(card, plan);
++                } catch {
++                    /* Falha de CORS/canvas é não crítica: preserva o contraste padrão. */
++                }
++            };
++            run();
++            watchCardSize(card, run);
+         };
+         probe.src = source;
+     }
