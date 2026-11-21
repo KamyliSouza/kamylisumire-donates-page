@@ -1,81 +1,86 @@
 # Conteúdo editorial
 
-Arquivos desta pasta alimentam textos/listas do frontend sem necessidade de
-alterar HTML.
+Arquivos desta pasta alimentam textos e listas do frontend sem necessidade de alterar HTML.
+Regras comuns a **todos** os arquivos:
 
-- `hero.json` — Hero.
-- `lives.json` — configuração de Lives, Twitch primária e lista manual do YouTube.
-- `regras.json` — regras.
-- `creditos.json` — créditos.
-- `home-doacoes.json` — CTA de apoio na Home.
-- `home-cards.json` — composição/layout da Home: ordem, visibilidade, tamanho, variante e cards personalizados.
-- `doacoes.json` — textos da página de Doações.
-- `ranking.json` — textos do ranking.
-- `footer.json` — conteúdo do footer, incluindo o link interno para a Política de Privacidade.
-- `artes.json` — textos e entradas da Galeria de Artes.
-- `navbar.json` — Navbar compartilhada (`version: 2`), com texto, ícone e URL de cada item.
-- `buttons.json` — botões globais fora da Navbar.
-- `redes.json` — redes sociais globais, incluindo ordem, URL, ícone e visibilidade.
+- ícones: somente nomes aceitos por `js/core/button-icons.js`;
+- URLs: caminho interno iniciado por `/` ou URL HTTP(S) (cada campo indica se exige HTTPS);
+- nunca inserir HTML, SVG bruto, CSS, cores livres ou caminhos de assets;
+- quebras de linha em campos multilinha usam `\n`;
+- o validador (`python .github/scripts/validate-content.py`) rejeita chaves duplicadas e contratos inválidos.
 
-A configuração e as fontes do Blog ficam em `../blog/`, fora desta pasta.
+## Mapa dos arquivos
 
-A agenda semanal fica em `../agenda.json`; desde V48.3.26, esse arquivo pode ser sincronizado de um quadro Trello dedicado e aceitar múltiplas lives por dia sem remover os campos legados usados pelos Helpers. Um `SteamAppID:` opcional no card reaproveita a Library Capsule oficial já presente em `jogos.json`; a Agenda não consulta a Steam separadamente.
+| Arquivo | Conteúdo | Edição |
+| --- | --- | --- |
+| `hero.json` | Hero da Home | manual |
+| `lives.json` | Configuração de Lives, Twitch primária e lista manual do YouTube (modelo em `lives.example.json`) | manual |
+| `regras.json`, `creditos.json` | Cards de Regras e Créditos | manual |
+| `home-doacoes.json` | CTA de apoio na Home | manual |
+| `home-cards.json` | Composição da Home: ordem, visibilidade, tamanho, variante e cards personalizados | manual |
+| `navbar.json` | Navbar compartilhada (texto, ícone, URL, ordem) | manual |
+| `buttons.json` | Botões globais fora da Navbar | manual |
+| `redes.json` | Redes sociais globais | manual |
+| `footer.json` | Rodapé (inclui links para Privacidade e Uso de IA) | manual |
+| `interface.json` | Textos de loader, rodapé, aviso de links externos, Configurações e fallback da Home | manual |
+| `seo.json` | Metadados runtime de `home`, `doacoes`, `blog` e `artes` (páginas sem entrada mantêm o SEO estático) | manual |
+| `404.json` | Textos da página de erro | manual |
+| `doacoes.json`, `ranking.json` | Textos de Doações e do ranking | manual |
+| `artes.json` | Textos e obras da Galeria | manual |
+| `jogos-config.json` | Paginação de `/jogos/` | manual |
+| `jogos.json` | Catálogo de jogos das lives | **gerado** pelo sync de Jogos |
+| `jogos-artwork.json`, `jogos-artwork-cache.json` | Artes e cache da Steam | **gerados** pelo sync de Jogos |
+
+Fora desta pasta: o Blog fica em [`../blog/`](../blog/README.md) e a agenda semanal em `../agenda.json`
+(**gerada** pelo sync da Agenda). Não edite à mão os arquivos "gerados": o próximo sync os sobrescreve.
+O fluxo de Agenda e Jogos está em [`docs/AGENDA-E-JOGOS.md`](../../docs/AGENDA-E-JOGOS.md).
 
 ## Navbar
 
-Desde a V48.2.0, `navbar.json` usa `version: 2`. As chaves de `links` são estáveis e não devem ser renomeadas: `inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`. Cada entrada contém:
+`navbar.json` usa `version: 2`. As chaves de `links` são estáveis e **não podem ser renomeadas**:
+`inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`. Cada entrada:
 
 ```json
-{
-  "texto": "Blog",
-  "icone": "none",
-  "url": "/blog/"
-}
+{ "texto": "Blog", "icone": "none", "url": "/blog/" }
 ```
 
-`icone` deve ser um nome aceito por `js/core/button-icons.js`. `url` aceita caminho interno iniciado por `/` ou URL HTTP(S). Não inserir HTML, SVG bruto ou caminhos de assets no JSON. O botão Apoiar também pertence a este arquivo; `buttons.json` não controla mais a Navbar.
+O botão Apoiar também pertence a este arquivo; `buttons.json` não controla a Navbar.
 
+Dois campos controlam a ordem:
 
-## Redes sociais globais
+- `ordem`: lista sem duplicatas com a sequência visual dos nove itens. O runtime completa uma ordem
+  ausente/incompleta com o padrão, mas o arquivo versionado deve listar todos exatamente uma vez.
+- `apoioFixoNoFim` (booleano): com `true` — e também quando a chave está ausente — **Apoiar** é montado
+  no slot dedicado à direita, fora da ordem. Com `false`, o mesmo link entra no grupo reordenável e ocupa
+  a posição indicada em `ordem`. As outras oito chaves são reordenáveis nos dois modos.
 
-`redes.json` usa `version: 1` e é a única fonte editorial das redes sociais do
-site. A ordem do array `redes` é a ordem visual do dock/menu. Exemplo:
+## Redes sociais
+
+`redes.json` usa `version: 1` e é a única fonte das redes do site. A ordem do array `redes` é a ordem
+visual do dock/menu.
 
 ```json
-{
-  "id": "youtube",
-  "nome": "YouTube",
-  "url": "https://youtube.com/kamyli",
-  "icone": "youtube",
-  "visivel": true
-}
+{ "id": "youtube", "nome": "YouTube", "url": "https://youtube.com/kamyli", "icone": "youtube", "visivel": true }
 ```
 
-`id` deve ser único em kebab-case, `url` deve ser HTTPS e `visivel` deve ser
-booleano. `icone` usa somente glyphs sociais aprovados em
-`js/core/button-icons.js`; não inserir SVG/HTML bruto, CSS, cor ou asset no JSON.
-O dock é global: desktop/tablet usam a barra vertical fixa; no mobile o mesmo
-conteúdo aparece em um botão expansível.
+`id` único em kebab-case, `url` HTTPS, `visivel` booleano; `icone` usa só glyphs sociais aprovados.
+Desktop/tablet mostram uma barra vertical fixa; no mobile o mesmo conteúdo vira um botão expansível.
 
 ## Cards da Home
 
-Desde a V48.2.0, `home-cards.json` usa `version: 1`. A ordem de `cards` é a ordem visual da Home. Os sete tipos nativos são obrigatórios e aparecem exatamente uma vez:
+`home-cards.json` usa `version: 1`. A ordem de `cards` é a ordem visual da Home (máximo de 24). Os sete
+tipos nativos são obrigatórios e aparecem exatamente uma vez:
 
 ```text
-hero
-lives
-agenda
-blog
-regras
-creditos
-apoio
+hero  lives  agenda  blog  regras  creditos  apoio
 ```
 
-Nos cards nativos, `id` deve ser igual ao `tipo`. É permitido alterar somente `visivel`, `tamanho` (`compacto` ou `grande`) e `variante` (`padrao`, `suave` ou `destaque`), além da própria posição no array. Ocultar não remove o conteúdo nem o contrato original do card.
+Nos nativos, `id` é igual ao `tipo` e só se pode alterar `visivel`, `tamanho` (`compacto` | `grande`),
+`variante` (`padrao` | `suave` | `destaque`) e a posição no array. Ocultar não remove o conteúdo do card.
+O conteúdo dos nativos continua em `hero.json`, `lives.json`, `data/agenda.json`, `data/blog/*`,
+`regras.json`, `creditos.json` e `home-doacoes.json`; `home-cards.json` só controla a apresentação.
 
-O conteúdo dos nativos continua em `hero.json`, `lives.json`, `data/agenda.json`, `data/blog/*`, `regras.json`, `creditos.json` e `home-doacoes.json`. `home-cards.json` controla composição/apresentação, não substitui essas fontes.
-
-Cards adicionais usam `tipo: "personalizado"`. Exemplo:
+Cards adicionais usam `tipo: "personalizado"`:
 
 ```json
 {
@@ -90,28 +95,19 @@ Cards adicionais usam `tipo: "personalizado"`. Exemplo:
     "titulo": "Título do card",
     "descricao": "Texto opcional seguindo a tipografia do site.",
     "icone": "heart",
-    "acao": {
-      "texto": "Saiba mais",
-      "url": "/blog/",
-      "icone": "arrow-right",
-      "estilo": "contorno"
-    }
+    "acao": { "texto": "Saiba mais", "url": "/blog/", "icone": "arrow-right", "estilo": "contorno" }
   }
 }
 ```
 
-`icone` e `acao.icone` usam somente nomes de `js/core/button-icons.js`. `acao.url` aceita caminho interno iniciado por `/` ou URL HTTP(S); texto e URL do CTA devem ser preenchidos juntos ou ambos ficar vazios. Não inserir HTML, SVG bruto, CSS, cores arbitrárias ou assets no JSON. O limite global é 24 cards.
+`alinhamento`: `esquerda` | `centro`. `acao.estilo`: `primario` | `contorno`. Texto e URL do CTA devem ser
+preenchidos **juntos** ou ficar ambos vazios (sem botão).
 
 ## Galeria de Artes
 
-`artes.json` controla os textos da página `/artes/` e a lista editorial de obras.
-A galeria é estática: o navegador lê este JSON localmente e busca cada imagem
-diretamente da URL HTTPS informada. Não usar Worker/KV/API como hospedagem de
-imagem.
-
-Desde a V48.0.1, a grade usa `preview` e o lightbox carrega `imagem` em alta qualidade apenas quando aberto. Ambas devem ser URLs HTTPS.
-
-Estrutura de uma obra:
+`artes.json` (`version: 2`) controla os textos de `/artes/` e a lista de obras. A galeria é estática: o
+navegador lê o JSON e busca cada imagem direto da URL HTTPS informada (não use Worker/KV/API como
+hospedagem de imagem). A grade usa `preview` e o lightbox carrega `imagem` em alta qualidade só quando aberto.
 
 ```json
 {
@@ -119,6 +115,7 @@ Estrutura de uma obra:
   "titulo": "Título da arte",
   "artista": "Nome ou @ da pessoa artista",
   "creditoUrl": "https://exemplo.com/original",
+  "preview": "https://media.exemplo.com/artes/exemplo-preview.webp",
   "imagem": "https://media.exemplo.com/artes/exemplo.webp",
   "alt": "Descrição objetiva do conteúdo visual.",
   "data": "2026-09-10",
@@ -129,77 +126,52 @@ Estrutura de uma obra:
 }
 ```
 
-`creditoUrl`, `largura` e `altura` são opcionais. `imagem` deve ser URL HTTPS
-absoluta; `creditoUrl`, quando preenchido, também. `id` usa kebab-case e deve ser
-único. `alt` é obrigatório. Dimensões conhecidas são recomendadas para reduzir
-mudanças de layout enquanto a imagem carrega.
-
-As imagens preservam a proporção original em masonry e os metadados aparecem
-sobre a base da imagem com gradiente/sombra. Enquanto uma imagem carrega, o card
-reutiliza `.site-loader-logo`, o mesmo símbolo visual do loader global.
-
-A busca não cria novos campos no JSON. O seletor da página usa diretamente
-`titulo`, `artista`, `categoria` e `tags`. Prefixos aceitos: `artista:` (ou
-`artist:`), `titulo:`, `categoria:` e `tag:`/`tags:`. O prefixo digitado tem
-precedência sobre o seletor de campo.
-
+- Obrigatórios: `id` (kebab-case e único), `titulo`, `artista`, `preview` e `imagem` (HTTPS absolutas),
+  `alt`, `data` (`YYYY-MM-DD`) e `categoria`.
+- Opcionais: `creditoUrl` (HTTPS quando informado) e `largura`/`altura` (inteiros positivos; recomendados
+  para reduzir mudança de layout).
+- A grade mostra só título e artista; o resto aparece no dialog.
+- A busca não cria campos novos: usa `titulo`, `artista`, `categoria` e `tags`. Prefixos aceitos:
+  `artista:` (ou `artist:`), `titulo:`, `categoria:` e `tag:`/`tags:`, com precedência sobre o seletor.
 
 ## Lives
 
-A V47.4 mantém a lista manual do YouTube em `videos` e usa a Twitch como aba
-primária automática. Os campos de plataforma são:
+`lives.json` mantém a lista manual do YouTube em `videos` e usa a Twitch como aba primária automática:
 
 ```json
-{
-  "defaultPlatform": "twitch",
-  "twitchCanalUrl": "https://www.twitch.tv/kamyli",
-  "canalUrl": "https://youtube.com/kamyli"
-}
+{ "defaultPlatform": "twitch", "twitchCanalUrl": "https://www.twitch.tv/kamyli", "canalUrl": "https://youtube.com/kamyli" }
 ```
 
-Cada item manual de YouTube em `videos` contém:
+Cada item de `videos`:
 
 ```json
-{
-  "videoId": "ID_DO_YOUTUBE",
-  "title": "Título editorial",
-  "date": "YYYY-MM-DD"
-}
+{ "videoId": "ID_DO_YOUTUBE", "title": "Título editorial", "date": "YYYY-MM-DD" }
 ```
 
-Não copiar VODs da Twitch para este JSON e não adicionar player/iframe/API key.
-A lista automática da Twitch vem de `/twitch/videos` e é normalizada pelo Worker.
+Não copie VODs da Twitch para este JSON e não adicione player, iframe ou chave de API: a lista da Twitch vem
+de `/twitch/videos`, normalizada pelo Worker.
 
+## Agenda
+
+`../agenda.json` tem sete dias (domingo a sábado). Pode ser gerada pelo sync do Trello e aceita várias lives
+por dia (`lives`) sem remover os campos legados (`temLive`, `horario`, `titulo`, `descricao`,
+`plataformas`), que espelham `lives[0]`. Contrato completo e formato do quadro:
+[`docs/AGENDA-E-JOGOS.md`](../../docs/AGENDA-E-JOGOS.md).
+
+## Jogos
+
+`jogos-config.json` tem `version: 1` e `jogosPorPagina` (inteiro de 1 a 60; atual: 15). Alterar esse valor não
+exige Trello, Steam nem novo sync. `jogos.json` e os arquivos de artwork são gerados pelo sync de Jogos.
 
 ## Blog
 
-O Blog não usa `data/content/blog.json`. A arquitetura vigente é:
+O Blog não usa `data/content/blog.json`. A fonte é:
 
 ```text
-data/blog/config.json
-data/blog/posts.json
-data/blog/posts/<slug>.md
-blog/<slug>/index.html
-sitemap.xml
+data/blog/config.json        textos e visibilidade da listagem
+data/blog/posts.json         índice derivado (sem o corpo)
+data/blog/posts/<slug>.md    fonte de cada post
+blog/<slug>/index.html       página estática de cada post (canonical/SEO próprios)
 ```
 
-`data/blog/config.json` controla os textos/visibilidade editorial da listagem.
-`data/blog/posts/<slug>.md` é a fonte de cada publicação e
-`data/blog/posts.json` é o índice derivado. Um post publicado também precisa da
-página estática correspondente em `blog/<slug>/index.html`, com canonical/SEO
-próprios. A busca da listagem usa apenas `title`, `summary` e `tags`, com seletor
-de campo e prefixos `titulo:`, `resumo:` e `tag:`/`tags:`; não há campo editorial
-novo para essa funcionalidade. Consulte `../blog/README.md` para o contrato
-completo.
-
-
-### Navbar reordenável — V48.3.0
-
-`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.
-### Apoiar fixo opcional — V48.3.1
-
-`data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
-
-### Slot histórico de Apoiar — V48.3.2
-
-`apoioFixoNoFim: true` significa posição histórica real: o link `apoio` é montado no slot dedicado à direita. `false` coloca o mesmo link no grupo reordenável e sua posição passa a ser a indicada por `ordem`.
+Contrato completo em [`../blog/README.md`](../blog/README.md).

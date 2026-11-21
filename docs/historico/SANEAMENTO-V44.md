@@ -1,5 +1,9 @@
 # Saneamento V44
 
+> **Documento histórico.** Registra a limpeza feita na V44 e explica por que o validador bloqueia certos
+> caminhos (`FORBIDDEN_PATHS`). Não descreve o estado atual do projeto: para isso, veja
+> [`ARQUITETURA.md`](../ARQUITETURA.md) e [`AGENTS.md`](../../AGENTS.md).
+
 ## Objetivo
 
 Consolidar o estado vigente do projeto, removendo resíduos de migrações e

@@ -1,4 +1,12 @@
 # Changelog
+
+Histórico de versões do site, da mais recente para a mais antiga. Este é o **único** lugar para o
+histórico: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md` e `docs/` descrevem apenas o estado vigente.
+
+Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do que mudou e do impacto em
+contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
+publicadas ou não foram registradas aqui.
+
 ## V48.3.77 — Favicon adaptativo e contraste da Agenda
 
 - o favicon passa a reutilizar `logo.webp` como máscara, preenchida pela cor `--primary-color` do tema ativo, seguindo o mesmo tratamento visual da logo da Navbar; a imagem é convertida em PNG no navegador e atualizada quando a preferência de tema muda;
@@ -624,6 +632,14 @@
 - mantém `overflow: visible` no painel de ferramentas para o menu poder ultrapassar seus limites visuais sem corte;
 - atualiza somente o cache-buster do CSS da Galeria para `v=48.1.2`; o JavaScript continua em `v=48.1.1` porque não foi alterado;
 - não modifica nenhum arquivo editorial, schema, Worker/KV ou contrato consumido pelos Helpers.
+
+## V48.1.0 — Busca por campo na Galeria e no Blog
+
+- adiciona escopo explícito de busca sem alterar os schemas editoriais: na Galeria, os campos são Todos, Artista, Título, Categoria e Tags; no Blog, Todos, Título, Resumo e Tags;
+- aceita prefixos diretamente no texto (`artista:`/`artist:`, `titulo:`, `categoria:`, `tag:`/`tags:` na Galeria; `titulo:`, `resumo:`, `tag:`/`tags:` no Blog), com precedência sobre o seletor visual;
+- a comparação ignora maiúsculas/minúsculas e acentos e usa somente metadados já existentes, sem exigir campos novos em `data/content/artes.json`, `data/blog/posts.json` ou no front matter.
+
+*Entrada reconstruída a partir da documentação técnica (`docs/ARQUITETURA.md`, `docs/VALIDACAO.md`), pois não havia registro desta versão no changelog.*
 
 ## V48.1.1 — Refinamento visual da Galeria e documentação
 

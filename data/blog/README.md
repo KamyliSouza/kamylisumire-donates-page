@@ -1,6 +1,6 @@
 # Conteúdo do Blog
 
-O Blog V47 usa Markdown como fonte dos artigos e mantém a publicação final
+O Blog usa Markdown como fonte dos artigos e mantém a publicação final
 100% estática.
 
 ```text
@@ -75,5 +75,13 @@ Imagem com link externo:
 
 A URL da imagem e o destino clicável devem usar HTTPS. O `alt` é obrigatório.
 
-A Navbar e a seção do Blog na Home aparecem somente quando `posts.json`
-possui ao menos um post válido com `published: true`.
+## Visibilidade e indexação
+
+- O Blog é uma rota **permanente**: o item **Blog** continua na Navbar (`navbar.json`) e `/blog/` fica
+  acessível mesmo sem posts.
+- O card do Blog na Home é controlado por `data/content/home-cards.json` (`visivel`). Visível e sem
+  posts, ele mostra uma mensagem de estado vazio.
+- Para SEO, enquanto `posts.json` não tiver ao menos um post com `published: true`, `/blog/` fica
+  `noindex, follow` e **fora** do `sitemap.xml`. Ao publicar o primeiro post, atualize no mesmo patch:
+  a meta robots para `index, follow`, o `sitemap.xml` (rota `/blog/` e a URL do post) e a página
+  `blog/<slug>/index.html`. A CI exige essas três coisas.

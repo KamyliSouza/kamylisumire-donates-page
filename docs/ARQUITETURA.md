@@ -1,263 +1,213 @@
-# Arquitetura atual
+# Arquitetura
 
-## Visão geral
+O site é estático e não possui build. Este documento descreve **como as peças se
+encaixam**; regras de manutenção estão em [`AGENTS.md`](../AGENTS.md), configuração e
+deploy em [`PRODUCAO.md`](PRODUCAO.md).
 
-O site é estático e não possui build.
-
-```text
-Navegador
-├─ Home
-│  ├─ HTML/CSS/JS vanilla
-│  ├─ data/content/*.json
-│  ├─ data/agenda.json
-│  └─ Lives
-│     ├─ Twitch → /twitch/videos → snapshot KV (24 h)
-│     └─ YouTube → thumbnails + links diretos locais
-├─ /artes/
-│  ├─ HTML/CSS/JS vanilla
-│  ├─ data/content/artes.json
-│  └─ imagens HTTPS externas, sem Worker/KV
-└─ /doacoes/
-   ├─ HTML/CSS/JS vanilla
-   ├─ conteúdo local
-   └─ ranking
-      └─ https://api.kamylisumire.com
-         └─ Cloudflare Worker
-            ├─ Streamlabs API/OAuth
-            └─ KV
-```
-
-A disponibilidade do backend não deve determinar a disponibilidade geral da Home: se a API falhar, apenas a aba Twitch pode ficar indisponível e o YouTube local continua acessível.
-
-Durante a estabilização da V44.4, `workers.dev` continua disponível como
-fallback de contingência.
-
-## JavaScript compartilhado
-
-`js/core/` contém infraestrutura global:
-
-- `preferences.js` — tema, blur e perfil adaptativo;
-- `config.js` — configuração compartilhada e caminho GitHub Pages;
-- `content.js` — utilitários de conteúdo;
-- `navbar.js` / `footer.js` — componentes compartilhados;
-- `settings.js` — botão de Configurações (engrenagem na navbar) e painel de preferências montado em `<body>`; depende de `preferences.js`, `mobile-overlay.js` e `navbar.js`;
-- `external-links.js` — confirmação de navegação externa;
-- `page-transitions.js` — transição de página;
-- `loader.js` — loader local;
-- `api.js` — cliente compartilhado usado pelo ranking de Doações e pela aba Twitch em Lives;
-- `sanitize.js` — `escapeHtml` compartilhado por módulos que montam HTML a partir de conteúdo editorial; páginas que carregam `footer.js` devem carregar `sanitize.js` antes dele.
-
-`config.js` não deve carregar módulos de páginas.
-
-## Home
-
-A Home continua majoritariamente local. Desde a V47.4, ela importa `api.js` apenas para integrações públicas da Twitch. Essa consulta não é requisito para Hero, Agenda, Regras, Créditos, Blog ou a aba YouTube.
-
-Desde a V48.2.0, `data/content/home-cards.json` descreve a composição da Home. `js/pages/home/content.js` carrega esse contrato junto aos JSONs de conteúdo, renderiza primeiro os componentes nativos e, ao final, aplica ordem, visibilidade, tamanho e variante. Os nativos são movidos no DOM, não clonados, preservando IDs e integrações existentes. Cards `personalizado` são construídos com DOM seguro/textContent e a biblioteca allowlisted `KamyliButtonIcons`.
-
-A grade `.home-layout` possui duas colunas no desktop: `grande` ocupa a largura total e `compacto` uma coluna; no mobile ambos ocupam uma coluna. O conteúdo dos nativos permanece em seus contratos históricos, de forma que `home-cards.json` seja apenas composição/apresentação e não uma segunda fonte de verdade.
-
-
-## Galeria de Artes
-
-`/artes/` usa `data/content/artes.json` e renderiza uma grade fluida de imagens
-com proporções variadas. A imagem continua em sua proporção original; desde a
-V48.1.1, somente título e artista aparecem sobre a preview com gradiente de
-contraste. Categoria, data, tags e crédito são renderizados somente no dialog da
-obra. Durante o carregamento individual, o card reutiliza `.site-loader-logo`, o
-mesmo símbolo animado do loader global. Imagens usam `loading=lazy`.
-
-A galeria é completamente estática do ponto de vista de backend: o navegador
-carrega o JSON local e as URLs HTTPS de imagem diretamente do host configurado.
-Nenhuma visita à galeria executa `workers.js` ou lê KV. A grade usa somente `preview`; a `imagem` full é requisitada sob demanda quando o usuário abre a obra.
-
-A busca da galeria é feita inteiramente no navegador e possui escopo explícito por
-campo: **Todos os campos, Artista, Título, Categoria e Tags**. O usuário também
-pode usar prefixos no próprio texto (`artista:`, `artist:`, `titulo:`,
-`categoria:`, `tag:`/`tags:`); um prefixo explícito tem precedência sobre o
-seletor visual. Isso evita colisões como um nome de artista coincidir com o
-título de outra obra. Na V48.1.1, o seletor visual da Galeria é um drop-down
-próprio, acessível por mouse/toque/teclado e estilizado com os tokens existentes;
-o valor lógico da busca continua idêntico ao da V48.1.0.
-
-O Blog segue a mesma convenção visual e de parsing, com os campos **Todos os
-campos, Título, Resumo e Tags** e os prefixos `titulo:`, `resumo:` e
-`tag:`/`tags:`. Essa funcionalidade usa somente metadados já existentes e não
-altera os contratos JSON/Markdown editoriais. O refinamento V48.1.1 da Galeria
-também é somente de frontend/documentação e não requer alteração nos Helpers.
-
-## Doações
-
-O ranking possui cache local no navegador com validade máxima de 30 minutos.
-`preferences.js` agenda a remoção enquanto o site está em execução e repete a
-limpeza em `pageshow`, foco/visibilidade e mudanças de storage, cobrindo retomada
-após suspensão do navegador. Cache expirado nunca é reutilizado como fallback;
-se não houver cache fresco e a consulta remota falhar, a interface informa
-indisponibilidade.
-
-Na V44.4, a ordem dos endpoints remotos é:
-
-1. `https://api.kamylisumire.com`;
-2. `workers.dev`, somente se o primeiro falhar.
-
-## Lives
-
-O mesmo componente visual possui duas abas:
-
-1. **Twitch (padrão):** últimas VODs obtidas pelo Worker e servidas a partir do KV;
-2. **YouTube:** lista manual/local de `data/content/lives.json`.
-
-O endpoint público `/twitch/videos` nunca chama a Twitch durante uma visita.
-A sincronização de VODs tenta renovar o snapshot após 20 horas; a validade pública/KV continua limitada a 24 horas. Não existe
-player incorporado, iframe ou YouTube Data API.
-
-Desde a V47.4.3, o Hero consulta também `/twitch/live`. A rota pública lê um
-snapshot `twitch:live` do KV e usa Cache API por 60 segundos para reduzir
-leituras repetidas. A consulta real a `helix/streams` ocorre somente no
-`scheduled()`/debug, em janela nominal de 10 minutos com tolerância intencional
-de até 2 minutos para absorver latência/alinhamento do Cron. Online, o Hero
-mostra `Sobre | Ao vivo`, um anel no avatar e o selo `AO VIVO` acoplado à borda;
-offline, erro ou snapshot vencido mantém o Hero padrão.
-
-## Backend
-
-`workers.js` é isolado da Home e funciona como origem de
-`api.kamylisumire.com`.
-
-Rotas relevantes:
-
-- `/` — ranking público;
-- `/oauth/authorize` — início controlado do OAuth; aceita Bearer ou `?key=` e cria `state` v2 assinado por `OAUTH_STATE_SECRET` com nonce temporário no KV;
-- `/oauth/callback` — callback OAuth do Streamlabs, que valida e consome o `state` antes de trocar o `code`;
-- `/debug/status` — diagnóstico protegido exclusivamente por `Authorization: Bearer OAUTH_SETUP_TOKEN`;
-- `/debug/sync` — sincronização manual protegida exclusivamente por Bearer;
-- `/twitch/videos` — snapshot público das últimas VODs da Twitch, com Cache API antes do KV desde V47.4.7;
-- `/debug/twitch-sync` — inicialização/sincronização protegida das VODs, renovável após 20 h e com validade máxima de 24 h;
-- `/twitch/live` — status público ao vivo, servido de cache/KV;
-- `/debug/twitch-live-sync` — sincronização protegida do status ao vivo, com `?force=1` opcional.
-
-Configuração de produção:
+## 1. Visão geral
 
 ```text
-REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
-ALLOWED_ORIGINS=https://kamylisumire.com
-TWITCH_CHANNEL_LOGIN=kamyli
-TWITCH_MAX_VIDEOS=10
+Visitante (navegador)
+├─ Páginas estáticas (GitHub Pages, branch main)
+│  ├─ /            Home ........ data/content/*.json, data/agenda.json
+│  │                             └─ Lives: Twitch ─► /twitch/videos ─► snapshot KV
+│  │                                       YouTube ─► lives.json (local)
+│  │                             └─ Hero:  /twitch/live ─► snapshot KV
+│  ├─ /agenda/    Agenda ...... data/agenda.json + jogos-artwork.json
+│  ├─ /jogos/     Jogos ....... jogos.json + jogos-config.json
+│  ├─ /artes/     Galeria ..... artes.json + imagens HTTPS externas
+│  ├─ /blog/      Blog ........ data/blog/*
+│  ├─ /doacoes/   Doações ..... doacoes.json + ranking ─► API
+│  └─ /privacidade/, /uso-de-ia/, 404 (HTML estático)
+└─ API pública: https://api.kamylisumire.com  (Cloudflare Worker + KV)
+   ├─ Streamlabs (OAuth + doações)
+   └─ Twitch (Helix: VODs e status ao vivo)
+
+GitHub Actions (fora do navegador)
+├─ validate-json.yml ... validação, sintaxe e testes
+├─ sync-agenda.yml ..... Trello ─► data/agenda.json
+└─ sync-jogos.yml ...... Trello + Steam ─► data/content/jogos*.json
 ```
 
-O binding KV continua sendo `RANKINGS`.
-Credenciais sensíveis continuam como Secrets/bindings do Worker. `TWITCH_CLIENT_SECRET` deve ser Secret; `TWITCH_CLIENT_ID` pode ser variável e também permanece fora do conteúdo editorial.
+Princípios de disponibilidade:
 
-Desde a V47.4.7, o roteamento é explícito: `/` é a única rota do ranking e
-caminhos desconhecidos retornam `404` antes de acessar KV. Métodos diferentes
-de `GET`/`OPTIONS` retornam `405`. Ranking, `/twitch/videos` e `/twitch/live`
-usam chaves canônicas de Cache API sem query string para reduzir leituras KV
-repetidas por data center; o KV continua sendo a fonte persistente.
+- O backend **não** determina a disponibilidade geral da Home: se a API falhar, apenas a aba Twitch e
+  o status ao vivo ficam indisponíveis; Hero padrão, Agenda, Regras, Créditos, Blog e a aba YouTube
+  continuam funcionando.
+- Galeria, Blog, Agenda, Jogos, Privacidade e Uso de IA **não executam o Worker nem leem KV**.
+- Trello e Steam só são consultados pelos syncs no GitHub Actions.
 
-Os estados internos consolidados são `tokens:streamlabs_state`,
-`twitch:app_access_token_state` e `twitch:user_state`. O Worker aceita as chaves
-V47.4.6 correspondentes durante a migração automática, sem exigir nova
-autorização OAuth. A frequência funcional das integrações não muda.
+## 2. JavaScript
 
-Na V47.4.5, o App Access Token da Twitch é validado periodicamente em `/oauth2/validate`, e o `user_id`/login resolvidos pelo Helix usam retenção máxima de 24 horas no KV.
+### `js/core/` — infraestrutura global
 
-## Publicação
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `config.js` | Configuração compartilhada (API, caminho GitHub Pages `KAMYLI_SITE_PATH`). Não carrega módulos de páginas. |
+| `preferences.js` | Tema, blur, perfil adaptativo, modo leitura e remoção programada do cache do ranking. |
+| `content.js` | Carrega JSONs editoriais, aplica textos/SEO runtime e mantém os fallbacks espelhados. |
+| `button-icons.js` | Biblioteca allowlisted de ícones (`KamyliButtonIcons`). Único ponto de entrada de ícones para JSON. |
+| `buttons.js` | Aplica texto/ícone aos elementos `[data-button-key]` a partir de `buttons.json`. |
+| `sanitize.js` | `escapeHtml` e `safeHttpUrl` compartilhados. Deve carregar antes de `footer.js`. |
+| `navbar.js` / `footer.js` | Navbar e Footer compartilhados. |
+| `mobile-overlay.js` | Coordenador único dos overlays mobile (`menu`, `socials`, `settings`). |
+| `socials.js` | Dock/cápsula de redes sociais (lê `redes.json`). |
+| `settings.js` | Botão de engrenagem e painel de Configurações (montado em `<body>`). |
+| `external-links.js` | Confirmação global de navegação externa, por delegação de eventos. |
+| `page-transitions.js` / `loader.js` | Transição entre páginas e loader (com fail-safe de 6 s). |
+| `horizontal-scroll.js` | Faixas horizontais compartilhadas: click + arrasta com mouse/caneta, touch nativo. |
+| `favicon.js` | Favicon adaptativo ao tema, com fallback para os arquivos originais. |
+| `api.js` | Cliente do Worker (`KamyliAPI`), com timeout e fallback de transporte. Usado por Doações e pela Twitch da Home. |
 
-- `main` → GitHub Pages / produção;
-- `site-v2` → preview Cloudflare Pages;
-- `_headers` impede indexação do preview;
-- `CNAME` define `kamylisumire.com`;
-- Custom Domain do Worker define `api.kamylisumire.com`.
+### `js/pages/<página>/`
 
-## Assets
+| Pasta | Conteúdo |
+| --- | --- |
+| `home/` | `content.js` (conteúdo e composição de cards), `home.js` (Agenda da Home), `lives.js`, `twitch-live.js`, `carousel.js`, `home-interactions.js` (coração dos CTAs e click + arrasta) |
+| `agenda/` | `agenda-model.js` (regras puras, testável em Node) e `agenda.js` (DOM) |
+| `artes/` | `artes.js` (grade, busca, lightbox) |
+| `blog/` | `blog.js` (listagem e busca) |
+| `jogos/` | `jogos.js` (catálogo, filtros, paginação) |
+| `doacoes/` | `content.js`, `doacoes.js`, `ranking.js` (apenas aqui) |
 
-Avatar, favicon, fundo e preview social são servidos por
-`assets.kamylisumire.com`.
+## 3. Páginas e fluxos de dados
 
-Nunito permanece no próprio repositório.
+### Home
 
+Majoritariamente local. Importa `api.js` apenas para a Twitch (aba Lives e Hero); isso não é requisito
+para os demais cards.
 
-### Segurança V48.0.2
+**Composição.** `data/content/home-cards.json` (`version: 1`, até 24 cards) descreve a composição.
+`js/pages/home/content.js` carrega esse contrato com os demais JSONs, renderiza primeiro os componentes
+nativos e só então aplica ordem, visibilidade, tamanho e variante. Os nativos são **movidos** no DOM
+(não clonados), preservando IDs e integrações. Cards `personalizado` são construídos com DOM seguro e
+`textContent`, com ícones da allowlist. Os sete tipos nativos (`hero`, `lives`, `agenda`, `blog`,
+`regras`, `creditos`, `apoio`) são obrigatórios exatamente uma vez e usam ID igual ao tipo; aceitam só
+`visivel`, `tamanho` e `variante`. Não existe campo editorial para HTML, SVG, imagem, CSS ou cor.
+`home-cards.json` é apresentação, não uma segunda fonte de verdade do conteúdo.
 
-As páginas HTML versionadas usam uma CSP mínima via `<meta http-equiv="Content-Security-Policy">`, compatível com a hospedagem estática atual. O contrato restringe scripts, estilos, conexões, objetos, formulários e frames carregados pela própria página. `frame-ancestors` não faz parte dessa CSP porque só é efetivo quando enviado como cabeçalho HTTP; eventual proteção de embedding/clickjacking deve ser configurada no host que controlar os response headers. `upgrade-insecure-requests` também é omitido deliberadamente: produção já usa HTTPS e o repositório preserva compatibilidade com servidores HTTP locais usados em desenvolvimento e validação manual.
+**Lives.** O mesmo componente tem duas abas:
 
-A autenticação administrativa do Worker mantém o mesmo token e as mesmas rotas, mas compara o segredo com `crypto.subtle.timingSafeEqual`.
-## Composição editorial da Home V48.2.0
+1. **Twitch (padrão):** últimas VODs servidas pelo Worker a partir do KV;
+2. **YouTube:** lista manual de `data/content/lives.json` (sem player, iframe ou YouTube Data API).
 
-O contrato `data/content/home-cards.json` `version: 1` possui no máximo 24 cards. Os sete tipos nativos (`hero`, `lives`, `agenda`, `blog`, `regras`, `creditos`, `apoio`) são obrigatórios exatamente uma vez e usam ID igual ao tipo. Eles aceitam somente `visivel`, `tamanho` e `variante` além de ID/tipo.
+**Hero ao vivo.** O Hero consulta `/twitch/live`. Online, mostra `Sobre | Ao vivo`, anel no avatar e
+selo `AO VIVO` acoplado à borda; offline, erro ou snapshot vencido mantêm o Hero padrão.
 
-Cards adicionais usam `tipo: personalizado` e podem declarar alinhamento, textos, ícone e CTA opcional. Ícones são nomes da mesma allowlist de `button-icons.js`; links aceitam caminho interno ou HTTP(S). Não existe campo editorial para HTML, SVG, imagem, CSS ou cor. Essa restrição mantém a capacidade de composição sem romper a identidade visual.
+**Navegação por hash.** `/#secao` aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a
+posição durante mudanças posteriores de layout (`navbar.js`). `content.js` e `buttons.js` observam
+montagem tardia (Navbar, Footer e diálogo externo são criados por módulos separados), mas só
+reaplicam conteúdo quando os mounts relevantes aparecem.
 
-## Navbar editorial V48.2.0
+### Agenda e Jogos
 
-`data/content/navbar.json` é a fonte única dos nove itens clicáveis da Navbar. O contrato `version: 2` mantém as chaves estáveis `inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos` e `apoio`; cada uma contém `texto`, `icone` e `url`. O frontend valida/normaliza a URL antes de aplicá-la e renderiza o ícone somente pela allowlist de `js/core/button-icons.js`.
+Alimentadas pelos syncs do Trello (ver [`AGENDA-E-JOGOS.md`](AGENDA-E-JOGOS.md)).
 
-O Blog não depende mais da existência de posts para aparecer. `/blog/` permanece na Navbar e no sitemap, e a Home mantém a seção de Blog visível com estado vazio quando `posts.json` não possui publicação válida.
+- `/agenda/` combina `data/agenda.json` com `data/content/jogos-artwork.json` em `agenda-model.js` e
+  desenha em `agenda.js`. A Home mostra a mesma agenda no carrossel `#agenda`.
+- `/jogos/` lê `jogos.json` e `jogos-config.json` (paginação).
+- Os ícones da Steam na Agenda reutilizam o que o sync de Jogos já resolveu; a Agenda não consulta a Steam.
 
+### Galeria de Artes
 
-### Navbar reordenável — V48.3.0
+`artes.json` + imagens HTTPS direto do host configurado. A grade usa só `preview`; a `imagem` full é
+requisitada sob demanda ao abrir a obra. A grade mostra título e artista; o resto está no dialog.
 
-`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.
-### Apoiar fixo opcional — V48.3.1
+A busca é inteiramente no navegador, com escopo explícito por campo — **Todos, Artista, Título,
+Categoria, Tags** — e prefixos no texto (`artista:`/`artist:`, `titulo:`, `categoria:`, `tag:`/`tags:`)
+que têm precedência sobre o seletor. O Blog segue a mesma convenção com **Todos, Título, Resumo, Tags**
+e `titulo:`, `resumo:`, `tag:`/`tags:`. A comparação ignora maiúsculas e acentos. A funcionalidade usa só
+metadados existentes e não altera contratos JSON/Markdown.
 
-`data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
+### Blog
 
-### Navegação mobile — V48.3.36
+Estático e textual. Fonte em Markdown (`data/blog/posts/<slug>.md`), índice leve em `posts.json`,
+configuração em `config.json` e HTML estático por post em `blog/<slug>/index.html` (gerado pelo Helper).
+Veja [`data/blog/README.md`](../data/blog/README.md).
 
-Abaixo de 768 px, `navbar.js` não duplica links: `.site-nav-links` é o mesmo contêiner editorial do desktop e passa a funcionar como painel flutuante acionado por `Menu`. O título superior acompanha o link ativo (ou usa o título documental nas páginas sem item próprio), e Menu/Redes fecham um ao outro. O slot histórico de Apoiar continua condicionado por `apoioFixoNoFim`.
+### Doações
 
-### Navbar dual-mode — V48.3.2
+LivePix, Pixie e ranking. O ranking tem cache local no navegador de no máximo **30 minutos**;
+`preferences.js` agenda a remoção e a repete em `pageshow`, foco/visibilidade e mudanças de storage.
+Cache vencido nunca é fallback: sem cache fresco e com falha remota, a interface informa
+indisponibilidade. Ordem dos endpoints: `api.kamylisumire.com` e, só se houver falha de transporte,
+`workers.dev`.
 
-O runtime mantém um único nó `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e `.site-nav-links` (modo livre). O wrapper/divisor fixos permanecem no DOM e usam `hidden` quando o CTA está no fluxo reordenável.
+## 4. Navegação global
 
-### Montagem global e navegação por hash — V48.3.6
+**Navbar editorial.** `data/content/navbar.json` (`version: 2`) é a fonte única dos nove itens
+(`inicio`, `lives`, `agenda`, `artes`, `blog`, `jogos`, `regras`, `creditos`, `apoio`), cada um com
+`texto`, `icone` e `url`; `ordem` define a sequência e `apoioFixoNoFim` escolhe onde Apoiar fica. O
+runtime mantém **um único nó** `apoio` e o move entre `.site-nav-support-wrap` (modo fixo) e
+`.site-nav-links` (modo livre). A URL é validada/normalizada antes de ser aplicada e o ícone vem só da
+allowlist.
 
-`content.js` ainda observa montagem tardia porque Navbar, Footer e diálogo externo são criados por módulos separados, mas o callback só reaplica conteúdo quando esses mounts aparecem. `buttons.js` segue a mesma regra para novos `[data-button-key]`. A navegação `/#secao` permanece independente em `navbar.js`: ela aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a posição durante mudanças posteriores de layout.
+**Mobile.** Até 767 px, `navbar.js` não duplica links: os mesmos nós editoriais de `.site-nav-links` são
+reparentados para um drawer (`.site-nav-mobile-panel`) dentro de `.site-nav-mobile-layer`, **irmã** de
+`.site-nav` (para escapar do containing block criado por `backdrop-filter`). `content.js` consulta
+`#site-navbar` como raiz para que `navbar.json` continue alcançando esses nós. Apenas o CTA fixo do rodapé
+é clonado e ressincronizado após `kamyli:global-ui-ready`. Como a camada está fora de `.site-nav`, sua
+visibilidade durante o loader é controlada por seletores em `html.site-loading-*`.
 
-### Hotfix da camada mobile — V48.3.37
+**Overlays.** `mobile-overlay.js` registra providers por nome (`menu`, `socials`, `settings`) e centraliza
+exclusão mútua, History API, `popstate`, `Escape`, estado raiz e detecção conservadora de teclado virtual.
+`navbar.js`, `socials.js` e `settings.js` expõem só operações locais de abrir/fechar/focar. A troca entre
+overlays usa `replaceState` na entrada temporária existente; entradas são associadas a um identificador por
+documento e descartadas em inicialização, `pagehide` e restauração BFCache.
 
-No mobile, `Menu` e o painel de navegação são movidos em runtime para `.site-nav-mobile-layer`, fora de `.site-nav`, para que `position: fixed` permaneça relativo à viewport mesmo em Chromium/Brave com `backdrop-filter`. Ao voltar ao desktop, os mesmos nós retornam à Navbar. O título contextual usa `--primary-color`, alinhamento à esquerda e truncamento seguro entre Logo e Apoiar.
+**Configurações.** `settings.js` monta a engrenagem no slot `#site-nav-settings-slot` e o painel em
+`<body>`; depende de `preferences.js`, `mobile-overlay.js` e `navbar.js`.
 
-### Camada mobile refinada — V48.3.38
+## 5. Backend (Cloudflare Worker)
 
-`navbar.js` mantém os links editoriais reais em `.site-nav-links`, mas no breakpoint mobile os monta dentro de `.site-nav-mobile-panel`; `content.js` consulta `#site-navbar` como raiz para que `navbar.json` continue alcançando esses nós fora de `.site-nav`; apenas o CTA de rodapé é clonado de `Apoiar` e ressincronizado após `kamyli:global-ui-ready`. Isso permite que a lista role independentemente do rodapé. O título contextual usa dois estados temporários para a animação vertical e `sessionStorage` apenas para transportar o rótulo anterior durante navegação iniciada pela Navbar entre páginas.
+`workers.js` é isolado da Home e é a origem de `api.kamylisumire.com`.
 
-### Ajuste visual da camada mobile — V48.3.39
+| Rota | Acesso | Função |
+| --- | --- | --- |
+| `/` | público | Ranking (mensal e geral) |
+| `/twitch/videos` | público | Snapshot das últimas VODs |
+| `/twitch/live` | público | Status ao vivo |
+| `/oauth/authorize` | Bearer ou `?key=` | Início do OAuth Streamlabs (cria `state` v2 assinado + nonce no KV) |
+| `/oauth/callback` | Streamlabs | Valida e consome o `state` antes de trocar o `code` |
+| `/debug/status` | Bearer | Diagnóstico |
+| `/debug/sync` | Bearer | Sincronização manual do ranking |
+| `/debug/twitch-sync` | Bearer | Inicializa/sincroniza VODs (renovável após 20 h) |
+| `/debug/twitch-live-sync` | Bearer | Sincroniza status ao vivo (`?force=1` opcional) |
 
-A geometria do painel `Menu` passa a espelhar a largura-base de `@ Redes` (188 px) e seus itens usam grade `24px + minmax(0, 1fr)`, garantindo alinhamento estável dos rótulos. O título contextual permanece animado, mas volta ao alinhamento à esquerda dentro da coluna entre as divisórias.
+Comportamento geral:
 
-### Geometria mobile — V48.3.40
+- Roteamento explícito: caminho desconhecido → `404` sem tocar KV; método ≠ `GET`/`OPTIONS` → `405`.
+- Ranking, `/twitch/videos` e `/twitch/live` usam Cache API (chaves canônicas sem query) antes do KV;
+  o KV (`RANKINGS`) é a fonte persistente. `/twitch/live` usa Cache API por 60 s.
+- `scheduled()` (Cron a cada 10 min) roda o ranking e as rotinas Twitch. A consulta real a `helix/streams`
+  só ocorre aqui (e no debug), em janela nominal de 10 min com tolerância de até 2 min.
+- Estados internos consolidados: `tokens:streamlabs_state`, `twitch:app_access_token_state`,
+  `twitch:user_state`; chaves antigas são aceitas só como migração automática, sem reautorizar OAuth.
+- O ranking usa `ledger:v1` como fonte primária e mantém `totals:*`/`state:*` como espelhos.
+- O App Access Token da Twitch é validado em `/oauth2/validate` e `user_id`/login têm retenção máxima
+  de 24 h no KV.
 
-A área rolável do Menu usa uma coluna `minmax(0, 1fr)`, `justify-items: stretch` e wrappers `.site-nav-item` em 100%, impedindo que regras de largura intrínseca da Navbar desktop comprimam os botões no painel.
+Variáveis e segredos: [`PRODUCAO.md`](PRODUCAO.md). Invariantes: seção "Worker" de
+[`AGENTS.md`](../AGENTS.md).
 
-### Filhos reais do Menu mobile — V48.3.41
+## 6. Segurança no frontend
 
-`.site-nav-links` contém diretamente elementos `<a class="site-nav-link">`. A geometria mobile é aplicada a esses filhos diretos; não há wrapper `.site-nav-item`.
+Toda página HTML versionada usa CSP mínima via `<meta http-equiv="Content-Security-Policy">`, compatível
+com hospedagem estática: restringe scripts, estilos, conexões, objetos, formulários e frames carregados pela
+própria página, com hashes SHA-256 para blocos inline (sem `unsafe-inline`). `frame-ancestors` não faz parte
+da CSP porque só funciona como cabeçalho HTTP; proteção contra embedding deve ser configurada no host que
+controla os response headers. `upgrade-insecure-requests` é omitido de propósito para manter o repositório
+testável por HTTP local (produção já é HTTPS).
 
-### Layout interno dos links — V48.3.42
+Textos editoriais entram por `textContent` e URLs vindas de JSON/API passam por
+`KamyliSanitize.safeHttpUrl()`.
 
-Os links mobile usam Flex em vez de Grid fixa; como `[hidden]` remove o ícone do fluxo, o rótulo passa a ocupar automaticamente o espaço restante, eliminando a coluna vazia que causava truncamento precoce.
+## 7. Publicação e assets
 
-### Drawer lateral mobile — V48.3.43
-
-A camada `.site-nav-mobile-layer` contém backdrop e um painel `role="dialog"` fora da `.site-nav`, evitando o containing block criado por `backdrop-filter` no Chromium/Brave. Os links editoriais reais continuam sendo reparentados para o drawer no breakpoint mobile; apenas o CTA fixo é clonado. O painel usa `inert`/`aria-hidden` quando fechado e um trap simples de Tab quando aberto.
-
-### Gestos e fallbacks do drawer — V48.3.44
-
-O drawer mantém os links editoriais reais e acrescenta, ao lado do slot `[data-nav-icon]`, um fallback separado `[data-mobile-nav-fallback]`. CSS mostra esse fallback apenas no mobile e o oculta automaticamente quando o slot editorial está visível. O gesto de abertura nasce de `.site-nav-mobile-edge-gesture` (24 px) e o de fechamento usa o próprio painel; ambos aplicam transform/opacity temporários durante o arrasto e só alteram o estado aberto/fechado ao concluir o gesto.
-
-### Histórico do drawer — V48.3.45
-
-Ao abrir o drawer, `navbar.js` cria uma entrada temporária identificada por `MOBILE_DRAWER_HISTORY_KEY`. `popstate` fecha/reabre a camada conforme o estado e links dentro do drawer são repetidos somente depois de consumir essa entrada, preservando o histórico real da navegação.
-
-### Controlador de overlays mobile — V48.3.46
-
-`js/core/mobile-overlay.js` registra providers por nome (`menu`, `socials`) e centraliza exclusão mútua, History API, `popstate`, `Escape`, estado raiz e detecção conservadora de teclado virtual. `navbar.js` e `socials.js` expõem somente operações locais de abrir/fechar/focar; nenhum deles deve conhecer a implementação interna do outro. A troca entre overlays usa `replaceState` na entrada temporária existente, evitando multiplicar passos no histórico.
-
-### Escopo do History API mobile — V48.3.47
-
-`mobile-overlay.js` associa entradas temporárias a um identificador por documento e descarta marcadores antigos em inicialização, `pagehide` e restauração BFCache. Isso impede reabertura automática de overlays em outra navegação.
-
-### Integração do drawer com o loader — V48.3.48
-
-A camada mobile é irmã de `.site-nav` para evitar o containing block de `backdrop-filter`; por isso sua visibilidade durante loader é controlada explicitamente por seletores em `html.site-loading-*`.
+| Item | Onde |
+| --- | --- |
+| Produção | branch `main` → GitHub Pages (`CNAME` = `kamylisumire.com`) |
+| Preview | branch `site-v2` → Cloudflare Pages; `_headers` aplica `X-Robots-Tag: noindex` a `pages.dev` |
+| API | Custom Domain do Worker em `api.kamylisumire.com` |
+| Gráficos | `assets.kamylisumire.com` (avatar, favicon, fundo, preview social) |
+| Fonte | Nunito local em `assets/fonts/` |

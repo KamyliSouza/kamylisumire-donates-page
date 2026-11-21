@@ -1,4 +1,4 @@
-# Privacidade do ranking de apoiadores — V48.3.8
+# Privacidade do ranking de apoiadores
 
 Este documento registra o procedimento interno simplificado para o ranking. Ele não substitui avaliação jurídica quando um caso concreto exigir.
 

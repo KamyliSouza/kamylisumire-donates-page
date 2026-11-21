@@ -1,194 +1,130 @@
 # Produção
 
-## Produção pública
+Runbook de publicação e configuração. Para entender como as peças se encaixam, veja
+[`ARQUITETURA.md`](ARQUITETURA.md); para as regras de código do Worker, a seção "Worker" de
+[`AGENTS.md`](../AGENTS.md).
 
-Site:
+## 1. Ambientes
 
-`https://kamylisumire.com/`
+| Ambiente | Endereço | Origem |
+| --- | --- | --- |
+| Site | `https://kamylisumire.com/` | branch `main` → GitHub Pages (`CNAME`) |
+| API | `https://api.kamylisumire.com/` | Cloudflare Worker (`workers.js`) com Custom Domain |
+| Preview | domínios `pages.dev` | branch `site-v2` → Cloudflare Pages |
+| Gráficos | `https://assets.kamylisumire.com` | avatar, favicon, fundo e preview social |
 
-API:
+- `_headers` aplica `X-Robots-Tag: noindex` aos domínios `pages.dev`; mantenha.
+- Se o preview precisar consumir o ranking real, adicione a origem dele a `ALLOWED_ORIGINS`.
+- Não existe `wrangler.toml`: variáveis, secrets, binding KV e Cron são configurados no painel
+  (ou CLI) da Cloudflare.
 
-`https://api.kamylisumire.com/`
+## 2. Configuração do Worker
 
-A branch de produção é `main`, publicada pelo GitHub Pages.
+### Binding e Cron
 
-## Preview
+| Item | Valor |
+| --- | --- |
+| Binding KV | `RANKINGS` (namespace do ranking e dos snapshots Twitch). **Não apague o namespace.** |
+| Cron Trigger | `*/10 * * * *` (a cada 10 minutos; independe de fuso) |
+| Custom Domain | `api.kamylisumire.com` |
 
-A branch `site-v2` é usada como preview Cloudflare Pages.
-`_headers` deve continuar aplicando `X-Robots-Tag`/noindex aos domínios
-`pages.dev`.
+O mesmo `scheduled()` roda o ranking de doações e as rotinas Twitch. Snapshots idênticos não são
+regravados no KV, para preservar a cota diária de writes do plano Free.
 
-Se o preview precisar consumir o ranking real, adicione sua origem
-explicitamente a `ALLOWED_ORIGINS`.
+### Variáveis (não secretas)
 
-## Assets
+| Nome | Valor / observação |
+| --- | --- |
+| `REDIRECT_URI` | `https://api.kamylisumire.com/oauth/callback` (idêntico à Redirect URI da aplicação Streamlabs) |
+| `ALLOWED_ORIGINS` | `https://kamylisumire.com` (lista separada por vírgula; `ALLOWED_ORIGIN` é aceita por compatibilidade). Sem nenhuma das duas, o Worker permite apenas `https://kamylisumire.com` e `https://www.kamylisumire.com`. Não use `*` em produção. |
+| `TWITCH_CLIENT_ID` | Client ID da aplicação Twitch (não é segredo) |
+| `TWITCH_CHANNEL_LOGIN` | `kamyli` |
+| `TWITCH_MAX_VIDEOS` | `10` (opcional) |
+| `RANKING_PRIVACY_LABEL` | rótulo público para nomes anonimizados; padrão `Anônimo` (opcional) |
 
-Gráficos públicos compartilhados do site usam `https://assets.kamylisumire.com`.
+### Segredos (nunca no Git)
 
-### Galeria de Artes V48.0
+| Nome | Observação |
+| --- | --- |
+| `STREAMLABS_CLIENT_ID` / `STREAMLABS_CLIENT_SECRET` | credenciais da aplicação Streamlabs |
+| `TWITCH_CLIENT_SECRET` | secret da aplicação Twitch |
+| `OAUTH_SETUP_TOKEN` | token administrativo; **mínimo de 32 caracteres** |
+| `OAUTH_STATE_SECRET` | assina o `state` OAuth; **mínimo de 32 caracteres e diferente do token administrativo** |
+| `RANKING_PRIVATE_NAMES` | nomes a anonimizar no ranking, separados por vírgula (ver [`PRIVACIDADE-RANKING.md`](PRIVACIDADE-RANKING.md)); fica fora do Git por conter dados de terceiros |
+| Tokens OAuth | armazenados no KV; nunca os exponha |
 
-`/artes/` é uma página editorial estática. Seus metadados ficam em
-`data/content/artes.json`. Desde a V48.0.1, cada obra aponta para duas URLs HTTPS externas: `preview`, otimizada para a grade, e `imagem`, em alta qualidade e solicitada apenas ao abrir o lightbox. A galeria não usa o Worker, KV,
-Streamlabs ou Twitch para servir imagens.
+Valores de segredos nunca devem ser colados em issues, commits, logs ou conversas.
 
-Para produção, prefira um host de mídia estático controlado pelo projeto e,
-quando disponível, um domínio próprio como `media.kamylisumire.com`. O site não
-depende de um provedor específico: o contrato exige apenas URL HTTPS absoluta.
-Não usar `workers.dev`, a API pública ou rotas do Worker como origem das imagens.
+### Configuração do frontend
 
-As dimensões `largura` e `altura` são opcionais, mas recomendadas quando
-conhecidas para reduzir mudanças de layout durante o carregamento. O frontend
-usa `loading="lazy"`, preserva a proporção original e exibe o mesmo símbolo
-`.site-loader-logo` do loader global enquanto cada imagem está pendente.
+`js/core/config.js` define a API: `useCustomDomain: true`,
+`customDomainUrl: "https://api.kamylisumire.com"` e `fallbackToWorkersDev: true`. O validador exige
+`useCustomDomain: true`. O `workers.dev` é contingência de transporte (falha de rede/timeout), não
+repetição de erros HTTP.
 
-Na V48.1.1, a grade mostra somente título e artista; categoria, data, tags e crédito
-ficam no dialog. O drop-down de escopo da busca é implementado localmente com
-HTML/CSS/JS e não exige arquivos de imagem. Não publicar nem duplicar previews,
-fulls, logos, avatares ou outros gráficos dentro deste repositório: a mídia da
-Galeria continua referenciada por URL HTTPS externa e os gráficos compartilhados
-permanecem em `assets.kamylisumire.com`.
+## 3. Streamlabs OAuth
 
-## Backend do ranking
+1. A aplicação Streamlabs deve usar **exatamente** `https://api.kamylisumire.com/oauth/callback` como
+   Redirect URI, igual a `REDIRECT_URI` no Cloudflare (o Worker usa o mesmo valor na autorização e na
+   troca/renovação de tokens).
+2. Autorize (ou reautorize) apenas quando precisar criar/renovar a autorização:
 
-A configuração do frontend está em `js/core/config.js`.
+   ```text
+   https://api.kamylisumire.com/oauth/authorize?key=SEU_OAUTH_SETUP_TOKEN
+   ```
 
-Na V44.4:
+   `?key=` só é aceito nesta rota. Nunca publique o valor real do token.
+3. `/oauth/authorize` gera um `state` assinado por HMAC (`OAUTH_STATE_SECRET`), válido por 10 minutos,
+   e grava um nonce `oauth:state:nonce:*` no KV. O callback consome o nonce **antes** de trocar o
+   `code`; por isso o mesmo `state` não pode ser reutilizado. Fluxos iniciados antes de um deploy que
+   mude esse mecanismo devem ser reiniciados.
+4. Tokens já armazenados no KV não são apagados nem exigem nova autorização por mudanças de código
+   do Worker; os estados legados são migrados automaticamente para chaves consolidadas.
 
-- `api.kamylisumire.com` é a origem primária;
-- `workers.dev` permanece como fallback temporário;
-- a Home usa a API somente para VODs da aba Twitch e status ao vivo do Hero; o restante continua independente e mantém fallback local/visual.
+## 4. Operação da Twitch
 
-No Cloudflare Worker, configure:
+A aba Twitch da Home consulta `GET /twitch/videos` e o Hero consulta `GET /twitch/live`. Os dois
+endpoints leem apenas cache/KV e **não chamam a Twitch durante a visita**.
 
-```text
-REDIRECT_URI=https://api.kamylisumire.com/oauth/callback
-ALLOWED_ORIGINS=https://kamylisumire.com
-TWITCH_CHANNEL_LOGIN=kamyli
-TWITCH_MAX_VIDEOS=10
-```
+| Dado | Renovação | Validade máxima |
+| --- | --- | --- |
+| VODs (`twitch:videos`) | após 20 h (Cron ou `/debug/twitch-sync`) | 24 h; vencido → `503` |
+| Status ao vivo (`twitch:live`) | janela de 10 min (tolerância de até 2 min) | 20 min como "válido"; TTL do KV 30 min |
+| App Access Token | revalidado em `/oauth2/validate` a cada 50 min | até expirar |
+| `user_id` / login do canal | — | 24 h (TTL no KV) |
 
-`REDIRECT_URI` e `ALLOWED_ORIGINS` não são segredos.
+Primeiro preenchimento: chame `/debug/twitch-sync` com `Authorization: Bearer <OAUTH_SETUP_TOKEN>`.
+Chamadas seguintes (e o Cron) são ignoradas até completarem 20 h. Passo a passo de implantação,
+endpoints de diagnóstico e solução de problemas: [`TWITCH.md`](TWITCH.md).
 
-Na V47.4.5, se `ALLOWED_ORIGINS` e a compatibilidade `ALLOWED_ORIGIN` estiverem
-ausentes, o Worker usa como fallback seguro apenas `https://kamylisumire.com`
-e `https://www.kamylisumire.com`. Não use `*` em produção; wildcard só deve ser
-configurado explicitamente em ambiente temporário de teste.
+## 5. Galeria de Artes e mídia
 
-Continuam sensíveis e fora do Git:
+`/artes/` é estática e não usa Worker, KV, Streamlabs nem Twitch. Cada obra aponta para duas URLs
+HTTPS externas (`preview` para a grade e `imagem` full, pedida apenas ao abrir o lightbox).
 
-- `STREAMLABS_CLIENT_SECRET`;
-- `TWITCH_CLIENT_SECRET`;
-- `OAUTH_SETUP_TOKEN` (mínimo de 32 caracteres);
-- `OAUTH_STATE_SECRET` (mínimo de 32 caracteres e diferente do token administrativo);
-- tokens OAuth armazenados no KV;
-- demais credenciais privadas.
+- Prefira um host de mídia estático controlado pelo projeto (por exemplo, `media.kamylisumire.com`);
+  o contrato exige só URL HTTPS absoluta.
+- **Não** use `workers.dev`, a API pública ou rotas do Worker como origem de imagens.
+- `largura` e `altura` são opcionais, mas recomendadas para reduzir mudança de layout.
+- Não publique previews, fulls, logos ou avatares dentro deste repositório.
 
-## Streamlabs OAuth
+## 6. Publicar uma alteração
 
-A aplicação Streamlabs deve usar exatamente:
+1. Rode a validação completa ([`VALIDACAO.md`](VALIDACAO.md#1-comandos-locais)).
+2. Faça o merge/push em `main` (site) ou `site-v2` (preview). A CI "Validate public site" roda em
+   push e PR.
+3. Se mudou `workers.js`, publique o Worker no Cloudflare (o GitHub Pages **não** o implanta) e
+   confira `/debug/status`.
+4. Se mudou segredos ou variáveis, faça um novo deploy do Worker para aplicá-los.
+5. Rode o smoke test abaixo.
 
-`https://api.kamylisumire.com/oauth/callback`
+### Smoke test pós-deploy
 
-como Redirect/Redirection URI.
-
-O Worker usa `env.REDIRECT_URI` na autorização e também na troca/renovação
-de tokens, por isso Cloudflare e Streamlabs devem estar idênticos.
-
-Desde a V48.3.62, `/oauth/authorize` gera um `state` v2 assinado por HMAC com
-`OAUTH_STATE_SECRET`, separado do token administrativo. O state vale 10 minutos
-e registra um nonce temporário `oauth:state:nonce:*` no binding `RANKINGS`; o
-callback consome esse nonce antes de trocar o `code`, portanto o mesmo state não
-deve ser reutilizado. `/debug/*` aceita apenas `Authorization: Bearer`; `?key=`
-permanece aceito somente em `/oauth/authorize`.
-
-Antes de publicar o Worker V48.3.62, configure em **Secrets**:
-
-- `OAUTH_SETUP_TOKEN` com pelo menos 32 caracteres;
-- `OAUTH_STATE_SECRET` com pelo menos 32 caracteres e valor diferente.
-
-Os tokens Streamlabs já armazenados no KV não são apagados nem exigem nova
-autorização só por essa mudança. Qualquer fluxo OAuth iniciado antes do deploy
-(state v1) deve simplesmente ser reiniciado após o deploy.
-
-Após a mudança, faça uma nova autorização pelo domínio novo somente quando for
-necessário renovar/recriar a autorização Streamlabs:
-
-```text
-https://api.kamylisumire.com/oauth/authorize?key=SEU_OAUTH_SETUP_TOKEN
-```
-
-Nunca publicar ou compartilhar o valor real de `OAUTH_SETUP_TOKEN`.
-
-## Ordem de migração V44.4
-
-1. adicionar `api.kamylisumire.com` como Custom Domain do Worker;
-2. confirmar DNS/TLS;
-3. atualizar `REDIRECT_URI` no Cloudflare;
-4. atualizar a Redirect URI da aplicação Streamlabs;
-5. reautorizar pelo novo domínio;
-6. testar ranking e diagnóstico;
-7. publicar a V44.4 na `main`;
-8. manter `fallbackToWorkersDev: true` durante a estabilização.
-
-## Checklist
-
-```bash
-python .github/scripts/validate-content.py
-find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
-git diff --check
-```
-
-O validador V44.3 pode emitir o aviso de que `useCustomDomain` não está
-`false`. Na V44.4 isso é deliberado e o aviso não representa falha.
-
-Smoke test:
-
-1. Home abre normalmente.
-2. `/doacoes/` abre LivePix/Pixie.
-3. `/artes/` abre com Navbar/Footer compartilhados e sem depender da API.
-4. com uma entrada editorial válida, a imagem mantém sua proporção e exibe o loader visual enquanto carrega.
-5. `https://api.kamylisumire.com/` retorna JSON.
-6. DevTools mostra a requisição para `api.kamylisumire.com` nas áreas que usam backend.
-7. Console registra `API atendida por: https://api.kamylisumire.com` quando aplicável.
-8. ranking mensal/geral permanece funcional.
-9. fallback/cache continua seguro em falha remota.
-
-## Twitch V47.4
-
-A aba Twitch da Home consulta `GET /twitch/videos`. O Hero consulta
-`GET /twitch/live`. Ambos os endpoints públicos leem somente cache/KV e
-**não consultam a Twitch durante a visita**.
-
-Configure no Worker:
-
-```text
-TWITCH_CLIENT_ID=<Client ID da aplicação Twitch>
-TWITCH_CLIENT_SECRET=<Secret da aplicação Twitch>
-TWITCH_CHANNEL_LOGIN=kamyli
-TWITCH_MAX_VIDEOS=10
-```
-
-Desde a V47.4.7, o Worker usa Cache API também para o ranking e `/twitch/videos`
-antes de consultar o KV. Não é necessária configuração adicional no painel para
-essa camada. O deploy também migra automaticamente os estados OAuth/cache
-legados para chaves consolidadas; não apague o namespace `RANKINGS` e não é
-necessário reautorizar a Streamlabs apenas por causa dessa atualização.
-
-O primeiro preenchimento é feito por `/debug/twitch-sync`. Chamadas posteriores
-a esse endpoint e execuções do Cron são ignoradas enquanto não tiverem passado
-20 horas desde `twitch:updated_at`. O snapshot continua válido por no máximo 24 horas, deixando margem para uma nova execução do Cron antes da expiração. O App Access Token é reutilizado no KV, mas
-é validado no endpoint oficial `/oauth2/validate` em janelas de 50 minutos; o
-`user_id` e o login do canal usam TTL de 24 horas e são resolvidos novamente
-quando expirarem.
-
-Desde a V47.4.3, configure o Cron para executar a cada 10 minutos:
-
-```text
-*/10 * * * *
-```
-
-`syncTwitchLiveIfDue()` impede chamadas a `helix/streams` antes de completar
-a janela nominal de 10 minutos, com tolerância intencional de até 2 minutos.
-`syncTwitchVideosIfDue()` inicia a renovação de VODs após 20 horas, mantendo validade/TTL máximos de 24 horas. O ranking de doações também roda no mesmo `scheduled()`, mas a
-V47.4.3 deixa de regravar snapshots idênticos no KV quando não há doação nova
-nem virada de mês, evitando consumir a cota diária de writes do plano Free.
+1. A Home abre normalmente e a Navbar mostra os itens configurados.
+2. `/doacoes/` abre LivePix/Pixie e o ranking mensal/geral aparece.
+3. `https://api.kamylisumire.com/` retorna JSON de ranking.
+4. DevTools (aba Network) mostra requisições a `api.kamylisumire.com` apenas em Doações e na Twitch da Home.
+5. `/twitch/videos` e `/twitch/live` respondem sem autenticação e sem expor credenciais.
+6. `/artes/`, `/agenda/`, `/jogos/` e `/blog/` abrem sem depender da API.
+7. Com a API fora do ar (ou bloqueada no DevTools), a Home continua utilizável e o ranking
+   mostra indisponibilidade em vez de dados vencidos.

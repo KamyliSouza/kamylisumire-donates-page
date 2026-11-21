@@ -1,252 +1,254 @@
 # Design system
 
-O site usa uma linguagem visual simples, responsiva e baseada em glass panels,
-com Nunito como fonte principal.
+O site usa uma linguagem visual simples, responsiva e baseada em *glass panels*, com
+Nunito como fonte principal. Este arquivo descreve o estado vigente; histórico de
+mudanças está no [`CHANGELOG.md`](CHANGELOG.md) e regras de manutenção em
+[`AGENTS.md`](AGENTS.md).
 
-## Fundamentos
+## Sumário
 
-Os tokens globais vivem em `css/core/variables.css`. Antes de introduzir um
-valor recorrente novo, verificar se já existe token equivalente.
+1. [Fundamentos e tokens](#1-fundamentos-e-tokens)
+2. [Tipografia](#2-tipografia)
+3. [Cor e contraste](#3-cor-e-contraste)
+4. [Painéis e blur](#4-painéis-e-blur)
+5. [Modo leitura](#5-modo-leitura)
+6. [Botões](#6-botões)
+7. [Busca e filtros (Galeria, Blog, Jogos)](#7-busca-e-filtros-galeria-blog-jogos)
+8. [Cards da Home](#8-cards-da-home)
+9. [Galeria de Artes](#9-galeria-de-artes)
+10. [Blog](#10-blog)
+11. [Navbar](#11-navbar)
+12. [Navegação mobile](#12-navegação-mobile)
+13. [Redes sociais globais](#13-redes-sociais-globais)
+14. [Carrosséis](#14-carrosséis)
+15. [Responsividade, movimento e acessibilidade](#15-responsividade-movimento-e-acessibilidade)
+16. [Assets](#16-assets)
 
-A estrutura visual compartilhada fica em:
+---
 
-- `css/core/variables.css`;
-- `css/core/global.css`;
-- `css/core/navbar.css`.
+## 1. Fundamentos e tokens
 
-Estilos específicos devem permanecer em componentes/páginas.
+Os tokens globais vivem em `css/core/variables.css`. Antes de introduzir um valor
+recorrente novo, verifique se já existe token equivalente. A estrutura compartilhada fica em
+`css/core/variables.css`, `global.css` e `navbar.css`; estilos específicos permanecem em
+`css/components/` e `css/pages/`.
 
-## Tipografia
+Ordem de carregamento relevante: `css/core/reading.css` é sempre o **último** CSS de cada página.
 
-Nunito é servida localmente por `assets/fonts/nunito-variable.woff2`.
-A licença fica em `assets/fonts/OFL.txt`.
+## 2. Tipografia
 
-Evitar adicionar fontes externas para elementos que podem usar a família já
-existente.
+Nunito é servida localmente por `assets/fonts/nunito-variable.woff2` (licença em
+`assets/fonts/OFL.txt`). Evite fontes externas para elementos que podem usar a família existente.
 
-## Painéis e blur
+## 3. Cor e contraste
 
-Os painéis utilizam a classe base `glass-panel`.
-O blur é adaptativo e respeita a preferência do usuário e sinais de
-performance/acessibilidade.
+| Token | Use para | Não use para |
+| --- | --- | --- |
+| `--primary-color` | Cor de marca: títulos grandes, ícones, bordas, detalhes decorativos | Texto pequeno; fundo de botão com texto branco |
+| `--primary-text` | Texto normal/pequeno na cor primária (links, tags, labels, estados textuais) | Títulos grandes (a distinção é semântica; não troque por consistência mecânica) |
+| `--button-bg`, `--button-bg-hover`, `--button-text` | Superfícies de ação preenchidas: CTAs, abas/filtros ativos, seletores | Decoração |
+| `--primary-soft` | Fundos suaves de estado (ativo/foco/hover) | Única superfície de um botão aberto |
 
-Não forçar `backdrop-filter` quando `data-blur="off"` ou quando o perfil
-adaptativo desabilitar o efeito.
+- No tema claro `--primary-text` tem contraste AA nas superfícies claras principais; no tema
+  escuro mantém o mesmo tom de `--primary-color`.
+- Os tokens de ação existem nos temas claro, escuro explícito e fallback `prefers-color-scheme`, com
+  contraste mínimo de **4,5:1** para texto normal. O teste `color-contrast.test.mjs` calcula o
+  contraste WCAG dos tokens e confere o uso semântico nos componentes.
+- Galeria e Blog compartilham a mesma hierarquia cromática: eyebrow e título principal em
+  `--primary-color`, descrição em `--subtitle-color`. Não crie paleta própria para o Blog.
 
-Exceção deliberada: o painel de Configurações (`.site-settings-popover`) flutua
-sobre o texto da página e por isso é **opaco** (`--card-bg` composto sobre
-`--bg-color`), sem `backdrop-filter`. Superfícies que flutuam sobre conteúdo
-legível não devem depender de blur para ficar legíveis.
+## 4. Painéis e blur
 
-## Modo leitura
+Painéis usam a classe base `glass-panel`. O blur é adaptativo e respeita a preferência do
+usuário e sinais de performance/acessibilidade. Não force `backdrop-filter` quando
+`data-blur="off"` ou quando o perfil adaptativo desabilitar o efeito.
 
-Preferência explícita (Configurações → Leitura) que prioriza a qualidade de leitura no site inteiro. Estado em `html[data-reading="on"]`; todo o visual em `css/core/reading.css`, carregado por último.
+- **Exceção deliberada:** o painel de Configurações (`.site-settings-popover`) flutua sobre texto e
+  por isso é **opaco** (`--card-bg` composto sobre `--bg-color`), sem `backdrop-filter`.
+  Superfícies que flutuam sobre conteúdo legível não devem depender de blur.
+- O `backdrop-filter` de `.glass-panel` cria um contexto de empilhamento: painéis com menus
+  (`artes-tools`, `blog-tools`) precisam de `z-index` explícito acima da grade/lista seguinte;
+  elevar só o menu não basta.
+- **Painéis de ferramentas (Galeria e Blog):** o blur e a moldura externa pertencem ao `::before`,
+  não ao próprio `.artes-tools`/`.blog-tools`, para não criar uma Backdrop Root ancestral dos
+  seletores. A borda do pai fica transparente; o pseudo-elemento usa `inset: -2px`,
+  `border: 2px solid var(--card-border)` e `border-radius: var(--radius-card)`, de modo que o blur
+  cubra também a área sob a borda. Não mova o blur de volta para o elemento pai.
 
-- **Superfícies**: `--card-bg`, `--nav-bg`, `--footer-bg` e `--bg-color` opacos; sem blur e sem arte de fundo.
-- **Cor**: texto principal com contraste AAA (≥ 7:1) e textos secundários/links com AA (≥ 4,5:1) nos temas claro e escuro; bordas mais fortes para separar painéis sem depender de transparência. `--primary-text` segue valendo para texto pequeno.
-- **Tipografia**: peso 500, entrelinha 1,8, medida de ~68 caracteres (`--reading-measure: 43rem`) e corpo de artigo em 1,0625rem. Tamanho do texto (padrão/grande/maior) escala o `rem` em 1 / 1,125 / 1,25.
-- **Links** dentro de textos corridos ficam sublinhados; foco visível com contorno de 3px.
-- **Movimento**: `scroll-behavior: auto`.
-- **Botões** (`.button-primary`, `.button-outline`) seguem os tokens de botão do tema; dentro de textos corridos não recebem o sublinhado/cor de link. O botão vazado usa `--primary-text` também no contorno.
-- O atalho "Modo leitura" nos artigos usa `.reading-toggle` com `aria-pressed`.
+## 5. Modo leitura
 
-Não adicionar `backdrop-filter`, `!important` nem cores soltas a esse arquivo; novas cores entram como tokens e passam pelo teste de contraste.
+Preferência explícita (Configurações → Leitura) que prioriza a leitura no site inteiro. Estado em
+`html[data-reading="on"]`; todo o visual em `css/core/reading.css`.
 
-## Botões
+- **Superfícies:** `--card-bg`, `--nav-bg`, `--footer-bg` e `--bg-color` opacos; sem blur e sem arte de fundo.
+- **Cor:** texto principal AAA (≥ 7:1); textos secundários e links AA (≥ 4,5:1) nos dois temas;
+  bordas mais fortes para separar painéis sem transparência. `--primary-text` segue valendo.
+- **Tipografia:** peso 500, entrelinha 1,8, medida de ~68 caracteres (`--reading-measure: 43rem`), corpo de
+  artigo em 1,0625rem. O tamanho do texto (padrão/grande/maior) escala o `rem` em 1 / 1,125 / 1,25.
+- **Links** em texto corrido ficam sublinhados; foco visível com contorno de 3 px.
+- **Movimento:** `scroll-behavior: auto`.
+- **Botões** (`.button-primary`, `.button-outline`) seguem os tokens de botão; em texto corrido não
+  recebem sublinhado/cor de link. O botão vazado usa `--primary-text` também no contorno.
+- Atalho "Modo leitura" nos artigos: `.reading-toggle` com `aria-pressed`.
 
-Desde a V48.3.58, superfícies de ação preenchidas usam os tokens semânticos `--button-bg`, `--button-bg-hover` e `--button-text`. Eles são separados de `--primary-color` para permitir contraste WCAG AA nos dois temas sem escurecer ou alterar a cor de marca usada em títulos, ícones e decoração. Texto pequeno colorido deve usar `--primary-text`.
+Não adicione `backdrop-filter`, `!important` nem cores soltas ao arquivo; novas cores entram como
+tokens e passam pelo teste de contraste.
 
-Usar as classes existentes:
+## 6. Botões
 
-- `button`;
-- `button-primary`;
-- `button-outline`.
+Use as classes existentes: `button`, `button-primary`, `button-outline`. Ícones decorativos dentro de
+botões usam `aria-hidden="true"` e não substituem o rótulo textual. Os CTAs de apoio da Home
+reutilizam o coração do botão Apoiar da Navbar (via `home-interactions.js`). A cor de fundo vem dos
+tokens `--button-*` (ver [seção 3](#3-cor-e-contraste)).
 
-Ícones decorativos dentro de botões devem usar `aria-hidden="true"` e não
-substituir o rótulo textual.
+## 7. Busca e filtros (Galeria, Blog, Jogos)
 
-Os CTAs de apoio da Home reutilizam o desenho de coração do botão Apoiar da
-navbar por meio de `home-interactions.js`.
+O conjunto **Buscar em + campo de texto** é um componente único, com o mesmo visual e interação na
+Galeria e no Blog (paridade é regra do design system, não coincidência):
 
-## Cards da Home
+- altura mínima de 44 px, borda de 1 px em `--card-border`, radius de 14 px;
+- campo e menu usam `--nav-bg` com blur (texto em `--text-color`/`--subtitle-color`, foco em
+  `--primary-color` + `--primary-soft`); com blur desligado voltam a `--card-bg`;
+- drop-down **próprio** (nunca `<select>` nativo), com `--shadow-card` e `--blur-card`; chevron e
+  marca de seleção desenhados só em CSS, sem SVG/PNG;
+- a11y: `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"`,
+  `aria-selected` e teclado (`ArrowUp`/`ArrowDown`, `Home`/`End`, `Enter`/`Space`, `Escape`, `Tab`);
+- o menu ancora no **wrapper interno do valor selecionado**, não no bloco inteiro que também contém
+  o rótulo "Buscar em";
+- **enquanto aberto**, o menu é portado temporariamente para `document.body` com posicionamento fixo
+  calculado pelo controle, para que o `backdrop-filter` atue sobre a página real e o menu não seja
+  cortado pelo painel. Ao fechar, o **mesmo nó** volta ao wrapper (nunca crie cópia do listbox);
+  ARIA, teclado e a preferência "Blur desligado" são preservados;
+- empilhamento suficiente para ficar acima da lista/grade seguinte;
+- responsivo: controles em coluna no mobile e fonte de 16 px nos controles editáveis para evitar zoom.
 
-Desde a V48.2.0, a composição da Home é uma parte explícita do Design System. `data/content/home-cards.json` pode mudar ordem, visibilidade e apresentação sem autorizar estilos arbitrários.
+Os **campos** de busca são próprios de cada página (Galeria: Todos, Artista, Título, Categoria, Tags;
+Blog: Todos, Título, Resumo, Tags). Os filtros de tags do Blog continuam em *pills* e não precisam
+imitar os filtros de categoria da Galeria.
 
-Regras visuais:
+**Faixas horizontais de filtros** (Jogos, Blog, Galeria): o conteúdo oculto é indicado com
+`mask-image` na própria faixa rolável, não com camada de fundo sobre os chips; assim não há
+recortes sobre superfícies translúcidas e o realce do chip selecionado fica integrado ao botão. As
+setas continuam sobrepostas e não reservam espaço.
 
-- `.home-layout` usa duas colunas no desktop; `tamanho: grande` ocupa as duas colunas e `tamanho: compacto` ocupa uma; dois compactos consecutivos compartilham a linha, enquanto um compacto isolado pode deixar a segunda coluna livre para preservar a ordem DOM/editorial; abaixo do breakpoint mobile ambos ocupam a largura total;
-- os sete cards nativos mantêm sua estrutura e conteúdo próprios mesmo quando reordenados ou redimensionados; ocultar é uma decisão editorial de apresentação, não remoção do componente;
-- `variante` é limitada a `padrao`, `suave` e `destaque`; essas variantes usam exclusivamente tokens existentes (`--card-bg`, `--notice-bg`, `--card-border`, `--primary-color`, `--primary-soft` e sombras existentes);
-- não permitir cor hexadecimal/RGB, classe CSS, style inline ou CSS editorial no contrato; novas necessidades visuais recorrentes devem virar variante documentada no frontend;
-- cards `personalizado` reutilizam `glass-panel`, tipografia/eyebrow, botões `.button`, `.button-primary`/`.button-outline` e a biblioteca `button-icons.js`;
-- ícones editoriais são nomes allowlisted, nunca SVG/HTML bruto, URL de imagem ou asset local;
-- alinhamento de cards personalizados é limitado a `esquerda` ou `centro`;
-- CTAs personalizados usam apenas `primario` ou `contorno` e seguem as mesmas regras de links internos/externos do site;
-- a ordem editorial não deve alterar a ordem lógica interna de headings/controles dentro de cada card; foco e navegação continuam seguindo a ordem DOM resultante.
+## 8. Cards da Home
 
-Os tamanhos padrão são coerentes com a composição histórica: Hero, Lives, Agenda, Blog e Apoio começam como `grande`; Regras e Créditos começam como `compacto`. O editor pode mudar esses valores sem criar CSS específico por card.
+`data/content/home-cards.json` muda ordem, visibilidade e apresentação **sem** autorizar estilos
+arbitrários.
 
-## Galeria de Artes
+- `.home-layout` usa duas colunas no desktop: `tamanho: grande` ocupa as duas, `compacto` ocupa
+  uma (dois compactos consecutivos compartilham a linha; um compacto isolado pode deixar a segunda
+  coluna livre para preservar a ordem editorial). No mobile ambos ocupam a largura total.
+- Tamanhos padrão: Hero, Lives, Agenda, Blog e Apoio começam `grande`; Regras e Créditos `compacto`.
+- Os sete nativos mantêm estrutura e conteúdo próprios mesmo reordenados ou redimensionados; ocultar
+  é decisão editorial de apresentação, não remoção do componente.
+- `variante` ∈ `padrao | suave | destaque`, usando exclusivamente tokens existentes (`--card-bg`,
+  `--notice-bg`, `--card-border`, `--primary-color`, `--primary-soft` e sombras existentes).
+- Não permita cor hex/RGB, classe CSS, `style` inline ou CSS editorial. Necessidade visual recorrente
+  vira variante documentada no frontend.
+- Cards `personalizado` reutilizam `glass-panel`, tipografia/eyebrow, `.button`,
+  `.button-primary`/`.button-outline` e a biblioteca `button-icons.js`. Alinhamento: `esquerda` ou
+  `centro`. CTA: `primario` ou `contorno`, com as mesmas regras de links do site. Ícones são nomes da
+  allowlist, nunca SVG/HTML bruto, URL de imagem ou asset local.
+- A ordem editorial não altera a ordem lógica interna de headings/controles de cada card; foco e
+  navegação seguem a ordem do DOM resultante.
 
-A V48.0 oficializa um padrão visual específico para conteúdo artístico em
-`css/pages/artes.css`:
+## 9. Galeria de Artes
 
-- masonry responsivo com CSS Columns, preservando a proporção original de cada imagem;
+Padrão visual em `css/pages/artes.css`:
+
+- masonry responsivo com CSS Columns, preservando a proporção de cada imagem;
 - cards com borda/radius/sombra derivados dos tokens existentes;
-- preview com somente título e artista sobrepostos na base da imagem, apoiados por gradiente escuro e `text-shadow` para contraste;
-- `loading="lazy"` e `decoding="async"` nas imagens;
-- `.site-loader-logo` reutilizado durante o carregamento individual, sem criar um segundo desenho de loader;
-- estado de erro por card, sem bloquear o restante da grade;
-- dialog nativo para ampliação, com foco/fechamento acessíveis;
-- `alt` editorial obrigatório; crédito externo opcional e sempre HTTPS quando informado.
+- **a grade usa só `preview`** e mostra **somente título e artista** sobre a base da imagem, com
+  gradiente escuro e `text-shadow` para contraste; categoria, data, tags e crédito aparecem apenas
+  no dialog;
+- `loading="lazy"` e `decoding="async"`; `.site-loader-logo` reutilizado durante o carregamento
+  individual (não duplique o CSS do loader; altere só dimensões/posição locais);
+- o lightbox reaproveita a preview enquanto carrega a `imagem` full, com o mesmo loader; a grade
+  nunca baixa a full automaticamente;
+- estado de erro por card, sem bloquear a grade;
+- dialog nativo com foco/fechamento acessíveis;
+- `alt` editorial obrigatório; crédito externo opcional e sempre HTTPS.
 
-Desde a V48.0.1, cards usam a `preview` leve; o lightbox reaproveita essa preview enquanto carrega a `imagem` full e exibe o mesmo `site-loader-logo` do loader global durante a transição. A grade não deve baixar automaticamente a imagem full.
+## 10. Blog
 
-Desde a V48.1.1, categoria, data, tags e crédito aparecem somente no dialog da obra. O seletor de escopo da busca da Galeria usa um drop-down customizado com `--card-bg`, `--card-border`, `--primary-color`, `--primary-soft`, `--shadow-card` e `--blur-card`; a seta e a marca de seleção são desenhadas em CSS, sem arquivos de imagem. O componente deve manter `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e navegação por teclado.
+- O bloco completo de ferramentas usa o mesmo painel externo da Galeria: `glass-panel` envolvendo
+  filtros de tags, seletor e campo, com padding e espaçamento equivalentes a `.artes-tools`
+  (ver [seção 7](#7-busca-e-filtros-galeria-blog-jogos) e [seção 4](#4-painéis-e-blur)).
+- Ordem: tags/filtros primeiro, busca + seletor depois (filtros à esquerda e busca à direita no
+  desktop; mesma ordem vertical no mobile).
+- Cabeçalho: eyebrow em `--primary-color` sobre a superfície auxiliar global, `h1` em
+  `--primary-color`, descrição em `--subtitle-color`.
+- Não altere `data/blog/*` apenas para atender a regras visuais.
 
-Não duplicar o CSS do loader global: a Galeria reutiliza a classe compartilhada e
-altera apenas dimensões/posicionamento local.
+## 11. Navbar
 
-## Redes sociais globais
+Todos os itens clicáveis compartilham um contrato editorial em `data/content/navbar.json` (texto,
+ícone, URL); o desenho é responsabilidade do frontend.
 
-Desde a V48.3.33, as redes não pertencem à Navbar nem ao Hero: são um componente
-global independente alimentado por `data/content/redes.json`. Em larguras de
-768 px ou mais, o componente usa um dock vertical fixo à esquerda; abaixo disso,
-usa uma única cápsula `@ Redes` com menu expansível nativo.
+- Ícones são opcionais, vêm exclusivamente de `button-icons.js` e ficam alinhados ao texto no mesmo
+  `inline-flex`, com gap consistente e cor herdada do link. Nenhum caminho de imagem, SVG bruto ou
+  asset editorial entra no JSON.
+- Alterar URL/texto/ícone não pode exigir HTML específico por item.
+- **Apoiar** mantém o tratamento primário rosa. Com `apoioFixoNoFim: true` fica no slot histórico à
+  direita, fora do scroll central e com divisor próprio; com `false` entra no fluxo reordenável sem
+  perder o estilo de CTA.
+- **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de
+  Apoiar, no slot `.site-nav-settings-slot`. O preenchimento com os tokens de ação significa "painel
+  aberto" e só isso: foco = contorno; hover só com mouse (`(hover: hover) and (pointer: fine)`) e só
+  no contorno. O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado
+  no mobile).
+- A identidade visual não deve tornar o conteúdo dependente de assets decorativos. O fundo usado por
+  `backdrop-filter` pode ser antecipado, mas não bloqueia o reveal nem compete com conteúdo editorial
+  em prioridade alta.
 
-Regras visuais e de interação:
+## 12. Navegação mobile
 
-- o dock usa os mesmos tokens de superfície, borda, sombra, blur e cor primária do site;
-- `z-index` permanece abaixo da Navbar e dos listboxes portados para `body`;
+Até 767 px a lista horizontal é substituída por um drawer lateral; acima disso a Navbar tradicional
+permanece.
+
+- Gatilhos `Menu` (canto inferior esquerdo) e `@ Redes` (inferior direito) usam a mesma altura,
+  safe area, blur e linguagem de estado: fechados usam a superfície de card; abertos usam
+  `--primary-soft` + destaque primário. A diferença de componente é intencional — Menu é drawer
+  estrutural, Redes é popup compacto —, mas o comportamento de camada temporária é compartilhado.
+- O drawer preserva a linguagem da Navbar desktop: links sem borda individual e sem cartão
+  permanente, transparentes no estado normal e com `--primary-soft` em ativo/foco/hover. Ícones têm
+  função de reconhecimento rápido e mantêm o traço do `KamyliButtonIcons`. **Apoiar** é a exceção e
+  fica destacado no rodapé do drawer.
+- Medidas e comportamento (largura `clamp(248px, 74vw, 288px)`, sem cabeçalho, swipe, histórico):
+  ver "Navbar mobile" em [`AGENTS.md`](AGENTS.md).
+
+## 13. Redes sociais globais
+
+Componente global independente alimentado por `data/content/redes.json` (não pertence à Navbar nem ao
+Hero). A partir de 768 px: dock vertical fixo à esquerda; abaixo: cápsula `@ Redes` com menu expansível.
+
+- usa os mesmos tokens de superfície, borda, sombra, blur e cor primária do site;
+- `z-index` abaixo da Navbar e dos listboxes portados para `body`;
 - links de desktop são icon-only com tooltip visual e nome acessível; o menu mobile mostra ícone + nome;
 - nenhuma rede define cor própria no JSON e nenhum SVG/HTML bruto é editorial;
-- a cápsula mobile `@ Redes` evita a semântica ambígua de compartilhamento, respeita safe area, fecha por Escape/clique externo e o componente respeita `prefers-reduced-motion`;
-- no mobile/touch, o estado aberto/foco mantém superfície legível e o efeito de `:hover` só é habilitado para dispositivos com `(hover: hover) and (pointer: fine)`, evitando hover persistente em Chromium/Brave no Android;
-- loader e transições de página ocultam temporariamente o componente para evitar sobreposição visual.
+- a cápsula mobile evita a semântica ambígua de compartilhamento, respeita safe area, fecha por
+  Escape/clique externo e respeita `prefers-reduced-motion`;
+- em touch, o estado aberto/foco mantém superfície legível e o `:hover` só vale com
+  `(hover: hover) and (pointer: fine)` (evita hover persistente em Chromium/Brave no Android);
+- loader e transições de página ocultam temporariamente o componente.
 
-## Navbar
+## 14. Carrosséis
 
-Desde a V48.2.0, todos os itens clicáveis da Navbar compartilham um único contrato editorial em `data/content/navbar.json`. Cada item possui texto, ícone e URL, mas o desenho continua sendo responsabilidade do frontend.
+Lives e Agenda mantêm: setas, navegação por teclado, scroll horizontal, scroll-snap, touch nativo e
+click + arrasta em ponteiro fino. O estado de arraste não pode disparar o clique de um card de Live.
 
-Regras visuais:
+## 15. Responsividade, movimento e acessibilidade
 
-- ícones são opcionais e vêm exclusivamente da biblioteca `button-icons.js`; nenhum caminho de imagem, SVG bruto ou asset editorial entra no JSON;
-- texto e ícone ficam alinhados no mesmo `inline-flex`, com gap consistente e cor herdada do próprio link;
-- o botão **Apoiar** mantém o tratamento primário rosa e a posição fixa à direita, mesmo sendo configurado pelo mesmo JSON;
-- o botão de **Configurações** é só um ícone de engrenagem (círculo de 40 px; 38 px no mobile), à esquerda de Apoiar, no slot próprio `.site-nav-settings-slot`; o preenchimento com os tokens de ação (`--button-bg`/`--button-text`) significa "painel aberto" e só isso (foco = contorno; hover só com mouse e só no contorno). O painel abre logo abaixo da barra, alinhado à borda direita do conteúdo (centralizado no mobile);
-- alterar URL/texto/ícone não pode exigir HTML específico por item; novos estilos devem continuar orientados pelas classes compartilhadas da Navbar;
-- no mobile (até 767 px), a lista horizontal é substituída por um botão flutuante `Menu` no canto inferior esquerdo; o mesmo conjunto de links editoriais abre acima dele, enquanto o topo mostra logo, título/contexto atual e o CTA Apoiar quando `apoioFixoNoFim` está ativo; `@ Redes` permanece como contraponto flutuante à direita.
+- Evite larguras fixas que produzam overflow; verifique ao menos desktop e viewport móvel.
+- Animações/transições respeitam `prefers-reduced-motion`; não adicione movimento indispensável à
+  compreensão.
+- Mantenha: foco visível; link "Pular para o conteúdo" como primeiro controle focável apontando para o
+  `<main>`; controles com nome acessível; headings em ordem coerente; contraste suficiente; links
+  externos identificáveis pelo contexto; `aria-live` apenas em regiões curtas de status, nunca em
+  grades inteiras de resultados.
 
-## Blog
+## 16. Assets
 
-Desde a V48.1.3, a busca por campo da listagem do Blog deve seguir o mesmo padrão
-visual e de interação da busca da Galeria. Essa paridade é uma regra do design
-system, não uma coincidência de implementação.
-
-O bloco completo de ferramentas do Blog deve usar o mesmo painel externo da
-Galeria: `glass-panel` envolvendo filtros de tags, seletor **Buscar em** e campo
-textual. O fundo translúcido, borda, radius, sombra e blur pertencem ao conjunto
-inteiro, e não apenas aos controles individuais. Esse painel deve manter padding
-e espaçamento equivalentes ao `.artes-tools`.
-
-O conjunto **Buscar em + campo de texto** deve preservar:
-
-- altura mínima de 44 px, borda de 1 px com `--card-border` e radius de 14 px;
-- seletor e menu usam `--nav-bg` durante o blur, texto em `--text-color`/`--subtitle-color` e foco com `--primary-color` + `--primary-soft`; com blur desligado, voltam a `--card-bg` para reforçar a leitura;
-- drop-down próprio em vez de `<select>` nativo, com `--shadow-card` e `--blur-card`; o menu deve ser posicionado pelo wrapper interno do valor selecionado, e não pelo bloco completo que também contém o rótulo **Buscar em**, para manter alinhamento previsível;
-- chevron e marca de seleção desenhados somente em CSS, sem SVG/PNG ou outro asset;
-- `aria-haspopup="listbox"`, `aria-expanded`, `role="listbox"`, `role="option"` e a mesma navegação por teclado usada na Galeria;
-- empilhamento suficiente para que o menu fique acima da lista de posts e de outros painéis subsequentes;
-- comportamento responsivo equivalente: controles em coluna no mobile e fonte de 16 px nos controles editáveis/interativos necessários para evitar zoom involuntário.
-
-O cabeçalho do Blog segue a mesma hierarquia cromática da Galeria: eyebrow em
-`--primary-color` sobre a superfície auxiliar global, título principal em
-`--primary-color` e descrição em `--subtitle-color`. Não criar uma paleta exclusiva
-para o Blog.
-
-Desde a V48.3.4, o painel externo de ferramentas não aplica `backdrop-filter` diretamente em `.artes-tools`/`.blog-tools`; o vidro externo permanece em `::before`. A V48.3.5 acrescenta uma regra mais forte para o drop-down: enquanto aberto, o menu deve ser portado temporariamente para `document.body`, usando posicionamento fixo calculado pelo controle. Isso evita que o menu fique visualmente limitado pela composição/backdrop do painel e garante que seu `backdrop-filter` atue sobre a página real atrás dele. Ao fechar, o mesmo nó retorna ao wrapper original; não criar uma cópia do listbox.
-
-Desde a V48.3.10, a moldura externa desses dois painéis também pertence ao `::before`: a borda herdada de `glass-panel` fica transparente no elemento pai, enquanto o pseudo-elemento usa `inset: -2px`, `border: 2px solid var(--card-border)` e `border-radius: var(--radius-card)`. Isso faz o `backdrop-filter` cobrir também a área sob a borda sem reintroduzir uma Backdrop Root ancestral. Não mover o blur de volta para `.artes-tools`/`.blog-tools`.
-
-Campo e menu devem manter fundo translúcido derivado de `--nav-bg`, com fallback para o token original. Quando `data-blur="off"`, não usar blur/saturação e voltar a `--card-bg`.
-
-Os campos editoriais continuam específicos de cada página: a Galeria usa Todos,
-Artista, Título, Categoria e Tags; o Blog usa Todos, Título, Resumo e Tags. Os
-filtros de tags do Blog continuam em pills e não precisam imitar os filtros de
-categoria da Galeria. Não alterar `data/blog/*` apenas para atender a essa regra
-visual.
-
-Desde a V48.3.22, as faixas horizontais de filtros de Jogos, Blog e Galeria
-indicam conteúdo oculto com `mask-image` aplicado à própria faixa rolável, e não
-com uma camada de fundo sobre os chips. Isso evita blocos/recortes visíveis sobre
-superfícies translúcidas e permite que o realce do chip selecionado permaneça
-integrado ao próprio botão. As setas continuam sobrepostas e não reservam espaço.
-
-## Carrosséis
-
-Lives e Agenda mantêm:
-
-- setas;
-- navegação por teclado;
-- scroll horizontal;
-- scroll-snap;
-- touch nativo;
-- click + arrasta em ponteiro fino.
-
-O estado de arraste não deve disparar o clique de um card de Live.
-
-## Responsividade
-
-Evitar larguras fixas que produzam overflow.
-Mudanças devem ser verificadas pelo menos em desktop e viewport móvel.
-
-## Movimento
-
-Animações/transições devem respeitar `prefers-reduced-motion`.
-Não adicionar movimento indispensável à compreensão da interface.
-
-## Acessibilidade
-
-Manter:
-
-- foco visível;
-- link “Pular para o conteúdo” como primeiro controle focável, apontando para o `<main>`;
-- controles com nome acessível;
-- headings em ordem coerente;
-- contraste suficiente;
-- links externos identificáveis pelo contexto;
-- `aria-live` em regiões curtas de status, nunca em grades inteiras de resultados quando uma contagem resumida for suficiente.
-
-## Assets
-
-Gráficos públicos vêm de `assets.kamylisumire.com`.
-Não reintroduzir duplicatas locais de avatar, favicon, fundo e preview social.
-
-
-### Navbar reordenável — V48.3.0
-
-`data/content/navbar.json` mantém as nove chaves estáveis em `links` e adiciona `ordem`, uma lista sem duplicatas que determina a sequência visual dos nove itens. O runtime completa uma ordem ausente/incompleta com o padrão para compatibilidade, mas o conteúdo versionado atual deve listar todos os itens exatamente uma vez. **Apoiar** continua com estilo de CTA, porém participa do mesmo fluxo reordenável.
-### Apoiar fixo opcional — V48.3.1
-
-`data/content/navbar.json` aceita `apoioFixoNoFim`. Com `true` — e também quando a chave está ausente, por compatibilidade — o runtime aplica `ordem` aos itens e força **Apoiar** para o final, mantendo a posição histórica do CTA. Com `false`, `apoio` participa livremente da posição definida em `ordem`. As outras oito chaves continuam reordenáveis nos dois modos.
-
-### CTA Apoiar em dois modos — V48.3.2
-
-Quando `apoioFixoNoFim` é `true`, o CTA mantém a composição histórica à direita, fora do scroll central e com divisor próprio. Quando `false`, ele participa do fluxo reordenável central sem perder o estilo de CTA.
-
-### Performance de montagem — V48.3.6
-
-A identidade visual não deve tornar o conteúdo dependente de assets decorativos. O fundo usado por `backdrop-filter` pode ser antecipado, mas não deve bloquear o reveal da página nem competir com conteúdo editorial em prioridade alta. Observers de montagem devem reagir somente aos componentes que precisam de configuração tardia e não a toda mutação do documento.
-### Cor primária para texto — V48.3.7
-
-No tema claro, `--primary-color` continua sendo o tom de identidade para fundos, bordas, ícones e títulos grandes. Texto normal ou pequeno que use a cor primária deve usar `--primary-text`, cujo contraste atende AA nas superfícies claras principais. No tema escuro, `--primary-text` mantém o mesmo tom visual de `--primary-color`. Não substituir títulos grandes por `--primary-text` apenas por consistência mecânica; a distinção é semântica e preserva a identidade visual.
-
-Galeria e Blog continuam compartilhando a mesma hierarquia cromática: seus títulos principais usam `--primary-color`; controles, links, tags e estados textuais pequenos podem usar `--primary-text` quando necessário para contraste.
-
-### Navegação mobile
-
-O drawer mobile deve preservar a linguagem da Navbar desktop: links sem borda individual e sem cartão permanente, usando fundo transparente no estado normal e `--primary-soft` nos estados ativo/foco/hover. Ícones têm função de reconhecimento rápido e devem manter o mesmo traço do sistema local `KamyliButtonIcons`. O CTA `Apoiar` é a exceção e permanece destacado no rodapé.
-
-### Navegação mobile coordenada — V48.3.46
-
-Os gatilhos `Menu` e `@ Redes` usam a mesma altura, safe area, blur e linguagem de estado: fechados usam a superfície de card; abertos usam `--primary-soft` + destaque primário. Menu permanece drawer estrutural e Redes permanece popup compacto. A diferença de componente é intencional; o comportamento de camada temporária é compartilhado.
+Gráficos públicos vêm de `assets.kamylisumire.com`; não reintroduza duplicatas locais de avatar,
+favicon, fundo e preview social. A mídia da Galeria continua referenciada por URL HTTPS externa.

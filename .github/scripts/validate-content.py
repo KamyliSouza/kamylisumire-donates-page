@@ -108,12 +108,14 @@ REQUIRED_FILES = (
     "css/components/home-interactions.css",
     "assets/fonts/nunito-variable.woff2",
     "assets/fonts/OFL.txt",
+    "docs/README.md",
     "docs/PRODUCAO.md",
     "docs/ARQUITETURA.md",
-    "docs/SANEAMENTO-V44.md",
+    "docs/AGENDA-E-JOGOS.md",
     "docs/VALIDACAO.md",
-    "docs/GUIA-TWITCH-V47.4.md",
+    "docs/TWITCH.md",
     "docs/PRIVACIDADE-RANKING.md",
+    "docs/historico/SANEAMENTO-V44.md",
 )
 
 FORBIDDEN_PATHS = (
@@ -203,12 +205,15 @@ BLOG_METADATA_KEYS = (
     "slug", "title", "date", "summary", "tags", "readMinutes", "published",
 )
 
+# Arquivos permitidos diretamente em docs/. Documentos históricos ficam em
+# docs/historico/ (subpasta não é varrida por esta lista).
 ALLOWED_DOCS = {
+    "README.md",
     "ARQUITETURA.md",
+    "AGENDA-E-JOGOS.md",
     "PRODUCAO.md",
-    "SANEAMENTO-V44.md",
+    "TWITCH.md",
     "VALIDACAO.md",
-    "GUIA-TWITCH-V47.4.md",
     "PRIVACIDADE-RANKING.md",
 }
 
