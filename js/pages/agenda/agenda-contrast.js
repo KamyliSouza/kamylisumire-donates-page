@@ -26,7 +26,7 @@
 
     /* Texto mais fraco de cada tom (platforms) e cor do véu correspondente. */
     const TONES = Object.freeze({
-        light: Object.freeze({ weakest: [245, 236, 245], veil: [7, 5, 10] }),
+        light: Object.freeze({ weakest: [245, 236, 245], veil: [22, 9, 27] }),
         dark: Object.freeze({ weakest: [47, 34, 49], veil: [255, 247, 255] })
     });
 

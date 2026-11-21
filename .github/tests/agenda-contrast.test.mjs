@@ -83,7 +83,7 @@ test('CSS adaptativo vale para os dois temas e o véu padrão é leve', () => {
   assert.ok(!/data-theme="light"\]\s+\.agenda-day\.has-live\[data-art/.test(css), 'a adaptação não pode ser só do tema claro');
   assert.match(css, /\[data-art-top-text\]\[data-art-bottom-text\]::after/);
   assert.match(css, /forced-colors: active/);
-  for (const [, alpha] of css.matchAll(/rgba\((?:7, 5, 10|255, 247, 255), (\.\d+)\) 100%\)/g)) {
+  for (const [, alpha] of css.matchAll(/rgba\((?:22, 9, 27|255, 247, 255), (\.\d+)\) 100%\)/g)) {
     assert.ok(Number(alpha) <= 0.7, `véu padrão de ${alpha} na base é pesado demais`);
   }
 });

@@ -17,13 +17,13 @@
     --ag-art-dark-muted: #f0e6f0;
     --ag-art-dark-subtle: #e0d3e3;
     --ag-text: #fff8ff;
-    --ag-panel-bg: #17131b;
+    --ag-panel-bg: #1b1121;
     --ag-panel-border: rgba(209, 120, 205, .34);
     --ag-art-bg: #211825;
     --ag-art-filter: blur(2px) brightness(.66) saturate(.9);
     --ag-panel-veil:
-        linear-gradient(90deg, rgba(13, 10, 16, .74) 0%, rgba(13, 10, 16, .48) 48%, rgba(13, 10, 16, .28) 100%),
-        linear-gradient(180deg, rgba(10, 8, 13, .22) 0%, rgba(10, 8, 13, .08) 42%, rgba(8, 7, 10, .46) 100%),
+        linear-gradient(90deg, rgba(36, 15, 43, .74) 0%, rgba(36, 15, 43, .48) 48%, rgba(36, 15, 43, .28) 100%),
+        linear-gradient(180deg, rgba(30, 12, 36, .22) 0%, rgba(30, 12, 36, .08) 42%, rgba(20, 8, 25, .46) 100%),
         radial-gradient(ellipse at 4% 95%, rgba(90, 54, 105, .24), transparent 42%);
     --ag-head-line: rgba(209, 120, 205, .42);
     --ag-pill-text: #f0dcef;
@@ -36,8 +36,8 @@
     --ag-card-bg: linear-gradient(135deg, #64446a, #251c31 70%);
     --ag-card-border: rgba(209, 120, 205, .48);
     --ag-card-veil:
-        linear-gradient(180deg, rgba(7, 5, 10, .22) 0%, rgba(7, 5, 10, .08) 28%, rgba(7, 5, 10, .30) 56%, rgba(7, 5, 10, .64) 100%),
-        linear-gradient(90deg, rgba(7, 5, 10, .12), transparent 70%);
+        linear-gradient(180deg, rgba(22, 9, 27, .22) 0%, rgba(22, 9, 27, .08) 28%, rgba(22, 9, 27, .30) 56%, rgba(22, 9, 27, .64) 100%),
+        linear-gradient(90deg, rgba(22, 9, 27, .12), transparent 70%);
     --ag-date: #e0d0e2;
     --ag-chip-text: #ffd7fa;
     --ag-chip-bg: rgba(36, 19, 39, .82);
@@ -54,7 +54,7 @@
     --ag-nolive-surface: linear-gradient(145deg, rgba(34, 27, 38, .68), rgba(20, 17, 24, .78));
     --ag-nolive-glow:
         radial-gradient(circle at 50% 48%, rgba(209, 120, 205, .08), transparent 58%),
-        linear-gradient(180deg, rgba(8, 7, 10, .12), rgba(8, 7, 10, .30));
+        linear-gradient(180deg, rgba(24, 9, 29, .12), rgba(24, 9, 29, .30));
     --ag-nolive-solid: linear-gradient(145deg, rgba(34, 27, 38, .94), rgba(20, 17, 24, .96));
     --ag-ph-title: #f0e6f0;
     --ag-ph-desc: #d0c1d2;
@@ -294,7 +294,7 @@
  * valem o véu padrão leve e as cores do tema.
  */
 .agenda-day.has-live[data-art-top-text="light"] {
-    --ag-veil-top-rgb: 7, 5, 10;
+    --ag-veil-top-rgb: 22, 9, 27;
     --ag-card-top-name: #fffaff;
     --ag-card-top-date: #f5ecf5;
     --ag-card-top-shadow: 0 1px 2px rgba(0, 0, 0, .55), 0 2px 10px rgba(0, 0, 0, .4);
@@ -306,7 +306,7 @@
     --ag-card-top-shadow: 0 1px 2px rgba(255, 255, 255, .7), 0 2px 10px rgba(255, 255, 255, .55);
 }
 .agenda-day.has-live[data-art-bottom-text="light"] {
-    --ag-veil-bottom-rgb: 7, 5, 10;
+    --ag-veil-bottom-rgb: 22, 9, 27;
     --ag-card-bottom-title: #fffaff;
     --ag-card-bottom-desc: #faf3fa;
     --ag-card-bottom-platforms: #f5ecf5;
