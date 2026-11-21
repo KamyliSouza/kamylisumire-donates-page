@@ -5,7 +5,7 @@
     {
       "id": "domingo",
       "nome": "Domingo",
-      "data": "2026-11-15",
+      "data": "2026-11-22",
       "temLive": false,
       "horario": "",
       "titulo": "",
@@ -19,7 +19,7 @@
     {
       "id": "segunda",
       "nome": "Segunda-feira",
-      "data": "2026-11-16",
+      "data": "2026-11-23",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Beyond Two Souls",
@@ -49,7 +49,7 @@
     {
       "id": "terca",
       "nome": "Terça-feira",
-      "data": "2026-11-17",
+      "data": "2026-11-24",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Witch's Bakery",
@@ -79,7 +79,7 @@
     {
       "id": "quarta",
       "nome": "Quarta-feira",
-      "data": "2026-11-18",
+      "data": "2026-11-25",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Phantom Blade Zero",
@@ -109,7 +109,7 @@
     {
       "id": "quinta",
       "nome": "Quinta-feira",
-      "data": "2026-11-19",
+      "data": "2026-11-26",
       "temLive": false,
       "horario": "",
       "titulo": "",
@@ -123,7 +123,7 @@
     {
       "id": "sexta",
       "nome": "Sexta-feira",
-      "data": "2026-11-20",
+      "data": "2026-11-27",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Nier: Automata",
@@ -153,7 +153,7 @@
     {
       "id": "sabado",
       "nome": "Sábado",
-      "data": "2026-11-21",
+      "data": "2026-11-28",
       "temLive": true,
       "horario": "20:00",
       "titulo": "Baldur's Gate 3",
