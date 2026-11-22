@@ -20,6 +20,8 @@ publicadas ou não foram registradas aqui.
   (exigiria a YouTube Data API, via Google Cloud);
 - CSP: `/live/` é a única página com `frame-src` (Twitch e YouTube) e `script-src https://www.youtube.com`;
   as demais seguem com `frame-src 'none'` e o validador confere isso;
+- YouTube: só marca “ao vivo” quando o player confirma transmissão (`isLive` ou duração 0, e tocando/pausado/em
+  buffer); canal offline também devolve um ID de vídeo e não conta como live;
 - jogo e título da live vêm da Twitch (`gameName`/`title` do Worker) e valem para as duas abas, pois as
   transmissões são simultâneas; o texto entra por `textContent`, nunca como HTML;
 - conformidade com os termos: no celular o player tem altura mínima de 300px (mínimo da Twitch) e fica fixo

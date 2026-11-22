@@ -6,7 +6,9 @@
  *   as lives são simultâneas, então valem para as duas abas.
  * - YouTube: a IFrame Player API (script oficial, sem chave) informa o ID da live
  *   atual, usado só para abrir o chat. getVideoData() não está na referência
- *   oficial; se falhar, o player continua e o chat mostra um aviso.
+ *   oficial; se falhar, o player continua e o chat mostra um aviso. Canal offline
+ *   também devolve um ID: só conta como "ao vivo" se o player confirmar (isLive ou
+ *   duração 0) e estiver tocando/pausado/em buffer.
  */
 (() => {
     "use strict";
@@ -177,10 +179,18 @@
         if (empty) empty.hidden = true;
     }
 
-    function readVideoId() {
+    // Devolve o ID só se o player confirmar que é uma transmissão ao vivo (ver youtubeIsLive no modelo).
+    function readLiveVideoId() {
         try {
-            const id = state.ytPlayer?.getVideoData?.().video_id;
-            return model.isVideoId(id) ? id : "";
+            const player = state.ytPlayer;
+            const data = player?.getVideoData?.() || {};
+            const info = {
+                videoId: data.video_id,
+                isLive: typeof data.isLive === "boolean" ? data.isLive : undefined,
+                duration: player?.getDuration?.(),
+                state: player?.getPlayerState?.()
+            };
+            return model.youtubeIsLive(info) ? info.videoId : "";
         } catch {
             return "";
         }
@@ -191,7 +201,7 @@
         window.clearTimeout(state.ytTimer);
         const step = remaining => {
             if (token !== state.ytToken) return;
-            const id = readVideoId();
+            const id = readLiveVideoId();
             if (id) {
                 state.youtube = { live: true, videoId: id, checking: false };
                 setYouTubeChat(id);

@@ -91,6 +91,19 @@
         return game || title ? { game, title } : null;
     }
 
+    // O embed por canal (live_stream?channel=) pode abrir com o último vídeo ou um aviso quando o canal está
+    // offline, e o ID existe mesmo assim. Só vale como "ao vivo" se o player disser que é transmissão ao vivo
+    // (isLive) ou se tiver duração 0 (marca de live) E estiver tocando, em buffer ou pausado.
+    const YT_STATE = Object.freeze({ UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 });
+
+    function youtubeIsLive(info) {
+        if (!info || !isVideoId(info.videoId)) return false;
+        const active = [YT_STATE.PLAYING, YT_STATE.PAUSED, YT_STATE.BUFFERING].includes(info.state);
+        if (!active) return false;
+        if (info.isLive === true) return true;
+        return info.isLive === undefined && Number(info.duration) === 0;
+    }
+
     function pickPlatform(value) {
         return PLATFORMS.includes(value) ? value : "twitch";
     }
@@ -98,6 +111,6 @@
     globalThis.KamyliLiveModel = Object.freeze({
         PLATFORMS, EXTERNAL_URL, normalizeHost, isVideoId,
         twitchPlayerUrl, twitchChatUrl, youtubePlayerUrl, youtubeChatUrl,
-        formatViewers, twitchStatus, nowPlaying, pickPlatform
+        formatViewers, twitchStatus, nowPlaying, youtubeIsLive, YT_STATE, pickPlatform
     });
 })();

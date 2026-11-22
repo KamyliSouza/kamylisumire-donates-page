@@ -105,6 +105,25 @@ test('privacidade descreve o carregamento sob demanda de Twitch e YouTube', () =
   assert.ok(html.includes('Ao vivo'));
 });
 
+test('YouTube: ID de vídeo sozinho não prova live (canal offline também tem ID)', () => {
+  const id = 'dQw4w9WgXcQ';
+  const live = state => ({ videoId: id, isLive: true, duration: 0, state });
+  assert.equal(model.youtubeIsLive(live(model.YT_STATE.PLAYING)), true);
+  assert.equal(model.youtubeIsLive(live(model.YT_STATE.BUFFERING)), true);
+  assert.equal(model.youtubeIsLive(live(model.YT_STATE.PAUSED)), true);
+  // vídeo gravado/último vídeo do canal: isLive false ou duração > 0
+  assert.equal(model.youtubeIsLive({ videoId: id, isLive: false, duration: 3600, state: model.YT_STATE.PLAYING }), false);
+  assert.equal(model.youtubeIsLive({ videoId: id, duration: 3600, state: model.YT_STATE.PLAYING }), false);
+  // sem isLive, duração 0 + tocando é a marca de transmissão ao vivo
+  assert.equal(model.youtubeIsLive({ videoId: id, duration: 0, state: model.YT_STATE.PLAYING }), true);
+  // não iniciado, encerrado, na fila ou sem ID válido
+  for (const state of [model.YT_STATE.UNSTARTED, model.YT_STATE.ENDED, model.YT_STATE.CUED, undefined]) {
+    assert.equal(model.youtubeIsLive(live(state)), false, String(state));
+  }
+  assert.equal(model.youtubeIsLive({ videoId: '', isLive: true, state: 1 }), false);
+  assert.equal(model.youtubeIsLive(null), false);
+});
+
 test('aba padrão: valor desconhecido volta para a Twitch', () => {
   assert.equal(model.pickPlatform('youtube'), 'youtube');
   assert.equal(model.pickPlatform('twitch'), 'twitch');
