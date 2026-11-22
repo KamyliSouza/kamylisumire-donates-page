@@ -1,5 +1,5 @@
 /*
- * LIVE — V48.4.1. Regras puras da página /live/ (sem DOM), testáveis em Node.
+ * LIVE — V48.4.2. Regras puras da página /live/ (sem DOM), testáveis em Node.
  * A página incorpora somente os embeds oficiais da Twitch. O YouTube é aberto
  * diretamente na plataforma, sem player/chat incorporado e sem YouTube API.
  */
@@ -41,6 +41,20 @@
         return Number.isFinite(w) && Number.isFinite(h) && w >= 400 && h >= 300;
     }
 
+    // Mantém o layout normal quando o player já cabe; em telas móveis,
+    // permite expandir somente o vídeo até as bordas quando isso resolve
+    // a largura. Abaixo de 400 px de viewport, o embed não é possível.
+    function twitchLayoutMode(normalPlayerWidth, viewportWidth, mobileLayout) {
+        const normalWidth = Number(normalPlayerWidth);
+        const availableWidth = Number(viewportWidth);
+        if (mobileLayout !== true || (Number.isFinite(normalWidth) && normalWidth >= 400)) {
+            return "contained";
+        }
+        return Number.isFinite(availableWidth) && availableWidth >= 400
+            ? "edge"
+            : "external";
+    }
+
     function formatViewers(value) {
         const count = Math.max(0, Math.floor(Number(value) || 0));
         return `${new Intl.NumberFormat("pt-BR").format(count)} ${count === 1 ? "espectador" : "espectadores"}`;
@@ -79,7 +93,7 @@
 
     globalThis.KamyliLiveModel = Object.freeze({
         PLATFORMS, EXTERNAL_URL, normalizeHost,
-        twitchPlayerUrl, twitchChatUrl, canEmbedTwitch,
+        twitchPlayerUrl, twitchChatUrl, canEmbedTwitch, twitchLayoutMode,
         formatViewers, twitchStatus, nowPlaying, VIEWS, pickView, pickPlatform
     });
 })();

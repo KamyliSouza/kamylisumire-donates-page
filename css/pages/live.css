@@ -1,4 +1,4 @@
-/* LIVE — V48.4.1. Modo Compacto (padrão) usa as mesmas proporções das outras páginas do site
+/* LIVE — V48.4.2. Modo Compacto (padrão) usa as mesmas proporções das outras páginas do site
    (container de 1120px, margens 28/56, espaçamento 14px, cantos --radius-card); Amplo e Teatro
    aproveitam mais a janela no desktop. */
 .live-shell {
@@ -106,12 +106,20 @@ body:has(#livePage) .site-socials-mobile { display: none; }
     .live-shell[data-view="theatre"] .live-player, .live-shell[data-view="theatre"] .live-chat { border-radius: 16px; }
 }
 
-/* Telas médias e celulares: player em 16:9 na largura toda e chat embaixo. */
+/* Telas médias e celulares: player em 16:9 e chat abaixo. */
 @media (max-width: 960px) {
     .live-stage { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-    /* O player Twitch exige ao menos 400×300px; em telas estreitas ele é substituído por link externo.
-       A altura mínima preserva a dimensão vertical e o player fica fixo ao rolar o chat. */
+    /* A área interna do player precisa manter pelo menos 400 × 300px. */
     .live-player { width: 100%; aspect-ratio: 16 / 9; min-height: 302px; position: sticky; top: 76px; z-index: 5; }
+    /* Só o vídeo rompe as margens quando o shell normal não chega a 400px,
+       mas o viewport ainda comporta a largura mínima. O chat e os demais
+       painéis continuam alinhados às margens originais da página. */
+    .live-stage[data-twitch-fit="edge"] .live-player {
+        width: 100vw;
+        margin-inline: calc(50% - 50vw);
+        border: 0;
+        border-radius: 0;
+    }
     .live-chat { height: max(380px, 58dvh); }
     .live-intro { padding: 14px 16px; }
 }

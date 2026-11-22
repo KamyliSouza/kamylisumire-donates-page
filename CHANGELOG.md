@@ -7,6 +7,14 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.4.2 — Largura responsiva do player Twitch
+
+- em telas de até 960 px, a página mede a largura útil do shell e do viewport: mantém as margens existentes quando o player já dispõe de 400 px; quando não dispõe, mas o viewport tem pelo menos 400 px, somente o vídeo se expande até as bordas, sem remover as margens do cabeçalho, chat ou demais painéis;
+- quando o viewport tem menos de 400 px, o embed não é carregado e a orientação sugere girar o celular ou abrir a Twitch diretamente;
+- o layout é reavaliado por `ResizeObserver`, `resize` e `orientationchange`; se o embed já foi autorizado na visita, é removido quando deixa de cumprir o mínimo e remontado quando volta a caber;
+- novos testes cobrem os três modos (`contained`, `edge`, `external`) e garantem que o shell e as margens gerais não sejam alterados;
+- impacto: somente `/live/` (CSS, JavaScript, modelo de layout, testes e cache-busters); nenhum Worker, JSON editorial, política de privacidade ou integração externa foi alterado.
+
 ## V48.4.1 — Conformidade dos embeds na página /live/
 
 - `/live/` deixa de incorporar o player e o chat do YouTube e remove a IFrame Player API; a aba YouTube permanece e direciona ao canal oficial em nova guia/aplicativo. Não há integração com YouTube Data API nem credenciais Google Cloud;

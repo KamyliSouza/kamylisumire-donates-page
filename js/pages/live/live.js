@@ -1,6 +1,8 @@
 /*
- * LIVE — V48.4.1. Twitch com player/chat incorporados; YouTube por link externo.
- * - O embed Twitch só é criado após clique e quando a largura permite 400 px.
+ * LIVE — V48.4.2. Twitch com player/chat incorporados; YouTube por link externo.
+ * - O embed Twitch só é criado após clique e quando a área permite 400 × 300 px.
+ * - Em celulares, somente o vídeo pode romper as margens laterais quando isso
+ *   é necessário para atingir 400 px; abaixo disso, há fallback externo.
  * - Consentimento de carregamento não é persistido entre visitas.
  * - Desktop: modos Compacto, Amplo e Teatro + mostrar/ocultar chat.
  * - Ao trocar de plataforma, o embed Twitch é desmontado.
@@ -113,19 +115,41 @@
 
     function updateTwitchGateForWidth() {
         const playerSlot = slot("twitch", "player");
+        const stage = playerSlot.closest(".live-stage");
         const gate = slot("twitch", "gate");
         const title = gate.querySelector(".live-gate-title");
         const message = gate.querySelector(".live-gate-text");
         const button = gate.querySelector('[data-action="load"]');
-        const canEmbed = model.canEmbedTwitch(playerSlot.clientWidth, playerSlot.clientHeight);
+        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+        const mobileLayout = typeof window.matchMedia === "function"
+            ? window.matchMedia("(max-width: 960px)").matches
+            : window.innerWidth <= 960;
+
+        // Em layout móvel, o player ocupa a largura do shell menos suas duas
+        // bordas de 1 px. Mede-se essa largura-base, não a largura expandida,
+        // para que o modo edge não oscile ao redimensionar.
+        const normalPlayerWidth = Math.max(0, page.clientWidth - 2);
+        const layoutMode = model.twitchLayoutMode(
+            normalPlayerWidth,
+            viewportWidth,
+            mobileLayout
+        );
+        if (stage.dataset.twitchFit !== layoutMode) {
+            stage.dataset.twitchFit = layoutMode;
+        }
+
+        const canEmbed = layoutMode !== "external" &&
+            model.canEmbedTwitch(playerSlot.clientWidth, playerSlot.clientHeight);
 
         if (!canEmbed) {
             if (playerSlot.querySelector("iframe")) {
                 clearEmbeds("twitch");
-                showGate("twitch", true);
             }
+            showGate("twitch", true);
             title.textContent = "Player indisponível nesta área";
-            message.textContent = "A Twitch exige uma área de vídeo com pelo menos 400 × 300 pixels. Use “Abrir na plataforma” para assistir diretamente.";
+            message.textContent = viewportWidth < 400
+                ? "A Twitch exige uma área de vídeo com pelo menos 400 × 300 pixels. Gire o celular para a horizontal ou use “Abrir na plataforma” para assistir diretamente."
+                : "Não foi possível obter a área mínima de 400 × 300 pixels. Use “Abrir na plataforma” para assistir diretamente.";
             button.hidden = true;
             return false;
         }
@@ -134,6 +158,17 @@
         message.textContent = "Ao carregar, a Twitch recebe seu acesso e pode gravar cookies, de acordo com a política dela.";
         button.hidden = false;
         return true;
+    }
+
+    function refreshTwitchLayout() {
+        if (state.platform !== "twitch") return;
+        const canEmbed = updateTwitchGateForWidth();
+        if (!canEmbed) return;
+
+        const playerSlot = slot("twitch", "player");
+        if (consented.has("twitch") && !playerSlot.querySelector("iframe")) {
+            mountTwitch();
+        }
     }
 
     function mountTwitch() {
@@ -243,11 +278,12 @@
 
         const playerSlot = slot("twitch", "player");
         if (typeof ResizeObserver === "function") {
-            const observer = new ResizeObserver(() => {
-                if (state.platform === "twitch") updateTwitchGateForWidth();
-            });
+            const observer = new ResizeObserver(refreshTwitchLayout);
             observer.observe(playerSlot);
         }
+        // Fallback para navegadores sem ResizeObserver e mudanças de orientação.
+        window.addEventListener("resize", refreshTwitchLayout, { passive: true });
+        window.addEventListener("orientationchange", refreshTwitchLayout, { passive: true });
     }
 
     bind();

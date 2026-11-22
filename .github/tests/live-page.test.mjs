@@ -46,6 +46,14 @@ test('Twitch: player só pode ser incorporado com largura mínima de 400 px', ()
   assert.equal(model.canEmbedTwitch('390', 300), false);
 });
 
+test('Twitch: remove margens somente quando o shell não comporta 400 px', () => {
+  assert.equal(model.twitchLayoutMode(400, 426, true), 'contained');
+  assert.equal(model.twitchLayoutMode(398, 424, true), 'edge');
+  assert.equal(model.twitchLayoutMode(370, 390, true), 'external');
+  assert.equal(model.twitchLayoutMode(370, 390, false), 'contained');
+  assert.equal(model.twitchLayoutMode(Number.NaN, 410, true), 'edge');
+});
+
 test('YouTube: a aba mantém somente o link externo do canal ao vivo', () => {
   assert.equal(model.EXTERNAL_URL.youtube, 'https://www.youtube.com/channel/UCkhjq3nJqlv5GrBgNRwIBFw/live');
   assert.equal(model.pickPlatform('youtube'), 'youtube');
@@ -96,13 +104,19 @@ test('jogo e título entram como texto, nunca como HTML', () => {
   assert.ok(!/innerHTML|insertAdjacentHTML/.test(js));
 });
 
-test('termos da Twitch: dimensões, player fixo no mobile e sem sobreposição', () => {
+test('termos da Twitch: dimensões, player fixo e expansão lateral condicional', () => {
   const css = read('css/pages/live.css');
   assert.ok(/aspect-ratio: 16 \/ 9; min-height: 302px;/.test(css));
   assert.ok(/position: sticky/.test(css));
   assert.ok(/body:has\(#livePage\) \.site-socials-mobile \{ display: none; \}/.test(css));
+  assert.ok(/\.live-stage\[data-twitch-fit="edge"\] \.live-player/.test(css));
+  assert.ok(/width: 100vw;[\s\S]*?margin-inline: calc\(50% - 50vw\);[\s\S]*?border: 0;/.test(css));
+  assert.ok(!/\.live-shell\[data-twitch-fit/.test(css), 'o shell e suas margens permanecem intactos');
   const js = read('js/pages/live/live.js');
   assert.ok(js.includes('model.canEmbedTwitch(playerSlot.clientWidth, playerSlot.clientHeight)'));
+  assert.ok(js.includes('model.twitchLayoutMode('));
+  assert.ok(js.includes('window.addEventListener("orientationchange", refreshTwitchLayout'));
+  assert.ok(js.includes('new ResizeObserver(refreshTwitchLayout)'));
 });
 
 test('privacidade descreve Twitch incorporada e YouTube como link externo', () => {
@@ -201,8 +215,8 @@ test('scripts da página: preload e execução permanecem na mesma ordem', () =>
   const preloads = [...html.matchAll(/<link rel="preload" as="script" href="([^"]+)"/g)].map(m => m[1]);
   const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]);
   assert.deepEqual(preloads, scripts);
-  assert.ok(scripts.indexOf('../js/core/api.js?v=48.3.61') < scripts.indexOf('../js/pages/live/live-model.js?v=48.4.1'));
-  assert.ok(scripts.indexOf('../js/pages/live/live-model.js?v=48.4.1') < scripts.indexOf('../js/pages/live/live.js?v=48.4.1'));
+  assert.ok(scripts.indexOf('../js/core/api.js?v=48.3.61') < scripts.indexOf('../js/pages/live/live-model.js?v=48.4.2'));
+  assert.ok(scripts.indexOf('../js/pages/live/live-model.js?v=48.4.2') < scripts.indexOf('../js/pages/live/live.js?v=48.4.2'));
 });
 
 test('o site não tem outros iframes além dos criados dinamicamente em /live/', () => {
