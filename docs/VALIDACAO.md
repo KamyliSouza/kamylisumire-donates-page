@@ -64,6 +64,7 @@ validador, testes, scripts e workflows. Validações da mesma ref cancelam execu
 | `agenda-page` | modelo da `/agenda/` (sete dias, contrato inválido falha, período da semana, artes) |
 | `agenda-today` | destaque do dia atual e rolagem inicial na Home; tema da página `/agenda/` |
 | `steam-client` | User-Agent, intervalo mínimo, repetição, disjuntor (429/403/falhas) |
+| `no-live-page` | ausência da rota `/live/`, dos arquivos exclusivos e de embeds Twitch/YouTube; preservação dos links e recursos de Lives na Home |
 | `loader-failsafe` | bootstrap idêntico + hash CSP, fail-safe de 6 s |
 | `reading-mode` | `reading.css` por último, bootstrap, contraste AA/AAA, preferências, atalhos |
 | `settings-placement` | engrenagem na barra, painel em `<body>`, integração com overlays mobile |

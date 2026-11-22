@@ -31,6 +31,10 @@ Twitch.
 - **Preview:** branch `site-v2` no Cloudflare Pages, protegido contra indexação.
 - **Assets gráficos:** `assets.kamylisumire.com`. Só a fonte Nunito é local.
 
+O site não possui uma página independente `/live/` nem incorpora players ou chats da Twitch/YouTube.
+As transmissões recentes e o status ao vivo continuam disponíveis na Home, com links para as
+plataformas oficiais.
+
 Detalhes em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 
 ## Estrutura do repositório

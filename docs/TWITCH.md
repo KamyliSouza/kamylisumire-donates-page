@@ -1,8 +1,10 @@
 # Integração Twitch
 
 Guia de implantação e operação da integração Twitch: **VODs** na aba Twitch de "Últimas lives" e
-**status ao vivo** no Hero da Home. As regras de código estão em [`AGENTS.md`](../AGENTS.md)
-(seção "Worker › Twitch") e as variáveis gerais do Worker em [`PRODUCAO.md`](PRODUCAO.md).
+**status ao vivo** no Hero da Home. O site não oferece uma página independente de transmissão nem
+incorpora player/chat da Twitch ou do YouTube: a reprodução ocorre nas plataformas oficiais, por links externos.
+As regras de código estão em [`AGENTS.md`](../AGENTS.md) (seção "Worker › Twitch") e as
+variáveis gerais do Worker em [`PRODUCAO.md`](PRODUCAO.md).
 
 ## 1. Como funciona
 

@@ -7,6 +7,15 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.5.0 — Remoção da página independente de transmissão
+
+- removida a rota `/live/` e seus arquivos exclusivos de HTML, CSS, JavaScript e testes; a URL deixa de constar no sitemap;
+- a Home permanece inalterada: carrossel de VODs Twitch/YouTube, links para as plataformas oficiais, status ao vivo e Hero continuam funcionando com os módulos e o Worker existentes;
+- nenhuma página pública incorpora player ou chat de Twitch/YouTube; os visitantes reproduzem transmissões diretamente nas plataformas oficiais;
+- Política de Privacidade atualizada para descrever o comportamento vigente e remover informações sobre embeds, carregamento sob demanda e preferências locais que pertenciam à página removida;
+- o validador passa a exigir `frame-src 'none'` em todas as páginas e um teste de regressão garante a ausência da rota e dos endpoints de embed no frontend; documentação de arquitetura, operação Twitch, manutenção e README atualizadas;
+- impacto: nenhum Worker, segredo, API, JSON editorial, sincronização Trello/Steam, ranking, layout global ou conteúdo das demais páginas foi alterado.
+
 ## V48.4.2 — Largura responsiva do player Twitch
 
 - em telas de até 960 px, a página mede a largura útil do shell e do viewport: mantém as margens existentes quando o player já dispõe de 400 px; quando não dispõe, mas o viewport tem pelo menos 400 px, somente o vídeo se expande até as bordas, sem remover as margens do cabeçalho, chat ou demais painéis;

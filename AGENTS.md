@@ -260,6 +260,9 @@ Mesmo carrossel visual, duas fontes: **Twitch** (aba primária, automática) e *
 - YouTube continua sem iframe/player, `YT.Player`, `iframe_api`, playlists automáticas, YouTube
   Data API ou chave Google. Dados da Twitch são normalizados pelo Worker e **não** são
   copiados para o JSON.
+- Não existe página independente `/live/` nem player/chat incorporado de Twitch ou YouTube.
+  A reprodução acontece nos serviços oficiais por links externos; não recrie embeds ou a rota
+  sem uma nova revisão documentada de requisitos, termos e privacidade.
 - Invariantes da integração Twitch estão em [Worker › Twitch](#twitch).
 - O Hero só mostra `Sobre | Ao vivo` quando `live === true`; offline, erro ou snapshot vencido
   mantêm o Hero padrão. Thumbnails da Twitch aceitam somente HTTPS.

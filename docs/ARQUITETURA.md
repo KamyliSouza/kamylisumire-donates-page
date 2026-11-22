@@ -94,6 +94,8 @@ nativos e só então aplica ordem, visibilidade, tamanho e variante. Os nativos 
 **Hero ao vivo.** O Hero consulta `/twitch/live`. Online, mostra `Sobre | Ao vivo`, anel no avatar e
 selo `AO VIVO` acoplado à borda; offline, erro ou snapshot vencido mantêm o Hero padrão.
 
+**Página independente de transmissão.** Não há rota `/live/` nem player/chat incorporados no site. O visitante assiste aos vídeos e às transmissões abrindo os links oficiais da Twitch ou do YouTube apresentados pela Home. A API da Twitch continua sendo usada somente no servidor para os snapshots públicos e, pela Home, para a lista de VODs e o status do Hero.
+
 **Navegação por hash.** `/#secao` aguarda `kamyli:site-revealed`, anima até a seção e estabiliza a
 posição durante mudanças posteriores de layout (`navbar.js`). `content.js` e `buttons.js` observam
 montagem tardia (Navbar, Footer e diálogo externo são criados por módulos separados), mas só
