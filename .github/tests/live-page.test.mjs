@@ -149,7 +149,9 @@ test('consentimento: nenhum iframe nem script de terceiros fora do clique', () =
   assert.ok(!/src="https?:\/\/(?!assets\.kamylisumire\.com)/i.test(html), 'sem script/imagem de terceiros no HTML');
   const js = read('js/pages/live/live.js');
   assert.ok(js.includes('data-action="load"'));
-  assert.ok(js.includes('CONSENT_PREFIX'));
+  assert.ok(js.includes('const consented = new Set()'));
+  assert.ok(!/kamyli:live-embed/.test(js), 'o consentimento não pode ficar salvo entre visitas');
+  assert.ok(!/store\.(get|set)\([^)]*consent/i.test(js));
   const mountIndex = js.indexOf('function mountTwitch');
   assert.ok(js.indexOf('createElement("iframe")') > -1 && mountIndex > -1);
   // O script do YouTube só é criado dentro de loadYouTubeApi, chamado por mountYouTube.

@@ -1,6 +1,7 @@
 /*
  * LIVE — V48.4.0. Abas Twitch/YouTube com player + chat.
- * - Nada de terceiros carrega antes do clique em "Carregar a transmissão".
+ * - Nada de terceiros carrega antes do clique em "Carregar a transmissão"; o clique não é
+ *   guardado entre visitas (só vale enquanto a página está aberta).
  * - Só um player existe por vez: trocar de aba desmonta o outro (sem áudio duplo).
  * - Espectadores, jogo e título: da Twitch, via Worker do próprio site (/twitch/live);
  *   as lives são simultâneas, então valem para as duas abas.
@@ -27,7 +28,8 @@
         title: document.getElementById("liveNowTitle")
     };
     const PREF_KEY = "kamyli:live-platform";
-    const CONSENT_PREFIX = "kamyli:live-embed:";
+    // Consentimento só vale nesta visita (em memória): a cada abertura da página é preciso clicar de novo.
+    const consented = new Set();
     const POLL_MS = 60000;
     const YT_DETECT_MS = 1500;
     const YT_DETECT_TRIES = 10;
@@ -309,7 +311,7 @@
         if (options.focus) tabs[next].focus();
 
         if (previous !== next || options.initial) {
-            if (store.get(CONSENT_PREFIX + next) === "1") mount(next);
+            if (consented.has(next)) mount(next);
         }
         renderStatus();
     }
@@ -325,7 +327,7 @@
                 select(list[(index + delta + list.length) % list.length], { focus: true });
             });
             panels[platform].querySelector('[data-action="load"]').addEventListener("click", () => {
-                store.set(CONSENT_PREFIX + platform, "1");
+                consented.add(platform);
                 mount(platform);
             });
         });

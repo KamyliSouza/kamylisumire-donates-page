@@ -11,8 +11,8 @@ publicadas ou não foram registradas aqui.
 
 - nova página `live/index.html` (`css/pages/live.css`, `js/pages/live/live-model.js`, `js/pages/live/live.js`):
   abas Twitch/YouTube, player e chat lado a lado no desktop (altura da janela, 16:9) e empilhados no celular;
-- nada de terceiros carrega antes do clique em “Carregar a transmissão” (a escolha fica em
-  `localStorage`, chaves `kamyli:live-embed:<plataforma>` e `kamyli:live-platform`); só um player existe
+- nada de terceiros carrega antes do clique em “Carregar a transmissão” (o clique vale só
+  enquanto a página está aberta; só a última aba escolhida fica em `localStorage`, chave `kamyli:live-platform`); só um player existe
   por vez, trocar de aba desmonta o outro;
 - Twitch: embeds oficiais com `parent` = host da página; espectadores vindos do Worker (`/twitch/live`);
 - YouTube: embed por canal (`live_stream?channel=UC…`, sem chave de API) e IFrame Player API para ler o ID da
@@ -27,7 +27,7 @@ publicadas ou não foram registradas aqui.
 - conformidade com os termos: no celular o player tem altura mínima de 300px (mínimo da Twitch) e fica fixo
   abaixo da barra superior ao rolar o chat; a cápsula flutuante “@ Redes” fica oculta em `/live/` para não
   cobrir player/chat (o YouTube proíbe cobrir o player); a Política de Privacidade passa a descrever o
-  carregamento sob demanda de Twitch/YouTube e as duas chaves de `localStorage`;
+  carregamento sob demanda de Twitch/YouTube e a chave de `localStorage` da aba escolhida;
 - `sitemap.xml` inclui `/live/`; novo `.github/tests/live-page.test.mjs`.
 - impacto: nenhum contrato de JSON/Worker alterado; Helper (Editor) precisa de 1.0.7 para não remover
   `/live/` do sitemap.
