@@ -124,6 +124,27 @@ test('YouTube: ID de vídeo sozinho não prova live (canal offline também tem I
   assert.equal(model.youtubeIsLive(null), false);
 });
 
+test('modos de exibição: valores válidos e padrão seguro', () => {
+  assert.deepEqual(JSON.parse(JSON.stringify(model.VIEWS)), ['default', 'theatre', 'compact']);
+  assert.equal(model.pickView('theatre'), 'theatre');
+  assert.equal(model.pickView('compact'), 'compact');
+  assert.equal(model.pickView('x'), 'default');
+  assert.equal(model.pickView(null), 'default');
+});
+
+test('modos de exibição: controles acessíveis, só desktop e só preferência salva', () => {
+  const html = read('live/index.html');
+  for (const view of ['default', 'theatre', 'compact']) assert.ok(html.includes(`data-view="${view}" aria-pressed`), view);
+  assert.ok(html.includes('id="liveChatToggle"') && html.includes('aria-pressed="true"'));
+  const css = read('css/pages/live.css');
+  assert.ok(/\.live-controls \{ display: none; \}/.test(css), 'controles escondidos por padrão (mobile)');
+  const desktop = css.slice(css.indexOf('@media (min-width: 961px)'));
+  for (const rule of ['data-view="theatre"', 'data-view="compact"', 'data-chat="hidden"']) assert.ok(desktop.includes(rule), rule);
+  const js = read('js/pages/live/live.js');
+  assert.ok(js.includes('kamyli:live-view') && js.includes('kamyli:live-chat'));
+  assert.equal((js.match(/localStorage\./g) || []).length, 2, 'storage só dentro do helper store (get/set com try/catch)');
+});
+
 test('aba padrão: valor desconhecido volta para a Twitch', () => {
   assert.equal(model.pickPlatform('youtube'), 'youtube');
   assert.equal(model.pickPlatform('twitch'), 'twitch');

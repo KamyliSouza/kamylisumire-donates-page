@@ -1,6 +1,6 @@
 /* LIVE — V48.4.0. Player e chat aproveitando a altura da janela. */
 .live-shell {
-    --live-h: calc(100dvh - 17.5rem);
+    --live-h: calc(100dvh - 19.5rem);
     width: min(1560px, calc(100% - 32px));
     margin: 20px auto 40px;
     display: grid;
@@ -35,11 +35,52 @@
 .live-chat-empty { padding: 24px; text-align: center; display: grid; place-content: center; height: 100%; }
 .live-note { margin: 0; padding: 12px 18px; color: var(--subtitle-color); font-size: .86rem; font-weight: 600; line-height: 1.55; }
 
+/* Controles de exibição: só no desktop (no celular o layout já é empilhado). */
+.live-controls { display: none; }
+.live-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; border: 1px solid var(--border-color, rgba(209, 120, 205, .34)); background: var(--card-bg, rgba(27, 17, 33, .6)); }
+.live-seg-btn { min-height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: transparent; color: var(--subtitle-color); font: inherit; font-size: .88rem; font-weight: 800; cursor: pointer; }
+.live-seg-btn[aria-pressed="true"] { background: var(--primary-color); color: #fff; }
+.live-seg-btn:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+.live-chat-toggle { border: 1px solid var(--border-color, rgba(209, 120, 205, .34)); background: var(--card-bg, rgba(27, 17, 33, .6)); }
+.live-chat-toggle[aria-pressed="true"] { background: var(--primary-color); }
+
 /* A cápsula flutuante "@ Redes" do mobile ficaria por cima do player/chat (os termos do YouTube proíbem cobrir o player). */
 body:has(#livePage) .site-socials-mobile { display: none; }
 
 /* A barra flutuante de redes do site ocupa ~70px à esquerda no desktop: deixa espaço para ela. */
 @media (min-width: 961px) {
+    .live-controls { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+    .live-tabs-wrap { gap: 8px 12px; }
+
+    /* Chat oculto: o player ocupa a linha inteira. */
+    .live-shell[data-chat="hidden"] .live-stage { grid-template-columns: minmax(0, calc(var(--live-h) * 16 / 9)); }
+    .live-shell[data-chat="hidden"] .live-chat { display: none; }
+
+    /* Teatro e Compacto: cabeçalho em uma linha fina e sem o aviso do rodapé. */
+    .live-shell[data-view="theatre"] .live-intro,
+    .live-shell[data-view="compact"] .live-intro { padding: 8px 16px; border-radius: 16px; flex-wrap: nowrap; gap: 6px 16px; }
+    .live-shell[data-view="theatre"] .live-intro > div,
+    .live-shell[data-view="compact"] .live-intro > div { display: none; }
+    .live-shell[data-view="theatre"] .live-now,
+    .live-shell[data-view="compact"] .live-now { flex: 1 1 auto; order: 0; margin: 0; min-width: 0; flex-wrap: nowrap; }
+    .live-shell[data-view="theatre"] .live-now-title,
+    .live-shell[data-view="compact"] .live-now-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; }
+    .live-shell[data-view="theatre"] .live-status,
+    .live-shell[data-view="compact"] .live-status { flex: 0 0 auto; margin-left: auto; font-size: .88rem; }
+    .live-shell[data-view="theatre"] .live-note,
+    .live-shell[data-view="compact"] .live-note { display: none; }
+
+    /* Teatro: largura total da janela, player no máximo da altura e chat mais estreito. */
+    .live-shell[data-view="theatre"] { --live-h: calc(100dvh - 14rem); margin-top: 12px; margin-bottom: 12px; margin-left: 88px; margin-right: 12px; gap: 8px; }
+    .live-shell[data-view="theatre"] .live-stage { grid-template-columns: minmax(0, calc(var(--live-h) * 16 / 9)) clamp(280px, 19vw, 380px); gap: 8px; }
+    .live-shell[data-view="theatre"][data-chat="hidden"] .live-stage { grid-template-columns: minmax(0, calc(var(--live-h) * 16 / 9)); }
+
+    /* Compacto: bloco pequeno e centralizado, bom para janelas menores ou segundo monitor. */
+    .live-shell[data-view="compact"] { --live-h: min(calc(100dvh - 14rem), 420px); max-width: 1080px; margin-top: 12px; margin-bottom: 12px; margin-left: max(88px, calc((100vw - 1080px) / 2)); margin-right: max(24px, calc((100vw - 1080px) / 2)); gap: 8px; }
+    .live-shell[data-view="compact"] .live-stage { grid-template-columns: minmax(0, calc(var(--live-h) * 16 / 9)) clamp(260px, 22vw, 320px); gap: 8px; }
+    .live-shell[data-view="compact"][data-chat="hidden"] .live-stage { grid-template-columns: minmax(0, calc(var(--live-h) * 16 / 9)); }
+    .live-shell[data-view="compact"] .live-player, .live-shell[data-view="compact"] .live-chat { border-radius: 12px; }
+
     .live-shell { width: auto; margin-left: max(88px, calc((100vw - 1560px) / 2)); margin-right: max(24px, calc((100vw - 1560px) / 2)); }
 }
 

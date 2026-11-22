@@ -2,6 +2,7 @@
  * LIVE — V48.4.0. Abas Twitch/YouTube com player + chat.
  * - Nada de terceiros carrega antes do clique em "Carregar a transmissão"; o clique não é
  *   guardado entre visitas (só vale enquanto a página está aberta).
+ * - Desktop: modos Padrão, Teatro e Compacto + mostrar/ocultar o chat (só preferência de interface).
  * - Só um player existe por vez: trocar de aba desmonta o outro (sem áudio duplo).
  * - Espectadores, jogo e título: da Twitch, via Worker do próprio site (/twitch/live);
  *   as lives são simultâneas, então valem para as duas abas.
@@ -28,6 +29,8 @@
         title: document.getElementById("liveNowTitle")
     };
     const PREF_KEY = "kamyli:live-platform";
+    const VIEW_KEY = "kamyli:live-view";
+    const CHAT_KEY = "kamyli:live-chat";
     // Consentimento só vale nesta visita (em memória): a cada abertura da página é preciso clicar de novo.
     const consented = new Set();
     const POLL_MS = 60000;
@@ -275,6 +278,35 @@
         }
     }
 
+    /* ---------- modos de exibição (desktop) ---------- */
+
+    function applyView(view, options = {}) {
+        const next = model.pickView(view);
+        page.dataset.view = next;
+        page.querySelectorAll(".live-seg-btn[data-view]").forEach(button => {
+            button.setAttribute("aria-pressed", String(button.dataset.view === next));
+        });
+        if (options.save) store.set(VIEW_KEY, next);
+    }
+
+    function applyChat(visible, options = {}) {
+        page.dataset.chat = visible ? "shown" : "hidden";
+        const toggle = document.getElementById("liveChatToggle");
+        toggle.setAttribute("aria-pressed", String(visible));
+        if (options.save) store.set(CHAT_KEY, visible ? "shown" : "hidden");
+    }
+
+    function bindViews() {
+        page.querySelectorAll(".live-seg-btn[data-view]").forEach(button => {
+            button.addEventListener("click", () => applyView(button.dataset.view, { save: true }));
+        });
+        document.getElementById("liveChatToggle").addEventListener("click", () => {
+            applyChat(page.dataset.chat === "hidden", { save: true });
+        });
+        applyView(store.get(VIEW_KEY));
+        applyChat(store.get(CHAT_KEY) !== "hidden");
+    }
+
     /* ---------- abas ---------- */
 
     function failHost(platform) {
@@ -334,6 +366,7 @@
     }
 
     bind();
+    bindViews();
     select(model.pickPlatform(store.get(PREF_KEY)), { initial: true });
     pollTwitch();
     window.setInterval(() => { if (!document.hidden) pollTwitch(); }, POLL_MS);

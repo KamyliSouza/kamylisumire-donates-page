@@ -104,6 +104,12 @@
         return info.isLive === undefined && Number(info.duration) === 0;
     }
 
+    // Modos de exibição do desktop: padrão, teatro (player máximo) e compacto (bloco pequeno).
+    const VIEWS = ["default", "theatre", "compact"];
+    function pickView(value) {
+        return VIEWS.includes(value) ? value : "default";
+    }
+
     function pickPlatform(value) {
         return PLATFORMS.includes(value) ? value : "twitch";
     }
@@ -111,6 +117,6 @@
     globalThis.KamyliLiveModel = Object.freeze({
         PLATFORMS, EXTERNAL_URL, normalizeHost, isVideoId,
         twitchPlayerUrl, twitchChatUrl, youtubePlayerUrl, youtubeChatUrl,
-        formatViewers, twitchStatus, nowPlaying, youtubeIsLive, YT_STATE, pickPlatform
+        formatViewers, twitchStatus, nowPlaying, youtubeIsLive, YT_STATE, VIEWS, pickView, pickPlatform
     });
 })();
