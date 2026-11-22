@@ -22,7 +22,7 @@ test('host: aceita domínios e localhost, recusa lixo e injeção', () => {
   }
 });
 
-test('Twitch: player e chat usam parent com o host da página', () => {
+test('Twitch: player e chat usam URLs oficiais e parent correspondente ao host', () => {
   const player = new URL(model.twitchPlayerUrl('kamylisumire.com'));
   assert.equal(player.origin, 'https://player.twitch.tv');
   assert.equal(player.searchParams.get('channel'), 'kamyli');
@@ -36,22 +36,30 @@ test('Twitch: player e chat usam parent com o host da página', () => {
   assert.equal(model.twitchChatUrl(''), null);
 });
 
-test('YouTube: player por canal com enablejsapi e origin; chat só com ID válido', () => {
-  const player = new URL(model.youtubePlayerUrl('https://kamylisumire.com'));
-  assert.equal(player.origin + player.pathname, 'https://www.youtube-nocookie.com/embed/live_stream');
-  assert.equal(player.searchParams.get('channel'), 'UCkhjq3nJqlv5GrBgNRwIBFw');
-  assert.equal(player.searchParams.get('enablejsapi'), '1');
-  assert.equal(player.searchParams.get('origin'), 'https://kamylisumire.com');
-  assert.equal(model.youtubePlayerUrl('não é url'), null);
+test('Twitch: player só pode ser incorporado com largura mínima de 400 px', () => {
+  assert.equal(model.canEmbedTwitch(400, 300), true);
+  assert.equal(model.canEmbedTwitch(400.5, 300.5), true);
+  assert.equal(model.canEmbedTwitch(399.99, 300), false);
+  assert.equal(model.canEmbedTwitch(400, 299.99), false);
+  assert.equal(model.canEmbedTwitch(0, 300), false);
+  assert.equal(model.canEmbedTwitch(Number.NaN, 300), false);
+  assert.equal(model.canEmbedTwitch('390', 300), false);
+});
 
-  const chat = new URL(model.youtubeChatUrl('dQw4w9WgXcQ', 'kamylisumire.com'));
-  assert.equal(chat.origin + chat.pathname, 'https://www.youtube.com/live_chat');
-  assert.equal(chat.searchParams.get('v'), 'dQw4w9WgXcQ');
-  assert.equal(chat.searchParams.get('embed_domain'), 'kamylisumire.com');
-  for (const bad of ['', 'curto', 'dQw4w9WgXcQ&x=1', null, 'dQw4w9WgXc!']) {
-    assert.equal(model.youtubeChatUrl(bad, 'kamylisumire.com'), null, String(bad));
-  }
-  assert.equal(model.youtubeChatUrl('dQw4w9WgXcQ', ''), null);
+test('YouTube: a aba mantém somente o link externo do canal ao vivo', () => {
+  assert.equal(model.EXTERNAL_URL.youtube, 'https://www.youtube.com/channel/UCkhjq3nJqlv5GrBgNRwIBFw/live');
+  assert.equal(model.pickPlatform('youtube'), 'youtube');
+});
+
+test('YouTube: código da página não usa player, chat ou API incorporados', () => {
+  const html = read('live/index.html');
+  const js = read('js/pages/live/live.js');
+  const modelJs = read('js/pages/live/live-model.js');
+  assert.ok(html.includes('Abrir transmissão no YouTube'));
+  assert.ok(html.includes('target="_blank" rel="noopener noreferrer"'));
+  assert.ok(!/youtube-nocookie\.com|youtube\.com\/iframe_api|youtube\.com\/live_chat/i.test(html + js + modelJs));
+  assert.ok(!/getVideoData|YT\.Player|live_stream\?channel=/i.test(js + modelJs));
+  assert.ok(!/createElement\(["']iframe["']\)[\s\S]{0,300}youtube/i.test(js));
 });
 
 test('espectadores: singular, plural e arredondamento seguro', () => {
@@ -88,40 +96,20 @@ test('jogo e título entram como texto, nunca como HTML', () => {
   assert.ok(!/innerHTML|insertAdjacentHTML/.test(js));
 });
 
-test('termos das plataformas: altura mínima, player fixo no mobile, sem cápsula por cima', () => {
+test('termos da Twitch: dimensões, player fixo no mobile e sem sobreposição', () => {
   const css = read('css/pages/live.css');
-  assert.ok(/aspect-ratio: 16 \/ 9; min-height: 300px;/.test(css), 'Twitch pede ao menos 400x300');
+  assert.ok(/aspect-ratio: 16 \/ 9; min-height: 302px;/.test(css));
   assert.ok(/position: sticky/.test(css));
   assert.ok(/body:has\(#livePage\) \.site-socials-mobile \{ display: none; \}/.test(css));
-  const html = read('live/index.html');
-  assert.ok(!/name="referrer"/i.test(html), 'não suprimir o Referer: o YouTube exige identificação do site');
   const js = read('js/pages/live/live.js');
-  assert.ok(js.includes('strict-origin-when-cross-origin'));
+  assert.ok(js.includes('model.canEmbedTwitch(playerSlot.clientWidth, playerSlot.clientHeight)'));
 });
 
-test('privacidade descreve o carregamento sob demanda de Twitch e YouTube', () => {
-  const html = read('privacidade/index.html');
-  assert.ok(html.includes('Carregar a transmissão'));
-  assert.ok(html.includes('Ao vivo'));
-});
-
-test('YouTube: ID de vídeo sozinho não prova live (canal offline também tem ID)', () => {
-  const id = 'dQw4w9WgXcQ';
-  const live = state => ({ videoId: id, isLive: true, duration: 0, state });
-  assert.equal(model.youtubeIsLive(live(model.YT_STATE.PLAYING)), true);
-  assert.equal(model.youtubeIsLive(live(model.YT_STATE.BUFFERING)), true);
-  assert.equal(model.youtubeIsLive(live(model.YT_STATE.PAUSED)), true);
-  // vídeo gravado/último vídeo do canal: isLive false ou duração > 0
-  assert.equal(model.youtubeIsLive({ videoId: id, isLive: false, duration: 3600, state: model.YT_STATE.PLAYING }), false);
-  assert.equal(model.youtubeIsLive({ videoId: id, duration: 3600, state: model.YT_STATE.PLAYING }), false);
-  // sem isLive, duração 0 + tocando é a marca de transmissão ao vivo
-  assert.equal(model.youtubeIsLive({ videoId: id, duration: 0, state: model.YT_STATE.PLAYING }), true);
-  // não iniciado, encerrado, na fila ou sem ID válido
-  for (const state of [model.YT_STATE.UNSTARTED, model.YT_STATE.ENDED, model.YT_STATE.CUED, undefined]) {
-    assert.equal(model.youtubeIsLive(live(state)), false, String(state));
-  }
-  assert.equal(model.youtubeIsLive({ videoId: '', isLive: true, state: 1 }), false);
-  assert.equal(model.youtubeIsLive(null), false);
+test('privacidade descreve Twitch incorporada e YouTube como link externo', () => {
+  const html = read('privacidade/index.html').replace(/\s+/g, ' ');
+  assert.ok(html.includes('player e o chat oficiais da Twitch'));
+  assert.ok(html.includes('A aba YouTube não'));
+  assert.ok(html.includes('não incorpora player, chat nem carrega código de API do YouTube'));
 });
 
 test('modos de exibição: valores válidos e padrão seguro', () => {
@@ -138,22 +126,23 @@ test('modos de exibição: controles acessíveis, só desktop e só preferência
   for (const view of ['compact', 'wide', 'theatre']) assert.ok(html.includes(`data-view="${view}" aria-pressed`), view);
   assert.ok(html.includes('id="liveChatToggle"') && html.includes('aria-pressed="true"'));
   const css = read('css/pages/live.css');
-  assert.ok(/\.live-controls \{ display: none; \}/.test(css), 'controles escondidos por padrão (mobile)');
+  assert.ok(/\.live-controls \{ display: none; \}/.test(css));
   const desktop = css.slice(css.indexOf('@media (min-width: 961px)'));
   for (const rule of ['data-view="theatre"', 'data-view="wide"', 'data-chat="hidden"']) assert.ok(desktop.includes(rule), rule);
   const js = read('js/pages/live/live.js');
   assert.ok(js.includes('kamyli:live-view') && js.includes('kamyli:live-chat'));
-  assert.equal((js.match(/localStorage\./g) || []).length, 2, 'storage só dentro do helper store (get/set com try/catch)');
+  assert.equal((js.match(/localStorage\./g) || []).length, 2);
+  assert.ok(js.includes('chatToggle.hidden = next !== "twitch"'));
 });
 
-test('modo Compacto é o padrão e segue as proporções do site', () => {
+test('modo Compacto preserva as proporções existentes do site', () => {
   const html = read('live/index.html');
   assert.ok(html.includes('data-view="compact" data-chat="shown"'));
   assert.ok(/data-view="compact" aria-pressed="true"/.test(html));
   const css = read('css/pages/live.css');
-  assert.ok(css.includes('width: min(1120px, calc(100% - 32px));'), 'container de 1120px como as outras páginas');
+  assert.ok(css.includes('width: min(1120px, calc(100% - 32px));'));
   assert.ok(css.includes('margin: 28px auto 56px;') && css.includes('gap: 14px;'));
-  assert.ok(css.includes('width: min(1120px, calc(100% - 104px)); margin-left: 76px; margin-right: 28px;'), 'ajuste do dock de redes (768–1279px)');
+  assert.ok(css.includes('width: min(1120px, calc(100% - 104px)); margin-left: 76px; margin-right: 28px;'));
   assert.ok(css.includes('border-radius: var(--radius-card, 24px)'));
 });
 
@@ -164,42 +153,41 @@ test('aba padrão: valor desconhecido volta para a Twitch', () => {
   assert.equal(model.pickPlatform(null), 'twitch');
 });
 
-test('CSP: só /live/ libera frames, e apenas os hosts esperados', () => {
+test('CSP: somente /live/ libera os hosts de frame oficiais da Twitch', () => {
   const cspOf = html => /http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html)[1];
   const live = cspOf(read('live/index.html'));
   const frame = /frame-src ([^;]+)/.exec(live)[1].split(' ').sort();
-  assert.deepEqual(frame, ['https://player.twitch.tv', 'https://www.twitch.tv', 'https://www.youtube-nocookie.com', 'https://www.youtube.com']);
+  assert.deepEqual(frame, ['https://player.twitch.tv', 'https://www.twitch.tv']);
+  assert.ok(!live.includes('youtube.com'));
   assert.ok(!live.includes("'unsafe-inline'"));
-  assert.deepEqual(/script-src ([^;]+)/.exec(live)[1].split(' ').filter(t => t.startsWith('https:')), ['https://www.youtube.com']);
+  assert.deepEqual(/script-src ([^;]+)/.exec(live)[1].split(' ').filter(t => t.startsWith('https:')), []);
 
   const pages = ['index.html', '404.html', 'agenda/index.html', 'artes/index.html', 'blog/index.html', 'doacoes/index.html', 'jogos/index.html', 'privacidade/index.html', 'uso-de-ia/index.html'];
   for (const page of pages) assert.ok(cspOf(read(page)).includes("frame-src 'none'"), page);
 });
 
-test('consentimento: nenhum iframe nem script de terceiros fora do clique', () => {
+test('carregamento: embed Twitch só após clique e consentimento não é persistido', () => {
   const html = read('live/index.html');
-  assert.ok(!/<iframe/i.test(html), 'o HTML não pode trazer iframe');
-  assert.ok(!/src="https?:\/\/(?!assets\.kamylisumire\.com)/i.test(html), 'sem script/imagem de terceiros no HTML');
   const js = read('js/pages/live/live.js');
+  assert.ok(!/<iframe/i.test(html));
+  assert.ok(!/src="https?:\/\/(?!assets\.kamylisumire\.com)/i.test(html));
   assert.ok(js.includes('data-action="load"'));
   assert.ok(js.includes('const consented = new Set()'));
-  assert.ok(!/kamyli:live-embed/.test(js), 'o consentimento não pode ficar salvo entre visitas');
+  assert.ok(!/kamyli:live-embed/.test(js));
   assert.ok(!/store\.(get|set)\([^)]*consent/i.test(js));
-  const mountIndex = js.indexOf('function mountTwitch');
-  assert.ok(js.indexOf('createElement("iframe")') > -1 && mountIndex > -1);
-  // O script do YouTube só é criado dentro de loadYouTubeApi, chamado por mountYouTube.
-  assert.equal(js.split('script.src = "https://www.youtube.com/iframe_api"').length - 1, 1);
-  assert.equal(js.split('await loadYouTubeApi()').length - 1, 1);
+  assert.ok(js.includes('createElement("iframe")'));
+  assert.ok(!/youtube\.com\/iframe_api|youtube\.com\/live_chat/.test(js));
 });
 
-test('uma plataforma por vez: trocar de aba desmonta a anterior', () => {
+test('trocar de plataforma desmonta o embed anterior e não carrega YouTube', () => {
   const js = read('js/pages/live/live.js');
   assert.ok(/if \(previous !== next\) unmount\(previous\);/.test(js));
-  assert.ok(js.includes('function unmountYouTube'));
-  assert.ok(js.includes('destroy'));
+  assert.ok(js.includes('function unmount(platform)'));
+  assert.ok(!js.includes('mountYouTube'));
+  assert.ok(!js.includes('unmountYouTube'));
 });
 
-test('página: abas acessíveis, status vivo e sem handlers inline', () => {
+test('página: abas acessíveis e sem handlers inline', () => {
   const html = read('live/index.html');
   assert.ok(html.includes('role="tablist"') && html.includes('aria-controls="livePanelTwitch"') && html.includes('aria-controls="livePanelYoutube"'));
   assert.ok(html.includes('id="liveStatus" role="status" aria-live="polite"'));
@@ -208,16 +196,16 @@ test('página: abas acessíveis, status vivo e sem handlers inline', () => {
   assert.ok(!/ style=/i.test(html));
 });
 
-test('scripts da página: preload e execução na mesma ordem', () => {
+test('scripts da página: preload e execução permanecem na mesma ordem', () => {
   const html = read('live/index.html');
   const preloads = [...html.matchAll(/<link rel="preload" as="script" href="([^"]+)"/g)].map(m => m[1]);
   const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]);
   assert.deepEqual(preloads, scripts);
-  assert.ok(scripts.indexOf('../js/core/api.js?v=48.3.61') < scripts.indexOf('../js/pages/live/live-model.js?v=48.4.0'));
-  assert.ok(scripts.indexOf('../js/pages/live/live-model.js?v=48.4.0') < scripts.indexOf('../js/pages/live/live.js?v=48.4.0'));
+  assert.ok(scripts.indexOf('../js/core/api.js?v=48.3.61') < scripts.indexOf('../js/pages/live/live-model.js?v=48.4.1'));
+  assert.ok(scripts.indexOf('../js/pages/live/live-model.js?v=48.4.1') < scripts.indexOf('../js/pages/live/live.js?v=48.4.1'));
 });
 
-test('o site não tem outro iframe além do de /live/', () => {
+test('o site não tem outros iframes além dos criados dinamicamente em /live/', () => {
   const dirs = ['', 'agenda/', 'artes/', 'blog/', 'doacoes/', 'jogos/', 'privacidade/', 'uso-de-ia/'];
   for (const dir of dirs) {
     const html = read(`${dir}index.html`);

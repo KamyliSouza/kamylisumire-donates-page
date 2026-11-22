@@ -171,16 +171,14 @@ SECURITY_CSP_REQUIRED_DIRECTIVES = (
     "frame-src 'none'",
 )
 
-# V48.4.0: /live/ é a única página que embute terceiros (player e chat da Twitch e do YouTube).
-# Os hosts abaixo são o contrato: qualquer outro destino de frame/script nela é erro.
+# V48.4.1: /live/ é a única página que embute terceiros (player e chat oficiais da Twitch).
+# O YouTube é acessado por link externo; não há frame nem script da plataforma nesta página.
 LIVE_PAGE_REL = "live/index.html"
 LIVE_FRAME_HOSTS = (
     "https://player.twitch.tv",
     "https://www.twitch.tv",
-    "https://www.youtube-nocookie.com",
-    "https://www.youtube.com",
 )
-LIVE_SCRIPT_HOST = "https://www.youtube.com"
+LIVE_SCRIPT_HOSTS = ()
 
 BUTTON_ICON_NAMES = {
     "none", "heart", "youtube", "arrow-right", "arrow-left",
@@ -2370,8 +2368,10 @@ def validate_architecture() -> None:
 
     for token in (
         'datetime="2026-11-22"',
-        "Última atualização: 22 de novembro de 2026 · V48.4.0",
-        "A página <strong>Ao vivo</strong> exibe o player e o chat da Twitch e do",
+        "Última atualização: 22 de novembro de 2026 · V48.4.1",
+        "Na página <strong>Ao vivo</strong>, o player e o chat oficiais da Twitch",
+        "A aba YouTube não",
+        "carrega código de API do YouTube",
         "Carregar a transmissão",
         "Steam Web API",
         "A Agenda e a página de Jogos são preparadas",
@@ -3831,8 +3831,8 @@ def validate_security_contracts() -> None:
                 error(f"{rel}: frame-src deve listar exatamente {', '.join(LIVE_FRAME_HOSTS)}.")
             script_match = re.search(r"script-src ([^;]+)", csp)
             script_hosts = [t for t in (script_match.group(1).split() if script_match else []) if t.startswith("https:")]
-            if script_hosts != [LIVE_SCRIPT_HOST]:
-                error(f"{rel}: script-src só pode liberar {LIVE_SCRIPT_HOST} além de 'self' e hashes.")
+            if tuple(script_hosts) != LIVE_SCRIPT_HOSTS:
+                error(f"{rel}: script-src não deve liberar scripts externos; use apenas 'self' e hashes.")
         elif frame_hosts != ["'none'"]:
             error(f"{rel}: apenas {LIVE_PAGE_REL} pode liberar frame-src; as demais usam 'none'.")
         if "'unsafe-inline'" in csp:

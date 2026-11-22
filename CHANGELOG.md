@@ -7,6 +7,14 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.4.1 — Conformidade dos embeds na página /live/
+
+- `/live/` deixa de incorporar o player e o chat do YouTube e remove a IFrame Player API; a aba YouTube permanece e direciona ao canal oficial em nova guia/aplicativo. Não há integração com YouTube Data API nem credenciais Google Cloud;
+- a CSP de `/live/` deixa de liberar scripts e frames do YouTube; somente os domínios oficiais necessários aos embeds Twitch permanecem autorizados;
+- o player Twitch só é carregado quando a largura disponível é de pelo menos 400 px; em telas mais estreitas, a página mantém o acesso direto à Twitch. O chat toggle fica restrito à aba Twitch;
+- a Política de Privacidade passa a descrever o comportamento atualizado; testes e validador verificam a ausência de embeds/API do YouTube e a dimensão mínima da Twitch;
+- impacto: sem alteração de Worker, APIs, JSON editorial, integrações externas ou layout global. O YouTube continua acessível por link, mas sem player/chat incorporados.
+
 ## V48.4.0 — Página /live/ com player e chat da Twitch e do YouTube
 
 - nova página `live/index.html` (`css/pages/live.css`, `js/pages/live/live-model.js`, `js/pages/live/live.js`):

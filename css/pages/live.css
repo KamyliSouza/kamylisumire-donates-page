@@ -1,4 +1,4 @@
-/* LIVE — V48.4.0. Modo Compacto (padrão) usa as mesmas proporções das outras páginas do site
+/* LIVE — V48.4.1. Modo Compacto (padrão) usa as mesmas proporções das outras páginas do site
    (container de 1120px, margens 28/56, espaçamento 14px, cantos --radius-card); Amplo e Teatro
    aproveitam mais a janela no desktop. */
 .live-shell {
@@ -37,6 +37,25 @@
 .live-chat-empty { padding: 24px; text-align: center; display: grid; place-content: center; height: 100%; }
 .live-note { margin: 0; padding: 12px 18px; color: var(--subtitle-color); font-size: .86rem; font-weight: 600; line-height: 1.55; }
 
+
+/* YouTube: abertura externa, sem player/chat incorporados nesta página. */
+.live-youtube-card {
+    min-height: 300px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 12px;
+    padding: clamp(24px, 5vw, 48px);
+    border: 1px solid var(--border-color, rgba(209, 120, 205, .34));
+    border-radius: var(--radius-card, 24px);
+    background: var(--card-bg, rgba(27, 17, 33, .6));
+    text-align: center;
+}
+.live-youtube-title { margin: 0; color: var(--primary-color); font-size: 1.35rem; font-weight: 900; }
+.live-youtube-text { max-width: 54ch; margin: 0; color: var(--subtitle-color); line-height: 1.6; }
+.live-youtube-link { text-decoration: none; }
+.live-chat-toggle[hidden] { display: none; }
+
 /* Controles de exibição: só no desktop (no celular o layout já é empilhado). */
 .live-controls { display: none; }
 .live-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; border: 1px solid var(--border-color, rgba(209, 120, 205, .34)); background: var(--card-bg, rgba(27, 17, 33, .6)); }
@@ -46,7 +65,7 @@
 .live-chat-toggle { border: 1px solid var(--border-color, rgba(209, 120, 205, .34)); background: var(--card-bg, rgba(27, 17, 33, .6)); }
 .live-chat-toggle[aria-pressed="true"] { background: var(--primary-color); }
 
-/* A cápsula flutuante "@ Redes" do mobile ficaria por cima do player/chat (os termos do YouTube proíbem cobrir o player). */
+/* A cápsula flutuante "@ Redes" do mobile ficaria por cima do player/chat oficial da Twitch. */
 body:has(#livePage) .site-socials-mobile { display: none; }
 
 /* O dock de redes do site ocupa a lateral esquerda de 768 a 1279px (mesmo ajuste das outras páginas). */
@@ -90,9 +109,9 @@ body:has(#livePage) .site-socials-mobile { display: none; }
 /* Telas médias e celulares: player em 16:9 na largura toda e chat embaixo. */
 @media (max-width: 960px) {
     .live-stage { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-    /* Twitch pede janela de vídeo de ao menos 400×300 e YouTube proíbe cobrir o player: altura mínima de 300px
-       e player fixo abaixo da barra superior enquanto se rola o chat. */
-    .live-player { width: 100%; aspect-ratio: 16 / 9; min-height: 300px; position: sticky; top: 76px; z-index: 5; }
+    /* O player Twitch exige ao menos 400×300px; em telas estreitas ele é substituído por link externo.
+       A altura mínima preserva a dimensão vertical e o player fica fixo ao rolar o chat. */
+    .live-player { width: 100%; aspect-ratio: 16 / 9; min-height: 302px; position: sticky; top: 76px; z-index: 5; }
     .live-chat { height: max(380px, 58dvh); }
     .live-intro { padding: 14px 16px; }
 }
