@@ -20,8 +20,9 @@ publicadas ou não foram registradas aqui.
   (exigiria a YouTube Data API, via Google Cloud);
 - CSP: `/live/` é a única página com `frame-src` (Twitch e YouTube) e `script-src https://www.youtube.com`;
   as demais seguem com `frame-src 'none'` e o validador confere isso;
-- desktop: modos de exibição **Padrão**, **Teatro** (player no máximo da janela, chat estreito, cabeçalho em uma
-  linha) e **Compacto** (bloco pequeno e centralizado), mais o botão **Chat** para ocultar/mostrar o chat;
+- desktop: modos de exibição **Compacto** (padrão: container de 1120px, margens 28/56, espaçamento 14px e
+  cantos `--radius-card`, como as outras páginas; cabeçalho em uma linha), **Amplo** (até 1560px, usa a altura da
+  janela) e **Teatro** (player no máximo da janela, chat estreito), mais o botão **Chat** para ocultar/mostrar;
   a escolha fica em `localStorage` (`kamyli:live-view`, `kamyli:live-chat`) e os controles só aparecem a partir
   de 961px (no celular o layout continua empilhado, com o player fixo);
 - YouTube: só marca “ao vivo” quando o player confirma transmissão (`isLive` ou duração 0, e tocando/pausado/em

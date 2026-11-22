@@ -104,10 +104,11 @@
         return info.isLive === undefined && Number(info.duration) === 0;
     }
 
-    // Modos de exibição do desktop: padrão, teatro (player máximo) e compacto (bloco pequeno).
-    const VIEWS = ["default", "theatre", "compact"];
+    // Modos de exibição do desktop: compacto (padrão, proporções do site), amplo (usa a altura da janela) e
+    // teatro (player no máximo da janela).
+    const VIEWS = ["compact", "wide", "theatre"];
     function pickView(value) {
-        return VIEWS.includes(value) ? value : "default";
+        return VIEWS.includes(value) ? value : "compact";
     }
 
     function pickPlatform(value) {

@@ -2,7 +2,7 @@
  * LIVE — V48.4.0. Abas Twitch/YouTube com player + chat.
  * - Nada de terceiros carrega antes do clique em "Carregar a transmissão"; o clique não é
  *   guardado entre visitas (só vale enquanto a página está aberta).
- * - Desktop: modos Padrão, Teatro e Compacto + mostrar/ocultar o chat (só preferência de interface).
+ * - Desktop: modos Compacto (padrão), Amplo e Teatro + mostrar/ocultar o chat (só preferência de interface).
  * - Só um player existe por vez: trocar de aba desmonta o outro (sem áudio duplo).
  * - Espectadores, jogo e título: da Twitch, via Worker do próprio site (/twitch/live);
  *   as lives são simultâneas, então valem para as duas abas.

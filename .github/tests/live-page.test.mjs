@@ -90,7 +90,7 @@ test('jogo e título entram como texto, nunca como HTML', () => {
 
 test('termos das plataformas: altura mínima, player fixo no mobile, sem cápsula por cima', () => {
   const css = read('css/pages/live.css');
-  assert.ok(/height: max\(300px, 56\.25vw\)/.test(css), 'Twitch pede ao menos 400x300');
+  assert.ok(/aspect-ratio: 16 \/ 9; min-height: 300px;/.test(css), 'Twitch pede ao menos 400x300');
   assert.ok(/position: sticky/.test(css));
   assert.ok(/body:has\(#livePage\) \.site-socials-mobile \{ display: none; \}/.test(css));
   const html = read('live/index.html');
@@ -125,24 +125,36 @@ test('YouTube: ID de vídeo sozinho não prova live (canal offline também tem I
 });
 
 test('modos de exibição: valores válidos e padrão seguro', () => {
-  assert.deepEqual(JSON.parse(JSON.stringify(model.VIEWS)), ['default', 'theatre', 'compact']);
+  assert.deepEqual(JSON.parse(JSON.stringify(model.VIEWS)), ['compact', 'wide', 'theatre']);
   assert.equal(model.pickView('theatre'), 'theatre');
   assert.equal(model.pickView('compact'), 'compact');
-  assert.equal(model.pickView('x'), 'default');
-  assert.equal(model.pickView(null), 'default');
+  assert.equal(model.pickView('wide'), 'wide');
+  assert.equal(model.pickView('x'), 'compact');
+  assert.equal(model.pickView(null), 'compact');
 });
 
 test('modos de exibição: controles acessíveis, só desktop e só preferência salva', () => {
   const html = read('live/index.html');
-  for (const view of ['default', 'theatre', 'compact']) assert.ok(html.includes(`data-view="${view}" aria-pressed`), view);
+  for (const view of ['compact', 'wide', 'theatre']) assert.ok(html.includes(`data-view="${view}" aria-pressed`), view);
   assert.ok(html.includes('id="liveChatToggle"') && html.includes('aria-pressed="true"'));
   const css = read('css/pages/live.css');
   assert.ok(/\.live-controls \{ display: none; \}/.test(css), 'controles escondidos por padrão (mobile)');
   const desktop = css.slice(css.indexOf('@media (min-width: 961px)'));
-  for (const rule of ['data-view="theatre"', 'data-view="compact"', 'data-chat="hidden"']) assert.ok(desktop.includes(rule), rule);
+  for (const rule of ['data-view="theatre"', 'data-view="wide"', 'data-chat="hidden"']) assert.ok(desktop.includes(rule), rule);
   const js = read('js/pages/live/live.js');
   assert.ok(js.includes('kamyli:live-view') && js.includes('kamyli:live-chat'));
   assert.equal((js.match(/localStorage\./g) || []).length, 2, 'storage só dentro do helper store (get/set com try/catch)');
+});
+
+test('modo Compacto é o padrão e segue as proporções do site', () => {
+  const html = read('live/index.html');
+  assert.ok(html.includes('data-view="compact" data-chat="shown"'));
+  assert.ok(/data-view="compact" aria-pressed="true"/.test(html));
+  const css = read('css/pages/live.css');
+  assert.ok(css.includes('width: min(1120px, calc(100% - 32px));'), 'container de 1120px como as outras páginas');
+  assert.ok(css.includes('margin: 28px auto 56px;') && css.includes('gap: 14px;'));
+  assert.ok(css.includes('width: min(1120px, calc(100% - 104px)); margin-left: 76px; margin-right: 28px;'), 'ajuste do dock de redes (768–1279px)');
+  assert.ok(css.includes('border-radius: var(--radius-card, 24px)'));
 });
 
 test('aba padrão: valor desconhecido volta para a Twitch', () => {
