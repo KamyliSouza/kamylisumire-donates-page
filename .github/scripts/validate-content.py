@@ -33,6 +33,11 @@ REQUIRED_FILES = (
     "js/pages/agenda/agenda-model.js",
     "js/pages/agenda/agenda-contrast.js",
     "js/pages/agenda/agenda.js",
+    "live/index.html",
+    "css/pages/live.css",
+    "js/pages/live/live-model.js",
+    "js/pages/live/live.js",
+    ".github/tests/live-page.test.mjs",
     "js/core/favicon.js",
     ".github/tests/agenda-page.test.mjs",
     ".github/tests/agenda-contrast.test.mjs",
@@ -165,6 +170,17 @@ SECURITY_CSP_REQUIRED_DIRECTIVES = (
     "form-action 'self'",
     "frame-src 'none'",
 )
+
+# V48.4.0: /live/ é a única página que embute terceiros (player e chat da Twitch e do YouTube).
+# Os hosts abaixo são o contrato: qualquer outro destino de frame/script nela é erro.
+LIVE_PAGE_REL = "live/index.html"
+LIVE_FRAME_HOSTS = (
+    "https://player.twitch.tv",
+    "https://www.twitch.tv",
+    "https://www.youtube-nocookie.com",
+    "https://www.youtube.com",
+)
+LIVE_SCRIPT_HOST = "https://www.youtube.com"
 
 BUTTON_ICON_NAMES = {
     "none", "heart", "youtube", "arrow-right", "arrow-left",
@@ -2353,8 +2369,10 @@ def validate_architecture() -> None:
         error(".github/workflows/sync-jogos.yml: steam-client.mjs precisa passar por node --check")
 
     for token in (
-        'datetime="2026-09-18"',
-        "Última atualização: 18 de setembro de 2026 · V48.3.31",
+        'datetime="2026-11-22"',
+        "Última atualização: 22 de novembro de 2026 · V48.4.0",
+        "A página <strong>Ao vivo</strong> exibe o player e o chat da Twitch e do",
+        "Carregar a transmissão",
         "Steam Web API",
         "A Agenda e a página de Jogos são preparadas",
         "não são feitas pelo navegador do visitante",
@@ -3651,6 +3669,7 @@ def validate_seo_and_deployment() -> None:
         "https://kamylisumire.com/doacoes/",
         "https://kamylisumire.com/jogos/",
         "https://kamylisumire.com/agenda/",
+        "https://kamylisumire.com/live/",
         "https://kamylisumire.com/privacidade/",
         "https://kamylisumire.com/uso-de-ia/",
     }
@@ -3801,8 +3820,21 @@ def validate_security_contracts() -> None:
             continue
         csp = match.group(1)
         for directive in SECURITY_CSP_REQUIRED_DIRECTIVES:
+            if rel == LIVE_PAGE_REL and directive == "frame-src 'none'":
+                continue
             if directive not in csp:
                 error(f"{rel}: CSP obrigatória ausente/incompleta: {directive}")
+        frame_match = re.search(r"frame-src ([^;]+)", csp)
+        frame_hosts = frame_match.group(1).split() if frame_match else []
+        if rel == LIVE_PAGE_REL:
+            if sorted(frame_hosts) != sorted(LIVE_FRAME_HOSTS):
+                error(f"{rel}: frame-src deve listar exatamente {', '.join(LIVE_FRAME_HOSTS)}.")
+            script_match = re.search(r"script-src ([^;]+)", csp)
+            script_hosts = [t for t in (script_match.group(1).split() if script_match else []) if t.startswith("https:")]
+            if script_hosts != [LIVE_SCRIPT_HOST]:
+                error(f"{rel}: script-src só pode liberar {LIVE_SCRIPT_HOST} além de 'self' e hashes.")
+        elif frame_hosts != ["'none'"]:
+            error(f"{rel}: apenas {LIVE_PAGE_REL} pode liberar frame-src; as demais usam 'none'.")
         if "'unsafe-inline'" in csp:
             error(f"{rel}: CSP V48.3.7 não deve reintroduzir unsafe-inline.")
         if "frame-ancestors" in csp:

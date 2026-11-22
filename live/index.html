@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UGnkBm0UIahFGAk+gz8v3WqeiWq3ZkxdkvnnDHqgQF0=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA=' https://www.youtube.com; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://player.twitch.tv https://www.twitch.tv https://www.youtube-nocookie.com https://www.youtube.com">
+
+    <title>Ao vivo | Kamyli Sumire</title>
+    <meta name="description" content="Assista às lives da Kamyli Sumire na Twitch e no YouTube, com o chat ao lado do player.">
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+    <meta name="theme-color" content="#B35EAF">
+
+    <link rel="canonical" href="https://kamylisumire.com/live/">
+
+    <link rel="preconnect" href="https://assets.kamylisumire.com">
+
+    <link rel="icon" type="image/webp" href="https://assets.kamylisumire.com/favicon.webp">
+    <link rel="icon" type="image/png" href="https://assets.kamylisumire.com/favicon.png">
+    <link rel="preload" as="image" href="https://assets.kamylisumire.com/favicon.webp" type="image/webp">
+
+    <!-- Preview social — mantém os textos históricos da branch main -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Kamyli Sumire">
+    <meta property="og:title" content="Ao vivo com a Kamyli Sumire">
+    <meta property="og:description" content="Player e chat da Twitch e do YouTube em uma só página.">
+    <meta property="og:url" content="https://kamylisumire.com/live/">
+    <meta property="og:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:secure_url" content="https://assets.kamylisumire.com/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Ao vivo com a Kamyli Sumire">
+
+    <!-- Discord também usa Open Graph; X / Twitter usa os campos abaixo -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ao vivo com a Kamyli Sumire">
+    <meta name="twitter:description" content="Player e chat da Twitch e do YouTube em uma só página.">
+    <meta name="twitter:image" content="https://assets.kamylisumire.com/preview.png">
+    <meta name="twitter:image:alt" content="Ao vivo com a Kamyli Sumire">
+
+    <!--
+        V48.3.70: com a CSP declarada em meta, o navegador deixa de descobrir antecipadamente
+        os scripts do fim do body e os baixava um após o outro. Estes preloads os buscam em
+        paralelo; a ordem de execução continua a dos scripts. Mantenha em sincronia com os
+        scripts da página (validate-content.py confere).
+    -->
+    <link rel="preload" as="script" href="../js/core/preferences.js?v=48.3.64">
+    <link rel="preload" as="script" href="../js/core/config.js">
+    <link rel="preload" as="script" href="../js/core/content.js?v=48.3.69">
+    <link rel="preload" as="script" href="../js/core/button-icons.js?v=48.3.44">
+    <link rel="preload" as="script" href="../js/core/buttons.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/mobile-overlay.js?v=48.3.47">
+    <link rel="preload" as="script" href="../js/core/navbar.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/settings.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/external-links.js?v=47">
+    <link rel="preload" as="script" href="../js/core/socials.js?v=48.3.49">
+    <link rel="preload" as="script" href="../js/core/page-transitions.js?v=46.3">
+    <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
+    <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
+    <link rel="preload" as="script" href="../js/core/api.js?v=48.3.61">
+    <link rel="preload" as="script" href="../js/pages/live/live-model.js?v=48.4.0">
+    <link rel="preload" as="script" href="../js/pages/live/live.js?v=48.4.0">
+    <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
+    <link rel="preload" as="script" href="../js/core/favicon.js?v=48.3.77">
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const THEME_KEY = "kamyli:ui-theme";
+            const BLUR_KEY = "kamyli:ui-blur";
+            const READING_KEY = "kamyli:ui-reading";
+            const READING_SIZE_KEY = "kamyli:ui-reading-size";
+            const LOW_MEMORY_GB = 2;
+            const LOW_CPU_THREADS = 2;
+
+            const read = (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            };
+
+            const media = (query) => {
+                try {
+                    return window.matchMedia(query).matches;
+                } catch {
+                    return false;
+                }
+            };
+
+            const connection =
+                navigator.connection ||
+                navigator.mozConnection ||
+                navigator.webkitConnection ||
+                null;
+
+            const supportsBlur = Boolean(
+                window.CSS &&
+                typeof window.CSS.supports === "function" &&
+                (
+                    window.CSS.supports("backdrop-filter", "blur(8px)") ||
+                    window.CSS.supports("-webkit-backdrop-filter", "blur(8px)")
+                )
+            );
+
+            const savedTheme = read(THEME_KEY);
+            const themePreference =
+                savedTheme === "auto" ||
+                savedTheme === "dark" ||
+                savedTheme === "light"
+                    ? savedTheme
+                    : "auto";
+
+            const systemTheme =
+                media("(prefers-color-scheme: dark)")
+                    ? "dark"
+                    : "light";
+
+            const theme =
+                themePreference === "auto"
+                    ? systemTheme
+                    : themePreference;
+
+            const savedBlur = read(BLUR_KEY);
+            const blurPreference =
+                savedBlur === "on" || savedBlur === "off"
+                    ? savedBlur
+                    : "auto";
+
+            let performanceProfile = "normal";
+            let performanceReason = "standard";
+
+            if (connection?.saveData) {
+                performanceProfile = "reduced";
+                performanceReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                performanceProfile = "reduced";
+                performanceReason = "low-cpu";
+            }
+
+            const readingPreference =
+                read(READING_KEY) === "on" ? "on" : "off";
+
+            const savedReadingSize = read(READING_SIZE_KEY);
+            const readingSize =
+                savedReadingSize === "large" ||
+                savedReadingSize === "xlarge"
+                    ? savedReadingSize
+                    : "normal";
+
+            let blur = "on";
+            let blurReason = "supported";
+
+            if (readingPreference === "on") {
+                blur = "off";
+                blurReason = "reading";
+            } else if (!supportsBlur) {
+                blur = "off";
+                blurReason = "unsupported";
+            } else if (blurPreference !== "auto") {
+                blur = blurPreference;
+                blurReason = "manual";
+            } else if (media("(prefers-reduced-transparency: reduce)")) {
+                blur = "off";
+                blurReason = "reduced-transparency";
+            } else if (connection?.saveData) {
+                blur = "off";
+                blurReason = "save-data";
+            } else if (
+                typeof navigator.deviceMemory === "number" &&
+                navigator.deviceMemory <= LOW_MEMORY_GB
+            ) {
+                blur = "off";
+                blurReason = "low-memory";
+            } else if (
+                typeof navigator.hardwareConcurrency === "number" &&
+                navigator.hardwareConcurrency <= LOW_CPU_THREADS
+            ) {
+                blur = "off";
+                blurReason = "low-cpu";
+            }
+
+            root.dataset.theme = theme;
+            root.dataset.themeMode =
+                themePreference === "auto" ? "auto" : "manual";
+            root.dataset.themePreference = themePreference;
+            root.dataset.blur = blur;
+            root.dataset.blurMode =
+                blurPreference === "auto" ? "auto" : "manual";
+            root.dataset.blurPreference = blurPreference;
+            root.dataset.blurReason = blurReason;
+            root.dataset.reading = readingPreference;
+            root.dataset.readingSize = readingSize;
+            root.dataset.performance = performanceProfile;
+            root.dataset.performanceReason = performanceReason;
+            root.style.colorScheme = theme;
+
+            window.KAMYLI_UI_BOOTSTRAP_STATE = Object.freeze({
+                theme,
+                themePreference,
+                blur,
+                blurPreference,
+                blurReason,
+                blurSupported: supportsBlur,
+                reading: readingPreference,
+                readingSize,
+                performance: performanceProfile,
+                performanceReason
+            });
+
+            /*
+             * V45.2 — fundo crítico para backdrop-filter.
+             *
+             * O CSS dos painéis borra a arte de fundo. Se a imagem ainda não
+             * estiver disponível quando o loader sai, o navegador recompõe o
+             * backdrop depois e isso parece um "blur atrasado".
+             *
+             * Só antecipamos a imagem quando blur está ligado, o perfil de
+             * performance é normal e Save-Data não está ativo.
+             */
+            if (
+                blur === "on" &&
+                performanceProfile === "normal" &&
+                !connection?.saveData
+            ) {
+                const isMobile =
+                    media("(max-width: 760px)");
+
+                const backdropUrl =
+                    isMobile
+                        ? "https://assets.kamylisumire.com/fundo-mobile.avif"
+                        : "https://assets.kamylisumire.com/fundo.avif";
+
+                const backdropPreload =
+                    document.createElement("link");
+
+                backdropPreload.rel = "preload";
+                backdropPreload.as = "image";
+                backdropPreload.type = "image/avif";
+                backdropPreload.href = backdropUrl;
+                backdropPreload.fetchPriority = "low";
+
+                window.KAMYLI_BACKDROP_ASSET_URL = backdropUrl;
+                window.KAMYLI_BACKDROP_PRELOAD_READY =
+                    new Promise(resolve => {
+                        backdropPreload.addEventListener(
+                            "load",
+                            () => resolve("loaded"),
+                            { once: true }
+                        );
+                        backdropPreload.addEventListener(
+                            "error",
+                            () => resolve("error"),
+                            { once: true }
+                        );
+                    });
+
+                document.head.appendChild(backdropPreload);
+            }
+        })();
+    </script>
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            window.KAMYLI_LOADER_STARTED_AT = performance.now();
+            root.classList.add("site-loading-pending");
+
+            window.KAMYLI_LOADER_FAILSAFE_TIMER = window.setTimeout(() => {
+                window.KAMYLI_LOADER_FAILSAFE_FIRED = true;
+                window.KAMYLI_LOADER_FAILSAFE_TIMER = null;
+
+                root.classList.remove(
+                    "site-loading-pending",
+                    "site-loading-visible",
+                    "site-navigation-loading",
+                    "site-page-arriving",
+                    "site-page-delay",
+                    "site-page-leaving",
+                    "site-revealing"
+                );
+                root.classList.add("site-ready");
+
+                delete root.dataset.pageTransition;
+                delete root.dataset.blurPreparing;
+
+                const loader = document.getElementById("site-loader");
+                if (loader) {
+                    loader.setAttribute("aria-hidden", "true");
+                    loader.classList.add("is-leaving");
+                }
+            }, 6000);
+        })();
+    </script>
+
+    <link
+        rel="preload"
+        href="../assets/fonts/nunito-variable.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    >
+
+    <link rel="stylesheet" href="../css/core/variables.css?v=48.3.58">
+    <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
+    <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
+    <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
+    <link rel="stylesheet" href="../css/pages/live.css?v=48.4.0">
+    <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
+
+    <!-- Dados estruturados para mecanismos de busca -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://kamylisumire.com/live/#pagina",
+      "url": "https://kamylisumire.com/live/",
+      "name": "Ao vivo | Kamyli Sumire",
+      "description": "Player e chat da Twitch e do YouTube em uma só página.",
+      "inLanguage": "pt-BR",
+      "isPartOf": { "@id": "https://kamylisumire.com/#website" }
+    }
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#livePage">Pular para o conteúdo</a>
+    <div
+        class="site-loader"
+        id="site-loader"
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando o site"
+    >
+        <div class="site-loader-inner">
+            <span class="site-loader-logo" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <noscript>
+        <style>
+            .site-loader { display: none !important; }
+        </style>
+    </noscript>
+
+    <header id="site-navbar"></header>
+
+    <main class="live-shell" id="livePage" tabindex="-1">
+        <header class="glass-panel live-intro">
+            <div>
+                <span class="eyebrow">Transmissão</span>
+                <h1>Ao vivo</h1>
+            </div>
+            <p class="live-now" id="liveNow" hidden>
+                <span class="live-now-game" id="liveNowGame"></span>
+                <span class="live-now-title" id="liveNowTitle"></span>
+            </p>
+            <p class="live-status" id="liveStatus" role="status" aria-live="polite">Escolha a plataforma para assistir.</p>
+        </header>
+
+        <section class="live-tabs-wrap" aria-label="Plataforma da transmissão">
+            <div class="live-tabs" role="tablist" aria-label="Plataforma">
+                <button class="live-tab" id="liveTabTwitch" type="button" role="tab" aria-selected="true" aria-controls="livePanelTwitch" data-platform="twitch">
+                    <span class="live-tab-name">Twitch</span>
+                    <span class="live-tab-badge" id="liveBadgeTwitch" hidden></span>
+                </button>
+                <button class="live-tab" id="liveTabYoutube" type="button" role="tab" aria-selected="false" aria-controls="livePanelYoutube" data-platform="youtube" tabindex="-1">
+                    <span class="live-tab-name">YouTube</span>
+                    <span class="live-tab-badge" id="liveBadgeYoutube" hidden></span>
+                </button>
+            </div>
+            <a class="live-external" id="liveExternal" href="https://www.twitch.tv/kamyli" target="_blank" rel="noopener noreferrer">Abrir na plataforma</a>
+        </section>
+
+        <section class="live-panel" id="livePanelTwitch" role="tabpanel" aria-labelledby="liveTabTwitch" data-platform="twitch">
+            <div class="live-stage">
+                <div class="live-player" data-slot="player">
+                    <div class="live-gate" data-slot="gate">
+                        <p class="live-gate-title">Player e chat da Twitch</p>
+                        <p class="live-gate-text">Ao carregar, a Twitch recebe seu acesso e pode gravar cookies, de acordo com a política dela.</p>
+                        <button class="button button-primary" type="button" data-action="load">Carregar a transmissão</button>
+                    </div>
+                </div>
+                <div class="live-chat" data-slot="chat"></div>
+            </div>
+        </section>
+
+        <section class="live-panel" id="livePanelYoutube" role="tabpanel" aria-labelledby="liveTabYoutube" data-platform="youtube" hidden>
+            <div class="live-stage">
+                <div class="live-player" data-slot="player">
+                    <div class="live-gate" data-slot="gate">
+                        <p class="live-gate-title">Player e chat do YouTube</p>
+                        <p class="live-gate-text">Ao carregar, o YouTube recebe seu acesso e pode gravar cookies, de acordo com a política dele.</p>
+                        <button class="button button-primary" type="button" data-action="load">Carregar a transmissão</button>
+                    </div>
+                </div>
+                <div class="live-chat" data-slot="chat">
+                    <p class="live-chat-empty" data-slot="chat-empty">O chat aparece aqui quando houver uma live no ar.</p>
+                </div>
+            </div>
+        </section>
+
+        <p class="glass-panel live-note">Os players e os chats são das plataformas e aparecem aqui só depois do seu clique. Só um player toca por vez. Quem não estiver ao vivo mostra um aviso no lugar do chat.</p>
+    </main>
+
+    <footer
+        class="site-footer"
+        id="site-footer"
+        aria-label="Créditos e informações do site"
+    ></footer>
+
+    <script src="../js/core/preferences.js?v=48.3.64"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/content.js?v=48.3.69"></script>
+    <script src="../js/core/button-icons.js?v=48.3.44"></script>
+    <script src="../js/core/buttons.js?v=48.3.66"></script>
+    <script src="../js/core/mobile-overlay.js?v=48.3.47"></script>
+    <script src="../js/core/navbar.js?v=48.3.66"></script>
+    <script src="../js/core/settings.js?v=48.3.66"></script>
+    <script src="../js/core/external-links.js?v=47"></script>
+    <script src="../js/core/socials.js?v=48.3.49"></script>
+    <script src="../js/core/page-transitions.js?v=46.3"></script>
+    <script src="../js/core/sanitize.js?v=48.3.60"></script>
+    <script src="../js/core/footer.js?v=48.3.66"></script>
+    <script src="../js/core/api.js?v=48.3.61"></script>
+    <script src="../js/pages/live/live-model.js?v=48.4.0"></script>
+    <script src="../js/pages/live/live.js?v=48.4.0"></script>
+    <script src="../js/core/loader.js?v=48.3.57"></script>
+    <script src="../js/core/favicon.js?v=48.3.77"></script>
+</body>
+</html>

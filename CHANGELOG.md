@@ -7,6 +7,29 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.4.0 — Página /live/ com player e chat da Twitch e do YouTube
+
+- nova página `live/index.html` (`css/pages/live.css`, `js/pages/live/live-model.js`, `js/pages/live/live.js`):
+  abas Twitch/YouTube, player e chat lado a lado no desktop (altura da janela, 16:9) e empilhados no celular;
+- nada de terceiros carrega antes do clique em “Carregar a transmissão” (a escolha fica em
+  `localStorage`, chaves `kamyli:live-embed:<plataforma>` e `kamyli:live-platform`); só um player existe
+  por vez, trocar de aba desmonta o outro;
+- Twitch: embeds oficiais com `parent` = host da página; espectadores vindos do Worker (`/twitch/live`);
+- YouTube: embed por canal (`live_stream?channel=UC…`, sem chave de API) e IFrame Player API para ler o ID da
+  live atual e abrir o chat (`live_chat?v=…&embed_domain=…`); o YouTube não mostra contagem de espectadores
+  (exigiria a YouTube Data API, via Google Cloud);
+- CSP: `/live/` é a única página com `frame-src` (Twitch e YouTube) e `script-src https://www.youtube.com`;
+  as demais seguem com `frame-src 'none'` e o validador confere isso;
+- jogo e título da live vêm da Twitch (`gameName`/`title` do Worker) e valem para as duas abas, pois as
+  transmissões são simultâneas; o texto entra por `textContent`, nunca como HTML;
+- conformidade com os termos: no celular o player tem altura mínima de 300px (mínimo da Twitch) e fica fixo
+  abaixo da barra superior ao rolar o chat; a cápsula flutuante “@ Redes” fica oculta em `/live/` para não
+  cobrir player/chat (o YouTube proíbe cobrir o player); a Política de Privacidade passa a descrever o
+  carregamento sob demanda de Twitch/YouTube e as duas chaves de `localStorage`;
+- `sitemap.xml` inclui `/live/`; novo `.github/tests/live-page.test.mjs`.
+- impacto: nenhum contrato de JSON/Worker alterado; Helper (Editor) precisa de 1.0.7 para não remover
+  `/live/` do sitemap.
+
 ## V48.3.78 — Contraste adaptativo da Agenda com véu mínimo
 
 - novo `js/pages/agenda/agenda-contrast.js` (regras puras): para o topo e a base de cada card, escolhe texto claro ou escuro e calcula o menor véu que atinge 4,5:1 (teto de 0,40); capas que já têm contraste não recebem véu. A decisão usa percentil alto/baixo de luminância (pior pixel) e o véu aplicado, em vez da média;
