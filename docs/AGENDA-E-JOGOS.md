@@ -146,6 +146,31 @@ membros e anexos do Trello **nunca** vão para `jogos.json`.
 É configuração editorial independente do sync: alterar não exige Trello, Steam nem novo
 sync. Se o arquivo estiver indisponível, o frontend usa 15.
 
+### Fichas editoriais da página `/jogos/`
+
+O catálogo automático (`data/content/jogos.json`) não recebe reviews nem links pessoais. O conteúdo
+editorial fica em `data/content/jogos-editorial.json`, associado pelo `gameId` (ID original de 24
+caracteres do cartão Trello). Mover um cartão entre listas ou renomear o jogo não quebra a associação.
+
+- `review`: texto simples, até 12.000 caracteres.
+- `rating`: nota opcional de 0 a 10, em passos de 0,5.
+- `recommendation`: `none`, `recommended`, `mixed` ou `not-recommended`.
+- `containsSpoilers`: se verdadeiro, a review fica atrás de uma seção expansível.
+- `playlistUrl`: link HTTPS de playlist do YouTube.
+- `episodes`: lista de `videoId` (11 caracteres), título e data (`YYYY-MM-DD`). O histórico é exibido por links externos.
+- `links`: até 20 links HTTPS com rótulo e endereço.
+
+Na página, cada cartão abre um popup (`<dialog>` nativo) com status, nota, recomendação, review (recolhida
+quando `containsSpoilers` é verdadeiro), playlist, histórico de transmissões (quantidade, intervalo de datas e
+um link por vídeo) e links adicionais, além do botão da Steam. Os cartões têm os modos **Pôsteres** (padrão) e
+**Compacto**. Jogos sem ficha continuam abrindo o popup, apenas sem essas seções, e o selo "Ficha editorial"
+só aparece nos que têm conteúdo.
+
+O JSON é manual e não é tocado pelos workflows de Trello/Steam. Entradas cujo cartão foi arquivado
+permanecem armazenadas para evitar perda editorial e voltam a aparecer caso o cartão retorne ao catálogo.
+A página não incorpora players nem chat, não usa YouTube Data API e continua mostrando a lista se o
+arquivo editorial estiver ausente ou indisponível.
+
 ## Problemas comuns
 
 | Sintoma | Causa provável |
@@ -154,4 +179,6 @@ sync. Se o arquivo estiver indisponível, o frontend usa 15.
 | Workflow falha com erro de `Data:` | Algum card tem `Data:` que não bate com a lista (dia da semana) da semana publicada. |
 | Live sem ícone da Steam | O `SteamAppID` não tem ícone resolvido em `jogos.json`. Rode o sync de Jogos primeiro. |
 | Jogo sem capa | Não há asset oficial na Steam; o placeholder é intencional. |
+| Ficha não aparece no popup | `gameId` diferente do ID original de 24 caracteres do cartão, ou arquivo editorial inválido (o validador aponta o campo). Cartões arquivados somem do catálogo, mas a ficha permanece no JSON. |
+| Playlist não aparece | A URL precisa ser HTTPS em `youtube.com/playlist?list=...`; links de vídeo ou de outro domínio são recusados pelo validador. |
 | Aviso de Steam interrompida | Disjuntor ativado (429/403). O cache foi preservado; tente novamente depois. |

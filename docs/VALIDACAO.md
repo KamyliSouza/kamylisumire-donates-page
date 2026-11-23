@@ -37,7 +37,8 @@ validador, testes, scripts e workflows. Validações da mesma ref cancelam execu
 ### Validador estrutural (`validate-content.py`)
 
 - JSON editorial válido, sem chaves duplicadas, com schemas e allowlists (Navbar, Home, Redes,
-  Artes, Lives, Agenda, Jogos, Blog, Doações, `interface.json` e fallbacks espelhados);
+  Artes, Lives, Agenda, Jogos (inclui `jogos-editorial.json`: `gameId` do Trello, nota em passos de 0,5,
+  URLs HTTPS, playlist/vídeos do YouTube e limites), Blog, Doações, `interface.json` e fallbacks espelhados);
 - arquivos obrigatórios presentes (inclui a documentação de `docs/`) e **nenhum arquivo extra em
   `docs/`** além dos permitidos; resíduos de saneamento proibidos ausentes;
 - toda página HTML: CSP mínima com hashes de blocos inline recalculados, sem `style=`/`on*=`,
@@ -70,6 +71,7 @@ validador, testes, scripts e workflows. Validações da mesma ref cancelam execu
 | `settings-placement` | engrenagem na barra, painel em `<body>`, integração com overlays mobile |
 | `color-contrast` | tokens de ação WCAG AA, uso semântico de `--primary-text`/`--button-*` |
 | `accessibility-semantics` | skip links, alvos focáveis, anúncios de resultados |
+| `jogos-editorial` | catálogo editorial separado, modos Pôsteres/Compacto, `<dialog>` com retorno de foco, título como `<h2>`, texto sem HTML, links HTTPS externos, sinal do loader |
 | `favicon` | favicon adaptativo, fallback, CSP de imagem |
 | `script-preload` | preloads em sincronia com os scripts de cada página |
 | `workflow-hardening` | timeouts, `checkout` por SHA, concorrência, permissões |
@@ -191,7 +193,13 @@ dos painéis depois do reveal.
 4. `/jogos/` com `jogosPorPagina: 15`: no máximo 15 cards por página no filtro **Todos**; trocar para `3` numa
    cópia de teste altera a paginação sem mexer em `jogos.js` nem no sync; sem `jogos-config.json` o fallback é 15;
    busca e troca de categoria voltam à página 1; `0` ou valor não inteiro é rejeitado pelo validador;
-5. a CI executa `node --check` em `sync-jogos.mjs` e `sync-agenda.mjs`.
+5. a CI executa `node --check` em `sync-jogos.mjs` e `sync-agenda.mjs`;
+6. `/jogos/` (manual, desktop e ~375 px, temas claro e escuro): alternar **Pôsteres/Compacto** sem overflow
+   horizontal; clicar num cartão abre o popup com o foco no botão de fechar; `Esc`, o botão × e o clique no
+   fundo fecham e devolvem o foco ao cartão; a página atrás não rola com o popup aberto; no celular a capa fica
+   ao lado do título e a review aparece sem rolar; jogo sem ficha mostra só título, status e Steam; uma ficha
+   com `containsSpoilers: true` mantém a review recolhida até abrir; com `jogos-editorial.json` removido ou
+   inválido a lista continua funcionando.
 
 ### 4.8 Doações, ranking e privacidade
 

@@ -28,6 +28,7 @@ Regras comuns a **todos** os arquivos:
 | `doacoes.json`, `ranking.json` | Textos de Doações e do ranking | manual |
 | `artes.json` | Textos e obras da Galeria | manual |
 | `jogos-config.json` | Paginação de `/jogos/` | manual |
+| `jogos-editorial.json` | Fichas editoriais de `/jogos/` (review, nota, playlist, transmissões, links), por `gameId` | manual |
 | `jogos.json` | Catálogo de jogos das lives | **gerado** pelo sync de Jogos |
 | `jogos-artwork.json`, `jogos-artwork-cache.json` | Artes e cache da Steam | **gerados** pelo sync de Jogos |
 
@@ -161,7 +162,19 @@ por dia (`lives`) sem remover os campos legados (`temLive`, `horario`, `titulo`,
 ## Jogos
 
 `jogos-config.json` tem `version: 1` e `jogosPorPagina` (inteiro de 1 a 60; atual: 15). Alterar esse valor não
-exige Trello, Steam nem novo sync. `jogos.json` e os arquivos de artwork são gerados pelo sync de Jogos.
+exige Trello, Steam nem novo sync. `jogos.json` e os arquivos de artwork são gerados pelo sync de Jogos e
+não devem receber conteúdo manual.
+
+`jogos-editorial.json` é a fonte manual das fichas da página `/jogos/`, separada do catálogo automático.
+Cada entrada em `games` usa `gameId`, o ID hexadecimal de 24 caracteres do cartão Trello, para se manter
+associada ao jogo quando o nome ou o status mudarem. O sync do Trello não lê nem reescreve esse arquivo.
+
+Campos por ficha: `review` (texto simples), `rating` (0 a 10, incrementos de 0,5), `recommendation`
+(`none`, `recommended`, `mixed` ou `not-recommended`), `containsSpoilers` (booleano), `playlistUrl`
+(playlist HTTPS do YouTube), `episodes` (vídeos individuais com `videoId`, `title` e `date`) e `links`
+(links HTTPS adicionais com `label` e `url`). A página mostra os vídeos como links externos; não incorpora
+players nem usa YouTube Data API. Fichas sem correspondência com um cartão atual permanecem no JSON para
+não perder texto caso um jogo seja arquivado ou retirado do quadro.
 
 ## Blog
 

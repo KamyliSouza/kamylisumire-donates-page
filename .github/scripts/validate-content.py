@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[2]
 ERRORS: list[str] = []
@@ -50,6 +50,7 @@ REQUIRED_FILES = (
     "data/content/artes.json",
     "data/content/jogos.json",
     "data/content/jogos-config.json",
+    "data/content/jogos-editorial.json",
     "data/content/redes.json",
     "data/content/jogos-artwork-cache.json",
     "data/content/buttons.json",
@@ -82,6 +83,7 @@ REQUIRED_FILES = (
     ".github/tests/worker-robustness.test.mjs",
     ".github/tests/color-contrast.test.mjs",
     ".github/tests/accessibility-semantics.test.mjs",
+    ".github/tests/jogos-editorial.test.mjs",
     ".github/tests/frontend-safety-retention.test.mjs",
     ".github/tests/api-client.test.mjs",
     ".github/tests/worker-auth.test.mjs",
@@ -1118,6 +1120,139 @@ def validate_jogos() -> None:
         error("js/core/navbar.js: link Jogos deve permanecer interno e reconhecido como página.")
 
 
+
+def validate_jogos_editorial() -> None:
+    path = "data/content/jogos-editorial.json"
+    data = load_json(path)
+    if not isinstance(data, dict):
+        error(f"{path}: raiz deve ser um objeto JSON.")
+        return
+
+    if set(data) - {"version", "games"}:
+        error(f"{path}: chaves não reconhecidas na raiz: {', '.join(sorted(set(data) - {'version', 'games'}))}.")
+    if data.get("version") != 1:
+        error(f"{path}: version deve permanecer 1.")
+    games = data.get("games")
+    if not isinstance(games, list):
+        error(f"{path}: games deve ser uma lista.")
+        return
+
+    seen_game_ids: set[str] = set()
+    dangerous_html = re.compile(r"<\/?(?:script|style|svg|iframe)\b", re.I)
+    video_id_pattern = re.compile(r"^[A-Za-z0-9_-]{11}$")
+    trello_id_pattern = re.compile(r"^[a-f0-9]{24}$", re.I)
+
+    for index, item in enumerate(games):
+        label = f"{path}: games[{index}]"
+        if not isinstance(item, dict):
+            error(f"{label} deve ser um objeto.")
+            continue
+        allowed = {"gameId", "review", "rating", "recommendation", "containsSpoilers", "playlistUrl", "episodes", "links"}
+        unknown = set(item) - allowed
+        if unknown:
+            error(f"{label} contém chaves desconhecidas: {', '.join(sorted(unknown))}.")
+
+        game_id = item.get("gameId")
+        if not isinstance(game_id, str) or not trello_id_pattern.fullmatch(game_id):
+            error(f"{label}.gameId deve ser o ID hexadecimal original de 24 caracteres do cartão Trello.")
+        elif game_id in seen_game_ids:
+            error(f"{label}.gameId duplicado: {game_id}.")
+        else:
+            seen_game_ids.add(game_id)
+
+        review = item.get("review", "")
+        if not isinstance(review, str):
+            error(f"{label}.review deve ser texto.")
+        else:
+            if len(review) > 12000:
+                error(f"{label}.review excede 12000 caracteres.")
+            if dangerous_html.search(review):
+                error(f"{label}.review não pode conter HTML/SVG/CSS bruto.")
+
+        if "rating" in item:
+            rating = item["rating"]
+            if (
+                not isinstance(rating, (int, float))
+                or isinstance(rating, bool)
+                or not 0 <= rating <= 10
+                or abs(rating * 2 - round(rating * 2)) > 1e-9
+            ):
+                error(f"{label}.rating deve ser um número entre 0 e 10, em incrementos de 0,5.")
+
+        if item.get("recommendation", "none") not in {"none", "recommended", "mixed", "not-recommended"}:
+            error(f"{label}.recommendation inválida.")
+        if "containsSpoilers" in item and not isinstance(item["containsSpoilers"], bool):
+            error(f"{label}.containsSpoilers deve ser verdadeiro ou falso.")
+
+        playlist = item.get("playlistUrl", "")
+        if not isinstance(playlist, str):
+            error(f"{label}.playlistUrl deve ser texto.")
+        elif playlist.strip():
+            parsed = urlparse(playlist.strip())
+            query = parse_qs(parsed.query)
+            if (
+                parsed.scheme != "https"
+                or parsed.hostname not in {"youtube.com", "www.youtube.com"}
+                or parsed.username
+                or parsed.password
+                or parsed.path != "/playlist"
+                or not query.get("list")
+                or not query["list"][0].strip()
+            ):
+                error(f"{label}.playlistUrl deve ser uma playlist HTTPS do YouTube (youtube.com/playlist?list=...).")
+
+        episodes = item.get("episodes", [])
+        if not isinstance(episodes, list):
+            error(f"{label}.episodes deve ser uma lista.")
+            episodes = []
+        if len(episodes) > 100:
+            error(f"{label}.episodes aceita no máximo 100 itens.")
+        episode_ids: set[str] = set()
+        for episode_index, episode in enumerate(episodes):
+            episode_label = f"{label}.episodes[{episode_index}]"
+            if not isinstance(episode, dict):
+                error(f"{episode_label} deve ser um objeto.")
+                continue
+            if set(episode) - {"videoId", "title", "date"}:
+                error(f"{episode_label} contém campos não reconhecidos.")
+            video_id = episode.get("videoId")
+            if not isinstance(video_id, str) or not video_id_pattern.fullmatch(video_id):
+                error(f"{episode_label}.videoId deve ser um ID válido de vídeo do YouTube (11 caracteres).")
+            elif video_id in episode_ids:
+                error(f"{episode_label}.videoId duplicado: {video_id}.")
+            else:
+                episode_ids.add(video_id)
+            title = episode.get("title", "")
+            if not isinstance(title, str) or len(title) > 300:
+                error(f"{episode_label}.title deve ser texto com até 300 caracteres.")
+            date_value = episode.get("date")
+            try:
+                if not isinstance(date_value, str) or date.fromisoformat(date_value).isoformat() != date_value:
+                    raise ValueError
+            except ValueError:
+                error(f"{episode_label}.date deve usar uma data válida no formato AAAA-MM-DD.")
+
+        links = item.get("links", [])
+        if not isinstance(links, list):
+            error(f"{label}.links deve ser uma lista.")
+            links = []
+        if len(links) > 20:
+            error(f"{label}.links aceita no máximo 20 itens.")
+        for link_index, link in enumerate(links):
+            link_label = f"{label}.links[{link_index}]"
+            if not isinstance(link, dict):
+                error(f"{link_label} deve ser um objeto.")
+                continue
+            if set(link) - {"label", "url"}:
+                error(f"{link_label} contém campos não reconhecidos.")
+            if not isinstance(link.get("label"), str) or not link["label"].strip() or len(link["label"]) > 100:
+                error(f"{link_label}.label deve ser texto não vazio com até 100 caracteres.")
+            url = link.get("url")
+            parsed = urlparse(url.strip()) if isinstance(url, str) else None
+            if not parsed or parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+                error(f"{link_label}.url deve ser uma URL HTTPS absoluta sem credenciais.")
+
+
 def validate_blog() -> None:
     legacy_sources = sorted((ROOT / "data/blog/posts").glob("*.json"))
     for source in legacy_sources:
@@ -2055,10 +2190,10 @@ def validate_architecture() -> None:
     if "css/pages/artes.css?v=48.3.58" not in artes_index:
         error("artes/index.html: cache-buster V48.3.58 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.3.22" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.22 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.3.60" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.3.51 ausente para js/pages/jogos/jogos.js.")
+    if "css/pages/jogos.css?v=48.5.1" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.5.1 ausente para css/pages/jogos.css.")
+    if "js/pages/jogos/jogos.js?v=48.5.1" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.5.1 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
@@ -4208,6 +4343,7 @@ def main() -> int:
     validate_home_content()
     validate_artes()
     validate_jogos()
+    validate_jogos_editorial()
     validate_lives()
     validate_blog()
     validate_agenda()

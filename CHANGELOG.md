@@ -1,5 +1,17 @@
 # Changelog
 
+## V48.5.1 — Fichas editoriais na página de Jogos
+
+- `/jogos/` passa a combinar o catálogo automático do Trello com `data/content/jogos-editorial.json`, arquivo manual associado pelo ID original de cada cartão; o sync Trello/Steam não lê nem reescreve o conteúdo editorial;
+- cartões seguem com pôsteres como visualização padrão e ganham modo compacto; clicar no cartão abre um dialog acessível com review, nota, recomendação, aviso de spoilers, playlist, histórico de vídeos/datas, links adicionais e acesso à Steam;
+- playlists, episódios e links abrem externamente; nenhum player/iframe ou YouTube Data API é usado;
+- quando o arquivo editorial não está disponível, o catálogo permanece funcional e os detalhes básicos do jogo continuam acessíveis;
+- validador e testes passam a conferir o contrato do arquivo editorial, os IDs do Trello e a segurança dos links; atualizados cache-busters de `jogos.js` e `jogos.css` para `48.5.1`.
+- acessibilidade e responsividade: o título de cada cartão continua sendo um `<h2>` real e o cartão inteiro é clicável por um botão sobreposto; no celular o popup mostra a capa pequena ao lado do título, com a review logo abaixo; o fundo do popup é opaco e a página atrás não rola enquanto ele está aberto; clicar-e-arrastar para selecionar texto não fecha mais o popup ao soltar sobre o fundo;
+- jogos sem ficha não exibem seção vazia no popup, e o selo "Ficha editorial" também considera recomendação e links adicionais;
+- documentação atualizada: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md`, `docs/ARQUITETURA.md`, `docs/VALIDACAO.md`, `docs/AGENDA-E-JOGOS.md` e `data/content/README.md` descrevem a ficha editorial, a interface de Jogos (modos, popup, acessibilidade) e as novas checagens.
+
+
 Histórico de versões do site, da mais recente para a mais antiga. Este é o **único** lugar para o
 histórico: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md` e `docs/` descrevem apenas o estado vigente.
 

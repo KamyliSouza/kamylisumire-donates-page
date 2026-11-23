@@ -172,6 +172,27 @@ sitemap (ver [SEO](#11-seo-e-publicação)).
 
 - O navegador do visitante não consulta o Trello nem a Steam.
 - A descrição completa de cards do Trello e demais metadados nunca vão para `jogos.json`.
+- Reviews, notas, playlists, episódios e links pessoais ficam somente em `data/content/jogos-editorial.json`, associados por `gameId` (ID original de 24 caracteres do cartão). Esse arquivo é manual, independente do sincronizador e nunca deve ser sobrescrito por `sync-jogos.mjs`.
+- `/jogos/` combina `jogos.json` e `jogos-editorial.json` no navegador. Se o JSON editorial estiver ausente ou inválido, a lista de jogos continua disponível sem as fichas.
+- A página apresenta playlists e VODs por links externos; não incorpora players, iframe ou chat e não usa YouTube Data API.
+- Interface de `/jogos/` (`jogos.js` + `jogos.css`):
+  - **Cartão:** `article.jogo-card` contém `div.jogo-card-media`, `div.jogo-card-shade`, `div.jogo-card-content`
+    (com o `<h2>` do jogo, o status e o selo "Ficha editorial") e, por último, `button.jogo-card-open`, uma
+    camada transparente sobre o cartão inteiro (`z-index: 4`). O título precisa continuar sendo um `<h2>` real
+    e **não** pode ficar dentro do botão (filhos de `<button>` perdem a semântica). O link da Steam é irmão do
+    botão (`z-index: 5`), nunca filho: não aninhe controles interativos.
+  - **Modos:** `Pôsteres` (padrão) e `Compacto` alternam `.is-compact` na grade; o estado vai em `aria-pressed`
+    e não é persistido.
+  - **Popup:** `<dialog id="jogoDialog">` nativo (`showModal()`), foco inicial no botão de fechar, `Esc`, botão
+    ×, clique no fundo (só quando o clique começa e termina no fundo) e retorno do foco ao cartão de origem.
+    Review, spoilers e todo texto editorial entram **somente** por `textContent`/`createElement`; nunca
+    `innerHTML`. Com o popup aberto, a página atrás não rola (`html:has(.jogo-dialog[open])`).
+  - **Ficha ausente:** jogo sem entrada em `jogos-editorial.json` não mostra seções vazias; só título, status,
+    Steam e, se não houver nada, a linha `#jogoDialogEmpty`. O selo "Ficha editorial" usa
+    `hasEditorialContent()` (review, nota, recomendação, playlist, episódios ou links).
+  - **Links externos:** HTTPS; playlist e vídeos só em `youtube.com`/`www.youtube.com` (playlist exige
+    `/playlist?list=`; vídeo é montado como `watch?v=<videoId>`); Steam só em `store.steampowered.com`; todos
+    com `target="_blank"` e `rel="noopener noreferrer"`.
 - Correspondência por nome continua exata e inequívoca; `SteamAppID:` é override
   autoritativo. Não reintroduza SteamGridDB, scraping da loja ou chaves da Steam no frontend.
 - Capas limitadas ao asset vertical original da Steam; sem asset oficial, preserve o
@@ -437,6 +458,7 @@ Formato de cada arquivo: [`data/content/README.md`](data/content/README.md) e
 Arquivos principais: `hero.json`, `artes.json`, `lives.json`, `regras.json`, `creditos.json`,
 `home-doacoes.json`, `home-cards.json`, `doacoes.json`, `ranking.json`, `footer.json`,
 `navbar.json`, `redes.json`, `buttons.json`, `interface.json`, `seo.json`, `jogos-config.json`,
+`jogos-editorial.json`,
 `data/blog/config.json`, `data/blog/posts.json`, `data/blog/posts/<slug>.md` e
 `data/agenda.json`. `jogos.json`, `jogos-artwork.json` e `jogos-artwork-cache.json` são
 gerados pelo sync de Jogos: não edite à mão.
@@ -623,6 +645,8 @@ Estados consolidados: `tokens:streamlabs_state`, `twitch:app_access_token_state`
 - Grades de resultados **não** usam `aria-live`. Artes e Jogos anunciam mudanças por uma região
   `.sr-only` com `role="status"`, `aria-live="polite"` e `aria-atomic="true"`, com mensagens
   curtas e quantitativas (sem reproduzir títulos/cards).
+- Diálogos modais usam `<dialog>` nativo com nome acessível (`aria-labelledby`), botão de fechar rotulado,
+  foco inicial dentro do diálogo e devolução do foco ao controle que o abriu (ver o popup de Jogos).
 - **Cor:** `--primary-color` é a cor de marca (títulos grandes, ícones, bordas, decoração);
   `--primary-text` é para texto normal/pequeno (no tema claro tem contraste AA; no escuro é o mesmo
   tom). Superfícies de ação preenchidas (CTAs, filtros/abas ativos, seletores) usam

@@ -71,7 +71,7 @@
 .jogo-card:hover .jogo-card-media img { transform: scale(1.018); }
 .jogo-card-shade { position: absolute; inset: 34% 0 0; z-index: 2; background: linear-gradient(to bottom, transparent 0%, rgba(12, 7, 14, .13) 24%, rgba(12, 7, 14, .64) 68%, rgba(12, 7, 14, .92) 100%); pointer-events: none; }
 .jogo-card-content { position: absolute; inset: auto 0 0; z-index: 3; display: grid; gap: 5px; padding: 44px 14px 13px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .82); pointer-events: none; }
-.jogo-card-content h2 { margin: 0; overflow: hidden; color: #fff; font-size: clamp(.96rem, 1.7vw, 1.12rem); font-weight: 900; line-height: 1.18; letter-spacing: -.012em; text-overflow: ellipsis; white-space: nowrap; }
+.jogo-card-title { display: block; width: 100%; margin: 0; overflow: hidden; color: #fff; font-size: clamp(.96rem, 1.7vw, 1.12rem); font-weight: 900; line-height: 1.18; letter-spacing: -.012em; text-overflow: ellipsis; white-space: nowrap; }
 .jogo-card-status { overflow: hidden; color: rgba(255, 255, 255, .9); font-size: .78rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .jogo-card-steam { width: fit-content; min-height: 30px; display: inline-flex; align-items: center; margin-top: 6px; padding: 5px 9px; color: #fff; background: rgba(10, 7, 14, .42); border: 1px solid rgba(255, 255, 255, .28); border-radius: 999px; font-size: .76rem; font-weight: 900; line-height: 1; text-decoration: none; pointer-events: auto; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .jogo-card-steam:hover, .jogo-card-steam:focus-visible { color: #fff; background: rgba(10, 7, 14, .62); border-color: rgba(255, 255, 255, .62); outline: none; }
@@ -96,3 +96,459 @@
 @media (max-width: 380px) { .jogos-grid { grid-template-columns: 1fr; } }
 
 @media (prefers-reduced-motion: reduce) { .jogos-filter, .jogos-filter-arrow, .jogo-card, .jogo-card-media img, .jogos-page-button { transition-duration: .01ms !important; } }
+
+
+/* V48.5.1 — fichas editoriais, modal acessível e modo compacto. */
+.jogos-view-switch {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 4px;
+    padding: 4px;
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+}
+
+.jogos-view-button {
+    min-height: 36px;
+    padding: 7px 12px;
+    color: var(--subtitle-color);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+.jogos-view-button[aria-pressed="true"],
+.jogos-view-button:hover,
+.jogos-view-button:focus-visible {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.jogo-card {
+    aspect-ratio: 2 / 3;
+}
+
+/* O botão é uma camada transparente sobre o cartão inteiro; o título continua sendo um <h2> real. */
+.jogo-card-open {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.jogo-card-open:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -4px;
+    border-radius: 16px;
+}
+
+.jogo-card-media {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+}
+
+.jogo-card-content {
+    padding-bottom: 50px;
+}
+
+.jogo-card-editorial-marker {
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 3px;
+    padding: 3px 7px;
+    color: #fff;
+    background: rgba(179, 94, 175, .78);
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-shadow: none;
+}
+
+.jogo-card-steam {
+    position: absolute;
+    z-index: 5;
+    left: 14px;
+    bottom: 12px;
+}
+
+.jogos-grid.is-compact {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    align-items: stretch;
+}
+
+.jogos-grid.is-compact .jogo-card {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    min-height: 132px;
+    aspect-ratio: auto;
+}
+
+.jogos-grid.is-compact .jogo-card-media {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    inset: auto;
+    width: 88px;
+    min-height: 132px;
+    aspect-ratio: 2 / 3;
+}
+
+.jogos-grid.is-compact .jogo-card-media img,
+.jogos-grid.is-compact .jogo-card-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.jogos-grid.is-compact .jogo-card-shade {
+    display: none;
+}
+
+.jogos-grid.is-compact .jogo-card-content {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    inset: auto;
+    align-content: center;
+    min-width: 0;
+    gap: 7px;
+    padding: 12px 12px 42px;
+    color: var(--text-color);
+    text-shadow: none;
+}
+
+.jogos-grid.is-compact .jogo-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--text-color);
+    font-size: .98rem;
+    line-height: 1.24;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.jogos-grid.is-compact .jogo-card-status {
+    color: var(--subtitle-color);
+}
+
+.jogos-grid.is-compact .jogo-card-editorial-marker {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: var(--card-border);
+}
+
+.jogos-grid.is-compact .jogo-card-steam {
+    left: 100px;
+    right: 10px;
+    bottom: 9px;
+    min-height: 28px;
+    width: fit-content;
+    max-width: calc(100% - 110px);
+    padding: 5px 8px;
+    color: var(--text-color);
+    background: var(--nav-bg);
+    border-color: var(--card-border);
+    font-size: .7rem;
+}
+
+.jogo-dialog {
+    width: min(900px, calc(100% - 28px));
+    max-width: 900px;
+    max-height: min(88dvh, 820px);
+    padding: 0;
+    color: var(--text-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-card);
+    overflow: visible;
+}
+
+.jogo-dialog::backdrop {
+    background: rgba(18, 12, 20, .58);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.jogo-dialog-panel {
+    position: relative;
+    max-height: min(88dvh, 820px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    color: var(--text-color);
+    /* Superfície opaca (mesmo padrão do painel de ajustes): o card-bg translúcido é composto sobre --bg-color. */
+    background-color: var(--bg-color);
+    background-image: linear-gradient(var(--card-bg), var(--card-bg));
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+.jogo-dialog-close {
+    position: sticky;
+    top: 12px;
+    float: right;
+    z-index: 5;
+    width: 42px;
+    height: 42px;
+    margin: 12px 12px -54px 0;
+    color: var(--text-color);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font: inherit;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.jogo-dialog-close:hover,
+.jogo-dialog-close:focus-visible {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.jogo-dialog-layout {
+    display: grid;
+    grid-template-columns: minmax(190px, 280px) minmax(0, 1fr);
+    gap: 26px;
+    padding: 26px;
+}
+
+.jogo-dialog-art {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: var(--primary-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+}
+
+.jogo-dialog-art img,
+.jogo-dialog-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.jogo-dialog-placeholder {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 42%, var(--primary-soft), transparent 58%), var(--nav-bg);
+}
+
+.jogo-dialog-placeholder .jogo-card-placeholder-mark {
+    width: 82px;
+    height: 82px;
+}
+
+.jogo-dialog-body {
+    min-width: 0;
+    padding: 12px 4px 8px 0;
+}
+
+.jogo-dialog-heading h2 {
+    margin: 8px 52px 10px 0;
+    color: var(--primary-color);
+    font-size: clamp(1.55rem, 3vw, 2.25rem);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -.025em;
+}
+
+.jogo-dialog-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.jogo-dialog-status,
+.jogo-dialog-rating,
+.jogo-dialog-recommendation {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    color: var(--text-color);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 900;
+}
+
+.jogo-dialog-rating {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--card-border));
+}
+
+.jogo-dialog-section {
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid var(--card-border);
+}
+
+.jogo-dialog-section h3 {
+    margin: 0 0 9px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.jogo-dialog-review {
+    margin: 0;
+    color: var(--subtitle-color);
+    font-size: .92rem;
+    font-weight: 600;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.jogo-dialog-muted {
+    margin: 0 0 10px;
+    color: var(--subtitle-color);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.jogo-dialog-spoilers {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--notice-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+}
+
+.jogo-dialog-spoilers summary {
+    color: var(--primary-text);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.jogo-dialog-spoilers[open] .jogo-dialog-review {
+    padding-top: 10px;
+}
+
+.jogo-dialog-links,
+.jogo-dialog-episodes {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.jogo-dialog-links a,
+.jogo-dialog-episodes a {
+    color: var(--primary-text);
+    font-weight: 800;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+}
+
+.jogo-dialog-episodes li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.jogo-dialog-episode-date {
+    flex: 0 0 auto;
+    color: var(--subtitle-color);
+    font-size: .76rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.jogo-dialog [hidden] {
+    display: none !important;
+}
+
+.jogo-dialog-empty {
+    margin-top: 20px;
+}
+
+/* Com o popup aberto, a página atrás não rola. */
+html:has(.jogo-dialog[open]) {
+    overflow: hidden;
+}
+
+@media (max-width: 760px) {
+    .jogos-view-switch { width: 100%; }
+    .jogos-view-button { flex: 1 1 50%; }
+    /* Celular: capa pequena ao lado do título; review e links ocupam a largura toda logo abaixo. */
+    .jogo-dialog-layout {
+        grid-template-columns: 96px minmax(0, 1fr);
+        column-gap: 14px;
+        row-gap: 0;
+        padding: 16px;
+    }
+    .jogo-dialog-art {
+        position: relative;
+        top: auto;
+        grid-column: 1;
+        grid-row: 1;
+        width: 96px;
+        margin-top: 4px;
+        border-radius: 14px;
+    }
+    .jogo-dialog-body { display: contents; }
+    .jogo-dialog-heading {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        padding-top: 4px;
+    }
+    .jogo-dialog-heading h2 {
+        margin: 6px 40px 8px 0;
+        font-size: 1.3rem;
+        overflow-wrap: anywhere;
+    }
+    .jogo-dialog-section,
+    .jogo-dialog-empty { grid-column: 1 / -1; }
+    .jogo-dialog-placeholder .jogo-card-placeholder-mark { width: 44px; height: 44px; }
+}
+
+@media (max-width: 620px) {
+    .jogos-grid.is-compact { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .jogos-view-button { transition-duration: .01ms !important; }
+}

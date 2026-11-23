@@ -14,7 +14,7 @@ Visitante (navegador)
 │  │                                       YouTube ─► lives.json (local)
 │  │                             └─ Hero:  /twitch/live ─► snapshot KV
 │  ├─ /agenda/    Agenda ...... data/agenda.json + jogos-artwork.json
-│  ├─ /jogos/     Jogos ....... jogos.json + jogos-config.json
+│  ├─ /jogos/     Jogos ....... jogos.json + jogos-config.json + jogos-editorial.json
 │  ├─ /artes/     Galeria ..... artes.json + imagens HTTPS externas
 │  ├─ /blog/      Blog ........ data/blog/*
 │  ├─ /doacoes/   Doações ..... doacoes.json + ranking ─► API
@@ -67,7 +67,7 @@ Princípios de disponibilidade:
 | `agenda/` | `agenda-model.js` (regras puras, testável em Node) e `agenda.js` (DOM) |
 | `artes/` | `artes.js` (grade, busca, lightbox) |
 | `blog/` | `blog.js` (listagem e busca) |
-| `jogos/` | `jogos.js` (catálogo, filtros, paginação) |
+| `jogos/` | `jogos.js` (catálogo, filtros, paginação, modos de visualização, popup de detalhes e fichas editoriais) |
 | `doacoes/` | `content.js`, `doacoes.js`, `ranking.js` (apenas aqui) |
 
 ## 3. Páginas e fluxos de dados
@@ -107,7 +107,9 @@ Alimentadas pelos syncs do Trello (ver [`AGENDA-E-JOGOS.md`](AGENDA-E-JOGOS.md))
 
 - `/agenda/` combina `data/agenda.json` com `data/content/jogos-artwork.json` em `agenda-model.js` e
   desenha em `agenda.js`. A Home mostra a mesma agenda no carrossel `#agenda`.
-- `/jogos/` lê `jogos.json` e `jogos-config.json` (paginação).
+- `/jogos/` lê `jogos.json`, `jogos-config.json` (paginação) e `jogos-editorial.json` (fichas manuais, associadas por
+  `gameId`). O arquivo editorial é opcional: se faltar ou for inválido, a lista continua funcionando sem as fichas.
+  Playlists, vídeos e links abrem em nova aba; não há player, iframe, chat nem YouTube Data API.
 - Os ícones da Steam na Agenda reutilizam o que o sync de Jogos já resolveu; a Agenda não consulta a Steam.
 
 ### Galeria de Artes

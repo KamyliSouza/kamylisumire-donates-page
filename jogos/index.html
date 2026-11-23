@@ -62,7 +62,7 @@
     <link rel="preload" as="script" href="../js/core/sanitize.js?v=48.3.60">
     <link rel="preload" as="script" href="../js/core/footer.js?v=48.3.66">
     <link rel="preload" as="script" href="../js/core/horizontal-scroll.js?v=48.3.21">
-    <link rel="preload" as="script" href="../js/pages/jogos/jogos.js?v=48.3.60">
+    <link rel="preload" as="script" href="../js/pages/jogos/jogos.js?v=48.5.1">
     <link rel="preload" as="script" href="../js/core/loader.js?v=48.3.57">
     <link rel="preload" as="script" href="../js/core/favicon.js?v=48.3.77">
     <script>
@@ -317,7 +317,7 @@
     <link rel="stylesheet" href="../css/core/global.css?v=48.3.66">
     <link rel="stylesheet" href="../css/core/navbar.css?v=48.3.67">
     <link rel="stylesheet" href="../css/core/socials.css?v=48.3.49">
-    <link rel="stylesheet" href="../css/pages/jogos.css?v=48.3.22">
+    <link rel="stylesheet" href="../css/pages/jogos.css?v=48.5.1">
     <link rel="stylesheet" href="../css/core/reading.css?v=48.3.66">
 
     <!-- Dados estruturados para mecanismos de busca -->
@@ -384,11 +384,63 @@
                 >›</button>
             </div>
             <input class="jogos-search" id="jogosSearch" type="search" placeholder="Buscar um jogo..." aria-label="Buscar jogos" autocomplete="off">
+            <div class="jogos-view-switch" role="group" aria-label="Modo de visualização">
+                <button class="jogos-view-button" id="jogosViewPoster" type="button" aria-pressed="true">Pôsteres</button>
+                <button class="jogos-view-button" id="jogosViewCompact" type="button" aria-pressed="false">Compacto</button>
+            </div>
         </section>
 
         <p class="sr-only" id="jogosResultsStatus" role="status" aria-live="polite" aria-atomic="true"></p>
         <section class="jogos-grid" id="jogosGrid" aria-label="Jogos das lives"></section>
         <nav class="glass-panel jogos-pagination" id="jogosPagination" aria-label="Páginas de jogos" hidden></nav>
+
+        <dialog class="jogo-dialog" id="jogoDialog" aria-labelledby="jogoDialogTitle">
+            <div class="jogo-dialog-panel">
+                <button class="jogo-dialog-close" id="jogoDialogClose" type="button" aria-label="Fechar detalhes do jogo">×</button>
+                <div class="jogo-dialog-layout">
+                    <div class="jogo-dialog-art" aria-hidden="true">
+                        <div class="jogo-dialog-placeholder" id="jogoDialogPlaceholder"><span class="jogo-card-placeholder-mark"></span></div>
+                        <img id="jogoDialogImage" alt="" hidden>
+                    </div>
+                    <div class="jogo-dialog-body">
+                        <div class="jogo-dialog-heading">
+                            <span class="eyebrow">Jogo das lives</span>
+                            <h2 id="jogoDialogTitle"></h2>
+                            <div class="jogo-dialog-badges">
+                                <span class="jogo-dialog-status" id="jogoDialogStatus"></span>
+                                <span class="jogo-dialog-rating" id="jogoDialogRating" hidden></span>
+                                <span class="jogo-dialog-recommendation" id="jogoDialogRecommendation" hidden></span>
+                            </div>
+                        </div>
+                        <section class="jogo-dialog-section" id="jogoDialogReviewSection" hidden>
+                            <h3>Minha experiência</h3>
+                            <p id="jogoDialogReview" class="jogo-dialog-review"></p>
+                            <details id="jogoDialogSpoilers" class="jogo-dialog-spoilers" hidden>
+                                <summary>Review com spoilers — abrir conteúdo</summary>
+                                <p id="jogoDialogSpoilerReview" class="jogo-dialog-review"></p>
+                            </details>
+                        </section>
+                        <section class="jogo-dialog-section" id="jogoDialogPlaylistSection" hidden>
+                            <h3>Playlist das lives</h3>
+                            <div id="jogoDialogPlaylist" class="jogo-dialog-links"></div>
+                        </section>
+                        <section class="jogo-dialog-section" id="jogoDialogHistorySection" hidden>
+                            <h3>Histórico de transmissões</h3>
+                            <p id="jogoDialogHistorySummary" class="jogo-dialog-muted"></p>
+                            <ol id="jogoDialogEpisodes" class="jogo-dialog-episodes"></ol>
+                        </section>
+                        <section class="jogo-dialog-section" id="jogoDialogLinksSection" hidden>
+                            <h3>Links adicionais</h3>
+                            <ul id="jogoDialogLinks" class="jogo-dialog-episodes"></ul>
+                        </section>
+                        <p class="jogo-dialog-muted jogo-dialog-empty" id="jogoDialogEmpty" hidden>Ainda não há ficha editorial para este jogo.</p>
+                        <section class="jogo-dialog-section" id="jogoDialogSteamSection" hidden>
+                            <div id="jogoDialogSteam" class="jogo-dialog-links"></div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </dialog>
         <p class="glass-panel jogos-state" id="jogosState">Carregando jogos...</p>
 
         <aside class="glass-panel jogos-notice" aria-labelledby="jogosNoticeTitle">
@@ -418,7 +470,7 @@
     <script src="../js/core/sanitize.js?v=48.3.60"></script>
     <script src="../js/core/footer.js?v=48.3.66"></script>
     <script src="../js/core/horizontal-scroll.js?v=48.3.21"></script>
-    <script src="../js/pages/jogos/jogos.js?v=48.3.60"></script>
+    <script src="../js/pages/jogos/jogos.js?v=48.5.1"></script>
     <script src="../js/core/loader.js?v=48.3.57"></script>
     <script src="../js/core/favicon.js?v=48.3.77"></script>
 </body>

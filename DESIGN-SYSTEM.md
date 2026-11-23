@@ -131,6 +131,22 @@ imitar os filtros de categoria da Galeria.
 recortes sobre superfícies translúcidas e o realce do chip selecionado fica integrado ao botão. As
 setas continuam sobrepostas e não reservam espaço.
 
+### Jogos: visualização e popup de detalhes
+
+- **Alternador Pôsteres/Compacto** (`.jogos-view-switch`): grupo de dois botões com `aria-pressed`, no mesmo
+  painel da busca; usa o mesmo vocabulário dos filtros (`--nav-bg`, `--card-border`, `--primary-soft`,
+  `--primary-text`, radius 10–14 px, mínimo de 36 px de altura). No celular ocupa a largura toda.
+- **Cartão pôster:** proporção 2:3, capa da Steam ou placeholder local, título/status sobre o gradiente
+  escuro e selo "Ficha editorial" (`--primary-soft` no modo compacto). **Compacto:** capa de 88 px à esquerda
+  e texto à direita, uma coluna abaixo de 620 px.
+- **Popup** (`.jogo-dialog`): superfície **opaca** (`--bg-color` + camada `--card-bg`, como o painel de
+  ajustes), borda de 2 px em `--card-border`, `--radius-card` e `--shadow-card`; o fundo da página recebe
+  escurecimento com blur leve. Desktop: capa à esquerda (sticky) e conteúdo à direita. Até 760 px: capa de
+  96 px ao lado do título e o restante em largura total, para a review aparecer sem rolagem. Painel limitado
+  a `88dvh` com rolagem interna.
+- Links do popup usam `--primary-text` sublinhado e quebram em qualquer ponto (`overflow-wrap: anywhere`); datas
+  usam números tabulares. Nenhum player ou iframe é incorporado.
+
 ## 8. Cards da Home
 
 `data/content/home-cards.json` muda ordem, visibilidade e apresentação **sem** autorizar estilos

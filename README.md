@@ -12,7 +12,7 @@ Twitch.
 | --- | --- | --- |
 | `/` | Home: Hero, Lives, Agenda, Blog, Regras, Créditos e apoio | `data/content/*.json`, `data/agenda.json` |
 | `/agenda/` | Agenda semanal completa, com artes da Steam | `data/agenda.json`, `data/content/jogos-artwork.json` |
-| `/jogos/` | Catálogo de jogos das lives | `data/content/jogos.json` (gerado pelo sync) |
+| `/jogos/` | Catálogo de jogos das lives (modos Pôsteres e Compacto; o popup de cada jogo mostra review, nota, playlist, transmissões e links) | `data/content/jogos.json` (gerado pelo sync) + `data/content/jogos-editorial.json` (manual) |
 | `/artes/` | Galeria de artes (masonry + lightbox) | `data/content/artes.json` |
 | `/blog/` | Blog estático | `data/blog/` |
 | `/doacoes/` | LivePix, Pixie e ranking de apoiadores | `data/content/doacoes.json` + API |
@@ -95,6 +95,7 @@ para instalar. Mais detalhes em [`docs/VALIDACAO.md`](docs/VALIDACAO.md).
 | Posts do Blog | `data/blog/` (ver [`data/blog/README.md`](data/blog/README.md)) |
 | Agenda e Jogos | Trello + sync (ver [`docs/AGENDA-E-JOGOS.md`](docs/AGENDA-E-JOGOS.md)) |
 | Quantidade de jogos por página | `data/content/jogos-config.json` |
+| Review, nota, playlist, transmissões e links de cada jogo | `data/content/jogos-editorial.json` (por `gameId` do cartão Trello; ver [`docs/AGENDA-E-JOGOS.md`](docs/AGENDA-E-JOGOS.md)) |
 
 O formato de cada arquivo está em [`data/content/README.md`](data/content/README.md).
 Ícones usam apenas nomes da biblioteca `js/core/button-icons.js`; nenhum JSON aceita

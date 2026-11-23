@@ -3,13 +3,24 @@
 
     const DATA_URL = "/data/content/jogos.json";
     const CONFIG_URL = "/data/content/jogos-config.json";
+    const EDITORIAL_URL = "/data/content/jogos-editorial.json";
     const DEFAULT_PAGE_SIZE = 15;
     const MAX_PAGE_SIZE = 60;
     const MAX_VISIBLE_PAGES = 5;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
     const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
-    const state = { data: null, listId: "all", query: "", page: 1, pageSize: DEFAULT_PAGE_SIZE };
+    const state = {
+        data: null,
+        editorialByGameId: new Map(),
+        listId: "all",
+        query: "",
+        page: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+        viewMode: "poster",
+        lastTrigger: null,
+        dialogImageGeneration: 0
+    };
     const els = {
         tools: document.getElementById("jogosTools"),
         filters: document.getElementById("jogosFilters"),
@@ -17,7 +28,31 @@
         grid: document.getElementById("jogosGrid"),
         pagination: document.getElementById("jogosPagination"),
         status: document.getElementById("jogosState"),
-        resultsStatus: document.getElementById("jogosResultsStatus")
+        resultsStatus: document.getElementById("jogosResultsStatus"),
+        posterMode: document.getElementById("jogosViewPoster"),
+        compactMode: document.getElementById("jogosViewCompact"),
+        dialog: document.getElementById("jogoDialog"),
+        dialogClose: document.getElementById("jogoDialogClose"),
+        dialogImage: document.getElementById("jogoDialogImage"),
+        dialogPlaceholder: document.getElementById("jogoDialogPlaceholder"),
+        dialogTitle: document.getElementById("jogoDialogTitle"),
+        dialogStatus: document.getElementById("jogoDialogStatus"),
+        dialogRating: document.getElementById("jogoDialogRating"),
+        dialogRecommendation: document.getElementById("jogoDialogRecommendation"),
+        dialogReviewSection: document.getElementById("jogoDialogReviewSection"),
+        dialogReview: document.getElementById("jogoDialogReview"),
+        dialogSpoilers: document.getElementById("jogoDialogSpoilers"),
+        dialogSpoilerReview: document.getElementById("jogoDialogSpoilerReview"),
+        dialogPlaylistSection: document.getElementById("jogoDialogPlaylistSection"),
+        dialogPlaylist: document.getElementById("jogoDialogPlaylist"),
+        dialogHistorySection: document.getElementById("jogoDialogHistorySection"),
+        dialogHistorySummary: document.getElementById("jogoDialogHistorySummary"),
+        dialogEpisodes: document.getElementById("jogoDialogEpisodes"),
+        dialogLinksSection: document.getElementById("jogoDialogLinksSection"),
+        dialogLinks: document.getElementById("jogoDialogLinks"),
+        dialogSteamSection: document.getElementById("jogoDialogSteamSection"),
+        dialogSteam: document.getElementById("jogoDialogSteam"),
+        dialogEmpty: document.getElementById("jogoDialogEmpty")
     };
 
     const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
@@ -48,6 +83,219 @@
             ],
             { duration: 180, easing: "cubic-bezier(.2,.7,.3,1)" }
         );
+    }
+
+    function safeHttpsUrl(value, allowedHosts = null) {
+        if (typeof safeHttpUrl !== "function") return "";
+        return safeHttpUrl(value, {
+            httpsOnly: true,
+            ...(Array.isArray(allowedHosts) ? { allowedHosts } : {})
+        });
+    }
+
+    async function loadEditorialData() {
+        try {
+            const response = await fetch(EDITORIAL_URL, { cache: "no-cache" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const editorial = await response.json();
+            if (editorial?.version !== 1 || !Array.isArray(editorial.games)) {
+                throw new Error("Contrato editorial de Jogos inválido");
+            }
+            state.editorialByGameId = new Map(
+                editorial.games
+                    .filter(item => item && typeof item.gameId === "string")
+                    .map(item => [item.gameId, item])
+            );
+        } catch (error) {
+            // A ausência do arquivo editorial não pode bloquear o catálogo do Trello.
+            state.editorialByGameId = new Map();
+            console.warn("Ficha editorial de Jogos indisponível; exibindo apenas o catálogo:", error);
+        }
+    }
+
+    function createExternalLink(label, rawUrl, allowedHosts = null) {
+        const url = safeHttpsUrl(rawUrl, allowedHosts);
+        if (!url) return null;
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = label;
+        return link;
+    }
+
+    function clearDialogContent() {
+        for (const node of [els.dialogPlaylist, els.dialogEpisodes, els.dialogLinks, els.dialogSteam]) {
+            node?.replaceChildren();
+        }
+        if (els.dialogHistorySummary) els.dialogHistorySummary.textContent = "";
+        if (els.dialogTitle) els.dialogTitle.textContent = "";
+        if (els.dialogStatus) els.dialogStatus.textContent = "";
+        if (els.dialogRating) els.dialogRating.textContent = "";
+        if (els.dialogRecommendation) els.dialogRecommendation.textContent = "";
+        for (const node of [
+            els.dialogRating, els.dialogRecommendation, els.dialogReviewSection,
+            els.dialogSpoilers, els.dialogPlaylistSection, els.dialogHistorySection,
+            els.dialogLinksSection, els.dialogSteamSection
+        ]) {
+            if (node) node.hidden = true;
+        }
+        if (els.dialogEmpty) els.dialogEmpty.hidden = true;
+        if (els.dialogReview) els.dialogReview.textContent = "";
+        if (els.dialogSpoilerReview) els.dialogSpoilerReview.textContent = "";
+        state.dialogImageGeneration += 1;
+        if (els.dialogImage) {
+            els.dialogImage.removeAttribute("src");
+            els.dialogImage.onerror = null;
+            els.dialogImage.hidden = true;
+        }
+        if (els.dialogPlaceholder) els.dialogPlaceholder.hidden = false;
+    }
+
+    function formatDate(iso) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
+        const [year, month, day] = iso.split("-");
+        return `${day}/${month}/${year}`;
+    }
+
+    function hasEditorialContent(editorial) {
+        if (!editorial || typeof editorial !== "object") return false;
+        const review = typeof editorial.review === "string" && editorial.review.trim() !== "";
+        const rating = typeof editorial.rating === "number" && Number.isFinite(editorial.rating);
+        const recommendation = ["recommended", "mixed", "not-recommended"].includes(editorial.recommendation);
+        const playlist = typeof editorial.playlistUrl === "string" && editorial.playlistUrl.trim() !== "";
+        const episodes = Array.isArray(editorial.episodes) && editorial.episodes.length > 0;
+        const links = Array.isArray(editorial.links) && editorial.links.length > 0;
+        return review || rating || recommendation || playlist || episodes || links;
+    }
+
+    function openGameDialog(game, trigger) {
+        if (!els.dialog || typeof els.dialog.showModal !== "function") return;
+        const editorial = state.editorialByGameId.get(game.id) || null;
+        state.lastTrigger = trigger || document.activeElement;
+        clearDialogContent();
+
+        els.dialogTitle.textContent = game.name;
+        els.dialogStatus.textContent = game.listName || "Status não informado";
+        els.dialogStatus.hidden = !game.listName;
+
+        const imageGeneration = ++state.dialogImageGeneration;
+        const artworkUrl = safeHttpsUrl(game.artwork?.url, [
+            "cdn.cloudflare.steamstatic.com",
+            "shared.fastly.steamstatic.com"
+        ]);
+        if (artworkUrl) {
+            els.dialogImage.src = artworkUrl;
+            els.dialogImage.alt = `Capa de ${game.name}`;
+            els.dialogImage.hidden = false;
+            els.dialogPlaceholder.hidden = true;
+            els.dialogImage.onerror = () => {
+                if (imageGeneration !== state.dialogImageGeneration) return;
+                els.dialogImage.hidden = true;
+                els.dialogPlaceholder.hidden = false;
+            };
+        }
+
+        if (editorial && typeof editorial.rating === "number" && Number.isFinite(editorial.rating)) {
+            els.dialogRating.textContent = `${editorial.rating.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}/10`;
+            els.dialogRating.hidden = false;
+        }
+        const recommendationLabels = {
+            recommended: "Recomendado por Kamyli",
+            mixed: "Recomendação com ressalvas",
+            "not-recommended": "Não recomendado"
+        };
+        const recommendation = recommendationLabels[editorial?.recommendation];
+        if (recommendation) {
+            els.dialogRecommendation.textContent = recommendation;
+            els.dialogRecommendation.hidden = false;
+        }
+
+        const review = typeof editorial?.review === "string" ? editorial.review.trim() : "";
+        if (review) {
+            els.dialogReviewSection.hidden = false;
+            if (editorial.containsSpoilers === true) {
+                els.dialogSpoilers.hidden = false;
+                els.dialogSpoilerReview.textContent = review;
+            } else {
+                els.dialogReview.textContent = review;
+            }
+        }
+
+        const playlist = createExternalLink("Abrir playlist no YouTube ↗", editorial?.playlistUrl, ["www.youtube.com", "youtube.com"]);
+        if (playlist) {
+            try {
+                const parsed = new URL(playlist.href);
+                if (parsed.pathname === "/playlist" && parsed.searchParams.get("list")) {
+                    els.dialogPlaylist.append(playlist);
+                    els.dialogPlaylistSection.hidden = false;
+                }
+            } catch { /* URL já validada; defesa adicional antes de exibir. */ }
+        }
+
+        const episodes = Array.isArray(editorial?.episodes)
+            ? editorial.episodes.filter(item => /^[A-Za-z0-9_-]{11}$/.test(item?.videoId || ""))
+            : [];
+        if (episodes.length) {
+            const ordered = [...episodes].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+            const firstDate = formatDate(ordered[0].date);
+            const lastDate = formatDate(ordered[ordered.length - 1].date);
+            const dateSummary = firstDate && lastDate
+                ? (firstDate === lastDate ? firstDate : `${firstDate} – ${lastDate}`)
+                : "Datas não informadas";
+            els.dialogHistorySummary.textContent = `${episodes.length} ${episodes.length === 1 ? "transmissão" : "transmissões"} · ${dateSummary}`;
+            for (const episode of ordered) {
+                const item = document.createElement("li");
+                const link = createExternalLink(
+                    episode.title?.trim() || "Abrir transmissão no YouTube",
+                    `https://www.youtube.com/watch?v=${episode.videoId}`,
+                    ["www.youtube.com", "youtube.com"]
+                );
+                if (!link) continue;
+                item.append(link);
+                if (formatDate(episode.date)) {
+                    const date = document.createElement("span");
+                    date.className = "jogo-dialog-episode-date";
+                    date.textContent = formatDate(episode.date);
+                    item.append(date);
+                }
+                els.dialogEpisodes.append(item);
+            }
+            if (els.dialogEpisodes.childElementCount) els.dialogHistorySection.hidden = false;
+        }
+
+        const extraLinks = Array.isArray(editorial?.links) ? editorial.links : [];
+        for (const entry of extraLinks) {
+            const link = createExternalLink(entry?.label?.trim() || "Link externo", entry?.url);
+            if (link) {
+                const item = document.createElement("li");
+                item.append(link);
+                els.dialogLinks.append(item);
+            }
+        }
+        if (els.dialogLinks.childElementCount) els.dialogLinksSection.hidden = false;
+
+        const steamUrl = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(game.steamUrl, { httpsOnly: true, allowedHosts: ["store.steampowered.com"] })
+            : "";
+        const steamLink = createExternalLink("Ver na Steam ↗", steamUrl, ["store.steampowered.com"]);
+        if (steamLink) {
+            els.dialogSteam.append(steamLink);
+            els.dialogSteamSection.hidden = false;
+        }
+
+        // Jogo sem ficha: não mostra seções vazias; só avisa quando não há nada além do título.
+        if (els.dialogEmpty) els.dialogEmpty.hidden = !els.dialogSteamSection.hidden || hasEditorialContent(editorial);
+
+        els.dialog.showModal();
+        els.dialogClose?.focus({ preventScroll: true });
+    }
+
+    function setViewMode(mode) {
+        state.viewMode = mode === "compact" ? "compact" : "poster";
+        els.grid.classList.toggle("is-compact", state.viewMode === "compact");
+        els.posterMode?.setAttribute("aria-pressed", String(state.viewMode === "poster"));
+        els.compactMode?.setAttribute("aria-pressed", String(state.viewMode === "compact"));
     }
 
     function makeFilter(id, label, count) {
@@ -85,6 +333,7 @@
     function makeCard(game) {
         const article = document.createElement("article");
         article.className = "glass-panel jogo-card";
+        if (state.viewMode === "compact") article.classList.add("is-compact");
 
         const media = document.createElement("div");
         media.className = "jogo-card-media";
@@ -98,9 +347,14 @@
         placeholderText.textContent = "Imagem indisponível";
         placeholder.append(placeholderMark, placeholderText);
         media.append(placeholder);
-        if (game.artwork?.url) {
+
+        const artworkUrl = safeHttpsUrl(game.artwork?.url, [
+            "cdn.cloudflare.steamstatic.com",
+            "shared.fastly.steamstatic.com"
+        ]);
+        if (artworkUrl) {
             const image = document.createElement("img");
-            image.src = game.artwork.url;
+            image.src = artworkUrl;
             image.alt = "";
             image.loading = "lazy";
             image.decoding = "async";
@@ -116,28 +370,42 @@
         const content = document.createElement("div");
         content.className = "jogo-card-content";
         const title = document.createElement("h2");
+        title.className = "jogo-card-title";
         title.textContent = game.name;
         const list = document.createElement("span");
         list.className = "jogo-card-status";
         list.textContent = game.listName;
+        const editorial = state.editorialByGameId.get(game.id);
         content.append(title, list);
+        if (hasEditorialContent(editorial)) {
+            const marker = document.createElement("span");
+            marker.className = "jogo-card-editorial-marker";
+            marker.textContent = "Ficha editorial";
+            content.append(marker);
+        }
+
+        // O botão cobre o cartão inteiro e fica fora do <h2>/<div>: o título continua sendo
+        // um heading real (navegável por leitor de tela) e o cartão inteiro é clicável.
+        const openButton = document.createElement("button");
+        openButton.type = "button";
+        openButton.className = "jogo-card-open";
+        openButton.setAttribute("aria-haspopup", "dialog");
+        openButton.setAttribute("aria-label", `Ver detalhes de ${game.name}`);
+        openButton.addEventListener("click", () => openGameDialog(game, openButton));
+
+        article.append(media, shade, content, openButton);
+
         const steamUrl = typeof safeHttpUrl === "function"
-            ? safeHttpUrl(game.steamUrl, {
-                httpsOnly: true,
-                allowedHosts: ["store.steampowered.com"]
-            })
+            ? safeHttpUrl(game.steamUrl, { httpsOnly: true, allowedHosts: ["store.steampowered.com"] })
             : "";
         if (steamUrl) {
-            const steamLink = document.createElement("a");
-            steamLink.className = "jogo-card-steam";
-            steamLink.href = steamUrl;
-            steamLink.target = "_blank";
-            steamLink.rel = "noopener noreferrer";
-            steamLink.textContent = "Ver na Steam ↗";
-            steamLink.setAttribute("aria-label", `Ver ${game.name} na Steam`);
-            content.append(steamLink);
+            const steamLink = createExternalLink("Steam ↗", steamUrl, ["store.steampowered.com"]);
+            if (steamLink) {
+                steamLink.className = "jogo-card-steam";
+                steamLink.setAttribute("aria-label", `Ver ${game.name} na Steam`);
+                article.append(steamLink);
+            }
         }
-        article.append(media, shade, content);
         return article;
     }
 
@@ -232,6 +500,7 @@
         state.page = Math.min(state.page, totalPages);
         const start = (state.page - 1) * state.pageSize;
         const visibleGames = games.slice(start, start + state.pageSize);
+        els.grid.classList.toggle("is-compact", state.viewMode === "compact");
         els.grid.replaceChildren(...visibleGames.map(makeCard));
         renderPagination(games.length);
         announceResultCount(games.length);
@@ -246,7 +515,8 @@
         try {
             const [response, pageSize] = await Promise.all([
                 fetch(DATA_URL, { cache: "no-cache" }),
-                loadEditorialPageSize()
+                loadEditorialPageSize(),
+                loadEditorialData()
             ]);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
@@ -254,6 +524,7 @@
             state.data = data;
             state.pageSize = pageSize;
             els.tools.hidden = false;
+            setViewMode("poster");
             renderFilters();
             horizontalScroll?.enableClickDrag(els.filters);
             renderGames();
@@ -264,6 +535,32 @@
             if (els.resultsStatus) els.resultsStatus.textContent = "Não foi possível carregar a lista de jogos.";
         }
     }
+
+    els.posterMode?.addEventListener("click", () => {
+        if (state.viewMode === "poster") return;
+        setViewMode("poster");
+        renderGames({ animate: true });
+    });
+    els.compactMode?.addEventListener("click", () => {
+        if (state.viewMode === "compact") return;
+        setViewMode("compact");
+        renderGames({ animate: true });
+    });
+    els.dialogClose?.addEventListener("click", () => els.dialog?.close());
+    let pressStartedOnBackdrop = false;
+    els.dialog?.addEventListener("pointerdown", event => {
+        pressStartedOnBackdrop = event.target === els.dialog;
+    });
+    els.dialog?.addEventListener("click", event => {
+        // Selecionar texto dentro do painel e soltar sobre o fundo não deve fechar o popup.
+        if (event.target === els.dialog && pressStartedOnBackdrop) els.dialog.close();
+        pressStartedOnBackdrop = false;
+    });
+    els.dialog?.addEventListener("close", () => {
+        const trigger = state.lastTrigger;
+        state.lastTrigger = null;
+        if (trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
+    });
 
     els.search?.addEventListener("input", event => {
         state.query = event.currentTarget.value;
