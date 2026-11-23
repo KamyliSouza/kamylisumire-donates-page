@@ -5,13 +5,46 @@ import test from 'node:test';
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 
 const editorial = JSON.parse(read('data/content/jogos-editorial.json'));
+const gamesCatalog = JSON.parse(read('data/content/jogos.json'));
 const html = read('jogos/index.html');
 const js = read('js/pages/jogos/jogos.js');
 const css = read('css/pages/jogos.css');
 
-test('catálogo editorial dos jogos é separado e começa vazio', () => {
+const EDITORIAL_ONLY_FIELDS = [
+  'gameId',
+  'review',
+  'rating',
+  'recommendation',
+  'containsSpoilers',
+  'playlistUrl',
+  'episodes',
+  'links'
+];
+
+test('catálogo editorial é separado e aceita fichas manuais', () => {
   assert.equal(editorial.version, 1);
-  assert.deepEqual(editorial.games, []);
+  assert.ok(Array.isArray(editorial.games), 'games deve ser uma lista');
+
+  const editorialIds = new Set();
+  for (const [index, game] of editorial.games.entries()) {
+    assert.ok(game && typeof game === 'object' && !Array.isArray(game),
+      `games[${index}] deve ser um objeto`);
+    assert.match(game.gameId || '', /^[a-f0-9]{24}$/i,
+      `games[${index}].gameId deve ser um ID Trello de 24 caracteres`);
+    assert.ok(!editorialIds.has(game.gameId),
+      `gameId duplicado no catálogo editorial: ${game.gameId}`);
+    editorialIds.add(game.gameId);
+  }
+
+  assert.equal(gamesCatalog.version, 1);
+  assert.ok(Array.isArray(gamesCatalog.games), 'jogos.json deve manter seu catálogo próprio');
+  for (const [index, game] of gamesCatalog.games.entries()) {
+    for (const field of EDITORIAL_ONLY_FIELDS) {
+      assert.equal(Object.hasOwn(game, field), false,
+        `jogos.json games[${index}] não deve conter o campo editorial ${field}`);
+    }
+  }
+
   assert.match(js, /const EDITORIAL_URL = "\/data\/content\/jogos-editorial\.json";/);
   assert.match(js, /gameId/);
 });
@@ -20,7 +53,7 @@ test('página oferece modos Pôsteres e Compacto com estado ARIA', () => {
   assert.match(html, /id="jogosViewPoster"[^>]*aria-pressed="true"/);
   assert.match(html, /id="jogosViewCompact"[^>]*aria-pressed="false"/);
   assert.match(js, /function setViewMode\(mode\)/);
-  assert.match(js, /const openButton = document\.createElement\(\"button\"\)/);
+  assert.match(js, /const openButton = document\.createElement\("button"\)/);
   assert.match(js, /const title = document\.createElement\("h2"\)/);
   assert.doesNotMatch(js, /role", "heading"/);
   assert.match(js, /article\.append\(media, shade, content, openButton\)/);
