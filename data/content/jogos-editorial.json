@@ -72,6 +72,122 @@
       "links": [],
       "rating": 7,
       "playlistUrl": "https://www.youtube.com/playlist?list=PLZMiO6RWS69s"
+    },
+    {
+      "gameId": "6ad8b090209b6c9ad8332e99",
+      "review": "",
+      "recommendation": "none",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "b1wwmo_cN6s",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.6【Kamyli Sumire】",
+          "date": "2026-11-23"
+        },
+        {
+          "videoId": "3EZgH3ayEPE",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.5【Kamyli Sumire】",
+          "date": "2026-11-18"
+        },
+        {
+          "videoId": "TY4lrGs11kI",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.4【Kamyli Sumire】",
+          "date": "2026-11-09"
+        },
+        {
+          "videoId": "Z35ClwZE8Vs",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.3【Kamyli Sumire】",
+          "date": "2026-10-27"
+        },
+        {
+          "videoId": "7OzEjWzNolQ",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.2【Kamyli Sumire】",
+          "date": "2026-10-21"
+        },
+        {
+          "videoId": "POe49dkZ0ds",
+          "title": "Pães que Curam Corações 🥐 - The Witch's Bakery - pt.1【Kamyli Sumire】",
+          "date": "2026-10-14"
+        }
+      ],
+      "links": [],
+      "playlistUrl": "https://youtube.com/playlist?list=PLb0MToBQUiuA&si=eSVMqDChrIlHO2KB"
+    },
+    {
+      "gameId": "69f803c6bc8f6fae77d6a82e",
+      "review": "O Pior jogo que eu já joguei na minha vida!",
+      "recommendation": "not-recommended",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "WbtXaMK3FD0",
+          "title": "Experimentando as DLCs - DARK SOULS II - pt.8【Kamyli Sumire】",
+          "date": "2026-11-04"
+        },
+        {
+          "videoId": "C3ZHhrjsIkk",
+          "title": "Estamos na METADE! Só Falta a Paciência😭 - DARK SOULS II - pt.7【Kamyli Sumire】",
+          "date": "2026-11-01"
+        },
+        {
+          "videoId": "mFSHjUZHUjQ",
+          "title": "Estamos na METADE! Só Falta a Paciência😭 - DARK SOULS II - pt.6【Kamyli Sumire】",
+          "date": "2026-10-31"
+        },
+        {
+          "videoId": "kzGQOTruCCI",
+          "title": "Primeira Vez Pela SEGUNDA VEZ! - DARK SOULS II - pt.5【Kamyli Sumire】",
+          "date": "2026-10-24"
+        },
+        {
+          "videoId": "e-tagkM5CHE",
+          "title": "Primeira Vez Pela SEGUNDA VEZ! - DARK SOULS II - pt.4【Kamyli Sumire】",
+          "date": "2026-10-20"
+        },
+        {
+          "videoId": "_WlA77COQHs",
+          "title": "Primeira Vez Pela SEGUNDA VEZ! - DARK SOULS II - pt.3【Kamyli Sumire】",
+          "date": "2026-10-11"
+        },
+        {
+          "videoId": "lBxc3p6nc7E",
+          "title": "Primeira Vez Pela SEGUNDA VEZ! - DARK SOULS II - pt.2【Kamyli Sumire】",
+          "date": "2026-10-04"
+        },
+        {
+          "videoId": "_6WGHCNjDrA",
+          "title": "Primeira Vez Pela SEGUNDA VEZ! - DARK SOULS II - pt.1【Kamyli Sumire】",
+          "date": "2026-09-27"
+        },
+        {
+          "videoId": "hPWHANtUIW0",
+          "title": "Jogando o MELHOR SOULS 2 a Minha Maneira - DARK SOULS II - pt.5",
+          "date": "2026-05-27"
+        },
+        {
+          "videoId": "XpVLSPp8eT8",
+          "title": "O Patinho Feio da FromSoftware: é tão ruim assim? - DARK SOULS II - pt.4",
+          "date": "2026-05-24"
+        },
+        {
+          "videoId": "BKz1WVhZAjk",
+          "title": "O Patinho Feio da FromSoftware: é tão ruim assim? - DARK SOULS II - pt.3",
+          "date": "2026-05-21"
+        },
+        {
+          "videoId": "I_fywKB40T0",
+          "title": "O Patinho Feio da FromSoftware: é tão ruim assim? - DARK SOULS II - pt.2",
+          "date": "2026-05-18"
+        },
+        {
+          "videoId": "cg-bdBbD1qs",
+          "title": "O Patinho Feio da FromSoftware: é tão ruim assim? - DARK SOULS II - pt.1",
+          "date": "2026-05-17"
+        }
+      ],
+      "links": [],
+      "playlistUrl": "https://youtube.com/playlist?list=PLGdKjS_coMIufNiw1QXO5oPVL1hxL03b9&si=f8hVxQCiZd2u9_ep",
+      "rating": 0
     }
   ]
 }
