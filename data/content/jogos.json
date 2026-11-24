@@ -43,6 +43,25 @@
   ],
   "games": [
     {
+      "id": "6ac780be5c055a504686072a",
+      "name": "Beyond: Two Souls",
+      "listId": "69f610396e6fb0d017a97829",
+      "listName": "Finalizados",
+      "pos": 140737488027648,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 960990,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
+      },
+      "steamAppId": 960990,
+      "steamUrl": "https://store.steampowered.com/app/960990/"
+    },
+    {
       "id": "6a918de403bda7275ace22ad",
       "name": "Kena: Bridge of Spirits",
       "listId": "69f610396e6fb0d017a97829",
@@ -423,23 +442,23 @@
       "steamUrl": "https://store.steampowered.com/app/2679460/"
     },
     {
-      "id": "6ac780be5c055a504686072a",
-      "name": "Beyond: Two Souls",
-      "listId": "69f61020cf0e4ae8a9494226",
-      "listName": "Em Andamento",
-      "pos": 140737488237568,
+      "id": "6b05b0cf0d5338f5bc6c2471",
+      "name": "Poppy Playtime",
+      "listId": "69f611e83d599afb6522f751",
+      "listName": "Engavetados",
+      "pos": 140737488236544,
       "artwork": {
         "provider": "steam-original",
-        "steamAppId": 960990,
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+        "steamAppId": 1721470,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1721470/library_600x900_2x.jpg"
       },
       "icon": {
         "provider": "steam-original",
-        "steamAppId": 960990,
-        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/960990/651960ab55d9385730101dc2cef12dd8ac57d5a0.jpg"
+        "steamAppId": 1721470,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1721470/27f36a784998ad117bb076c0e249f449f6ae8ce6.jpg"
       },
-      "steamAppId": 960990,
-      "steamUrl": "https://store.steampowered.com/app/960990/"
+      "steamAppId": 1721470,
+      "steamUrl": "https://store.steampowered.com/app/1721470/"
     },
     {
       "id": "6ad8b090209b6c9ad8332e99",
@@ -2774,5 +2793,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-20T16:32:30.912Z"
+  "updatedAt": "2026-11-24T15:46:23.979Z"
 }

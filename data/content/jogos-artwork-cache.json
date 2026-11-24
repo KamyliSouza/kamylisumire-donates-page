@@ -4539,6 +4539,51 @@
         "icon": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1693980/3368d467f4f60f9f07ec4c206a22184fae060be2.jpg"
       }
     },
+    "1721470": {
+      "portrait": {
+        "checkedAt": "2026-11-24T15:46:23.826Z",
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1721470/library_600x900_2x.jpg"
+      },
+      "items": {
+        "checkedAt": "2026-11-24T15:46:23.977Z",
+        "found": true,
+        "candidates": [
+          {
+            "kind": "header",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/00ca34a0c863a8d86c6582904249216d6aa263bd/header.jpg?t=1791907814"
+          },
+          {
+            "kind": "main-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/d70beda5a42fb0593e6c788baf54c3d71c31f435/capsule_616x353.jpg?t=1791907814"
+          },
+          {
+            "kind": "small-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/2d2d1f622b49c8589d67d294e790507715169220/capsule_231x87.jpg?t=1791907814"
+          },
+          {
+            "kind": "library-hero-2x",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/e9e087b56cb107bf9c6af56ea2b6af24117a16af/library_hero_2x.jpg?t=1791907814"
+          },
+          {
+            "kind": "library-hero",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/e9e087b56cb107bf9c6af56ea2b6af24117a16af/library_hero.jpg?t=1791907814"
+          },
+          {
+            "kind": "library-capsule-2x",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule_2x.jpg?t=1791907814"
+          },
+          {
+            "kind": "library-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule.jpg?t=1791907814"
+          }
+        ],
+        "portrait": [
+          "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule_2x.jpg?t=1791907814",
+          "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule.jpg?t=1791907814"
+        ],
+        "icon": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/1721470/27f36a784998ad117bb076c0e249f449f6ae8ce6.jpg"
+      }
+    },
     "1747760": {
       "items": {
         "checkedAt": "2026-11-19T02:36:25.293Z",

@@ -3,6 +3,41 @@
   "source": "existing-site-game-sync",
   "games": [
     {
+      "steamAppId": 960990,
+      "name": "Beyond: Two Souls",
+      "steamUrl": "https://store.steampowered.com/app/960990/",
+      "cardCandidates": [
+        {
+          "kind": "header",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/header.jpg?t=1667468566"
+        },
+        {
+          "kind": "main-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/capsule_616x353.jpg?t=1667468566"
+        },
+        {
+          "kind": "small-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/capsule_231x87.jpg?t=1667468566"
+        },
+        {
+          "kind": "library-hero",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_hero.jpg?t=1667468566"
+        },
+        {
+          "kind": "library-capsule-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_600x900_2x.jpg?t=1667468566"
+        },
+        {
+          "kind": "library-capsule",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_600x900.jpg?t=1667468566"
+        },
+        {
+          "kind": "existing-library-artwork",
+          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+        }
+      ]
+    },
+    {
       "steamAppId": 1954200,
       "name": "Kena: Bridge of Spirits",
       "steamUrl": "https://store.steampowered.com/app/1954200/",
@@ -759,37 +794,41 @@
       ]
     },
     {
-      "steamAppId": 960990,
-      "name": "Beyond: Two Souls",
-      "steamUrl": "https://store.steampowered.com/app/960990/",
+      "steamAppId": 1721470,
+      "name": "Poppy Playtime",
+      "steamUrl": "https://store.steampowered.com/app/1721470/",
       "cardCandidates": [
         {
           "kind": "header",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/header.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/00ca34a0c863a8d86c6582904249216d6aa263bd/header.jpg?t=1791907814"
         },
         {
           "kind": "main-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/capsule_616x353.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/d70beda5a42fb0593e6c788baf54c3d71c31f435/capsule_616x353.jpg?t=1791907814"
         },
         {
           "kind": "small-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/capsule_231x87.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/2d2d1f622b49c8589d67d294e790507715169220/capsule_231x87.jpg?t=1791907814"
+        },
+        {
+          "kind": "library-hero-2x",
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/e9e087b56cb107bf9c6af56ea2b6af24117a16af/library_hero_2x.jpg?t=1791907814"
         },
         {
           "kind": "library-hero",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_hero.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/e9e087b56cb107bf9c6af56ea2b6af24117a16af/library_hero.jpg?t=1791907814"
         },
         {
           "kind": "library-capsule-2x",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_600x900_2x.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule_2x.jpg?t=1791907814"
         },
         {
           "kind": "library-capsule",
-          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/960990/library_600x900.jpg?t=1667468566"
+          "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1721470/1d1b5696c34969a75adcbc85b96530c222b47617/library_capsule.jpg?t=1791907814"
         },
         {
           "kind": "existing-library-artwork",
-          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/960990/library_600x900_2x.jpg"
+          "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1721470/library_600x900_2x.jpg"
         }
       ]
     },
@@ -5379,5 +5418,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-11-20T16:32:30.917Z"
+  "updatedAt": "2026-11-24T15:46:23.984Z"
 }
