@@ -390,6 +390,52 @@
       "links": [],
       "rating": 9,
       "playlistUrl": "https://youtube.com/playlist?list=PLGdKjS_coMIuM3VpYDpi6L1gk0Fwr9h97&si=Uz63mb5b9E8H9paC"
+    },
+    {
+      "gameId": "69f610789a21da0f045d8abb",
+      "review": "Um dia melhores jogos de turno que eu já joguei!",
+      "recommendation": "recommended",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "hQtZV5IbGkc",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.7",
+          "date": "2025-12-30"
+        },
+        {
+          "videoId": "nSlmMiueASU",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.6",
+          "date": "2025-12-28"
+        },
+        {
+          "videoId": "Ys5Syoqda4w",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.5",
+          "date": "2025-12-27"
+        },
+        {
+          "videoId": "8bIxDRjpMdc",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.4",
+          "date": "2025-12-25"
+        },
+        {
+          "videoId": "qqhntA6Ov30",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.3",
+          "date": "2025-12-22"
+        },
+        {
+          "videoId": "o9EMdD1wDUc",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.2",
+          "date": "2025-12-20"
+        },
+        {
+          "videoId": "Cbwzyw6nQKA",
+          "title": "Clair Obscur: Expedition 33: Vamos de GOTY! - pt.1",
+          "date": "2025-12-20"
+        }
+      ],
+      "links": [],
+      "rating": 9,
+      "playlistUrl": "https://youtube.com/playlist?list=PLGdKjS_coMItaSf020Fwg3Z3x5bj5Fl3Y&si=xDLztNykSI6L3UTI"
     }
   ]
 }
