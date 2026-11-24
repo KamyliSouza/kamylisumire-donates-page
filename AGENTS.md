@@ -187,6 +187,13 @@ sitemap (ver [SEO](#11-seo-e-publicação)).
     ×, clique no fundo (só quando o clique começa e termina no fundo) e retorno do foco ao cartão de origem.
     Review, spoilers e todo texto editorial entram **somente** por `textContent`/`createElement`; nunca
     `innerHTML`. Com o popup aberto, a página atrás não rola (`html:has(.jogo-dialog[open])`).
+  - **Organização do popup:** coluna lateral fixa (`.jogo-dialog-aside`) com a capa e as **ações externas**
+    (`#jogoDialogActions`: Steam, "Playlist completa", "Última transmissão"); coluna principal com cabeçalho
+    (título e status), "Minha experiência" (nota em destaque + recomendação + review; spoilers em `<details>`),
+    "Transmissões" (resumo primeira/última/total derivado dos episódios + lista numerada, recolhida acima de
+    seis itens) e "Links adicionais". Não crie campos novos no JSON para isso: tudo vem de `episodes`,
+    `playlistUrl`, `rating` e `recommendation`. No celular (≤ 760 px) a capa encolhe para 96 px ao lado do título e
+    as ações ocupam a largura toda. Ao abrir, o painel volta ao topo (`scrollTop = 0`).
   - **Ficha ausente:** jogo sem entrada em `jogos-editorial.json` não mostra seções vazias; só título, status,
     Steam e, se não houver nada, a linha `#jogoDialogEmpty`. O selo "Ficha editorial" usa
     `hasEditorialContent()` (review, nota, recomendação, playlist, episódios ou links).

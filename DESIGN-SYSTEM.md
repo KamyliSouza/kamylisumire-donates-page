@@ -141,11 +141,20 @@ setas continuam sobrepostas e não reservam espaço.
   e texto à direita, uma coluna abaixo de 620 px.
 - **Popup** (`.jogo-dialog`): superfície **opaca** (`--bg-color` + camada `--card-bg`, como o painel de
   ajustes), borda de 2 px em `--card-border`, `--radius-card` e `--shadow-card`; o fundo da página recebe
-  escurecimento com blur leve. Desktop: capa à esquerda (sticky) e conteúdo à direita. Até 760 px: capa de
-  96 px ao lado do título e o restante em largura total, para a review aparecer sem rolagem. Painel limitado
-  a `88dvh` com rolagem interna.
-- Links do popup usam `--primary-text` sublinhado e quebram em qualquer ponto (`overflow-wrap: anywhere`); datas
-  usam números tabulares. Nenhum player ou iframe é incorporado.
+  escurecimento com blur leve. Painel limitado a `88dvh` com rolagem interna.
+  - **Desktop:** coluna lateral de 240 px (sticky) com a capa e as ações externas; coluna principal com
+    título + status, "Minha experiência", "Transmissões" e "Links adicionais", separadas por filetes de 1 px em
+    `--card-border` (sem caixas dentro de caixas).
+  - **Ações:** a primária (Steam) usa `--button-bg`/`--button-text`; as demais (Playlist completa, Última
+    transmissão) são botões secundários em `--nav-bg` com borda `--card-border`, mínimo de 42 px de altura.
+  - **Nota:** bloco de 60 px em `--primary-soft` com o número em `--primary-text`, ao lado da recomendação.
+  - **Transmissões:** resumo em três células (primeira, última, total) e lista numerada; a linha inteira é o
+    alvo de clique, com foco visível no `<li>`. Acima de seis itens, mostra cinco e um botão "Mostrar todas".
+  - **Até 760 px:** capa de 96 px ao lado do título; Steam em linha própria e os demais botões em duas colunas;
+    seções em largura total, para a review aparecer sem rolagem. O botão × é opaco, para não misturar com o
+    texto ao rolar.
+- Links do popup usam `--primary-text` e quebram em qualquer ponto (`overflow-wrap: anywhere`); datas usam números
+  tabulares. Nenhum player ou iframe é incorporado.
 
 ## 8. Cards da Home
 

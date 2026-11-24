@@ -98,3 +98,21 @@ test('catálogo continua sinalizando o loader mesmo quando a carga falha', () =>
     'init().finally(signalContentReady);'
   ]) assert.ok(js.includes(token), `sinal de carregamento ausente: ${token}`);
 });
+
+test('popup organiza ações, nota, transmissões e links em blocos previsíveis', () => {
+  // Ações externas juntas (Steam, playlist, última transmissão), ao lado da capa.
+  assert.match(html, /id="jogoDialogActions"/);
+  assert.match(js, /function addDialogAction/);
+  assert.match(js, /"Última transmissão\\u00a0↗"/);
+  // Resumo derivado dos episódios + lista numerada, recolhida quando longa.
+  assert.match(html, /<dl class="jogo-dialog-stats">/);
+  assert.match(js, /const EPISODES_COLLAPSED = 5;/);
+  assert.match(html, /id="jogoDialogMore"[^>]*aria-expanded="false"[^>]*aria-controls="jogoDialogEpisodes"/);
+  assert.match(js, /els\.dialogPanel\.scrollTop = 0/);
+  // Nota e recomendação ficam na seção de review, sem repetir o selo no cabeçalho.
+  assert.match(html, /id="jogoDialogScore"/);
+  assert.doesNotMatch(html, /jogoDialogPlaylistSection|jogoDialogSteamSection/);
+  // Linha da transmissão inteira clicável pelo link do título; sem controles aninhados.
+  assert.match(css, /\.jogo-dialog-episodes a::after \{\s*content: "";\s*position: absolute;\s*inset: 0;/);
+  assert.match(css, /\.jogo-dialog-aside \{\s*position: sticky;/);
+});

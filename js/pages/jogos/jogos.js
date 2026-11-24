@@ -7,6 +7,13 @@
     const DEFAULT_PAGE_SIZE = 15;
     const MAX_PAGE_SIZE = 60;
     const MAX_VISIBLE_PAGES = 5;
+    const EPISODES_COLLAPSED = 5;
+    const YOUTUBE_HOSTS = ["www.youtube.com", "youtube.com"];
+    const RECOMMENDATION_LABELS = {
+        recommended: "Recomendado por Kamyli",
+        mixed: "Recomendação com ressalvas",
+        "not-recommended": "Não recomendado"
+    };
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
     const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
@@ -32,26 +39,29 @@
         posterMode: document.getElementById("jogosViewPoster"),
         compactMode: document.getElementById("jogosViewCompact"),
         dialog: document.getElementById("jogoDialog"),
+        dialogPanel: document.getElementById("jogoDialogPanel"),
         dialogClose: document.getElementById("jogoDialogClose"),
         dialogImage: document.getElementById("jogoDialogImage"),
         dialogPlaceholder: document.getElementById("jogoDialogPlaceholder"),
+        dialogActions: document.getElementById("jogoDialogActions"),
         dialogTitle: document.getElementById("jogoDialogTitle"),
         dialogStatus: document.getElementById("jogoDialogStatus"),
+        dialogReviewSection: document.getElementById("jogoDialogReviewSection"),
+        dialogScore: document.getElementById("jogoDialogScore"),
         dialogRating: document.getElementById("jogoDialogRating"),
         dialogRecommendation: document.getElementById("jogoDialogRecommendation"),
-        dialogReviewSection: document.getElementById("jogoDialogReviewSection"),
+        dialogScoreCaption: document.getElementById("jogoDialogScoreCaption"),
         dialogReview: document.getElementById("jogoDialogReview"),
         dialogSpoilers: document.getElementById("jogoDialogSpoilers"),
         dialogSpoilerReview: document.getElementById("jogoDialogSpoilerReview"),
-        dialogPlaylistSection: document.getElementById("jogoDialogPlaylistSection"),
-        dialogPlaylist: document.getElementById("jogoDialogPlaylist"),
         dialogHistorySection: document.getElementById("jogoDialogHistorySection"),
-        dialogHistorySummary: document.getElementById("jogoDialogHistorySummary"),
+        dialogFirst: document.getElementById("jogoDialogFirst"),
+        dialogLast: document.getElementById("jogoDialogLast"),
+        dialogTotal: document.getElementById("jogoDialogTotal"),
         dialogEpisodes: document.getElementById("jogoDialogEpisodes"),
+        dialogMore: document.getElementById("jogoDialogMore"),
         dialogLinksSection: document.getElementById("jogoDialogLinksSection"),
         dialogLinks: document.getElementById("jogoDialogLinks"),
-        dialogSteamSection: document.getElementById("jogoDialogSteamSection"),
-        dialogSteam: document.getElementById("jogoDialogSteam"),
         dialogEmpty: document.getElementById("jogoDialogEmpty")
     };
 
@@ -125,24 +135,25 @@
     }
 
     function clearDialogContent() {
-        for (const node of [els.dialogPlaylist, els.dialogEpisodes, els.dialogLinks, els.dialogSteam]) {
-            node?.replaceChildren();
-        }
-        if (els.dialogHistorySummary) els.dialogHistorySummary.textContent = "";
-        if (els.dialogTitle) els.dialogTitle.textContent = "";
-        if (els.dialogStatus) els.dialogStatus.textContent = "";
-        if (els.dialogRating) els.dialogRating.textContent = "";
-        if (els.dialogRecommendation) els.dialogRecommendation.textContent = "";
+        for (const node of [els.dialogActions, els.dialogEpisodes, els.dialogLinks]) node?.replaceChildren();
         for (const node of [
-            els.dialogRating, els.dialogRecommendation, els.dialogReviewSection,
-            els.dialogSpoilers, els.dialogPlaylistSection, els.dialogHistorySection,
-            els.dialogLinksSection, els.dialogSteamSection
+            els.dialogTitle, els.dialogStatus, els.dialogRating, els.dialogRecommendation,
+            els.dialogReview, els.dialogSpoilerReview, els.dialogFirst, els.dialogLast, els.dialogTotal
+        ]) {
+            if (node) node.textContent = "";
+        }
+        for (const node of [
+            els.dialogActions, els.dialogScore, els.dialogRating, els.dialogReviewSection,
+            els.dialogReview, els.dialogSpoilers, els.dialogHistorySection, els.dialogMore,
+            els.dialogLinksSection, els.dialogEmpty
         ]) {
             if (node) node.hidden = true;
         }
-        if (els.dialogEmpty) els.dialogEmpty.hidden = true;
-        if (els.dialogReview) els.dialogReview.textContent = "";
-        if (els.dialogSpoilerReview) els.dialogSpoilerReview.textContent = "";
+        if (els.dialogSpoilers) els.dialogSpoilers.open = false;
+        if (els.dialogMore) {
+            els.dialogMore.onclick = null;
+            els.dialogMore.setAttribute("aria-expanded", "false");
+        }
         state.dialogImageGeneration += 1;
         if (els.dialogImage) {
             els.dialogImage.removeAttribute("src");
@@ -167,6 +178,69 @@
         const episodes = Array.isArray(editorial.episodes) && editorial.episodes.length > 0;
         const links = Array.isArray(editorial.links) && editorial.links.length > 0;
         return review || rating || recommendation || playlist || episodes || links;
+    }
+
+    function addDialogAction(label, rawUrl, allowedHosts, primary = false) {
+        const link = createExternalLink(label, rawUrl, allowedHosts);
+        if (!link) return null;
+        link.className = primary ? "jogo-dialog-action is-primary" : "jogo-dialog-action";
+        els.dialogActions.append(link);
+        els.dialogActions.hidden = false;
+        return link;
+    }
+
+    function renderDialogEpisodes(rawEpisodes) {
+        const valid = rawEpisodes
+            .map((episode, order) => ({ episode, order }))
+            .filter(({ episode }) => /^[A-Za-z0-9_-]{11}$/.test(episode?.videoId || ""))
+            .sort((a, b) => String(a.episode.date || "").localeCompare(String(b.episode.date || "")) || a.order - b.order)
+            .map(({ episode }) => episode);
+
+        const items = [];
+        valid.forEach((episode, index) => {
+            const url = `https://www.youtube.com/watch?v=${episode.videoId}`;
+            const link = createExternalLink(episode.title?.trim() || `Transmissão ${index + 1}`, url, YOUTUBE_HOSTS);
+            if (!link) return;
+            const item = document.createElement("li");
+            const number = document.createElement("span");
+            number.className = "jogo-dialog-episode-number";
+            number.setAttribute("aria-hidden", "true");
+            number.textContent = String(items.length + 1).padStart(2, "0");
+            item.append(number, link);
+            const date = formatDate(episode.date);
+            if (date) {
+                const time = document.createElement("span");
+                time.className = "jogo-dialog-episode-date";
+                time.textContent = date;
+                item.append(time);
+            }
+            const go = document.createElement("span");
+            go.className = "jogo-dialog-episode-go";
+            go.setAttribute("aria-hidden", "true");
+            go.textContent = "↗";
+            item.append(go);
+            items.push({ item, episode, url });
+        });
+        if (!items.length) return null;
+
+        els.dialogEpisodes.replaceChildren(...items.map(entry => entry.item));
+        els.dialogFirst.textContent = formatDate(items[0].episode.date) || "—";
+        els.dialogLast.textContent = formatDate(items[items.length - 1].episode.date) || "—";
+        els.dialogTotal.textContent = String(items.length);
+        els.dialogHistorySection.hidden = false;
+
+        // Listas longas ficam recolhidas; "Última transmissão" já leva direto ao vídeo mais recente.
+        if (items.length > EPISODES_COLLAPSED + 1) {
+            const setExpanded = expanded => {
+                items.forEach((entry, index) => { entry.item.hidden = !expanded && index >= EPISODES_COLLAPSED; });
+                els.dialogMore.setAttribute("aria-expanded", String(expanded));
+                els.dialogMore.textContent = expanded ? "Mostrar menos" : `Mostrar todas as ${items.length} transmissões`;
+            };
+            els.dialogMore.hidden = false;
+            els.dialogMore.onclick = () => setExpanded(els.dialogMore.getAttribute("aria-expanded") !== "true");
+            setExpanded(false);
+        }
+        return items[items.length - 1];
     }
 
     function openGameDialog(game, trigger) {
@@ -196,19 +270,35 @@
             };
         }
 
-        if (editorial && typeof editorial.rating === "number" && Number.isFinite(editorial.rating)) {
-            els.dialogRating.textContent = `${editorial.rating.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}/10`;
-            els.dialogRating.hidden = false;
-        }
-        const recommendationLabels = {
-            recommended: "Recomendado por Kamyli",
-            mixed: "Recomendação com ressalvas",
-            "not-recommended": "Não recomendado"
-        };
-        const recommendation = recommendationLabels[editorial?.recommendation];
-        if (recommendation) {
-            els.dialogRecommendation.textContent = recommendation;
-            els.dialogRecommendation.hidden = false;
+        // Ações externas ficam juntas, ao lado da capa: Steam, playlist e vídeo mais recente.
+        const steamUrl = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(game.steamUrl, { httpsOnly: true, allowedHosts: ["store.steampowered.com"] })
+            : "";
+        addDialogAction("Ver na Steam\u00a0↗", steamUrl, ["store.steampowered.com"], true);
+
+        const playlistUrl = (() => {
+            const url = safeHttpsUrl(editorial?.playlistUrl, YOUTUBE_HOSTS);
+            try {
+                const parsed = new URL(url);
+                return parsed.pathname === "/playlist" && parsed.searchParams.get("list") ? url : "";
+            } catch { return ""; }
+        })();
+        addDialogAction("Playlist completa\u00a0↗", playlistUrl, YOUTUBE_HOSTS);
+
+        const latest = renderDialogEpisodes(Array.isArray(editorial?.episodes) ? editorial.episodes : []);
+        if (latest) addDialogAction("Última transmissão\u00a0↗", latest.url, YOUTUBE_HOSTS);
+
+        const hasRating = typeof editorial?.rating === "number" && Number.isFinite(editorial.rating);
+        const recommendation = RECOMMENDATION_LABELS[editorial?.recommendation];
+        if (hasRating || recommendation) {
+            els.dialogReviewSection.hidden = false;
+            els.dialogScore.hidden = false;
+            if (hasRating) {
+                els.dialogRating.textContent = editorial.rating.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+                els.dialogRating.hidden = false;
+            }
+            els.dialogRecommendation.textContent = recommendation || "Nota da Kamyli";
+            els.dialogScoreCaption.hidden = !hasRating;
         }
 
         const review = typeof editorial?.review === "string" ? editorial.review.trim() : "";
@@ -218,55 +308,14 @@
                 els.dialogSpoilers.hidden = false;
                 els.dialogSpoilerReview.textContent = review;
             } else {
+                els.dialogReview.hidden = false;
                 els.dialogReview.textContent = review;
             }
         }
 
-        const playlist = createExternalLink("Abrir playlist no YouTube ↗", editorial?.playlistUrl, ["www.youtube.com", "youtube.com"]);
-        if (playlist) {
-            try {
-                const parsed = new URL(playlist.href);
-                if (parsed.pathname === "/playlist" && parsed.searchParams.get("list")) {
-                    els.dialogPlaylist.append(playlist);
-                    els.dialogPlaylistSection.hidden = false;
-                }
-            } catch { /* URL já validada; defesa adicional antes de exibir. */ }
-        }
-
-        const episodes = Array.isArray(editorial?.episodes)
-            ? editorial.episodes.filter(item => /^[A-Za-z0-9_-]{11}$/.test(item?.videoId || ""))
-            : [];
-        if (episodes.length) {
-            const ordered = [...episodes].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
-            const firstDate = formatDate(ordered[0].date);
-            const lastDate = formatDate(ordered[ordered.length - 1].date);
-            const dateSummary = firstDate && lastDate
-                ? (firstDate === lastDate ? firstDate : `${firstDate} – ${lastDate}`)
-                : "Datas não informadas";
-            els.dialogHistorySummary.textContent = `${episodes.length} ${episodes.length === 1 ? "transmissão" : "transmissões"} · ${dateSummary}`;
-            for (const episode of ordered) {
-                const item = document.createElement("li");
-                const link = createExternalLink(
-                    episode.title?.trim() || "Abrir transmissão no YouTube",
-                    `https://www.youtube.com/watch?v=${episode.videoId}`,
-                    ["www.youtube.com", "youtube.com"]
-                );
-                if (!link) continue;
-                item.append(link);
-                if (formatDate(episode.date)) {
-                    const date = document.createElement("span");
-                    date.className = "jogo-dialog-episode-date";
-                    date.textContent = formatDate(episode.date);
-                    item.append(date);
-                }
-                els.dialogEpisodes.append(item);
-            }
-            if (els.dialogEpisodes.childElementCount) els.dialogHistorySection.hidden = false;
-        }
-
         const extraLinks = Array.isArray(editorial?.links) ? editorial.links : [];
         for (const entry of extraLinks) {
-            const link = createExternalLink(entry?.label?.trim() || "Link externo", entry?.url);
+            const link = createExternalLink(`${entry?.label?.trim() || "Link externo"}\u00a0↗`, entry?.url);
             if (link) {
                 const item = document.createElement("li");
                 item.append(link);
@@ -275,18 +324,10 @@
         }
         if (els.dialogLinks.childElementCount) els.dialogLinksSection.hidden = false;
 
-        const steamUrl = typeof safeHttpUrl === "function"
-            ? safeHttpUrl(game.steamUrl, { httpsOnly: true, allowedHosts: ["store.steampowered.com"] })
-            : "";
-        const steamLink = createExternalLink("Ver na Steam ↗", steamUrl, ["store.steampowered.com"]);
-        if (steamLink) {
-            els.dialogSteam.append(steamLink);
-            els.dialogSteamSection.hidden = false;
-        }
+        // Jogo sem ficha: nenhuma seção vazia; só avisa quando não há nada além do título.
+        els.dialogEmpty.hidden = els.dialogActions.childElementCount > 0 || hasEditorialContent(editorial);
 
-        // Jogo sem ficha: não mostra seções vazias; só avisa quando não há nada além do título.
-        if (els.dialogEmpty) els.dialogEmpty.hidden = !els.dialogSteamSection.hidden || hasEditorialContent(editorial);
-
+        els.dialogPanel.scrollTop = 0;
         els.dialog.showModal();
         els.dialogClose?.focus({ preventScroll: true });
     }

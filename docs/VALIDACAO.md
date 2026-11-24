@@ -197,9 +197,10 @@ dos painéis depois do reveal.
 6. `/jogos/` (manual, desktop e ~375 px, temas claro e escuro): alternar **Pôsteres/Compacto** sem overflow
    horizontal; clicar num cartão abre o popup com o foco no botão de fechar; `Esc`, o botão × e o clique no
    fundo fecham e devolvem o foco ao cartão; a página atrás não rola com o popup aberto; no celular a capa fica
-   ao lado do título e a review aparece sem rolar; jogo sem ficha mostra só título, status e Steam; uma ficha
-   com `containsSpoilers: true` mantém a review recolhida até abrir; com `jogos-editorial.json` removido ou
-   inválido a lista continua funcionando.
+   ao lado do título, os botões de ação ficam logo abaixo e a review aparece sem rolar; jogo sem ficha mostra só
+   título, status e Steam; uma ficha com `containsSpoilers: true` mantém a review recolhida até abrir; uma ficha
+   com mais de seis transmissões mostra cinco e o botão "Mostrar todas as N transmissões" (com `aria-expanded`);
+   reabrir o popup volta ao topo; com `jogos-editorial.json` removido ou inválido a lista continua funcionando.
 
 ### 4.8 Doações, ranking e privacidade
 

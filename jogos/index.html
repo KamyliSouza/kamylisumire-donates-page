@@ -395,12 +395,15 @@
         <nav class="glass-panel jogos-pagination" id="jogosPagination" aria-label="Páginas de jogos" hidden></nav>
 
         <dialog class="jogo-dialog" id="jogoDialog" aria-labelledby="jogoDialogTitle">
-            <div class="jogo-dialog-panel">
+            <div class="jogo-dialog-panel" id="jogoDialogPanel">
                 <button class="jogo-dialog-close" id="jogoDialogClose" type="button" aria-label="Fechar detalhes do jogo">×</button>
                 <div class="jogo-dialog-layout">
-                    <div class="jogo-dialog-art" aria-hidden="true">
-                        <div class="jogo-dialog-placeholder" id="jogoDialogPlaceholder"><span class="jogo-card-placeholder-mark"></span></div>
-                        <img id="jogoDialogImage" alt="" hidden>
+                    <div class="jogo-dialog-aside">
+                        <div class="jogo-dialog-art" aria-hidden="true">
+                            <div class="jogo-dialog-placeholder" id="jogoDialogPlaceholder"><span class="jogo-card-placeholder-mark"></span></div>
+                            <img id="jogoDialogImage" alt="" hidden>
+                        </div>
+                        <div class="jogo-dialog-actions" id="jogoDialogActions" hidden></div>
                     </div>
                     <div class="jogo-dialog-body">
                         <div class="jogo-dialog-heading">
@@ -408,35 +411,38 @@
                             <h2 id="jogoDialogTitle"></h2>
                             <div class="jogo-dialog-badges">
                                 <span class="jogo-dialog-status" id="jogoDialogStatus"></span>
-                                <span class="jogo-dialog-rating" id="jogoDialogRating" hidden></span>
-                                <span class="jogo-dialog-recommendation" id="jogoDialogRecommendation" hidden></span>
                             </div>
                         </div>
-                        <section class="jogo-dialog-section" id="jogoDialogReviewSection" hidden>
-                            <h3>Minha experiência</h3>
-                            <p id="jogoDialogReview" class="jogo-dialog-review"></p>
+                        <section class="jogo-dialog-section" id="jogoDialogReviewSection" aria-labelledby="jogoDialogReviewHeading" hidden>
+                            <h3 id="jogoDialogReviewHeading">Minha experiência</h3>
+                            <div class="jogo-dialog-score" id="jogoDialogScore" hidden>
+                                <span class="jogo-dialog-rating" id="jogoDialogRating" hidden></span>
+                                <span class="jogo-dialog-score-copy">
+                                    <strong id="jogoDialogRecommendation"></strong>
+                                    <small id="jogoDialogScoreCaption">Nota de 0 a 10</small>
+                                </span>
+                            </div>
+                            <p id="jogoDialogReview" class="jogo-dialog-review" hidden></p>
                             <details id="jogoDialogSpoilers" class="jogo-dialog-spoilers" hidden>
                                 <summary>Review com spoilers — abrir conteúdo</summary>
                                 <p id="jogoDialogSpoilerReview" class="jogo-dialog-review"></p>
                             </details>
                         </section>
-                        <section class="jogo-dialog-section" id="jogoDialogPlaylistSection" hidden>
-                            <h3>Playlist das lives</h3>
-                            <div id="jogoDialogPlaylist" class="jogo-dialog-links"></div>
-                        </section>
-                        <section class="jogo-dialog-section" id="jogoDialogHistorySection" hidden>
-                            <h3>Histórico de transmissões</h3>
-                            <p id="jogoDialogHistorySummary" class="jogo-dialog-muted"></p>
+                        <section class="jogo-dialog-section" id="jogoDialogHistorySection" aria-labelledby="jogoDialogHistoryHeading" hidden>
+                            <h3 id="jogoDialogHistoryHeading">Transmissões</h3>
+                            <dl class="jogo-dialog-stats">
+                                <div><dt>Primeira live</dt><dd id="jogoDialogFirst"></dd></div>
+                                <div><dt>Última live</dt><dd id="jogoDialogLast"></dd></div>
+                                <div><dt>Total</dt><dd id="jogoDialogTotal"></dd></div>
+                            </dl>
                             <ol id="jogoDialogEpisodes" class="jogo-dialog-episodes"></ol>
+                            <button class="jogo-dialog-more" id="jogoDialogMore" type="button" aria-expanded="false" aria-controls="jogoDialogEpisodes" hidden></button>
                         </section>
-                        <section class="jogo-dialog-section" id="jogoDialogLinksSection" hidden>
-                            <h3>Links adicionais</h3>
-                            <ul id="jogoDialogLinks" class="jogo-dialog-episodes"></ul>
+                        <section class="jogo-dialog-section" id="jogoDialogLinksSection" aria-labelledby="jogoDialogLinksHeading" hidden>
+                            <h3 id="jogoDialogLinksHeading">Links adicionais</h3>
+                            <ul id="jogoDialogLinks" class="jogo-dialog-link-list"></ul>
                         </section>
                         <p class="jogo-dialog-muted jogo-dialog-empty" id="jogoDialogEmpty" hidden>Ainda não há ficha editorial para este jogo.</p>
-                        <section class="jogo-dialog-section" id="jogoDialogSteamSection" hidden>
-                            <div id="jogoDialogSteam" class="jogo-dialog-links"></div>
-                        </section>
                     </div>
                 </div>
             </div>

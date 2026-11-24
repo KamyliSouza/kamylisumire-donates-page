@@ -9,6 +9,7 @@
 - validador e testes passam a conferir o contrato do arquivo editorial, os IDs do Trello e a segurança dos links; atualizados cache-busters de `jogos.js` e `jogos.css` para `48.5.1`.
 - acessibilidade e responsividade: o título de cada cartão continua sendo um `<h2>` real e o cartão inteiro é clicável por um botão sobreposto; no celular o popup mostra a capa pequena ao lado do título, com a review logo abaixo; o fundo do popup é opaco e a página atrás não rola enquanto ele está aberto; clicar-e-arrastar para selecionar texto não fecha mais o popup ao soltar sobre o fundo;
 - jogos sem ficha não exibem seção vazia no popup, e o selo "Ficha editorial" também considera recomendação e links adicionais;
+- popup reorganizado: coluna lateral com capa e ações externas (Steam, playlist completa, última transmissão); nota em destaque com a recomendação; resumo da jornada (primeira/última live e total) calculado dos episódios; lista numerada de transmissões com a linha inteira clicável e recolhida acima de seis itens; links adicionais como botões; o painel volta ao topo ao abrir outro jogo;
 - documentação atualizada: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md`, `docs/ARQUITETURA.md`, `docs/VALIDACAO.md`, `docs/AGENDA-E-JOGOS.md` e `data/content/README.md` descrevem a ficha editorial, a interface de Jogos (modos, popup, acessibilidade) e as novas checagens.
 
 

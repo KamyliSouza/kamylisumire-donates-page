@@ -160,9 +160,11 @@ caracteres do cartão Trello). Mover um cartão entre listas ou renomear o jogo 
 - `episodes`: lista de `videoId` (11 caracteres), título e data (`YYYY-MM-DD`). O histórico é exibido por links externos.
 - `links`: até 20 links HTTPS com rótulo e endereço.
 
-Na página, cada cartão abre um popup (`<dialog>` nativo) com status, nota, recomendação, review (recolhida
-quando `containsSpoilers` é verdadeiro), playlist, histórico de transmissões (quantidade, intervalo de datas e
-um link por vídeo) e links adicionais, além do botão da Steam. Os cartões têm os modos **Pôsteres** (padrão) e
+Na página, cada cartão abre um popup (`<dialog>` nativo). Ao lado da capa ficam as ações externas: **Ver na
+Steam**, **Playlist completa** (`playlistUrl`) e **Última transmissão** (o vídeo mais recente de `episodes`).
+No conteúdo: status, **Minha experiência** (nota, recomendação e review, recolhida quando `containsSpoilers` é
+verdadeiro), **Transmissões** (primeira live, última live e total, calculados a partir de `episodes`, mais a
+lista numerada com um link por vídeo; acima de seis itens a lista começa recolhida) e **Links adicionais**. Os cartões têm os modos **Pôsteres** (padrão) e
 **Compacto**. Jogos sem ficha continuam abrindo o popup, apenas sem essas seções, e o selo "Ficha editorial"
 só aparece nos que têm conteúdo.
 

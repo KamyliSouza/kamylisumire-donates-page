@@ -274,8 +274,8 @@
 }
 
 .jogo-dialog {
-    width: min(900px, calc(100% - 28px));
-    max-width: 900px;
+    width: min(920px, calc(100% - 28px));
+    max-width: 920px;
     max-height: min(88dvh, 820px);
     padding: 0;
     color: var(--text-color);
@@ -314,9 +314,11 @@
     height: 42px;
     margin: 12px 12px -54px 0;
     color: var(--text-color);
-    background: var(--nav-bg);
+    background-color: var(--bg-color);
+    background-image: linear-gradient(var(--nav-bg), var(--nav-bg));
     border: 1px solid var(--card-border);
     border-radius: 999px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .14);
     font: inherit;
     font-size: 1.6rem;
     font-weight: 700;
@@ -332,17 +334,25 @@
     outline: none;
 }
 
+/* Coluna lateral (capa + ações) fixa enquanto o conteúdo rola; coluna principal com as seções. */
 .jogo-dialog-layout {
     display: grid;
-    grid-template-columns: minmax(190px, 280px) minmax(0, 1fr);
-    gap: 26px;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 28px;
     padding: 26px;
 }
 
-.jogo-dialog-art {
+.jogo-dialog-aside {
     position: sticky;
     top: 24px;
     align-self: start;
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.jogo-dialog-art {
+    position: relative;
     aspect-ratio: 2 / 3;
     overflow: hidden;
     background: var(--primary-soft);
@@ -370,18 +380,69 @@
     height: 82px;
 }
 
+.jogo-dialog-actions {
+    display: grid;
+    gap: 8px;
+}
+
+.jogo-dialog-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 14px;
+    color: var(--primary-text);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    font-size: .84rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+.jogo-dialog-action:hover,
+.jogo-dialog-action:focus-visible {
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+}
+
+.jogo-dialog-action.is-primary {
+    color: var(--button-text);
+    background: var(--button-bg);
+    border-color: var(--button-bg);
+}
+
+.jogo-dialog-action.is-primary:hover,
+.jogo-dialog-action.is-primary:focus-visible {
+    color: var(--button-text);
+    background: var(--button-bg-hover);
+    border-color: var(--button-bg-hover);
+}
+
+.jogo-dialog-action:focus-visible,
+.jogo-dialog-more:focus-visible,
+.jogo-dialog-link-list a:focus-visible,
+.jogo-dialog-spoilers summary:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
 .jogo-dialog-body {
     min-width: 0;
     padding: 12px 4px 8px 0;
 }
 
 .jogo-dialog-heading h2 {
-    margin: 8px 52px 10px 0;
+    margin: 8px 52px 12px 0;
     color: var(--primary-color);
     font-size: clamp(1.55rem, 3vw, 2.25rem);
     font-weight: 900;
     line-height: 1.12;
     letter-spacing: -.025em;
+    overflow-wrap: anywhere;
 }
 
 .jogo-dialog-badges {
@@ -391,25 +452,17 @@
     gap: 7px;
 }
 
-.jogo-dialog-status,
-.jogo-dialog-rating,
-.jogo-dialog-recommendation {
+.jogo-dialog-status {
     display: inline-flex;
     align-items: center;
     min-height: 28px;
     padding: 5px 10px;
-    color: var(--text-color);
-    background: var(--nav-bg);
+    color: var(--primary-text);
+    background: var(--primary-soft);
     border: 1px solid var(--card-border);
     border-radius: 999px;
     font-size: .76rem;
     font-weight: 900;
-}
-
-.jogo-dialog-rating {
-    color: var(--primary-text);
-    background: var(--primary-soft);
-    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--card-border));
 }
 
 .jogo-dialog-section {
@@ -419,10 +472,52 @@
 }
 
 .jogo-dialog-section h3 {
-    margin: 0 0 9px;
+    margin: 0 0 12px;
     color: var(--text-color);
     font-size: 1rem;
     font-weight: 900;
+}
+
+/* Nota em destaque, sem caixa dentro de caixa. */
+.jogo-dialog-score {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.jogo-dialog-rating {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 45%, var(--card-border));
+    border-radius: 16px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.jogo-dialog-score-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.jogo-dialog-score-copy strong {
+    color: var(--text-color);
+    font-size: .95rem;
+    font-weight: 900;
+}
+
+.jogo-dialog-score-copy small {
+    color: var(--subtitle-color);
+    font-size: .76rem;
+    font-weight: 800;
 }
 
 .jogo-dialog-review {
@@ -436,7 +531,7 @@
 }
 
 .jogo-dialog-muted {
-    margin: 0 0 10px;
+    margin: 0;
     color: var(--subtitle-color);
     font-size: .82rem;
     font-weight: 700;
@@ -460,48 +555,169 @@
     padding-top: 10px;
 }
 
-.jogo-dialog-links,
+/* Resumo da jornada (derivado dos episódios) e lista numerada de transmissões. */
+.jogo-dialog-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 12px;
+    overflow: hidden;
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+}
+
+.jogo-dialog-stats > div {
+    min-width: 0;
+    padding: 10px 12px;
+}
+
+.jogo-dialog-stats > div + div {
+    border-left: 1px solid var(--card-border);
+}
+
+.jogo-dialog-stats dt {
+    color: var(--subtitle-color);
+    font-size: .7rem;
+    font-weight: 900;
+}
+
+.jogo-dialog-stats dd {
+    margin: 3px 0 0;
+    color: var(--text-color);
+    font-size: .88rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
 .jogo-dialog-episodes {
     display: grid;
-    gap: 9px;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-.jogo-dialog-links a,
-.jogo-dialog-episodes a {
+.jogo-dialog-episodes li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--card-border);
+    border-radius: 10px;
+    transition: background-color .18s ease;
+}
+
+.jogo-dialog-episodes li:hover {
+    background: var(--primary-soft);
+}
+
+.jogo-dialog-episodes li:focus-within {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+.jogo-dialog-episode-number {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
     color: var(--primary-text);
+    background: var(--notice-bg);
+    border-radius: 9px;
+    font-size: .74rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+/* A linha inteira é clicável pelo link do título. */
+.jogo-dialog-episodes a {
+    color: var(--text-color);
+    font-size: .88rem;
     font-weight: 800;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+    text-decoration: none;
     overflow-wrap: anywhere;
 }
 
-.jogo-dialog-episodes li {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--card-border);
+.jogo-dialog-episodes a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.jogo-dialog-episodes a:focus-visible {
+    outline: none;
 }
 
 .jogo-dialog-episode-date {
-    flex: 0 0 auto;
     color: var(--subtitle-color);
     font-size: .76rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
-.jogo-dialog [hidden] {
-    display: none !important;
+.jogo-dialog-episode-go {
+    color: var(--primary-text);
+    font-size: .8rem;
+    font-weight: 900;
+}
+
+.jogo-dialog-more {
+    min-height: 40px;
+    margin-top: 10px;
+    padding: 8px 14px;
+    color: var(--primary-text);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.jogo-dialog-more:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+}
+
+.jogo-dialog-link-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.jogo-dialog-link-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 7px 13px;
+    color: var(--primary-text);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 900;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.jogo-dialog-link-list a:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
 }
 
 .jogo-dialog-empty {
     margin-top: 20px;
+}
+
+.jogo-dialog [hidden] {
+    display: none !important;
 }
 
 /* Com o popup aberto, a página atrás não rola. */
@@ -512,23 +728,23 @@ html:has(.jogo-dialog[open]) {
 @media (max-width: 760px) {
     .jogos-view-switch { width: 100%; }
     .jogos-view-button { flex: 1 1 50%; }
-    /* Celular: capa pequena ao lado do título; review e links ocupam a largura toda logo abaixo. */
+
+    /* Celular: capa pequena ao lado do título, ações em linha e seções em largura total, sem rolar até a review. */
     .jogo-dialog-layout {
         grid-template-columns: 96px minmax(0, 1fr);
         column-gap: 14px;
         row-gap: 0;
         padding: 16px;
     }
+    .jogo-dialog-aside,
+    .jogo-dialog-body { display: contents; }
     .jogo-dialog-art {
-        position: relative;
-        top: auto;
         grid-column: 1;
         grid-row: 1;
         width: 96px;
         margin-top: 4px;
         border-radius: 14px;
     }
-    .jogo-dialog-body { display: contents; }
     .jogo-dialog-heading {
         grid-column: 2;
         grid-row: 1;
@@ -538,11 +754,20 @@ html:has(.jogo-dialog[open]) {
     .jogo-dialog-heading h2 {
         margin: 6px 40px 8px 0;
         font-size: 1.3rem;
-        overflow-wrap: anywhere;
     }
+    .jogo-dialog-actions {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 16px;
+    }
+    .jogo-dialog-action { padding: 9px 8px; font-size: .8rem; }
+    .jogo-dialog-action.is-primary { grid-column: 1 / -1; }
     .jogo-dialog-section,
     .jogo-dialog-empty { grid-column: 1 / -1; }
     .jogo-dialog-placeholder .jogo-card-placeholder-mark { width: 44px; height: 44px; }
+    .jogo-dialog-episodes li { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; padding: 10px 4px; }
+    .jogo-dialog-episode-go { display: none; }
 }
 
 @media (max-width: 620px) {
@@ -550,5 +775,7 @@ html:has(.jogo-dialog[open]) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .jogos-view-button { transition-duration: .01ms !important; }
+    .jogos-view-button,
+    .jogo-dialog-action,
+    .jogo-dialog-episodes li { transition-duration: .01ms !important; }
 }
