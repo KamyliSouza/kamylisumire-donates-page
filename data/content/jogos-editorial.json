@@ -274,6 +274,15 @@
       "links": [],
       "rating": 9,
       "playlistUrl": "https://youtube.com/playlist?list=PLFikMz5w4Cx4&si=EuxvJAz5ZShhSiyX"
+    },
+    {
+      "gameId": "6b05b0cf0d5338f5bc6c2471",
+      "review": "Parecia que eu tava jogando sem óculos.",
+      "recommendation": "not-recommended",
+      "containsSpoilers": false,
+      "episodes": [],
+      "links": [],
+      "rating": 1
     }
   ]
 }
