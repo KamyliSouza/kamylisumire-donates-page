@@ -41,6 +41,36 @@
       "links": [],
       "rating": 8,
       "playlistUrl": "https://youtube.com/playlist?list=PLWOYlmQMwkkA&si=9s4ANU01w5NihxzZ"
+    },
+    {
+      "gameId": "6ac780be5c055a504686072a",
+      "review": "Historia excepcional com um plot muito legal!",
+      "recommendation": "recommended",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "IHC3VTTIwfk",
+          "title": "O que Esta Acontecendo Com a JUDIE?! - Beyond: Two Souls - pt.4【Kamyli Sumire】(+16)",
+          "date": "2026-11-23"
+        },
+        {
+          "videoId": "HEPx4MdlqKU",
+          "title": "O que Esta Acontecendo Com a JUDIE?! - Beyond: Two Souls - pt.3【Kamyli Sumire】(+16)",
+          "date": "2026-11-17"
+        },
+        {
+          "videoId": "TtKRjYsft3g",
+          "title": "O que Esta Acontecendo Com a JUDIE?! - Beyond: Two Souls - pt.2【Kamyli Sumire】(+16)",
+          "date": "2026-11-10"
+        },
+        {
+          "videoId": "VZAYKsFL0L4",
+          "title": "O que Esta Acontecendo Com a JUDIE?! - Beyond: Two Souls - pt.1【Kamyli Sumire】(+16)",
+          "date": "2026-10-08"
+        }
+      ],
+      "links": [],
+      "rating": 7
     }
   ]
 }
