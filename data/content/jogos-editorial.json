@@ -283,6 +283,113 @@
       "episodes": [],
       "links": [],
       "rating": 1
+    },
+    {
+      "gameId": "69f61d7b0734be288f7bf634",
+      "review": "Bando de adolescente doido!",
+      "recommendation": "recommended",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "hnhFXpYMlk8",
+          "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 5【Kamyli Sumire】",
+          "date": "2026-09-19"
+        },
+        {
+          "videoId": "NmNbkvtIarM",
+          "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 4【Kamyli Sumire】",
+          "date": "2026-09-12"
+        },
+        {
+          "videoId": "CuzFPOw0US0",
+          "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 3【Kamyli Sumire】",
+          "date": "2026-09-04"
+        },
+        {
+          "videoId": "UGHNkOUguh4",
+          "title": "Toda Ação Tem uma REAÇÃO! - Life is Strange: Episódio 2【Kamyli Sumire】",
+          "date": "2026-08-29"
+        },
+        {
+          "videoId": "rCQ4oPhPbuE",
+          "title": "Tudo o que Fazemos Tem Uma CONSEQUÊNCIA! - Life is Strange - pt.1【Kamyli Sumire】",
+          "date": "2026-08-20"
+        }
+      ],
+      "links": [],
+      "rating": 8,
+      "playlistUrl": "https://youtube.com/playlist?list=PLXscgDx2E2kI&si=gC2Qy3Z7UEW9aUMV"
+    },
+    {
+      "gameId": "69f611875121a14860ee1d5e",
+      "review": "Um dia melhores soulslike que já joguei, a ambientação é fenomenal e a gameplay é maravilhosa.",
+      "recommendation": "recommended",
+      "containsSpoilers": false,
+      "episodes": [
+        {
+          "videoId": "Mc7pRloEQzk",
+          "title": "Arlecchino Comprou o MEU jogo e o DELE! - Lies of P - pt.12",
+          "date": "2026-06-28"
+        },
+        {
+          "videoId": "yvejWtxy3Co",
+          "title": "Vamos Explorar a DLC do Jogão! - Lies of P - pt.11",
+          "date": "2026-06-27"
+        },
+        {
+          "videoId": "m-HoQhIlEDs",
+          "title": "Vamos Explorar a DLC do Jogão! - Lies of P - pt.10",
+          "date": "2026-06-24"
+        },
+        {
+          "videoId": "iIp6eql65UE",
+          "title": "Vamos Explorar a DLC do Jogão! - Lies of P - pt.9",
+          "date": "2026-06-21"
+        },
+        {
+          "videoId": "eUP8D-CGVxY",
+          "title": "Vamos Explorar a DLC do Jogão! - Lies of P - pt.8",
+          "date": "2026-06-20"
+        },
+        {
+          "videoId": "lZwtnb8-x6w",
+          "title": "Vamos Explorar a DLC do Jogão! - Lies of P - pt.7",
+          "date": "2026-06-17"
+        },
+        {
+          "videoId": "DlBjN_v-LLo",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.6",
+          "date": "2026-06-14"
+        },
+        {
+          "videoId": "9HK_tTLDfsc",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.5",
+          "date": "2026-06-11"
+        },
+        {
+          "videoId": "7RuNP8PxhFs",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.4",
+          "date": "2026-06-08"
+        },
+        {
+          "videoId": "wZXUTCIItTc",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.3",
+          "date": "2026-06-06"
+        },
+        {
+          "videoId": "3nDu4ef67Pg",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.2",
+          "date": "2026-06-04"
+        },
+        {
+          "videoId": "oeaU5UCXDFw",
+          "title": "Não Acredite nas MENTIRAS Dele! - Lies of P - pt.1",
+          "date": "2026-05-31"
+        }
+      ],
+      "links": [],
+      "rating": 9,
+      "playlistUrl": "https://youtube.com/playlist?list=PLGdKjS_coMIuM3VpYDpi6L1gk0Fwr9h97&si=Uz63mb5b9E8H9paC"
     }
   ]
 }
