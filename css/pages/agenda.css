@@ -378,8 +378,12 @@
 .agenda-days.is-compact .agenda-day-placeholder { display: block; place-content: start; justify-items: start; text-align: left; }
 .agenda-days.is-compact .agenda-day-mark { display: none; }
 .agenda-days.is-compact .agenda-day-placeholder-copy .agenda-event-title { font-size: 1rem; }
-/* Sem arte: o véu e o desfoque do card não fazem sentido, e o dia livre usa só a superfície sólida. */
-.agenda-days.is-compact .agenda-day.has-live::after,
+/* A arte do card vira o fundo da linha. O véu da linha é chapado (o do card é vertical, com topo e base),
+   porque o texto atravessa a faixa toda; o tom e a intensidade vêm do mesmo plano (`planRow`). */
+.agenda-days.is-compact .agenda-day.has-live[data-art-top-text][data-art-bottom-text]::after {
+    background: rgba(var(--ag-veil-bottom-rgb), var(--ag-art-veil-bottom, 0));
+}
+/* Dia livre: só a superfície sólida, sem o desfoque e o brilho do card grande. */
 .agenda-days.is-compact .agenda-day.no-live::before,
 .agenda-days.is-compact .agenda-day.no-live::after { display: none; }
 .agenda-days.is-compact .agenda-day.no-live { background: var(--ag-nolive-solid); }

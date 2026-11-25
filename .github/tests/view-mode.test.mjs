@@ -76,10 +76,12 @@ for (const [page, script, buttons] of [
   });
 }
 
-test("agenda compacta não carrega arte nem descrição e usa só textContent", () => {
+test("agenda compacta mantém a arte como fundo da linha, sem descrição, e usa só textContent", () => {
   const js = read("js/pages/agenda/agenda.js");
-  assert.match(js, /!compact && day\.hasLive && day\.art\.length/);
+  assert.match(js, /if \(day\.hasLive && day\.art\.length\)/);
   assert.match(js, /!compact && live\.description/);
+  assert.match(js, /compact \? " is-row" : ""/);
+  assert.match(js, /contrast\.planRow/);
   assert.doesNotMatch(js, /innerHTML|insertAdjacentHTML/);
 });
 

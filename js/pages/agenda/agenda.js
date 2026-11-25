@@ -29,8 +29,8 @@
     };
 
     /*
-     * V48.5.2 — Modo compacto: uma linha por dia (dia, horário, jogo, plataformas), sem arte nem
-     * descrição, para ver a semana inteira de relance. A escolha fica salva neste navegador
+     * V48.5.2 — Modo compacto: uma linha por dia (dia, horário, jogo, plataformas) com a mesma arte
+     * do card como fundo e sem descrição, para ver a semana inteira de relance. A escolha fica salva neste navegador
      * (`KAMYLI_VIEW_MODE`, chave `kamyli:ui-view-agenda`); sem storage vale só nesta visita.
      */
     const state = { week: null, viewMode: "standard" };
@@ -100,7 +100,9 @@
         if (!context) return null;
         context.drawImage(probe, sourceX, sourceY, cropWidth, cropHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         const pixels = context.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
-        return contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
+        /* Linha do modo compacto: uma região só (ver `planRow`); card normal: topo e base. */
+        const isRow = card.classList.contains("is-row") && typeof contrast.planRow === "function";
+        return isRow ? contrast.planRow(pixels, CANVAS_WIDTH, CANVAS_HEIGHT) : contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
 
     /* O recorte muda com o tamanho do card (colunas, rotação): reanalisa com debounce. */
@@ -156,11 +158,11 @@
         const multiple = day.lives.length > 1;
         const card = element(
             "article",
-            `agenda-day ${day.hasLive ? "has-live" : "no-live"}${multiple ? " has-multiple-lives" : ""}`
+            `agenda-day ${day.hasLive ? "has-live" : "no-live"}${multiple ? " has-multiple-lives" : ""}${compact ? " is-row" : ""}`
         );
         card.setAttribute("aria-label", day.ariaLabel);
 
-        if (!compact && day.hasLive && day.art.length) {
+        if (day.hasLive && day.art.length) {
             const media = element("div", "agenda-day-art");
             media.setAttribute("aria-hidden", "true");
             media.append(artImage(day.art, {

@@ -137,8 +137,9 @@ setas continuam sobrepostas e não reservam espaço.
   painel (`--ag-pill-*` para o contêiner e o botão solto; `--ag-chip-*` para o marcado). Contraste medido ≥ 9:1 nos
   dois temas. Mínimo de 32 px de altura (40 px e largura total no celular); foco visível por contorno.
 - **Compacto** (`.agenda-days.is-compact`): uma coluna, linhas de 16 px de raio com dia/data | horário + jogo +
-  plataformas | selo; sem arte, sem véu, sem desfoque. Dia livre mostra só "Dia livre". Até 600 px o jogo desce para
-  a segunda linha do cartão.
+  plataformas | selo; a arte do jogo é o fundo da linha, com véu chapado mínimo (mesmo contraste adaptativo do
+  cartão, calculado para a faixa inteira) e sem descrição. Dia livre usa a superfície sólida e mostra só "Dia livre".
+  Até 600 px o jogo desce para a segunda linha do cartão.
 - A escolha é lembrada por página (`kamyli:ui-view-agenda`, `kamyli:ui-view-jogos`); ver AGENTS.md.
 
 ### Jogos: visualização e popup de detalhes

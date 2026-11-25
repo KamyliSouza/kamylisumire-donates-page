@@ -263,9 +263,12 @@ pelos Helpers: exatamente sete dias, de domingo a sábado. Pode ser gerado por
   `#agenda`.
 - **Modo compacto da `/agenda/`:** alternador `#agendaViewStandard`/`#agendaViewCompact` (`.agenda-view-switch`,
   `aria-pressed`) no cabeçalho do painel. `agenda.js` guarda a semana em `state.week` e redesenha os dias com
-  `renderDay(day, compact)`: no compacto **não cria** `.agenda-day-art` nem descrições (nada de imagem carregada
-  à toa nem análise de contraste), e a grade recebe `.is-compact` (uma linha por dia; `display: contents` em
-  `.agenda-day-top`; no celular o jogo desce para a 2ª linha). O alternador usa os tokens do painel
+  `renderDay(day, compact)`: no compacto o cartão ganha `.is-row`, **mantém** `.agenda-day-art` como fundo da linha
+  e **não cria** as descrições; a grade recebe `.is-compact` (uma linha por dia; `display: contents` em
+  `.agenda-day-top`; no celular o jogo desce para a 2ª linha). O contraste das linhas usa
+  `KamyliAgendaContrast.planRow()` (faixa inteira, mesmo plano para `top` e `bottom`) e um véu chapado no CSS:
+  o véu vertical do cartão deixaria um vão claro justamente no meio da linha, onde fica o título. Não troque
+  `planRow` por `planCard` nas linhas. O alternador usa os tokens do painel
   (`--ag-pill-*` e `--ag-chip-*`), não os do site, porque o painel tem tema próprio.
 - **Preferência de visualização (V48.5.2):** `js/core/view-mode.js` expõe `window.KAMYLI_VIEW_MODE.get(página)` e
   `.set(página, modo)`. Chaves de `localStorage`: `kamyli:ui-view-agenda` (`standard`|`compact`) e

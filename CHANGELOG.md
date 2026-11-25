@@ -9,7 +9,8 @@ publicadas ou não foram registradas aqui.
 
 ## V48.5.2 — Modo compacto da Agenda e preferência de visualização salva
 
-- `/agenda/` ganha o alternador **Padrão/Compacto** no cabeçalho do painel. O modo compacto mostra uma linha por dia (dia e data, horário, jogo, plataformas e selo), sem arte e sem descrição, para ver a semana inteira de relance; no celular o jogo desce para uma segunda linha do mesmo cartão;
+- `/agenda/` ganha o alternador **Padrão/Compacto** no cabeçalho do painel. O modo compacto mostra uma linha por dia (dia e data, horário, jogo, plataformas e selo) com a **mesma arte do cartão como fundo** e sem descrição, para ver a semana inteira de relance; no celular o jogo desce para uma segunda linha do mesmo cartão;
+- o contraste adaptativo vale também nas linhas: novo `planRow()` em `agenda-contrast.js` analisa a faixa inteira (o texto atravessa a linha, sem "topo" e "base") e aplica o mesmo tom e o mesmo véu mínimo ao dia, ao jogo e às plataformas; o véu da linha é chapado (`agenda.css`). `agenda-contrast.js` passa a `?v=48.5.2`;
 - a escolha de visualização passa a ser **lembrada neste navegador**, na Agenda (`kamyli:ui-view-agenda` = `standard`/`compact`) e na lista de Jogos (`kamyli:ui-view-jogos` = `poster`/`compact`), uma chave por página; antes, Jogos sempre abria em Pôsteres. Sem preferência, valor inválido ou `localStorage` indisponível, vale o modo padrão e a escolha continua valendo na visita;
 - novo `js/core/view-mode.js` (`window.KAMYLI_VIEW_MODE.get/set`), carregado só por `/agenda/` e `/jogos/`; não altera `preferences.js`, então o cache-buster dele e o bootstrap inline do `<head>` ficam como estavam;
 - a Política de Privacidade (seção 6) passa a citar o modo de visualização entre as preferências guardadas em `localStorage`;
