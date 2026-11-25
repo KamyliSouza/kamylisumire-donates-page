@@ -7,6 +7,13 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.5.3 — Agenda compacta: arte em faixa
+
+- no modo compacto da `/agenda/`, a arte do jogo deixa de ser o fundo da linha inteira e passa a ocupar só uma **faixa à direita** (28% da largura, entre 120 e 300 px; 36% no celular) que se dissolve na superfície do card. O texto fica sempre sobre a superfície, então a leitura não depende da capa e a imagem não é esticada;
+- por isso as linhas deixam de passar pela análise de contraste: `planRow()` e o véu chapado da V48.5.2 foram **removidos** (`agenda-contrast.js` volta ao conteúdo anterior e ao `?v=48.3.78`); os cartões do modo Padrão não mudam;
+- no celular a segunda linha (horário e jogo) termina antes da faixa de arte;
+- `agenda.js` e `agenda.css` passam a `?v=48.5.3`; `validate_view_mode()` e `view-mode.test.mjs` aceitam a versão por página.
+
 ## V48.5.2 — Modo compacto da Agenda e preferência de visualização salva
 
 - `/agenda/` ganha o alternador **Padrão/Compacto** no cabeçalho do painel. O modo compacto mostra uma linha por dia (dia e data, horário, jogo, plataformas e selo) com a **mesma arte do cartão como fundo** e sem descrição, para ver a semana inteira de relance; no celular o jogo desce para uma segunda linha do mesmo cartão;

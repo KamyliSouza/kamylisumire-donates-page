@@ -1136,14 +1136,14 @@ def validate_view_mode() -> None:
     if "fetch(" in module or "XMLHttpRequest" in module or "sendBeacon" in module:
         error("js/core/view-mode.js: a preferência fica só no navegador; sem rede.")
 
-    for rel, page, script, stylesheet, buttons in (
-        ("agenda/index.html", "agenda", "js/pages/agenda/agenda.js", "css/pages/agenda.css", ("agendaViewStandard", "agendaViewCompact")),
-        ("jogos/index.html", "jogos", "js/pages/jogos/jogos.js", "css/pages/jogos.css", ("jogosViewPoster", "jogosViewCompact")),
+    for rel, page, script, stylesheet, buttons, version in (
+        ("agenda/index.html", "agenda", "js/pages/agenda/agenda.js", "css/pages/agenda.css", ("agendaViewStandard", "agendaViewCompact"), "48.5.3"),
+        ("jogos/index.html", "jogos", "js/pages/jogos/jogos.js", "css/pages/jogos.css", ("jogosViewPoster", "jogosViewCompact"), "48.5.2"),
     ):
         html = read_text(rel)
-        for asset in ("js/core/view-mode.js", script, stylesheet):
-            if f"{asset}?v=48.5.2" not in html:
-                error(f"{rel}: cache-buster V48.5.2 ausente para {asset}.")
+        for asset, asset_version in (("js/core/view-mode.js", "48.5.2"), (script, version), (stylesheet, version)):
+            if f"{asset}?v={asset_version}" not in html:
+                error(f"{rel}: cache-buster V{asset_version} ausente para {asset}.")
         scripts = re.findall(r'<script src="\.\./([^"?]+)\?v=[\w.]+"></script>', html)
         if "js/core/view-mode.js" in scripts and script in scripts and scripts.index("js/core/view-mode.js") > scripts.index(script):
             error(f"{rel}: js/core/view-mode.js deve carregar antes de {script}.")

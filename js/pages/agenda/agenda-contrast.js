@@ -110,16 +110,6 @@
         return top && bottom ? { top, bottom } : null;
     }
 
-    /*
-     * V48.5.2 — Modo compacto: o card vira uma linha baixa e o texto (dia, jogo, plataformas)
-     * atravessa a faixa toda, sem "topo" e "base". Uma região só, a faixa inteira, decide o tom
-     * e o véu; `top` e `bottom` apontam para o mesmo plano, então o texto fica coerente na linha.
-     */
-    function planRow(pixels, width, height) {
-        const row = planRegion(regionStats(pixels, width, height, { x1: 0, x2: 1, y1: 0.08, y2: 0.92 }));
-        return row ? { top: row, bottom: row } : null;
-    }
-
     globalThis.KamyliAgendaContrast = Object.freeze({
         TARGET_RATIO,
         MAX_VEIL,
@@ -130,7 +120,6 @@
         minimumVeil,
         regionStats,
         planRegion,
-        planCard,
-        planRow
+        planCard
     });
 })();

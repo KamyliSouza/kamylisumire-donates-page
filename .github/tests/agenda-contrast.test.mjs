@@ -97,36 +97,3 @@ test('agenda.js usa o módulo, reanalisa ao redimensionar e preserva o fallback'
   assert.ok(html.indexOf('agenda-model.js') < html.indexOf('agenda-contrast.js'));
   assert.ok(html.indexOf('agenda-contrast.js') < html.indexOf('agenda/agenda.js'));
 });
-
-/* ---------- V48.5.2: linhas do modo compacto ---------- */
-
-test('linha compacta: topo e base usam o MESMO plano (texto coerente na faixa)', () => {
-  for (const y of [0.02, 0.2, 0.5, 0.85]) {
-    const row = C.planRow(gray(y), 64, 32);
-    assert.equal(row.top, row.bottom);
-    assert.ok(row.top.met, `luminância ${y} não atinge ${C.TARGET_RATIO}:1`);
-    assert.ok(row.top.alpha <= 0.14);
-  }
-});
-
-test('linha compacta: um trecho claro em qualquer ponto da faixa conta (não só no topo)', () => {
-  const width = 64;
-  const height = 32;
-  const pixels = gray(0.03, width, height);
-  /* Mancha branca (~23% da faixa) no MEIO, onde estaria o título: o topo do planCard a ignora, o planRow não. */
-  for (let y = 10; y < 22; y += 1) {
-    for (let x = 16; x < 48; x += 1) pixels.set([255, 255, 255, 255], (y * width + x) * 4);
-  }
-  const row = C.planRow(pixels, width, height);
-  assert.ok(row.top.tone === 'dark' || row.top.alpha > 0.1, 'a mancha clara deveria escurecer o texto claro');
-});
-
-test('linha compacta: sem pixels opacos não há plano', () => {
-  assert.equal(C.planRow(new Uint8ClampedArray(64 * 32 * 4), 64, 32), null);
-});
-
-test('CSS compacto usa véu chapado e o módulo é carregado com versão 48.5.2', () => {
-  const css = read('css/pages/agenda.css');
-  assert.match(css, /\.agenda-days\.is-compact \.agenda-day\.has-live\[data-art-top-text\]\[data-art-bottom-text\]::after\s*\{\s*background: rgba\(var\(--ag-veil-bottom-rgb\)/);
-  assert.match(read('agenda/index.html'), /agenda-contrast\.js\?v=48\.5\.2/);
-});

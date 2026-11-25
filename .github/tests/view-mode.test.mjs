@@ -60,15 +60,15 @@ test("sem localStorage (modo privado/bloqueio) não quebra e usa o padrão", () 
   assert.equal(api.set("agenda", "compact"), "compact");
 });
 
-for (const [page, script, buttons] of [
-  ["agenda", "js/pages/agenda/agenda.js", ["agendaViewStandard", "agendaViewCompact"]],
-  ["jogos", "js/pages/jogos/jogos.js", ["jogosViewPoster", "jogosViewCompact"]],
+for (const [page, script, buttons, version] of [
+  ["agenda", "js/pages/agenda/agenda.js", ["agendaViewStandard", "agendaViewCompact"], "48.5.3"],
+  ["jogos", "js/pages/jogos/jogos.js", ["jogosViewPoster", "jogosViewCompact"], "48.5.2"],
 ]) {
   test(`${page}: página lê e salva a preferência e carrega o módulo antes do script da página`, () => {
     const html = read(`${page}/index.html`);
     const js = read(script);
     assert.ok(html.indexOf("js/core/view-mode.js?v=48.5.2") > -1);
-    assert.ok(html.lastIndexOf("js/core/view-mode.js?v=48.5.2") < html.lastIndexOf(`${script}?v=48.5.2`));
+    assert.ok(html.lastIndexOf("js/core/view-mode.js?v=48.5.2") < html.lastIndexOf(`${script}?v=${version}`));
     for (const id of buttons) assert.match(html, new RegExp(`id="${id}" type="button" aria-pressed="(true|false)"`));
     assert.ok(js.includes(`viewPrefs?.get("${page}")`));
     assert.ok(js.includes(`viewPrefs?.set("${page}", `));
@@ -76,13 +76,16 @@ for (const [page, script, buttons] of [
   });
 }
 
-test("agenda compacta mantém a arte como fundo da linha, sem descrição, e usa só textContent", () => {
+test("agenda compacta: arte só numa faixa (sem análise de contraste), sem descrição, só textContent", () => {
   const js = read("js/pages/agenda/agenda.js");
   assert.match(js, /if \(day\.hasLive && day\.art\.length\)/);
+  assert.match(js, /onLoad: compact \? null : image => analyzeCardArtwork\(image, card\)/);
   assert.match(js, /!compact && live\.description/);
-  assert.match(js, /compact \? " is-row" : ""/);
-  assert.match(js, /contrast\.planRow/);
+  assert.doesNotMatch(js, /planRow|is-row/, "o plano de faixa inteira foi substituído pela faixa de arte");
   assert.doesNotMatch(js, /innerHTML|insertAdjacentHTML/);
+  const css = read("css/pages/agenda.css");
+  assert.match(css, /\.agenda-days\.is-compact \.agenda-day-art \{[^}]*mask-image: linear-gradient\(90deg, transparent 0%, #000 62%\)/);
+  assert.match(css, /grid-template-columns: minmax\(130px, 190px\) minmax\(0, 1fr\) var\(--row-art-w\)/);
 });
 
 test("a política de privacidade cita o modo de visualização salvo", () => {

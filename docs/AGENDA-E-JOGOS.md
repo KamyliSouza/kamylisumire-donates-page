@@ -108,7 +108,7 @@ interrompe o sync.
   atual (calculado no aparelho do visitante; o carrossel rola até o card de hoje só ao abrir).
 - **`/agenda/`:** usa `agenda-model.js` (regras puras) e `agenda.js` (DOM). Lê só
   `data/agenda.json` e `data/content/jogos-artwork.json`. Tem dois modos: **Padrão** (cartões com a arte do jogo)
-  e **Compacto** (uma linha por dia, com a arte como fundo e sem descrição). A escolha do visitante fica salva no navegador
+  e **Compacto** (uma linha por dia, com a arte numa faixa à direita e sem descrição). A escolha do visitante fica salva no navegador
   (`kamyli:ui-view-agenda`); a lista de `/jogos/` guarda a sua própria (`kamyli:ui-view-jogos`). Nada disso
   vai para o servidor.
 

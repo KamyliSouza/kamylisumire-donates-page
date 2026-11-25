@@ -263,13 +263,13 @@ pelos Helpers: exatamente sete dias, de domingo a sábado. Pode ser gerado por
   `#agenda`.
 - **Modo compacto da `/agenda/`:** alternador `#agendaViewStandard`/`#agendaViewCompact` (`.agenda-view-switch`,
   `aria-pressed`) no cabeçalho do painel. `agenda.js` guarda a semana em `state.week` e redesenha os dias com
-  `renderDay(day, compact)`: no compacto o cartão ganha `.is-row`, **mantém** `.agenda-day-art` como fundo da linha
-  e **não cria** as descrições; a grade recebe `.is-compact` (uma linha por dia; `display: contents` em
-  `.agenda-day-top`; no celular o jogo desce para a 2ª linha). O contraste das linhas usa
-  `KamyliAgendaContrast.planRow()` (faixa inteira, mesmo plano para `top` e `bottom`) e um véu chapado no CSS:
-  o véu vertical do cartão deixaria um vão claro justamente no meio da linha, onde fica o título. Não troque
-  `planRow` por `planCard` nas linhas. O alternador usa os tokens do painel
-  (`--ag-pill-*` e `--ag-chip-*`), não os do site, porque o painel tem tema próprio.
+  `renderDay(day, compact)`: no compacto o cartão **mantém** `.agenda-day-art`, mas só como uma **faixa à direita**
+  (largura `--row-art-w`, a coluna do selo mais 18 px, com `mask-image` que a dissolve na superfície) e **não cria**
+  as descrições; a grade recebe `.is-compact` (uma linha por dia; `display: contents` em `.agenda-day-top`; no
+  celular o jogo desce para a 2ª linha e termina antes da faixa). Como o texto nunca fica sobre a arte, as linhas
+  **não passam pela análise de contraste** (`onLoad: null`) e usam os tokens do card sem arte; a capa também não é
+  esticada (a faixa é menor que o card padrão). Se mudar a largura da faixa, mantenha o texto fora dela. O
+  alternador usa os tokens do painel (`--ag-pill-*` e `--ag-chip-*`), não os do site, porque o painel tem tema próprio.
 - **Preferência de visualização (V48.5.2):** `js/core/view-mode.js` expõe `window.KAMYLI_VIEW_MODE.get(página)` e
   `.set(página, modo)`. Chaves de `localStorage`: `kamyli:ui-view-agenda` (`standard`|`compact`) e
   `kamyli:ui-view-jogos` (`poster`|`compact`). Valor inválido ou storage bloqueado → modo padrão, sem erro; as

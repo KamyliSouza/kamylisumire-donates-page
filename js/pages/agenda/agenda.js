@@ -29,8 +29,9 @@
     };
 
     /*
-     * V48.5.2 — Modo compacto: uma linha por dia (dia, horário, jogo, plataformas) com a mesma arte
-     * do card como fundo e sem descrição, para ver a semana inteira de relance. A escolha fica salva neste navegador
+     * V48.5.2 — Modo compacto: uma linha por dia (dia, horário, jogo, plataformas) sem descrição e com
+     * a arte do jogo só numa faixa à direita que se dissolve na superfície do card (V48.5.3), para ver a semana
+     * inteira de relance sem texto sobre imagem. A escolha fica salva neste navegador
      * (`KAMYLI_VIEW_MODE`, chave `kamyli:ui-view-agenda`); sem storage vale só nesta visita.
      */
     const state = { week: null, viewMode: "standard" };
@@ -100,9 +101,7 @@
         if (!context) return null;
         context.drawImage(probe, sourceX, sourceY, cropWidth, cropHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         const pixels = context.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data;
-        /* Linha do modo compacto: uma região só (ver `planRow`); card normal: topo e base. */
-        const isRow = card.classList.contains("is-row") && typeof contrast.planRow === "function";
-        return isRow ? contrast.planRow(pixels, CANVAS_WIDTH, CANVAS_HEIGHT) : contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
+        return contrast.planCard(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
 
     /* O recorte muda com o tamanho do card (colunas, rotação): reanalisa com debounce. */
@@ -158,15 +157,16 @@
         const multiple = day.lives.length > 1;
         const card = element(
             "article",
-            `agenda-day ${day.hasLive ? "has-live" : "no-live"}${multiple ? " has-multiple-lives" : ""}${compact ? " is-row" : ""}`
+            `agenda-day ${day.hasLive ? "has-live" : "no-live"}${multiple ? " has-multiple-lives" : ""}`
         );
         card.setAttribute("aria-label", day.ariaLabel);
 
         if (day.hasLive && day.art.length) {
             const media = element("div", "agenda-day-art");
             media.setAttribute("aria-hidden", "true");
+            /* Na linha compacta o texto fica sobre a superfície do card, fora da faixa de arte: sem análise de contraste. */
             media.append(artImage(day.art, {
-                onLoad: image => analyzeCardArtwork(image, card)
+                onLoad: compact ? null : image => analyzeCardArtwork(image, card)
             }));
             card.append(media);
         }

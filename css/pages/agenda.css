@@ -350,7 +350,7 @@
 }
 
 /* Uma linha por dia: dia e data | horário, jogo e plataformas | selo. Sem arte e sem descrição. */
-.agenda-days.is-compact { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 17px; }
+.agenda-days.is-compact { --row-art-w: clamp(120px, 28%, 300px); grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 17px; }
 .agenda-days.is-compact .agenda-day,
 .agenda-days.is-compact .agenda-day:last-child {
     grid-column: auto;
@@ -359,7 +359,7 @@
     min-height: 0;
     aspect-ratio: auto;
     display: grid;
-    grid-template-columns: minmax(130px, 190px) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(130px, 190px) minmax(0, 1fr) var(--row-art-w);
     align-items: center;
     column-gap: 16px;
     padding: 12px 18px;
@@ -367,7 +367,12 @@
 }
 .agenda-days.is-compact .agenda-day-top { display: contents; }
 .agenda-days.is-compact .agenda-day-top > div { grid-column: 1; grid-row: 1; min-width: 0; }
-.agenda-days.is-compact .agenda-chip { grid-column: 3; grid-row: 1; }
+.agenda-days.is-compact .agenda-chip { grid-column: 3; grid-row: 1; justify-self: end; }
+/* V48.5.3 — A arte ocupa só a faixa da direita (a coluna do selo) e se dissolve na superfície do card: o texto
+   nunca fica sobre ela, então não há análise de contraste nas linhas e a capa não é esticada. */
+.agenda-days.is-compact .agenda-day-art { inset: 0 0 0 auto; width: calc(var(--row-art-w) + 18px); z-index: 0; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 62%); mask-image: linear-gradient(90deg, transparent 0%, #000 62%); }
+.agenda-days.is-compact .agenda-day-art img { transform: none; }
+.agenda-days.is-compact .agenda-day-top > *, .agenda-days.is-compact .agenda-event-info, .agenda-days.is-compact .agenda-day-placeholder { position: relative; z-index: 1; }
 .agenda-days.is-compact .agenda-event-info,
 .agenda-days.is-compact .agenda-day-placeholder { grid-column: 2; grid-row: 1; margin: 0; padding: 0; min-width: 0; }
 .agenda-days.is-compact .agenda-day-date { margin-top: 2px; }
@@ -378,12 +383,8 @@
 .agenda-days.is-compact .agenda-day-placeholder { display: block; place-content: start; justify-items: start; text-align: left; }
 .agenda-days.is-compact .agenda-day-mark { display: none; }
 .agenda-days.is-compact .agenda-day-placeholder-copy .agenda-event-title { font-size: 1rem; }
-/* A arte do card vira o fundo da linha. O véu da linha é chapado (o do card é vertical, com topo e base),
-   porque o texto atravessa a faixa toda; o tom e a intensidade vêm do mesmo plano (`planRow`). */
-.agenda-days.is-compact .agenda-day.has-live[data-art-top-text][data-art-bottom-text]::after {
-    background: rgba(var(--ag-veil-bottom-rgb), var(--ag-art-veil-bottom, 0));
-}
-/* Dia livre: só a superfície sólida, sem o desfoque e o brilho do card grande. */
+/* Sem o véu do card grande (a arte é só a faixa) e, no dia livre, sem o desfoque e o brilho: superfície sólida. */
+.agenda-days.is-compact .agenda-day.has-live::after,
 .agenda-days.is-compact .agenda-day.no-live::before,
 .agenda-days.is-compact .agenda-day.no-live::after { display: none; }
 .agenda-days.is-compact .agenda-day.no-live { background: var(--ag-nolive-solid); }
@@ -432,7 +433,11 @@
         row-gap: 8px;
         padding: 12px 14px;
     }
+    .agenda-days.is-compact { --row-art-w: 36%; }
     .agenda-days.is-compact .agenda-chip { grid-column: 2; }
     .agenda-days.is-compact .agenda-event-info,
     .agenda-days.is-compact .agenda-day-placeholder { grid-column: 1 / -1; grid-row: 2; }
+    /* O texto da 2ª linha termina antes da faixa de arte. */
+    .agenda-days.is-compact .agenda-event-info { max-width: calc(100% - var(--row-art-w) * .86); }
+    .agenda-days.is-compact .agenda-day-art { width: var(--row-art-w); }
 }
