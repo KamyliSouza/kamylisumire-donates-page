@@ -131,6 +131,16 @@ imitar os filtros de categoria da Galeria.
 recortes sobre superfícies translúcidas e o realce do chip selecionado fica integrado ao botão. As
 setas continuam sobrepostas e não reservam espaço.
 
+### Agenda: alternador Padrão/Compacto
+
+- **Alternador** (`.agenda-view-switch`): cápsula de dois botões com `aria-pressed` ao lado do período, nos tokens do
+  painel (`--ag-pill-*` para o contêiner e o botão solto; `--ag-chip-*` para o marcado). Contraste medido ≥ 9:1 nos
+  dois temas. Mínimo de 32 px de altura (40 px e largura total no celular); foco visível por contorno.
+- **Compacto** (`.agenda-days.is-compact`): uma coluna, linhas de 16 px de raio com dia/data | horário + jogo +
+  plataformas | selo; sem arte, sem véu, sem desfoque. Dia livre mostra só "Dia livre". Até 600 px o jogo desce para
+  a segunda linha do cartão.
+- A escolha é lembrada por página (`kamyli:ui-view-agenda`, `kamyli:ui-view-jogos`); ver AGENTS.md.
+
 ### Jogos: visualização e popup de detalhes
 
 - **Alternador Pôsteres/Compacto** (`.jogos-view-switch`): grupo de dois botões com `aria-pressed`, no mesmo

@@ -14,6 +14,7 @@
     const MANIFEST_URL = "/data/content/jogos-artwork.json";
     const model = window.KamyliAgendaModel;
     const contrast = window.KamyliAgendaContrast;
+    const viewPrefs = window.KAMYLI_VIEW_MODE;
 
     const els = {
         panel: document.getElementById("agendaPanel"),
@@ -22,8 +23,17 @@
         grid: document.getElementById("agendaGrid"),
         note: document.getElementById("agendaNote"),
         updated: document.getElementById("agendaUpdated"),
-        status: document.getElementById("agendaStatus")
+        status: document.getElementById("agendaStatus"),
+        standardMode: document.getElementById("agendaViewStandard"),
+        compactMode: document.getElementById("agendaViewCompact")
     };
+
+    /*
+     * V48.5.2 — Modo compacto: uma linha por dia (dia, horário, jogo, plataformas), sem arte nem
+     * descrição, para ver a semana inteira de relance. A escolha fica salva neste navegador
+     * (`KAMYLI_VIEW_MODE`, chave `kamyli:ui-view-agenda`); sem storage vale só nesta visita.
+     */
+    const state = { week: null, viewMode: "standard" };
 
     function element(tag, className, text) {
         const node = document.createElement(tag);
@@ -142,7 +152,7 @@
             document.documentElement.dataset.performance === "reduced";
     }
 
-    function renderDay(day) {
+    function renderDay(day, compact = false) {
         const multiple = day.lives.length > 1;
         const card = element(
             "article",
@@ -150,7 +160,7 @@
         );
         card.setAttribute("aria-label", day.ariaLabel);
 
-        if (day.hasLive && day.art.length) {
+        if (!compact && day.hasLive && day.art.length) {
             const media = element("div", "agenda-day-art");
             media.setAttribute("aria-hidden", "true");
             media.append(artImage(day.art, {
@@ -178,10 +188,8 @@
             const mark = element("span", "agenda-day-mark");
             mark.setAttribute("aria-hidden", "true");
             const copy = element("div", "agenda-day-placeholder-copy");
-            copy.append(
-                element("p", "agenda-event-title", "Dia livre"),
-                element("p", "agenda-event-description", "Nenhuma transmissão prevista.")
-            );
+            copy.append(element("p", "agenda-event-title", "Dia livre"));
+            if (!compact) copy.append(element("p", "agenda-event-description", "Nenhuma transmissão prevista."));
             placeholder.append(mark, copy);
             card.append(placeholder);
             return card;
@@ -196,7 +204,7 @@
                 element("p", "agenda-event-title", live.title)
             );
             item.append(line);
-            if (live.description && !multiple) {
+            if (!compact && live.description && !multiple) {
                 item.append(element("p", "agenda-event-description", live.description));
             }
             if (live.platforms.length) {
@@ -208,9 +216,32 @@
         return card;
     }
 
+    function renderDays() {
+        const compact = state.viewMode === "compact";
+        els.grid.classList.toggle("is-compact", compact);
+        els.grid.replaceChildren(...state.week.days.map(day => renderDay(day, compact)));
+    }
+
+    function setViewMode(mode) {
+        state.viewMode = mode === "compact" ? "compact" : "standard";
+        els.standardMode?.setAttribute("aria-pressed", String(state.viewMode === "standard"));
+        els.compactMode?.setAttribute("aria-pressed", String(state.viewMode === "compact"));
+        if (state.week) renderDays();
+    }
+
+    function chooseViewMode(mode) {
+        if (state.viewMode === mode) return;
+        setViewMode(mode);
+        viewPrefs?.set("agenda", mode);
+    }
+
+    els.standardMode?.addEventListener("click", () => chooseViewMode("standard"));
+    els.compactMode?.addEventListener("click", () => chooseViewMode("compact"));
+
     function render(week) {
+        state.week = week;
+        setViewMode(viewPrefs?.get("agenda") ?? "standard");
         els.period.textContent = week.period;
-        els.grid.replaceChildren(...week.days.map(renderDay));
         els.note.textContent = week.note;
         els.note.hidden = !week.note;
         els.updated.textContent = week.updated

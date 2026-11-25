@@ -17,6 +17,7 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const horizontalScroll = window.KamyliHorizontalScroll;
     const safeHttpUrl = window.KamyliSanitize?.safeHttpUrl;
+    const viewPrefs = window.KAMYLI_VIEW_MODE;
     const state = {
         data: null,
         editorialByGameId: new Map(),
@@ -565,7 +566,8 @@
             state.data = data;
             state.pageSize = pageSize;
             els.tools.hidden = false;
-            setViewMode("poster");
+            /* V48.5.2 — lembra o modo escolhido (Pôsteres/Compacto) neste navegador. */
+            setViewMode(viewPrefs?.get("jogos") ?? "poster");
             renderFilters();
             horizontalScroll?.enableClickDrag(els.filters);
             renderGames();
@@ -580,11 +582,13 @@
     els.posterMode?.addEventListener("click", () => {
         if (state.viewMode === "poster") return;
         setViewMode("poster");
+        viewPrefs?.set("jogos", "poster");
         renderGames({ animate: true });
     });
     els.compactMode?.addEventListener("click", () => {
         if (state.viewMode === "compact") return;
         setViewMode("compact");
+        viewPrefs?.set("jogos", "compact");
         renderGames({ animate: true });
     });
     els.dialogClose?.addEventListener("click", () => els.dialog?.close());

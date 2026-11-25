@@ -1,5 +1,21 @@
 # Changelog
 
+Histórico de versões do site, da mais recente para a mais antiga. Este é o **único** lugar para o
+histórico: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md` e `docs/` descrevem apenas o estado vigente.
+
+Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do que mudou e do impacto em
+contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
+publicadas ou não foram registradas aqui.
+
+## V48.5.2 — Modo compacto da Agenda e preferência de visualização salva
+
+- `/agenda/` ganha o alternador **Padrão/Compacto** no cabeçalho do painel. O modo compacto mostra uma linha por dia (dia e data, horário, jogo, plataformas e selo), sem arte e sem descrição, para ver a semana inteira de relance; no celular o jogo desce para uma segunda linha do mesmo cartão;
+- a escolha de visualização passa a ser **lembrada neste navegador**, na Agenda (`kamyli:ui-view-agenda` = `standard`/`compact`) e na lista de Jogos (`kamyli:ui-view-jogos` = `poster`/`compact`), uma chave por página; antes, Jogos sempre abria em Pôsteres. Sem preferência, valor inválido ou `localStorage` indisponível, vale o modo padrão e a escolha continua valendo na visita;
+- novo `js/core/view-mode.js` (`window.KAMYLI_VIEW_MODE.get/set`), carregado só por `/agenda/` e `/jogos/`; não altera `preferences.js`, então o cache-buster dele e o bootstrap inline do `<head>` ficam como estavam;
+- a Política de Privacidade (seção 6) passa a citar o modo de visualização entre as preferências guardadas em `localStorage`;
+- novos `.github/tests/view-mode.test.mjs` e `validate_view_mode()` (chaves, ordem dos scripts, botões, uso nos dois scripts de página, privacidade); cache-busters de `agenda.js`, `agenda.css`, `jogos.js`, `jogos.css` e do novo `view-mode.js` em `48.5.2`;
+- corrigido: o parágrafo introdutório deste arquivo tinha ficado abaixo da entrada V48.5.1; voltou ao topo.
+
 ## V48.5.1 — Fichas editoriais na página de Jogos
 
 - `/jogos/` passa a combinar o catálogo automático do Trello com `data/content/jogos-editorial.json`, arquivo manual associado pelo ID original de cada cartão; o sync Trello/Steam não lê nem reescreve o conteúdo editorial;
@@ -11,14 +27,6 @@
 - jogos sem ficha não exibem seção vazia no popup, e o selo "Ficha editorial" também considera recomendação e links adicionais;
 - popup reorganizado: coluna lateral com capa e ações externas (Steam, playlist completa, última transmissão); nota em destaque com a recomendação; resumo da jornada (primeira/última live e total) calculado dos episódios; lista numerada de transmissões com a linha inteira clicável e recolhida acima de seis itens; links adicionais como botões; o painel volta ao topo ao abrir outro jogo;
 - documentação atualizada: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md`, `docs/ARQUITETURA.md`, `docs/VALIDACAO.md`, `docs/AGENDA-E-JOGOS.md` e `data/content/README.md` descrevem a ficha editorial, a interface de Jogos (modos, popup, acessibilidade) e as novas checagens.
-
-
-Histórico de versões do site, da mais recente para a mais antiga. Este é o **único** lugar para o
-histórico: `README.md`, `AGENTS.md`, `DESIGN-SYSTEM.md` e `docs/` descrevem apenas o estado vigente.
-
-Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do que mudou e do impacto em
-contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
-publicadas ou não foram registradas aqui.
 
 ## V48.5.0 — Remoção da página independente de transmissão
 

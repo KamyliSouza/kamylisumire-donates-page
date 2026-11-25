@@ -55,6 +55,7 @@ Princípios de disponibilidade:
 | `settings.js` | Botão de engrenagem e painel de Configurações (montado em `<body>`). |
 | `external-links.js` | Confirmação global de navegação externa, por delegação de eventos. |
 | `page-transitions.js` / `loader.js` | Transição entre páginas e loader (com fail-safe de 6 s). |
+| `view-mode.js` | Preferência de visualização (padrão/compacto) da Agenda e de Jogos em `localStorage`, uma chave por página (`window.KAMYLI_VIEW_MODE`). Carregado só por `/agenda/` e `/jogos/`. |
 | `horizontal-scroll.js` | Faixas horizontais compartilhadas: click + arrasta com mouse/caneta, touch nativo. |
 | `favicon.js` | Favicon adaptativo ao tema, com fallback para os arquivos originais. |
 | `api.js` | Cliente do Worker (`KamyliAPI`), com timeout e fallback de transporte. Usado por Doações e pela Twitch da Home. |

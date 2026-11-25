@@ -1121,6 +1121,45 @@ def validate_jogos() -> None:
 
 
 
+def validate_view_mode() -> None:
+    """V48.5.2: preferência de visualização (padrão/compacto) da Agenda e de Jogos."""
+    module = read_text("js/core/view-mode.js")
+    for token in (
+        '"kamyli:ui-view-agenda"',
+        '"kamyli:ui-view-jogos"',
+        '["standard", "compact"]',
+        '["poster", "compact"]',
+        "window.KAMYLI_VIEW_MODE",
+    ):
+        if token not in module:
+            error(f"js/core/view-mode.js: contrato da preferência de visualização ausente: {token}")
+    if "fetch(" in module or "XMLHttpRequest" in module or "sendBeacon" in module:
+        error("js/core/view-mode.js: a preferência fica só no navegador; sem rede.")
+
+    for rel, page, script, stylesheet, buttons in (
+        ("agenda/index.html", "agenda", "js/pages/agenda/agenda.js", "css/pages/agenda.css", ("agendaViewStandard", "agendaViewCompact")),
+        ("jogos/index.html", "jogos", "js/pages/jogos/jogos.js", "css/pages/jogos.css", ("jogosViewPoster", "jogosViewCompact")),
+    ):
+        html = read_text(rel)
+        for asset in ("js/core/view-mode.js", script, stylesheet):
+            if f"{asset}?v=48.5.2" not in html:
+                error(f"{rel}: cache-buster V48.5.2 ausente para {asset}.")
+        scripts = re.findall(r'<script src="\.\./([^"?]+)\?v=[\w.]+"></script>', html)
+        if "js/core/view-mode.js" in scripts and script in scripts and scripts.index("js/core/view-mode.js") > scripts.index(script):
+            error(f"{rel}: js/core/view-mode.js deve carregar antes de {script}.")
+        for button in buttons:
+            if f'id="{button}"' not in html:
+                error(f"{rel}: botão #{button} do alternador de visualização ausente.")
+        page_js = read_text(script)
+        for token in (f'viewPrefs?.get("{page}")', f'viewPrefs?.set("{page}"'):
+            if token not in page_js:
+                error(f"{script}: preferência de visualização não é lida/salva ({token}).")
+
+    privacy = read_text("privacidade/index.html")
+    if "modo de visualização" not in privacy:
+        error("privacidade/index.html: a seção 6 deve citar o modo de visualização salvo em localStorage.")
+
+
 def validate_jogos_editorial() -> None:
     path = "data/content/jogos-editorial.json"
     data = load_json(path)
@@ -2190,10 +2229,10 @@ def validate_architecture() -> None:
     if "css/pages/artes.css?v=48.3.58" not in artes_index:
         error("artes/index.html: cache-buster V48.3.58 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.5.1" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.5.1 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.5.1" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.5.1 ausente para js/pages/jogos/jogos.js.")
+    if "css/pages/jogos.css?v=48.5.2" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.5.2 ausente para css/pages/jogos.css.")
+    if "js/pages/jogos/jogos.js?v=48.5.2" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.5.2 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
@@ -4344,6 +4383,7 @@ def main() -> int:
     validate_artes()
     validate_jogos()
     validate_jogos_editorial()
+    validate_view_mode()
     validate_lives()
     validate_blog()
     validate_agenda()

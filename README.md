@@ -11,8 +11,8 @@ Twitch.
 | Rota | O que é | Fonte do conteúdo |
 | --- | --- | --- |
 | `/` | Home: Hero, Lives, Agenda, Blog, Regras, Créditos e apoio | `data/content/*.json`, `data/agenda.json` |
-| `/agenda/` | Agenda semanal completa, com artes da Steam | `data/agenda.json`, `data/content/jogos-artwork.json` |
-| `/jogos/` | Catálogo de jogos das lives (modos Pôsteres e Compacto; o popup de cada jogo mostra review, nota, playlist, transmissões e links) | `data/content/jogos.json` (gerado pelo sync) + `data/content/jogos-editorial.json` (manual) |
+| `/agenda/` | Agenda semanal completa, com artes da Steam (modos Padrão e Compacto, lembrados no navegador) | `data/agenda.json`, `data/content/jogos-artwork.json` |
+| `/jogos/` | Catálogo de jogos das lives (modos Pôsteres e Compacto, lembrados no navegador; o popup de cada jogo mostra review, nota, playlist, transmissões e links) | `data/content/jogos.json` (gerado pelo sync) + `data/content/jogos-editorial.json` (manual) |
 | `/artes/` | Galeria de artes (masonry + lightbox) | `data/content/artes.json` |
 | `/blog/` | Blog estático | `data/blog/` |
 | `/doacoes/` | LivePix, Pixie e ranking de apoiadores | `data/content/doacoes.json` + API |

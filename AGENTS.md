@@ -182,7 +182,8 @@ sitemap (ver [SEO](#11-seo-e-publicação)).
     e **não** pode ficar dentro do botão (filhos de `<button>` perdem a semântica). O link da Steam é irmão do
     botão (`z-index: 5`), nunca filho: não aninhe controles interativos.
   - **Modos:** `Pôsteres` (padrão) e `Compacto` alternam `.is-compact` na grade; o estado vai em `aria-pressed`
-    e não é persistido.
+    e a escolha é lembrada em `kamyli:ui-view-jogos` (`poster`/`compact`) via `KAMYLI_VIEW_MODE` (ver "Preferência de
+    visualização"). A leitura acontece em `init()`, antes do primeiro render, para não piscar em Pôsteres.
   - **Popup:** `<dialog id="jogoDialog">` nativo (`showModal()`), foco inicial no botão de fechar, `Esc`, botão
     ×, clique no fundo (só quando o clique começa e termina no fundo) e retorno do foco ao cartão de origem.
     Review, spoilers e todo texto editorial entram **somente** por `textContent`/`createElement`; nunca
@@ -260,6 +261,20 @@ pelos Helpers: exatamente sete dias, de domingo a sábado. Pode ser gerado por
   de imagem da Steam. Textos entram por `textContent`. O item Agenda da Navbar aponta para
   `/agenda/` (em `navbar.json` e no fallback de `content.js`); a Home mantém a sua seção
   `#agenda`.
+- **Modo compacto da `/agenda/`:** alternador `#agendaViewStandard`/`#agendaViewCompact` (`.agenda-view-switch`,
+  `aria-pressed`) no cabeçalho do painel. `agenda.js` guarda a semana em `state.week` e redesenha os dias com
+  `renderDay(day, compact)`: no compacto **não cria** `.agenda-day-art` nem descrições (nada de imagem carregada
+  à toa nem análise de contraste), e a grade recebe `.is-compact` (uma linha por dia; `display: contents` em
+  `.agenda-day-top`; no celular o jogo desce para a 2ª linha). O alternador usa os tokens do painel
+  (`--ag-pill-*` e `--ag-chip-*`), não os do site, porque o painel tem tema próprio.
+- **Preferência de visualização (V48.5.2):** `js/core/view-mode.js` expõe `window.KAMYLI_VIEW_MODE.get(página)` e
+  `.set(página, modo)`. Chaves de `localStorage`: `kamyli:ui-view-agenda` (`standard`|`compact`) e
+  `kamyli:ui-view-jogos` (`poster`|`compact`). Valor inválido ou storage bloqueado → modo padrão, sem erro; as
+  páginas guardam o modo em memória, então o clique funciona mesmo sem storage. Só a ação do visitante grava
+  (nunca `init()`). Nova página com visualização alternável: acrescente-a em `PAGES` e em `validate_view_mode()`,
+  mantenha o carregamento do módulo antes do script da página (e o preload em sincronia) e atualize a seção 6 da
+  Política de Privacidade. Não leve isso para `preferences.js` sem subir o cache-buster dele em **todas** as páginas
+  (o validador e o `reading-mode.test.mjs` exigem a versão exata).
 - Contraste na `/agenda/`: o contraste de textos sobre as artes é adaptado em JavaScript sem
   modificar a imagem; falhas de CORS mantêm o contraste padrão.
 - Favicon: `js/core/favicon.js` reutiliza `logo.webp` como máscara na cor `--primary-color` do

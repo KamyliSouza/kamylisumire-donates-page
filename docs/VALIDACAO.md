@@ -72,6 +72,7 @@ validador, testes, scripts e workflows. Validações da mesma ref cancelam execu
 | `color-contrast` | tokens de ação WCAG AA, uso semântico de `--primary-text`/`--button-*` |
 | `accessibility-semantics` | skip links, alvos focáveis, anúncios de resultados |
 | `jogos-editorial` | catálogo editorial separado, modos Pôsteres/Compacto, `<dialog>` com retorno de foco, título como `<h2>`, texto sem HTML, links HTTPS externos, sinal do loader |
+| `view-mode` | preferência de visualização da Agenda e de Jogos: padrão, salvar/restaurar por página, valores inválidos, storage bloqueado, ordem dos scripts, botões e privacidade |
 | `favicon` | favicon adaptativo, fallback, CSP de imagem |
 | `script-preload` | preloads em sincronia com os scripts de cada página |
 | `workflow-hardening` | timeouts, `checkout` por SHA, concorrência, permissões |
@@ -195,7 +196,7 @@ dos painéis depois do reveal.
    busca e troca de categoria voltam à página 1; `0` ou valor não inteiro é rejeitado pelo validador;
 5. a CI executa `node --check` em `sync-jogos.mjs` e `sync-agenda.mjs`;
 6. `/jogos/` (manual, desktop e ~375 px, temas claro e escuro): alternar **Pôsteres/Compacto** sem overflow
-   horizontal; clicar num cartão abre o popup com o foco no botão de fechar; `Esc`, o botão × e o clique no
+   horizontal e conferir que a escolha continua depois de recarregar a página (na `/agenda/`, o mesmo com **Padrão/Compacto**, também a 360 px, e a escolha de uma página não muda a da outra); clicar num cartão abre o popup com o foco no botão de fechar; `Esc`, o botão × e o clique no
    fundo fecham e devolvem o foco ao cartão; a página atrás não rola com o popup aberto; no celular a capa fica
    ao lado do título, os botões de ação ficam logo abaixo e a review aparece sem rolar; jogo sem ficha mostra só
    título, status e Steam; uma ficha com `containsSpoilers: true` mantém a review recolhida até abrir; uma ficha
