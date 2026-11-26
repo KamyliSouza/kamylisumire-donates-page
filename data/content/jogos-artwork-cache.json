@@ -1639,6 +1639,51 @@
         "icon": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/374320/7abe1a33129c20cf10d2c74128bbd657a2a2c806.jpg"
       }
     },
+    "389170": {
+      "portrait": {
+        "checkedAt": "2026-11-26T19:03:26.568Z",
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/389170/library_600x900_2x.jpg"
+      },
+      "items": {
+        "checkedAt": "2026-11-26T19:03:27.023Z",
+        "found": true,
+        "candidates": [
+          {
+            "kind": "header",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/header.jpg?t=1789681935"
+          },
+          {
+            "kind": "main-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/capsule_616x353.jpg?t=1789681935"
+          },
+          {
+            "kind": "small-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/capsule_231x87.jpg?t=1789681935"
+          },
+          {
+            "kind": "library-hero-2x",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_hero_2x.jpg?t=1789681935"
+          },
+          {
+            "kind": "library-hero",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_hero.jpg?t=1789681935"
+          },
+          {
+            "kind": "library-capsule-2x",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_600x900_2x.jpg?t=1789681935"
+          },
+          {
+            "kind": "library-capsule",
+            "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_600x900.jpg?t=1789681935"
+          }
+        ],
+        "portrait": [
+          "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_600x900_2x.jpg?t=1789681935",
+          "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/389170/library_600x900.jpg?t=1789681935"
+        ],
+        "icon": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/389170/c4259e41ffcce37f4fa5d520a0c4fdd9ecaa726d.jpg"
+      }
+    },
     "391540": {
       "items": {
         "checkedAt": "2026-11-19T02:36:25.570Z",

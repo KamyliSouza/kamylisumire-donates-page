@@ -727,6 +727,25 @@
       "steamUrl": "https://store.steampowered.com/app/2114740/"
     },
     {
+      "id": "6b0808b6c40055f2611513df",
+      "name": "A Lenda do Herói",
+      "listId": "69f610ad5891e07aa88e7636",
+      "listName": "Jogar",
+      "pos": 140737488292352,
+      "artwork": {
+        "provider": "steam-original",
+        "steamAppId": 389170,
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/389170/library_600x900_2x.jpg"
+      },
+      "icon": {
+        "provider": "steam-original",
+        "steamAppId": 389170,
+        "url": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/389170/c4259e41ffcce37f4fa5d520a0c4fdd9ecaa726d.jpg"
+      },
+      "steamAppId": 389170,
+      "steamUrl": "https://store.steampowered.com/app/389170/"
+    },
+    {
       "id": "6ac78c7999c100e95c1459e6",
       "name": "Dragon's Dogma: Dark Arisen",
       "listId": "69f610ad5891e07aa88e7636",
@@ -2793,5 +2812,5 @@
       "steamUrl": "https://store.steampowered.com/app/2377280/"
     }
   ],
-  "updatedAt": "2026-11-24T15:46:23.979Z"
+  "updatedAt": "2026-11-26T19:03:27.024Z"
 }
