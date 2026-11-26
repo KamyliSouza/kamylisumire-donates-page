@@ -33,8 +33,23 @@
     }
 
     const TWITCH_LIVE_ENDPOINT = "/twitch/live";
-    const DEFAULT_TWITCH_URL = "https://www.twitch.tv/kamyli";
+    /* V48.5.4 — O canal padrão vem de `lives.json` (`twitchCanalUrl`); o endereço abaixo é só o último recurso. */
+    let defaultTwitchUrl = "https://www.twitch.tv/kamyli";
     const defaultHeroLiveUrl = heroLiveAnchor?.href || "";
+
+    api.getJSON("/data/content/lives.json").then(data => {
+        const url = typeof safeHttpUrl === "function"
+            ? safeHttpUrl(data?.twitchCanalUrl, {
+                httpsOnly: true,
+                allowedHosts: ["www.twitch.tv", "twitch.tv"]
+            })
+            : "";
+        if (!url) return;
+        defaultTwitchUrl = url;
+        if (hero.classList.contains("is-twitch-live")) return;
+        if (livePreview) livePreview.href = url;
+        if (liveWatchButton) liveWatchButton.href = url;
+    }).catch(() => {});
 
     function withCacheRevision(url, revision) {
         const source = String(url || "").trim();
@@ -81,18 +96,20 @@
         tabs.hidden = true;
         setSelectedView("about");
 
-        if (heroLiveAnchor && defaultHeroLiveUrl) {
-            heroLiveAnchor.href = defaultHeroLiveUrl;
+        if (heroLiveAnchor) {
+            delete heroLiveAnchor.dataset.liveOverride;
+            const fallbackUrl = heroLiveAnchor.dataset.buttonUrl || defaultHeroLiveUrl;
+            if (fallbackUrl) heroLiveAnchor.href = fallbackUrl;
         }
     }
 
     function setLiveState(data) {
         const twitchUrl = typeof safeHttpUrl === "function"
-            ? safeHttpUrl(data?.url || DEFAULT_TWITCH_URL, {
+            ? safeHttpUrl(data?.url || defaultTwitchUrl, {
                 httpsOnly: true,
                 allowedHosts: ["www.twitch.tv", "twitch.tv"]
-            }) || DEFAULT_TWITCH_URL
-            : DEFAULT_TWITCH_URL;
+            }) || defaultTwitchUrl
+            : defaultTwitchUrl;
         const checkedAt = String(data?.checkedAt || "").trim();
         const rawThumbnail = typeof safeHttpUrl === "function"
             ? safeHttpUrl(data?.thumbnail, { httpsOnly: true })
@@ -120,6 +137,7 @@
         }
 
         if (heroLiveAnchor) {
+            heroLiveAnchor.dataset.liveOverride = "true";
             heroLiveAnchor.href = twitchUrl;
         }
 

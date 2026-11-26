@@ -117,8 +117,20 @@ Contém sete cards nativos: Hero, Lives, Agenda, Blog, Regras, Créditos e CTA d
   Para ampliar o visual, crie uma variante documentada no [Design System](DESIGN-SYSTEM.md).
 - A Home carrega `js/core/api.js` somente para as integrações públicas da Twitch (aba
   Twitch de Lives e status ao vivo do Hero). **Não** carrega `ranking.js`.
-- CTAs `#heroSupportButton` e `#homeDonationButton` usam o mesmo coração do botão Apoiar da
-  Navbar; o CTA "Gostou das lives?" usa o rótulo `Apoiar`.
+- O CTA principal do Hero é `#heroAgendaButton` (`heroAgenda`: texto "Agenda", ícone `calendar`, leva a `/agenda/`);
+  o Apoiar fica na Navbar e no CTA `#homeDonationButton` (mesmo coração do botão Apoiar da Navbar); o CTA
+  "Gostou das lives?" usa o rótulo `Apoiar`.
+- **Link dos botões (V48.5.4):** `buttons.json` aceita um campo opcional `url` **só** em `heroAgenda`, `heroLive` e
+  `homeDonation` (`URL_KEYS` em `buttons.js`, `BUTTON_URL_KEYS` no validador, e a lista do helper devem ficar
+  iguais). Formatos aceitos: `/caminho/` do site (resolvido por `KAMYLI_SITE_PATH`) ou `http(s)://`; `javascript:`,
+  `//host`, `data:` etc. são ignorados e vale o `href` do HTML. Link externo ganha `target="_blank"` e
+  `rel="noopener noreferrer"`; interno não. `buttons.js` guarda o link em `data-button-url`; o status ao vivo do Hero
+  (`twitch-live.js`) marca `data-live-override` ao trocar o `href` de `#heroLiveAnchor` para a Twitch e, fora do ar,
+  volta para `data-button-url`. Não ponha `url` em botões cujo `href` é definido por script (`livesChannel`,
+  `notFoundHome`, `donation*`).
+- A Twitch padrão do Hero (`#heroLivePreview`, `#heroLiveWatchButton` e o recurso do `twitch-live.js`) vem de
+  `lives.json` → `twitchCanalUrl`, a mesma fonte do botão de canal da seção de lives; quando há live, vale o link
+  devolvido pelo Worker.
 - `#livesTrack` e `#agendaGrid` aceitam click + arrasta com mouse/caneta; touch, teclado,
   setas, links e scroll-snap devem continuar funcionando. Implementação isolada em
   `js/pages/home/home-interactions.js` e `css/components/home-interactions.css`.

@@ -181,8 +181,11 @@ SOCIAL_ICON_NAMES = {
     "youtube", "twitch", "tiktok", "x-social", "instagram", "discord",
 }
 
+# V48.5.4: só estes botões aceitam `url` em buttons.json (espelha URL_KEYS de js/core/buttons.js).
+BUTTON_URL_KEYS = {"heroAgenda", "heroLive", "homeDonation"}
+
 REQUIRED_BUTTON_KEYS = {
-    "heroSupport", "heroLive", "livesChannel",
+    "heroAgenda", "heroLive", "livesChannel",
     "homeBlogAll", "homeDonation", "notFoundHome", "donationLivepix",
     "donationPixie", "rankingMonthly", "rankingAllTime", "blogFilterAll",
     "blogArticleBack", "externalCancel", "externalContinue", "settingsOpen",
@@ -809,6 +812,22 @@ def validate_buttons() -> None:
             error(f"{label}.ariaLabel é obrigatório para botão sem texto padrão.")
         elif key in BUTTON_KEYS_ALLOW_EMPTY_TEXT and not aria.strip():
             error(f"{label}.ariaLabel não pode ficar vazio para botão sem texto padrão.")
+
+        if "url" in entry:
+            url = entry["url"]
+            if key not in BUTTON_URL_KEYS:
+                error(f"{label}.url não é aceito neste botão (aceitam: {', '.join(sorted(BUTTON_URL_KEYS))}).")
+            elif not isinstance(url, str) or not url.strip():
+                error(f"{label}.url deve ser texto não vazio (remova o campo para usar o link padrão).")
+            else:
+                clean = url.strip()
+                parsed = urlparse(clean)
+                internal = clean.startswith("/") and not clean.startswith("//")
+                external = parsed.scheme in ("http", "https") and bool(parsed.netloc)
+                if not (internal or external):
+                    error(f"{label}.url deve começar com / (caminho do site) ou http(s)://: {url!r}.")
+                if len(clean) > 2048 or re.search(r"\s", clean):
+                    error(f"{label}.url não pode ter espaços nem passar de 2048 caracteres.")
 
         serialized = json.dumps(entry, ensure_ascii=False)
         if re.search(r"<\/?(?:svg|script|style|iframe)\b", serialized, re.I):
@@ -1737,7 +1756,7 @@ def validate_architecture() -> None:
 
     for element_id in (
         'id="inicio"',
-        'id="heroSupportButton"',
+        'id="heroAgendaButton"',
         'id="homeDonationButton"',
         'id="livesTrack"',
         'id="agendaGrid"',
@@ -2153,8 +2172,8 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.3.66" not in html:
-            error(f"{rel}: módulos de botões/navbar V48.3.66 não carregados.")
+        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.5.4" not in html:
+            error(f"{rel}: módulos de botões/navbar V48.5.4 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
@@ -2201,7 +2220,7 @@ def validate_architecture() -> None:
     for asset in (
         "js/pages/home/content.js?v=48.3.60",
         "js/pages/home/lives.js?v=48.3.60",
-        "js/pages/home/twitch-live.js?v=48.3.60",
+        "js/pages/home/twitch-live.js?v=48.5.4",
         "js/pages/home/home-interactions.js?v=47",
         "css/components/home-interactions.css?v=47",
     ):
@@ -2920,7 +2939,7 @@ def validate_architecture() -> None:
             "css/components/carousels.css?v=48.3.58",
             "css/components/lives.css?v=48.3.7",
             "css/components/blog.css?v=48.3.7",
-            "js/pages/home/twitch-live.js?v=48.3.60",
+            "js/pages/home/twitch-live.js?v=48.5.4",
         ),
         "doacoes/index.html": (
             "css/core/variables.css?v=48.3.58",

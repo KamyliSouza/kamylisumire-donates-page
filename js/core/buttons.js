@@ -3,11 +3,12 @@
 
     const content = window.KamyliContent;
     const icons = window.KamyliButtonIcons;
+    const sitePath = window.KAMYLI_SITE_PATH || (value => value);
 
     if (!content || !icons) return;
 
     const DEFAULTS = Object.freeze({
-        heroSupport: { text: "Apoiar", icon: "heart" },
+        heroAgenda: { text: "Agenda", icon: "calendar" },
         heroLive: { text: "Abrir live", icon: "youtube" },
         livesChannel: { text: "Abrir no YouTube", icon: "youtube" },
         homeBlogAll: { text: "Ver todas", icon: "arrow-right" },
@@ -29,6 +30,12 @@
         agendaNext: { text: "", icon: "chevron-right", ariaLabel: "Mostrar próximo dia" }
     });
 
+    /*
+     * V48.5.4 — Só estes botões aceitam `url` em buttons.json. Os demais têm o link definido por script
+     * (ex.: `livesChannel`, `notFoundHome`, `donation*`) ou não são links.
+     */
+    const URL_KEYS = Object.freeze(["heroAgenda", "heroLive", "homeDonation"]);
+
     let config = DEFAULTS;
     let scheduled = false;
 
@@ -37,7 +44,40 @@
         const text = typeof source?.text === "string" ? source.text : fallback.text || "";
         const ariaLabel = typeof source?.ariaLabel === "string" ? source.ariaLabel : fallback.ariaLabel || "";
         const icon = icons.allowed.includes(source?.icon) ? source.icon : fallback.icon || "none";
-        return { text, ariaLabel, icon };
+        return { text, ariaLabel, icon, url: resolveUrl(key, source?.url) };
+    }
+
+    /* "/caminho/" (relativo ao site) ou http(s)://...; qualquer outra coisa é ignorada e vale o link do HTML. */
+    function resolveUrl(key, value) {
+        if (!URL_KEYS.includes(key)) return "";
+        const raw = typeof value === "string" ? value.trim() : "";
+        if (!raw) return "";
+        if (raw.startsWith("/") && !raw.startsWith("//")) return sitePath(raw);
+        try {
+            const parsed = new URL(raw);
+            if (parsed.protocol === "https:" || parsed.protocol === "http:") return parsed.href;
+        } catch {}
+        return "";
+    }
+
+    function applyUrl(button, href) {
+        if (!href || !(button instanceof HTMLAnchorElement)) return;
+        /* Guarda o link configurado: o status ao vivo do Hero troca o href e volta para este. */
+        button.dataset.buttonUrl = href;
+        if (button.dataset.liveOverride === "true") return;
+
+        button.href = href;
+        let external = false;
+        try {
+            external = new URL(href, window.location.href).origin !== window.location.origin;
+        } catch {}
+        if (external) {
+            button.target = "_blank";
+            button.rel = "noopener noreferrer";
+        } else {
+            button.removeAttribute("target");
+            button.removeAttribute("rel");
+        }
     }
 
     function ensureLabel(button) {
@@ -110,6 +150,7 @@
         }
 
         applyIcon(button, entry.icon);
+        applyUrl(button, entry.url);
         button.dataset.buttonConfigured = "true";
         button.dataset.buttonConfigSignature = signature;
     }

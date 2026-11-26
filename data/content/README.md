@@ -47,6 +47,10 @@ O fluxo de Agenda e Jogos está em [`docs/AGENDA-E-JOGOS.md`](../../docs/AGENDA-
 
 O botão Apoiar também pertence a este arquivo; `buttons.json` não controla a Navbar.
 
+`buttons.json` define texto, ícone e, só em `heroAgenda`, `heroLive` e `homeDonation`, o link opcional `url`
+(`/agenda/` ou `https://...`); sem `url` vale o link do HTML. O link da Twitch do Hero vem de `lives.json`
+(`twitchCanalUrl`).
+
 Dois campos controlam a ordem:
 
 - `ordem`: lista sem duplicatas com a sequência visual dos nove itens. O runtime completa uma ordem

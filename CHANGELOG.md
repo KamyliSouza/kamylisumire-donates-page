@@ -7,6 +7,14 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.5.4 — Hero: botão da Agenda e links dos botões editáveis
+
+- o botão "Apoie!" do Hero foi trocado por **"Agenda"**, com o ícone SVG de calendário da biblioteca (`calendar`), apontando para `/agenda/`; a chave `heroSupport` virou `heroAgenda` (`#heroAgendaButton`). O Apoiar continua na Navbar e no card de apoio da Home;
+- `buttons.json` ganha o campo opcional **`url`** em `heroAgenda`, `heroLive` e `homeDonation`: `/caminho/` do site ou `http(s)://`; qualquer outro valor é ignorado e vale o link do HTML. Link externo abre em nova aba com `noopener`. `buttons.js` aplica o link e o guarda em `data-button-url`;
+- o status ao vivo do Hero (`twitch-live.js`) passa a marcar `data-live-override` ao apontar "Abrir live" para a Twitch e, fora do ar, volta ao link configurado, em qualquer ordem de carregamento;
+- a Twitch padrão do Hero (`#heroLivePreview`, `#heroLiveWatchButton`) passa a vir de `lives.json` → `twitchCanalUrl`, a mesma fonte do botão de canal da seção de lives, em vez de endereços escritos no código;
+- `validate-content.py` valida `url` (`BUTTON_URL_KEYS`) e a troca de chave; novo `.github/tests/button-urls.test.mjs`; cache-busters de `buttons.js` (todas as páginas) e `twitch-live.js` em `48.5.4`.
+
 ## V48.5.3 — Agenda compacta: arte em faixa
 
 - no modo compacto da `/agenda/`, a arte do jogo deixa de ser o fundo da linha inteira e passa a ocupar só uma **faixa à direita** (28% da largura, entre 120 e 300 px; 36% no celular) que se dissolve na superfície do card. O texto fica sempre sobre a superfície, então a leitura não depende da capa e a imagem não é esticada;

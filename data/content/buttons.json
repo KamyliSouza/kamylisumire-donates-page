@@ -1,11 +1,13 @@
 {
-  "heroSupport": {
-    "text": "Apoie!",
-    "icon": "heart"
+  "heroAgenda": {
+    "text": "Agenda",
+    "icon": "calendar",
+    "url": "/agenda/"
   },
   "heroLive": {
     "text": "Abrir live",
-    "icon": "none"
+    "icon": "none",
+    "url": "https://youtube.com/kamyli/live"
   },
   "livesChannel": {
     "text": "Abrir no YouTube",

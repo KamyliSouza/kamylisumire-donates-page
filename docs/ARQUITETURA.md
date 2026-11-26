@@ -47,7 +47,7 @@ Princípios de disponibilidade:
 | `preferences.js` | Tema, blur, perfil adaptativo, modo leitura e remoção programada do cache do ranking. |
 | `content.js` | Carrega JSONs editoriais, aplica textos/SEO runtime e mantém os fallbacks espelhados. |
 | `button-icons.js` | Biblioteca allowlisted de ícones (`KamyliButtonIcons`). Único ponto de entrada de ícones para JSON. |
-| `buttons.js` | Aplica texto/ícone aos elementos `[data-button-key]` a partir de `buttons.json`. |
+| `buttons.js` | Aplica texto, ícone e (em `heroAgenda`, `heroLive`, `homeDonation`) o link opcional `url` aos elementos `[data-button-key]` a partir de `buttons.json`. |
 | `sanitize.js` | `escapeHtml` e `safeHttpUrl` compartilhados. Deve carregar antes de `footer.js`. |
 | `navbar.js` / `footer.js` | Navbar e Footer compartilhados. |
 | `mobile-overlay.js` | Coordenador único dos overlays mobile (`menu`, `socials`, `settings`). |
