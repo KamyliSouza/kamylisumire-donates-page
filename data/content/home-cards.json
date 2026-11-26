@@ -9,15 +9,15 @@
       "variante": "padrao"
     },
     {
-      "id": "lives",
-      "tipo": "lives",
+      "id": "agenda",
+      "tipo": "agenda",
       "visivel": true,
       "tamanho": "grande",
       "variante": "padrao"
     },
     {
-      "id": "agenda",
-      "tipo": "agenda",
+      "id": "lives",
+      "tipo": "lives",
       "visivel": true,
       "tamanho": "grande",
       "variante": "padrao"
