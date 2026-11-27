@@ -319,79 +319,16 @@
     display: none;
 }
 
-.blog-filter {
-    flex: 0 0 auto;
-    min-height: 38px;
-    padding: 8px 11px;
-
-    color: var(--text-color);
-    background-color: var(--card-bg);
-
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
-
-    box-shadow: 0 5px 14px rgba(0, 0, 0, .05);
-
-    cursor: pointer;
-
-    font: inherit;
-    font-size: .76rem;
-    font-weight: 800;
-
-    backdrop-filter: blur(var(--blur-card));
-    -webkit-backdrop-filter: blur(var(--blur-card));
-
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        box-shadow .18s ease;
-}
-
-.blog-filter:hover,
-.blog-filter:focus-visible {
-    color: var(--primary-text);
-    border-color: var(--primary-color);
-    transform: translateY(-1px);
-    outline: none;
-}
-
-.blog-filter.is-active {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-    border-color: var(--button-bg);
-    box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
-    transform: translateY(-1px);
-}
+/* Aparência do filtro: .chip (css/core/controls.css). */
+.blog-filter { flex: 0 0 auto; }
 
 
 .blog-filter-arrow {
     position: absolute;
     top: 50%;
     z-index: 3;
-    width: 36px;
-    height: 36px;
-    display: inline-grid;
-    place-items: center;
-    padding: 0;
-    color: var(--text-color);
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
-    font: inherit;
-    font-size: 1.25rem;
-    font-weight: 900;
-    line-height: 1;
-    cursor: pointer;
     transform: translateY(-50%);
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        opacity .18s ease;
 }
 
 .blog-filter-arrow-prev { left: 3px; }
@@ -409,20 +346,10 @@
 
 .blog-filter-arrow:hover:not(:disabled),
 .blog-filter-arrow:focus-visible {
-    color: var(--primary-text);
-    background: var(--primary-soft);
-    border-color: var(--primary-color);
-    outline: none;
     transform: translateY(-50%) scale(1.04);
 }
-
 .blog-filter-arrow:active:not(:disabled) {
     transform: translateY(-50%) scale(.94);
-}
-
-:root[data-blur="off"] .blog-filter {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
 }
 
 .blog-filters.is-click-dragging,

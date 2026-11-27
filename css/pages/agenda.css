@@ -341,13 +341,8 @@
 
 /* ---------- V48.5.2 — Seletor Padrão/Compacto e modo compacto (preferência salva) ---------- */
 .agenda-panel-tools { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; min-width: 0; }
-.agenda-view-switch { display: inline-flex; gap: 3px; padding: 3px; background: var(--ag-pill-bg); border: 1px solid var(--ag-pill-border); border-radius: 999px; box-shadow: 0 3px 14px var(--ag-pill-shadow); }
-.agenda-view-button { min-height: 32px; padding: 5px 13px; color: var(--ag-pill-text); background: transparent; border: 1px solid transparent; border-radius: 999px; font: inherit; font-size: .8rem; font-weight: 850; cursor: pointer; }
-.agenda-view-button[aria-pressed="true"] { color: var(--ag-chip-text); background: var(--ag-chip-bg); border-color: var(--ag-chip-border); }
-.agenda-view-button:focus-visible { outline: 2px solid var(--ag-chip-border); outline-offset: 2px; }
-@media (hover: hover) and (pointer: fine) {
-    .agenda-view-button:hover { border-color: var(--ag-chip-border); }
-}
+/* Aparência: .segmented (css/core/controls.css). No painel, só o fundo e o texto seguem a paleta com contraste medido sobre a arte. */
+.agenda-view-switch { --segmented-bg: var(--ag-pill-bg); --segmented-border: var(--ag-pill-border); --segmented-text: var(--ag-pill-text); box-shadow: 0 3px 14px var(--ag-pill-shadow); }
 
 /* Uma linha por dia: dia e data | horário, jogo e plataformas | selo. Sem arte e sem descrição. */
 .agenda-days.is-compact { --row-art-w: clamp(120px, 28%, 300px); grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 17px; }
@@ -388,9 +383,6 @@
 .agenda-days.is-compact .agenda-day.no-live::before,
 .agenda-days.is-compact .agenda-day.no-live::after { display: none; }
 .agenda-days.is-compact .agenda-day.no-live { background: var(--ag-nolive-solid); }
-@media (forced-colors: active) {
-    .agenda-view-button[aria-pressed="true"] { border-color: Highlight; }
-}
 
 /* ---------- Responsivo (o dock de redes ocupa a lateral esquerda até 1279 px) ---------- */
 @media (min-width: 768px) and (max-width: 1279px) {
@@ -425,8 +417,6 @@
 }
 @media (max-width: 600px) {
     .agenda-panel-tools { justify-content: flex-start; width: 100%; }
-    .agenda-view-switch { width: 100%; }
-    .agenda-view-button { flex: 1 1 50%; min-height: 40px; }
     .agenda-days.is-compact .agenda-day,
     .agenda-days.is-compact .agenda-day:last-child {
         grid-template-columns: minmax(0, 1fr) auto;

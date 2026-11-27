@@ -1156,8 +1156,8 @@ def validate_view_mode() -> None:
         error("js/core/view-mode.js: a preferência fica só no navegador; sem rede.")
 
     for rel, page, script, stylesheet, buttons, version in (
-        ("agenda/index.html", "agenda", "js/pages/agenda/agenda.js", "css/pages/agenda.css", ("agendaViewStandard", "agendaViewCompact"), "48.5.3"),
-        ("jogos/index.html", "jogos", "js/pages/jogos/jogos.js", "css/pages/jogos.css", ("jogosViewPoster", "jogosViewCompact"), "48.5.2"),
+        ("agenda/index.html", "agenda", "js/pages/agenda/agenda.js", "css/pages/agenda.css", ("agendaViewStandard", "agendaViewCompact"), "48.6.0"),
+        ("jogos/index.html", "jogos", "js/pages/jogos/jogos.js", "css/pages/jogos.css", ("jogosViewPoster", "jogosViewCompact"), "48.6.0"),
     ):
         html = read_text(rel)
         for asset, asset_version in (("js/core/view-mode.js", "48.5.2"), (script, version), (stylesheet, version)):
@@ -1842,7 +1842,7 @@ def validate_architecture() -> None:
     if "css/components/blog.css" not in index:
         error("index.html: blog.css compartilhado não está carregado.")
 
-    if "css/pages/home.css?v=48.3.70" not in index:
+    if "css/pages/home.css?v=48.6.0" not in index:
         error("index.html: cache-buster V48.3.58 ausente para css/pages/home.css.")
     if "js/pages/home/content.js?v=48.3.60" not in index:
         error("index.html: cache-buster V48.3.60 ausente para js/pages/home/content.js.")
@@ -2172,17 +2172,17 @@ def validate_architecture() -> None:
         )
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
-        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.5.4" not in html:
+        if "js/core/button-icons.js?v=48.3.44" not in html or "js/core/buttons.js?v=48.6.0" not in html:
             error(f"{rel}: módulos de botões/navbar V48.5.4 não carregados.")
 
     for rel, html in (("index.html", index), ("doacoes/index.html", donations), ("blog/index.html", blog_index), ("404.html", not_found)):
         for asset in (
             "js/core/content.js?v=48.3.69",
             "js/core/mobile-overlay.js?v=48.3.47",
-            "js/core/navbar.js?v=48.3.66",
+            "js/core/navbar.js?v=48.6.0",
             "js/core/external-links.js?v=47",
             "js/core/footer.js?v=48.3.66",
-            "css/core/navbar.css?v=48.3.67",
+            "css/core/navbar.css?v=48.6.0",
         ):
             if asset not in html:
                 error(f"{rel}: cache-buster V47 ausente para {asset.split('?')[0]}.")
@@ -2212,7 +2212,7 @@ def validate_architecture() -> None:
     ):
         if "js/core/mobile-overlay.js?v=48.3.47" not in html:
             error(f"{rel}: controlador mobile V48.3.47 ausente.")
-        if "js/core/navbar.js?v=48.3.66" not in html:
+        if "js/core/navbar.js?v=48.6.0" not in html:
             error(f"{rel}: cache-buster V48.3.47 ausente para js/core/navbar.js.")
         if "js/core/content.js?v=48.3.69" not in html:
             error(f"{rel}: cache-buster V48.3.64 ausente para js/core/content.js.")
@@ -2239,19 +2239,19 @@ def validate_architecture() -> None:
         if token not in content_js:
             error(f"js/core/content.js: proteção SEO V48.3.51 ausente: {token}")
 
-    if "js/pages/blog/blog.js?v=48.3.19" not in blog_index:
+    if "js/pages/blog/blog.js?v=48.6.0" not in blog_index:
         error("blog/index.html: cache-buster V48.3.19 ausente para js/pages/blog/blog.js.")
-    if "css/pages/blog.css?v=48.3.58" not in blog_index:
+    if "css/pages/blog.css?v=48.6.0" not in blog_index:
         error("blog/index.html: cache-buster V48.3.58 ausente para css/pages/blog.css.")
-    if "js/pages/artes/artes.js?v=48.3.59" not in artes_index:
+    if "js/pages/artes/artes.js?v=48.6.0" not in artes_index:
         error("artes/index.html: cache-buster V48.3.52 ausente para js/pages/artes/artes.js.")
-    if "css/pages/artes.css?v=48.3.58" not in artes_index:
+    if "css/pages/artes.css?v=48.6.0" not in artes_index:
         error("artes/index.html: cache-buster V48.3.58 ausente para css/pages/artes.css.")
 
-    if "css/pages/jogos.css?v=48.5.2" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.5.2 ausente para css/pages/jogos.css.")
-    if "js/pages/jogos/jogos.js?v=48.5.2" not in jogos_index:
-        error("jogos/index.html: cache-buster V48.5.2 ausente para js/pages/jogos/jogos.js.")
+    if "css/pages/jogos.css?v=48.6.0" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.6.0 ausente para css/pages/jogos.css.")
+    if "js/pages/jogos/jogos.js?v=48.6.0" not in jogos_index:
+        error("jogos/index.html: cache-buster V48.6.0 ausente para js/pages/jogos/jogos.js.")
 
     # V48.3.18: filtros de Jogos, Blog e Galeria permanecem em uma única linha
     # rolável, sem aumentar a altura da barra conforme novas categorias/tags surgem.
@@ -2305,7 +2305,6 @@ def validate_architecture() -> None:
             error(f"js/pages/jogos/jogos.js: contrato V48.3.18 ausente: {token}")
 
     for token in (
-        ".jogos-pagination-arrow",
         ".jogos-pagination-gap",
         ".jogos-page-button:disabled",
         "@media (prefers-reduced-motion: reduce)",
@@ -2372,6 +2371,30 @@ def validate_architecture() -> None:
             if token not in css:
                 error(f"{label}: estado visual de arraste V48.3.19 ausente: {token}")
 
+    # V48.6.0: o realce do filtro ativo (preenchido com os tokens de ação) e a
+    # aparência de chips, alternadores, botões de ícone e apoio vivem só em controls.css.
+    controls_css = read_text("css/core/controls.css")
+    for token in (
+        ".chip:is([aria-pressed=\"true\"]",
+        ".segmented-button:is([aria-pressed=\"true\"]",
+        ".icon-button {",
+        ".button-donate {",
+        ".button-donate-sm",
+        ".button-donate-lg",
+        "--control-height: 40px;",
+        "--control-icon-size: 44px;",
+        "background: var(--button-bg);",
+    ):
+        if token not in controls_css:
+            error(f"css/core/controls.css: contrato V48.6.0 ausente: {token}")
+    for rel in ("index.html", "404.html", "agenda/index.html", "artes/index.html", "blog/index.html",
+                "doacoes/index.html", "jogos/index.html", "privacidade/index.html", "uso-de-ia/index.html"):
+        html = read_text(rel)
+        if "css/core/controls.css?v=48.6.0" not in html:
+            error(f"{rel}: css/core/controls.css?v=48.6.0 ausente.")
+        elif html.index("css/core/controls.css") > html.index("css/pages/") if "css/pages/" in html else False:
+            error(f"{rel}: controls.css deve carregar antes do CSS da página.")
+
     # V48.3.50: Blog mantém a mesma ordem visual da Galeria: filtros/tags
     # à esquerda e busca + seletor à direita no desktop. No mobile, essa ordem
     # também mantém a faixa de tags antes dos controles de busca.
@@ -2411,8 +2434,6 @@ def validate_architecture() -> None:
             "-webkit-mask-image: linear-gradient(",
             "mask-image: linear-gradient(",
             "position: absolute;",
-            active_selector,
-            "inset 0 0 0 1px",
         ):
             if token not in css:
                 error(f"{label}: máscara/realce V48.3.22 ausente: {token}")
@@ -2935,16 +2956,16 @@ def validate_architecture() -> None:
     v4837_assets = {
         "index.html": (
             "css/core/variables.css?v=48.3.58",
-            "css/pages/home.css?v=48.3.70",
-            "css/components/carousels.css?v=48.3.58",
-            "css/components/lives.css?v=48.3.7",
+            "css/pages/home.css?v=48.6.0",
+            "css/components/carousels.css?v=48.6.0",
+            "css/components/lives.css?v=48.6.0",
             "css/components/blog.css?v=48.3.7",
             "js/pages/home/twitch-live.js?v=48.5.4",
         ),
         "doacoes/index.html": (
             "css/core/variables.css?v=48.3.58",
-            "css/pages/doacoes.css?v=48.3.58",
-            "css/components/ranking.css?v=48.3.58",
+            "css/pages/doacoes.css?v=48.6.0",
+            "css/components/ranking.css?v=48.6.0",
             "js/pages/doacoes/ranking.js?v=48.3.60",
         ),
         "blog/index.html": (
@@ -3440,7 +3461,7 @@ def validate_architecture() -> None:
     if "window.KamyliCarousel" not in lives_js:
         error("js/pages/home/lives.js: controlador compartilhado ausente.")
 
-    if "css/components/lives.css?v=48.3.7" not in index:
+    if "css/components/lives.css?v=48.6.0" not in index:
         error("index.html: cache-buster V48.3.7 ausente para css/components/lives.css.")
 
     for element_id in ('id="livesTabTwitch"', 'id="livesTabYoutube"'):
@@ -4056,7 +4077,7 @@ def validate_security_contracts() -> None:
 READING_MODE_VERSION = "48.3.64"  # preferences.js
 SETTINGS_VERSION = "48.3.66"  # settings.js e footer.js (Configurações na navbar)
 CONTENT_JS_VERSION = "48.3.69"  # content.js (V48.3.69: item Agenda da navbar aponta para /agenda/)
-NAVBAR_CSS_VERSION = "48.3.67"  # css/core/navbar.css (destaque da engrenagem só com o painel aberto)
+NAVBAR_CSS_VERSION = "48.6.0"  # css/core/navbar.css (destaque da engrenagem só com o painel aberto)
 READING_CSS_VERSION = "48.3.66"  # css/core/reading.css
 FAVICON_JS_VERSION = "48.3.77"  # favicon.js: ícone gerado com a cor do tema
 

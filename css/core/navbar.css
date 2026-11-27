@@ -215,17 +215,7 @@
     height: 100%;
 }
 
-.site-nav-donate {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-}
-
-.site-nav-donate:hover,
-.site-nav-donate:focus-visible,
-.site-nav-donate.is-active {
-    color: var(--button-text);
-    background-color: var(--button-bg-hover);
-}
+/* Aparência do botão de apoio: .button-donate (css/core/controls.css). */
 
 /* Elementos exclusivos do layout mobile. */
 .site-nav-mobile-title,
@@ -364,12 +354,6 @@ html.site-page-leaving .site-settings-popover {
     .site-settings-toggle {
         width: 38px;
         height: 38px;
-    }
-
-    .site-nav-support-wrap .site-nav-link {
-        min-height: 38px;
-        padding: 8px 10px;
-        font-size: .82rem;
     }
 
     .site-nav-mobile-trigger {
@@ -652,16 +636,6 @@ html.site-page-leaving .site-settings-popover {
         max-width: none;
         min-height: 48px;
         justify-content: center;
-        gap: 8px;
-        padding: 8px 11px;
-
-        color: var(--button-text);
-        background-color: var(--button-bg);
-        border: 1px solid var(--button-bg);
-        border-radius: 12px;
-
-        font-size: .86rem;
-        font-weight: 900;
     }
 
     .site-nav-mobile-support .site-nav-item-icon {
@@ -706,10 +680,6 @@ html.site-mobile-drawer-open body {
 
     .site-nav-mobile-support:hover,
     .site-nav-mobile-support:focus-visible {
-        color: var(--button-text);
-        background-color: var(--button-bg-hover);
-        border-color: var(--button-bg-hover);
-        outline: none;
         transform: none;
     }
 }
@@ -937,14 +907,7 @@ html.site-mobile-drawer-open body {
 }
 
 .site-nav-support {
-    min-height: 40px;
-    padding: 9px 15px;
-
     gap: 7px;
-
-    box-shadow:
-        0 5px 14px
-        rgba(179, 94, 175, .18);
 }
 
 .site-nav-support-icon {
@@ -977,12 +940,7 @@ html.site-mobile-drawer-open body {
     }
 
     .site-nav-support {
-        min-height: 38px;
-        padding: 8px 11px;
-
         gap: 5px;
-
-        font-size: .82rem;
     }
 
     .site-nav-support-icon {

@@ -96,10 +96,29 @@ tokens e passam pelo teste de contraste.
 
 ## 6. Botões
 
-Use as classes existentes: `button`, `button-primary`, `button-outline`. Ícones decorativos dentro de
-botões usam `aria-hidden="true"` e não substituem o rótulo textual. Os CTAs de apoio da Home
-reutilizam o coração do botão Apoiar da Navbar (via `home-interactions.js`). A cor de fundo vem dos
-tokens `--button-*` (ver [seção 3](#3-cor-e-contraste)).
+Ações de texto usam `button`, `button-primary`, `button-outline` (48 px, raio 16 px, peso 800). Ícones
+decorativos dentro de botões usam `aria-hidden="true"` e não substituem o rótulo textual. A cor de fundo
+vem dos tokens `--button-*` (ver [seção 3](#3-cor-e-contraste)).
+
+Todo outro controle usa um dos componentes de `css/core/controls.css`. O CSS de página só define posição e
+layout; aparência, estados e tamanho ficam no componente. Não crie classes de botão novas por página.
+
+| Componente | Uso | Medidas | Estado ativo |
+| --- | --- | --- | --- |
+| `.chip` (`.chip-compact` para números) | filtros, abas, paginação | 40 px, cápsula, peso 800 | `aria-pressed`, `aria-selected`, `aria-current="page"`, `.is-active` ou `.active`: preenchido com `--button-bg` |
+| `.segmented` + `.segmented-button` (`.segmented-fill` ocupa a largura no celular) | alternar modo ou plataforma (Padrão/Compacto, Twitch/YouTube) | contêiner de 40 px; opções de 40 px no celular | `aria-pressed` ou `aria-selected` |
+| `.icon-button` | setas de carrossel, filtros e paginação | 40 px (44 px no celular ou com toque), círculo | só hover/foco com `--primary-soft`; `disabled` a 40% |
+| `.button-donate` (`-sm`, `-lg`, `-outline`) | apoio, sempre | `-sm` 40 px (Navbar), padrão 48 px (Home, menu mobile), `-lg` 66 px (Doações), raio 16 px | hover/foco com `--button-bg-hover` |
+
+O botão de apoio é o único destaque do site e tem a mesma forma, cor e ícone em qualquer lugar; só o
+tamanho muda. O rótulo curto é "Apoie!" (Navbar, Home e menu mobile; editável em `navbar.json` e
+`buttons.json`); a página de Doações mantém o nome de cada serviço. Os tokens de tamanho são
+`--control-height`, `--control-icon-size` e `--control-radius`. O foco visível é um contorno de 2 px em
+`--primary-color`. Em `forced-colors`, o item ativo ganha contorno `Highlight`. O teste de contraste
+cobre `.button-donate`, `.chip` e `.segmented-button` ativos nos dois temas.
+
+Campos de busca com seletor (`*-search-field-toggle`) e o botão de configurações da Navbar são controles
+próprios e ficam fora desses quatro componentes.
 
 ## 7. Busca e filtros (Galeria, Blog, Jogos)
 
@@ -133,9 +152,9 @@ setas continuam sobrepostas e não reservam espaço.
 
 ### Agenda: alternador Padrão/Compacto
 
-- **Alternador** (`.agenda-view-switch`): cápsula de dois botões com `aria-pressed` ao lado do período, nos tokens do
-  painel (`--ag-pill-*` para o contêiner e o botão solto; `--ag-chip-*` para o marcado). Contraste medido ≥ 9:1 nos
-  dois temas. Mínimo de 32 px de altura (40 px e largura total no celular); foco visível por contorno.
+- **Alternador** (`.segmented.agenda-view-switch`, ver [seção 6](#6-botões)): dois botões com `aria-pressed` ao lado
+  do período. Só o fundo, a borda e o texto do contêiner seguem a paleta do painel (`--ag-pill-*`, contraste medido
+  sobre a arte); a opção marcada usa `--button-bg`. Largura total no celular.
 - **Compacto** (`.agenda-days.is-compact`): uma coluna, linhas de 16 px de raio com dia/data | horário + jogo +
   plataformas | faixa de arte com o selo, sem descrição. A arte ocupa só a direita da linha (28% da largura, entre 120 e
   300 px; 36% no celular) e se dissolve na superfície do card; o texto fica sempre na superfície, então o contraste é o

@@ -61,9 +61,9 @@
     <link rel="preload" as="script" href="js/core/config.js">
     <link rel="preload" as="script" href="js/core/content.js?v=48.3.69">
     <link rel="preload" as="script" href="js/core/button-icons.js?v=48.3.44">
-    <link rel="preload" as="script" href="js/core/buttons.js?v=48.5.4">
+    <link rel="preload" as="script" href="js/core/buttons.js?v=48.6.0">
     <link rel="preload" as="script" href="js/core/mobile-overlay.js?v=48.3.47">
-    <link rel="preload" as="script" href="js/core/navbar.js?v=48.3.66">
+    <link rel="preload" as="script" href="js/core/navbar.js?v=48.6.0">
     <link rel="preload" as="script" href="js/core/settings.js?v=48.3.66">
     <link rel="preload" as="script" href="js/core/external-links.js?v=47">
     <link rel="preload" as="script" href="js/core/socials.js?v=48.3.49">
@@ -329,12 +329,13 @@
 
     <link rel="stylesheet" href="css/core/variables.css?v=48.3.58">
     <link rel="stylesheet" href="css/core/global.css?v=48.3.66">
-    <link rel="stylesheet" href="css/core/navbar.css?v=48.3.67">
+    <link rel="stylesheet" href="css/core/navbar.css?v=48.6.0">
+    <link rel="stylesheet" href="css/core/controls.css?v=48.6.0">
     <link rel="stylesheet" href="css/core/socials.css?v=48.3.49">
-    <link rel="stylesheet" href="css/pages/home.css?v=48.3.70">
-    <link rel="stylesheet" href="css/components/lives.css?v=48.3.7">
+    <link rel="stylesheet" href="css/pages/home.css?v=48.6.0">
+    <link rel="stylesheet" href="css/components/lives.css?v=48.6.0">
     <link rel="stylesheet" href="css/components/home-interactions.css?v=47">
-    <link rel="stylesheet" href="css/components/carousels.css?v=48.3.58">
+    <link rel="stylesheet" href="css/components/carousels.css?v=48.6.0">
     <link rel="stylesheet" href="css/components/blog.css?v=48.3.7">
     <link rel="stylesheet" href="css/core/reading.css?v=48.3.66">
 
@@ -405,14 +406,14 @@
         <section class="hero glass-panel home-card" id="inicio" data-home-card-id="hero" data-home-card-size="grande" data-home-card-variant="padrao">
             <div class="hero-copy">
                 <div
-                    class="hero-view-tabs"
+                    class="segmented hero-view-tabs"
                     id="heroViewTabs"
                     role="tablist"
                     aria-label="Conteúdo em destaque"
                     hidden
                 >
                     <button
-                        class="hero-view-tab"
+                        class="segmented-button hero-view-tab"
                         id="heroTabAbout"
                         type="button"
                         role="tab"
@@ -424,7 +425,7 @@
                     </button>
 
                     <button
-                        class="hero-view-tab"
+                        class="segmented-button hero-view-tab"
                         id="heroTabLive"
                         type="button"
                         role="tab"
@@ -590,12 +591,12 @@
             </p>
 
             <div
-                class="lives-platform-tabs"
+                class="segmented lives-platform-tabs"
                 role="tablist"
                 aria-label="Selecionar plataforma das lives"
             >
                 <button
-                    class="lives-platform-tab"
+                    class="segmented-button lives-platform-tab"
                     id="livesTabTwitch"
                     type="button"
                     role="tab"
@@ -606,7 +607,7 @@
                 </button>
 
                 <button
-                    class="lives-platform-tab"
+                    class="segmented-button lives-platform-tab"
                     id="livesTabYoutube"
                     type="button"
                     role="tab"
@@ -620,7 +621,7 @@
 
             <div class="lives-carousel">
                 <button
-                    class="lives-carousel-button lives-carousel-prev"
+                    class="icon-button lives-carousel-button lives-carousel-prev"
                     id="livesPrev"
                     data-button-key="livesPrev"
                     type="button"
@@ -646,7 +647,7 @@
                 </div>
 
                 <button
-                    class="lives-carousel-button lives-carousel-next"
+                    class="icon-button lives-carousel-button lives-carousel-next"
                     id="livesNext"
                     data-button-key="livesNext"
                     type="button"
@@ -670,7 +671,7 @@
 
             <div class="agenda-carousel">
                 <button
-                    class="agenda-carousel-button agenda-carousel-prev"
+                    class="icon-button agenda-carousel-button agenda-carousel-prev"
                     id="agendaPrev"
                     data-button-key="agendaPrev"
                     type="button"
@@ -690,7 +691,7 @@
                 </div>
 
                 <button
-                    class="agenda-carousel-button agenda-carousel-next"
+                    class="icon-button agenda-carousel-button agenda-carousel-next"
                     id="agendaNext"
                     data-button-key="agendaNext"
                     type="button"
@@ -801,9 +802,9 @@
                 <p id="homeDonationDescription">As doações ficam em uma página independente, sem misturar a lógica da Home.</p>
             </div>
 
-            <a class="button button-primary" id="homeDonationButton" data-button-key="homeDonation" href="doacoes/">
+            <a class="button button-donate" id="homeDonationButton" data-button-key="homeDonation" href="doacoes/">
                 <span data-button-icon aria-hidden="true"></span>
-                <span data-button-label>Apoiar</span>
+                <span data-button-label>Apoie!</span>
             </a>
         </section>
         </div>
@@ -819,9 +820,9 @@
     <script src="js/core/config.js"></script>
     <script src="js/core/content.js?v=48.3.69"></script>
     <script src="js/core/button-icons.js?v=48.3.44"></script>
-    <script src="js/core/buttons.js?v=48.5.4"></script>
+    <script src="js/core/buttons.js?v=48.6.0"></script>
     <script src="js/core/mobile-overlay.js?v=48.3.47"></script>
-    <script src="js/core/navbar.js?v=48.3.66"></script>
+    <script src="js/core/navbar.js?v=48.6.0"></script>
     <script src="js/core/settings.js?v=48.3.66"></script>
     <script src="js/core/external-links.js?v=47"></script>
     <script src="js/core/socials.js?v=48.3.49"></script>

@@ -96,13 +96,13 @@
 
                     <div class="site-nav-support-wrap">
                         <a
-                            class="site-nav-link site-nav-donate site-nav-support"
+                            class="site-nav-link site-nav-donate site-nav-support button-donate button-donate-sm"
                             data-nav-key="apoio"
                             data-nav-page="doacoes"
                             href="${sitePath("/doacoes/")}"
                         >
                             <span class="site-nav-item-icon site-nav-support-icon" data-nav-icon aria-hidden="true" hidden></span>
-                            <span data-nav-label>Apoiar</span>
+                            <span data-nav-label>Apoie!</span>
                         </a>
                     </div>
                 </div>
@@ -205,6 +205,7 @@
 
         const mobileSupport = supportLink.cloneNode(true);
         mobileSupport.classList.add("site-nav-mobile-support");
+        mobileSupport.classList.replace("button-donate-sm", "button-donate-md");
         mobileSupport.classList.remove("is-active");
         mobileSupport.removeAttribute("aria-current");
         mobileSupport.removeAttribute("data-nav-key");

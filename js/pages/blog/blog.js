@@ -171,7 +171,7 @@
 
         const all = document.createElement("button");
         all.type = "button";
-        all.className = "blog-filter is-active";
+        all.className = "chip blog-filter is-active";
         all.dataset.buttonKey = "blogFilterAll";
         all.dataset.tag = "";
 
@@ -192,7 +192,7 @@
         tags.forEach(tag => {
             const button = document.createElement("button");
             button.type = "button";
-            button.className = "blog-filter";
+            button.className = "chip blog-filter";
             button.textContent = tag;
             button.dataset.tag = tag;
             elements.filters.appendChild(button);

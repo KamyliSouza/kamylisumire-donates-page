@@ -7,6 +7,19 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.6.0 — Controles padronizados e botão de apoio único
+
+- Novo `css/core/controls.css` (carregado antes do CSS da página, depois de `navbar.css`) com quatro componentes:
+  `.chip`, `.segmented`, `.icon-button` e `.button-donate`. Medidas e regras em `DESIGN-SYSTEM.md`, seção 6.
+- Migrados: alternadores da Agenda e de Jogos, abas de Lives, do Hero e do ranking de Doações, filtros de Jogos,
+  Blog e Galeria, números e setas da paginação, setas dos filtros e dos carrosséis. O CSS de página manteve só
+  posição e layout (o validador deixou de exigir o realce ativo em cada página e passou a exigir `controls.css`).
+- Setas e paginação chegam a 44 px no celular; os carrosséis da Home passam de 46 para 40/44 px.
+- Botão de apoio: Navbar, menu mobile, card da Home e página de Doações usam `.button-donate` (tamanhos `-sm`, padrão
+  e `-lg`; `-outline` para a segunda opção). O rótulo padrão de `homeDonation` passa a "Apoie!", igual ao da Navbar.
+- Cache-busters 48.6.0 nos CSS/JS alterados; `color-contrast.test.mjs` passou a cobrir os componentes novos.
+- Sem mudança de contrato JSON além do texto padrão de `homeDonation`.
+
 ## V48.5.4 — Hero: botão da Agenda e links dos botões editáveis
 
 - o botão "Apoie!" do Hero foi trocado por **"Agenda"**, com o ícone SVG de calendário da biblioteca (`calendar`), apontando para `/agenda/`; a chave `heroSupport` virou `heroAgenda` (`#heroAgendaButton`). O Apoiar continua na Navbar e no card de apoio da Home;

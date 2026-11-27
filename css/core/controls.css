@@ -1,0 +1,256 @@
+/* =========================================================
+   CONTROLES PADRÃO — V48.6.0
+   Quatro componentes compartilhados por todas as páginas. O CSS de página só
+   cuida de posição e layout (flex, absolute, largura); aparência, estados e
+   tamanho vêm daqui. Cores: sempre os tokens de variables.css.
+   - .chip         filtros, abas e números de paginação
+   - .segmented    alternância de modo (Padrão / Compacto)
+   - .icon-button  setas, fechar e outros botões só com ícone
+   - .button-donate  botão de apoio (único destaque do site)
+   Botões de ação de texto continuam em .button / .button-primary / .button-outline.
+   ========================================================= */
+
+:root {
+    --control-height: 40px;
+    --control-icon-size: 40px;
+    --control-radius: 999px;
+    --control-font-size: .875rem;
+    --control-font-weight: 800;
+    --control-transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease,
+        opacity .18s ease;
+    --control-focus-ring: 2px solid var(--primary-color);
+    --donate-shadow: 0 5px 14px color-mix(in srgb, var(--primary-color) 24%, transparent);
+}
+
+/* Alvo de toque de 44 px em ícones no celular. */
+@media (max-width: 760px), (pointer: coarse) {
+    :root { --control-icon-size: 44px; }
+}
+
+/* ---------- .chip ---------- */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    min-height: var(--control-height);
+    padding: 8px 16px;
+    color: var(--text-color);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--control-radius);
+    font: inherit;
+    font-size: var(--control-font-size);
+    font-weight: var(--control-font-weight);
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--control-transition);
+}
+
+.chip:focus-visible,
+.segmented-button:focus-visible,
+.icon-button:focus-visible,
+.button-donate:focus-visible {
+    outline: var(--control-focus-ring);
+    outline-offset: 2px;
+}
+
+.chip:disabled { opacity: .4; cursor: default; }
+
+/* Ativo: preenchido com os tokens de ação (contraste AA nos dois temas). */
+.chip:is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .is-active, .active) {
+    color: var(--button-text);
+    background: var(--button-bg);
+    border-color: var(--button-bg);
+}
+
+.chip:not(:is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .is-active, .active), :disabled):focus-visible {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .chip:not(:is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .is-active, .active), :disabled):hover {
+        color: var(--primary-text);
+        background: var(--primary-soft);
+        border-color: var(--primary-color);
+    }
+
+    .chip:is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .is-active, .active):hover {
+        background: var(--button-bg-hover);
+        border-color: var(--button-bg-hover);
+    }
+}
+
+/* Número de página: cápsula que vira círculo com um dígito. */
+.chip-compact {
+    min-width: var(--control-height);
+    padding-inline: 10px;
+}
+
+/* ---------- .segmented ---------- */
+
+.segmented {
+    --segmented-bg: var(--nav-bg);
+    --segmented-border: var(--card-border);
+    --segmented-text: var(--text-color);
+
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 3px;
+    max-width: 100%;
+    padding: 3px;
+    background: var(--segmented-bg);
+    border: 1px solid var(--segmented-border);
+    border-radius: var(--control-radius);
+}
+
+.segmented-button {
+    min-height: calc(var(--control-height) - 8px);
+    padding: 0 16px;
+    color: var(--segmented-text);
+    background: transparent;
+    border: 0;
+    border-radius: var(--control-radius);
+    font: inherit;
+    font-size: var(--control-font-size);
+    font-weight: var(--control-font-weight);
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--control-transition);
+}
+
+.segmented-button:is([aria-pressed="true"], [aria-selected="true"]) {
+    color: var(--button-text);
+    background: var(--button-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .segmented-button:not(:is([aria-pressed="true"], [aria-selected="true"])):hover {
+        color: var(--primary-text);
+        background: var(--primary-soft);
+    }
+}
+
+/* No celular cada opção chega a 40 px; .segmented-fill ocupa a largura (alternadores de modo). */
+@media (max-width: 760px) {
+    .segmented-button { min-height: var(--control-height); }
+    .segmented-fill { width: 100%; }
+    .segmented-fill .segmented-button { flex: 1 1 50%; }
+}
+
+/* ---------- .icon-button ---------- */
+
+.icon-button {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: var(--control-icon-size);
+    height: var(--control-icon-size);
+    padding: 0;
+    color: var(--text-color);
+    background: var(--nav-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    font: inherit;
+    font-size: 1.25rem;
+    font-weight: var(--control-font-weight);
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--control-transition);
+}
+
+.icon-button:disabled { opacity: .4; cursor: default; }
+
+.icon-button:not(:disabled):focus-visible {
+    color: var(--primary-text);
+    background: var(--primary-soft);
+    border-color: var(--primary-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .icon-button:not(:disabled):hover {
+        color: var(--primary-text);
+        background: var(--primary-soft);
+        border-color: var(--primary-color);
+    }
+}
+
+/* ---------- .button-donate ---------- */
+
+.button-donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 12px 20px;
+    color: var(--button-text);
+    background-color: var(--button-bg);
+    border: 2px solid transparent;
+    border-radius: var(--radius-button);
+    box-shadow: var(--donate-shadow);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: var(--control-font-weight);
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--control-transition);
+}
+
+.button-donate:hover,
+.button-donate:focus-visible,
+.button-donate.is-active {
+    color: var(--button-text);
+    background-color: var(--button-bg-hover);
+}
+
+.button-donate:hover { transform: translateY(-1px); }
+
+/* Tamanhos: só a altura e o texto mudam; forma, cor e ícone são sempre os mesmos. */
+.button-donate-sm {
+    min-height: var(--control-height);
+    padding: 8px 16px;
+    font-size: .9rem;
+}
+
+.button-donate-lg {
+    min-height: 66px;
+    padding: 11px 18px;
+}
+
+/* Variante vazada para a segunda opção de doação (mesmo tamanho e raio). */
+.button-donate-outline {
+    color: var(--primary-text);
+    background-color: transparent;
+    border-color: var(--primary-color);
+    box-shadow: none;
+}
+
+.button-donate-outline:hover,
+.button-donate-outline:focus-visible {
+    color: var(--primary-text);
+    background-color: var(--notice-bg);
+}
+
+@media (forced-colors: active) {
+    .segmented-button:is([aria-pressed="true"], [aria-selected="true"]) { outline: 2px solid Highlight; outline-offset: -2px; }
+    .chip:is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .is-active, .active) { border-color: Highlight; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chip, .segmented-button, .icon-button, .button-donate { transition-duration: .01ms !important; }
+    .button-donate:hover { transform: none; }
+}

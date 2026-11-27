@@ -47,17 +47,13 @@ const protectedSelectors = [
   ["css/core/global.css", ".button-primary"],
   ["css/core/navbar.css", ".site-settings-toggle[aria-expanded=\"true\"]"],
   ["css/core/global.css", ".site-settings-option input:checked + span"],
-  ["css/core/navbar.css", ".site-nav-donate"],
-  ["css/core/navbar.css", ".site-nav-mobile-support"],
-  ["css/components/ranking.css", ".ranking-tabs .tab-btn.active"],
+  ["css/core/controls.css", ".button-donate {"],
+  ["css/core/controls.css", ".chip:is([aria-pressed=\"true\"]"],
+  ["css/core/controls.css", ".segmented-button:is([aria-pressed=\"true\"]"],
   ["css/components/carousels.css", ".lives-carousel-button:hover:not(:disabled)"],
-  ["css/pages/doacoes.css", ".donation-btn-primary"],
-  ["css/pages/artes.css", ".artes-filter.is-active"],
   ["css/pages/artes.css", ".artes-search-field-option[aria-selected=\"true\"]"],
   ["css/pages/blog.css", ".blog-search-field-option[aria-selected=\"true\"]"],
-  ["css/pages/blog.css", ".blog-filter.is-active"],
   ["css/pages/home.css", ".home-blog-all-link:focus-visible"],
-  ["css/pages/home.css", ".hero-view-tab[aria-selected=\"true\"]"]
 ];
 
 test("tokens de ação atingem WCAG AA nos temas claro e escuro", () => {

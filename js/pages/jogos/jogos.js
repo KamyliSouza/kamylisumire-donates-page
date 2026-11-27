@@ -343,7 +343,7 @@
     function makeFilter(id, label, count) {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "jogos-filter";
+        button.className = "chip jogos-filter";
         button.dataset.listId = id;
         button.setAttribute("aria-pressed", String(state.listId === id));
         button.textContent = `${label} (${count})`;
@@ -477,7 +477,7 @@
     function makePageButton(page) {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "jogos-page-button";
+        button.className = "chip chip-compact jogos-page-button";
         button.textContent = String(page);
         button.setAttribute("aria-label", `Ir para a página ${page}`);
         button.setAttribute("aria-current", state.page === page ? "page" : "false");
@@ -490,7 +490,7 @@
         const target = previous ? state.page - 1 : state.page + 1;
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "jogos-page-button jogos-pagination-arrow";
+        button.className = "icon-button jogos-page-button jogos-pagination-arrow";
         button.textContent = previous ? "‹" : "›";
         button.setAttribute("aria-label", previous ? "Página anterior" : "Próxima página");
         button.disabled = target < 1 || target > totalPages;

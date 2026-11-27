@@ -61,8 +61,8 @@ test("sem localStorage (modo privado/bloqueio) não quebra e usa o padrão", () 
 });
 
 for (const [page, script, buttons, version] of [
-  ["agenda", "js/pages/agenda/agenda.js", ["agendaViewStandard", "agendaViewCompact"], "48.5.3"],
-  ["jogos", "js/pages/jogos/jogos.js", ["jogosViewPoster", "jogosViewCompact"], "48.5.2"],
+  ["agenda", "js/pages/agenda/agenda.js", ["agendaViewStandard", "agendaViewCompact"], "48.6.0"],
+  ["jogos", "js/pages/jogos/jogos.js", ["jogosViewPoster", "jogosViewCompact"], "48.6.0"],
 ]) {
   test(`${page}: página lê e salva a preferência e carrega o módulo antes do script da página`, () => {
     const html = read(`${page}/index.html`);

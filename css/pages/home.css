@@ -1028,62 +1028,14 @@
     --hero-live-soft: rgba(233, 25, 94, .16);
 }
 
+/* Aparência das abas: .segmented (css/core/controls.css). */
 .hero-view-tabs {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 4px;
     margin-bottom: 16px;
-    padding: 4px;
-
-    background-color: var(--notice-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
 }
 
 .hero-view-tabs[hidden],
 .hero-view-panel[hidden] {
     display: none;
-}
-
-.hero-view-tab {
-    min-height: 36px;
-    padding: 7px 13px;
-
-    color: var(--subtitle-color);
-    background: transparent;
-
-    border: 0;
-    border-radius: 999px;
-
-    font: inherit;
-    font-size: .78rem;
-    font-weight: 850;
-
-    cursor: pointer;
-
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        transform .18s ease;
-}
-
-.hero-view-tab[aria-selected="true"] {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-}
-
-.hero-view-tab:hover,
-.hero-view-tab:focus-visible {
-    color: var(--primary-text);
-    background-color: var(--primary-soft);
-    outline: none;
-}
-
-.hero-view-tab[aria-selected="true"]:hover,
-.hero-view-tab[aria-selected="true"]:focus-visible {
-    color: var(--button-text);
-    background-color: var(--button-bg-hover);
 }
 
 .hero-live-eyebrow {

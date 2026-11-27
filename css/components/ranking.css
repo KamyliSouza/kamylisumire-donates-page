@@ -65,52 +65,10 @@
     margin-bottom: 16px;
 }
 
+/* Aparência: .chip (css/core/controls.css); aqui as duas abas dividem a largura. */
 .ranking-tabs .tab-btn {
     flex: 1 1 0;
-
-    width: 50%;
     min-width: 0;
-    height: 42px;
-    min-height: 42px;
-
-    padding: 0 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: var(--primary-text);
-    background-color: transparent;
-
-    border: 2px solid var(--primary-color);
-    border-radius: 12px;
-
-    font-family: inherit;
-    font-size: .9rem;
-    font-weight: 800;
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition:
-        background-color .2s ease,
-        color .2s ease,
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.ranking-tabs .tab-btn:hover {
-    color: var(--primary-text);
-    background-color: var(--notice-bg);
-
-    transform: translateY(-2px);
-}
-
-.ranking-tabs .tab-btn.active {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-
-    box-shadow: 0 5px 15px rgba(179, 94, 175, .25);
 }
 
 /* =========================================================

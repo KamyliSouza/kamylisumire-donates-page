@@ -110,64 +110,15 @@
     display: none;
 }
 
-.artes-filter {
-    flex: 0 0 auto;
-    min-height: 44px;
-    padding: 9px 14px;
-    color: var(--text-color);
-    background: transparent;
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
-}
-
-.artes-filter:hover,
-.artes-filter:focus-visible,
-.artes-filter.is-active {
-    color: var(--button-text);
-    background: var(--button-bg);
-    border-color: var(--button-bg);
-    outline: none;
-}
-
-.artes-filter:hover,
-.artes-filter.is-active {
-    transform: translateY(-1px);
-}
-
-.artes-filter.is-active {
-    box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, #fff 12%, transparent);
-}
-
+/* Aparência do filtro: .chip (css/core/controls.css). */
+.artes-filter { flex: 0 0 auto; }
 
 .artes-filter-arrow {
     position: absolute;
     top: 50%;
     z-index: 3;
-    width: 36px;
-    height: 36px;
-    display: inline-grid;
-    place-items: center;
-    padding: 0;
-    color: var(--text-color);
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
-    font: inherit;
-    font-size: 1.25rem;
-    font-weight: 900;
-    line-height: 1;
-    cursor: pointer;
     transform: translateY(-50%);
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        opacity .18s ease;
 }
 
 .artes-filter-arrow-prev { left: 3px; }
@@ -185,13 +136,8 @@
 
 .artes-filter-arrow:hover:not(:disabled),
 .artes-filter-arrow:focus-visible {
-    color: var(--primary-text);
-    background: var(--primary-soft);
-    border-color: var(--primary-color);
-    outline: none;
     transform: translateY(-50%) scale(1.04);
 }
-
 .artes-filter-arrow:active:not(:disabled) {
     transform: translateY(-50%) scale(.94);
 }

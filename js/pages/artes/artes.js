@@ -251,7 +251,7 @@
             .sort((a, b) => a.localeCompare(b, "pt-BR"));
         const values = ["Todas", ...categories];
         for (const value of values) {
-            const button = createText("button", "artes-filter", value);
+            const button = createText("button", "chip artes-filter", value);
             button.type = "button";
             button.dataset.category = normalize(value);
             if (value === "Todas") button.classList.add("is-active");

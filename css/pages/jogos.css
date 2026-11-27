@@ -18,42 +18,21 @@
 .jogos-filter-scroll.can-scroll-next .jogos-filters { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%); mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 52px), transparent 100%); }
 .jogos-filter-scroll.can-scroll-prev.can-scroll-next .jogos-filters { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 52px, #000 calc(100% - 52px), transparent 100%); }
 .jogos-filters::-webkit-scrollbar { display: none; }
-.jogos-filter { flex: 0 0 auto; min-height: 40px; padding: 8px 13px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 999px; font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
-.jogos-filter[aria-pressed="true"], .jogos-filter:hover, .jogos-filter:focus-visible { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); transform: translateY(-1px); outline: none; }
-.jogos-filter[aria-pressed="true"] { box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 22%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent); }
+/* Aparência do filtro: .chip (css/core/controls.css). */
+.jogos-filter { flex: 0 0 auto; }
 .jogos-filter-arrow {
     position: absolute;
     top: 50%;
     z-index: 3;
-    width: 36px;
-    height: 36px;
-    display: inline-grid;
-    place-items: center;
-    padding: 0;
-    color: var(--text-color);
-    background: var(--nav-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
-    font: inherit;
-    font-size: 1.25rem;
-    font-weight: 900;
-    line-height: 1;
-    cursor: pointer;
     transform: translateY(-50%);
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease,
-        transform .18s ease,
-        opacity .18s ease;
 }
 
 .jogos-filter-arrow-prev { left: 3px; }
 .jogos-filter-arrow-next { right: 3px; }
 .jogos-filter-arrow[hidden] { display: none; }
 .jogos-filter-arrow:disabled { opacity: 0; visibility: hidden; pointer-events: none; }
-.jogos-filter-arrow:hover:not(:disabled), .jogos-filter-arrow:focus-visible { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); outline: none; transform: translateY(-50%) scale(1.04); }
+.jogos-filter-arrow:hover:not(:disabled), .jogos-filter-arrow:focus-visible { transform: translateY(-50%) scale(1.04); }
 .jogos-filter-arrow:active:not(:disabled) { transform: translateY(-50%) scale(.94); }
 .jogos-filters.is-click-dragging, .jogos-filters.is-click-dragging * { user-select: none; -webkit-user-select: none; }
 .jogos-filters.is-click-dragging { scroll-behavior: auto; }
@@ -78,12 +57,9 @@
 .jogos-pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 18px auto 4px; padding: 10px 12px; width: fit-content; max-width: 100%; }
 .jogos-pagination[hidden] { display: none; }
 .jogos-pagination-label { margin-right: 2px; color: var(--subtitle-color); font-size: .82rem; font-weight: 800; }
-.jogos-page-button { min-width: 36px; min-height: 36px; padding: 6px 10px; color: var(--text-color); background: var(--nav-bg); border: 1px solid var(--card-border); border-radius: 12px; font: inherit; font-size: .82rem; font-weight: 900; cursor: pointer; transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
-.jogos-page-button:hover:not(:disabled), .jogos-page-button:focus-visible, .jogos-page-button[aria-current="page"] { color: var(--primary-text); background: var(--primary-soft); border-color: var(--primary-color); outline: none; }
-.jogos-page-button[aria-current="page"] { transform: translateY(-1px); box-shadow: 0 6px 18px var(--primary-soft); }
+/* Aparência: .chip.chip-compact (números) e .icon-button (setas), em css/core/controls.css. */
 .jogos-page-button:active:not(:disabled) { transform: scale(.94); }
 .jogos-page-button:disabled { opacity: .38; cursor: default; }
-.jogos-pagination-arrow { border-radius: 999px; font-size: 1.18rem; line-height: 1; }
 .jogos-pagination-gap { min-width: 12px; color: var(--subtitle-color); font-size: .9rem; font-weight: 900; text-align: center; user-select: none; }
 .jogos-state, .jogos-notice { padding: 18px 20px; }
 .jogos-state { margin: 0; color: var(--subtitle-color); font-weight: 700; text-align: center; }
@@ -92,46 +68,14 @@
 .jogos-notice h2 { margin: 0 0 7px; color: var(--text-color); font-size: 1rem; font-weight: 900; }
 .jogos-notice p { margin: 0; color: var(--subtitle-color); font-size: .84rem; font-weight: 600; line-height: 1.6; }
 @media (max-width: 760px) { .jogos-shell { width: min(100% - 24px, 1120px); margin-top: 20px; margin-bottom: 40px; } .jogos-intro { padding: 24px; } .jogos-intro h1 { font-size: 2.15rem; } .jogos-filter-scroll { width: 100%; flex-basis: 100%; } .jogos-search { flex-basis: 100%; } .jogos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
-@media (max-width: 480px) { .jogos-pagination { gap: 4px; padding-inline: 8px; } .jogos-pagination-label { display: none; } .jogos-page-button { min-width: 32px; min-height: 32px; padding: 4px 7px; } .jogos-pagination-gap { min-width: 8px; } }
+@media (max-width: 480px) { .jogos-pagination { gap: 4px; padding-inline: 8px; } .jogos-pagination-label { display: none; }  .jogos-pagination-gap { min-width: 8px; } }
 @media (max-width: 380px) { .jogos-grid { grid-template-columns: 1fr; } }
 
 @media (prefers-reduced-motion: reduce) { .jogos-filter, .jogos-filter-arrow, .jogo-card, .jogo-card-media img, .jogos-page-button { transition-duration: .01ms !important; } }
 
 
 /* V48.5.1 — fichas editoriais, modal acessível e modo compacto. */
-.jogos-view-switch {
-    display: inline-flex;
-    flex: 0 0 auto;
-    gap: 4px;
-    padding: 4px;
-    background: var(--nav-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-}
-
-.jogos-view-button {
-    min-height: 36px;
-    padding: 7px 12px;
-    color: var(--subtitle-color);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    font: inherit;
-    font-size: .82rem;
-    font-weight: 900;
-    cursor: pointer;
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
-}
-
-.jogos-view-button[aria-pressed="true"],
-.jogos-view-button:hover,
-.jogos-view-button:focus-visible {
-    color: var(--primary-text);
-    background: var(--primary-soft);
-    border-color: var(--primary-color);
-    outline: none;
-}
-
+/* Aparência do alternador: .segmented (css/core/controls.css). */
 .jogo-card {
     aspect-ratio: 2 / 3;
 }
@@ -726,8 +670,6 @@ html:has(.jogo-dialog[open]) {
 }
 
 @media (max-width: 760px) {
-    .jogos-view-switch { width: 100%; }
-    .jogos-view-button { flex: 1 1 50%; }
 
     /* Celular: capa pequena ao lado do título, ações em linha e seções em largura total, sem rolar até a review. */
     .jogo-dialog-layout {
@@ -775,7 +717,6 @@ html:has(.jogo-dialog[open]) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .jogos-view-button,
     .jogo-dialog-action,
     .jogo-dialog-episodes li { transition-duration: .01ms !important; }
 }

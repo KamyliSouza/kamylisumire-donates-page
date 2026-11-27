@@ -104,6 +104,7 @@
     margin: 0 auto;
 }
 
+/* Aparência: .button-donate .button-donate-lg (css/core/controls.css); aqui só o layout interno. */
 .donation-btn {
     width: 100%;
 
@@ -112,46 +113,6 @@
     align-items: center;
 
     gap: 13px;
-
-    min-height: 64px;
-    padding: 11px 18px;
-
-    border: 2px solid transparent;
-    border-radius: var(--radius-button);
-
-    font-size: 1rem;
-    font-weight: 800;
-
-    text-decoration: none;
-    transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        background-color .2s ease,
-        border-color .2s ease;
-}
-
-.donation-btn:hover {
-    transform: translateY(-2px);
-}
-
-.donation-btn-primary {
-    color: var(--button-text);
-    background-color: var(--button-bg);
-}
-
-.donation-btn-primary:hover {
-    background-color: var(--button-bg-hover);
-    box-shadow: 0 6px 18px rgba(179, 94, 175, .30);
-}
-
-.donation-btn-secondary {
-    color: var(--primary-text);
-    background-color: transparent;
-    border-color: var(--primary-color);
-}
-
-.donation-btn-secondary:hover {
-    background-color: var(--notice-bg);
 }
 
 .donation-btn-icon {
@@ -315,9 +276,6 @@
 
     .donation-btn {
         grid-template-columns: 38px minmax(0, 1fr);
-
-        min-height: 62px;
-        padding: 10px 14px;
     }
 
     .donation-btn-icon {

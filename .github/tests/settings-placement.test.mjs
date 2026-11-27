@@ -19,7 +19,7 @@ const PAGES = [
 ];
 
 const SETTINGS_VERSION = "48.3.66";
-const NAVBAR_CSS_VERSION = "48.3.67"; // correção do destaque da engrenagem
+const NAVBAR_CSS_VERSION = "48.6.0"; // correção do destaque da engrenagem
 
 /** Corpos de todas as regras CSS cuja lista de seletores contém `selector` (inclusive dentro de @media). */
 function ruleBodies(css, selector) {

@@ -12,7 +12,7 @@
         heroLive: { text: "Abrir live", icon: "youtube" },
         livesChannel: { text: "Abrir no YouTube", icon: "youtube" },
         homeBlogAll: { text: "Ver todas", icon: "arrow-right" },
-        homeDonation: { text: "Apoiar", icon: "heart" },
+        homeDonation: { text: "Apoie!", icon: "heart" },
         notFoundHome: { text: "Voltar para o início", icon: "home" },
         donationLivepix: { text: "Apoiar com PIX (LivePix)", icon: "pix" },
         donationPixie: { text: "Moeda Estrangeira (Pixie)", icon: "globe" },

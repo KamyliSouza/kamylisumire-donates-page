@@ -119,7 +119,7 @@ Contém sete cards nativos: Hero, Lives, Agenda, Blog, Regras, Créditos e CTA d
   Twitch de Lives e status ao vivo do Hero). **Não** carrega `ranking.js`.
 - O CTA principal do Hero é `#heroAgendaButton` (`heroAgenda`: texto "Agenda", ícone `calendar`, leva a `/agenda/`);
   o Apoiar fica na Navbar e no CTA `#homeDonationButton` (mesmo coração do botão Apoiar da Navbar); o CTA
-  "Gostou das lives?" usa o rótulo `Apoiar`.
+  "Gostou das lives?" usa o rótulo `Apoie!`.
 - **Link dos botões (V48.5.4):** `buttons.json` aceita um campo opcional `url` **só** em `heroAgenda`, `heroLive` e
   `homeDonation` (`URL_KEYS` em `buttons.js`, `BUTTON_URL_KEYS` no validador, e a lista do helper devem ficar
   iguais). Formatos aceitos: `/caminho/` do site (resolvido por `KAMYLI_SITE_PATH`) ou `http(s)://`; `javascript:`,
@@ -333,6 +333,13 @@ Mesmo carrossel visual, duas fontes: **Twitch** (aba primária, automática) e *
 ---
 
 ## 4. Componentes globais
+
+### Controles (V48.6.0)
+
+Botões que não são CTAs de texto usam só `.chip`, `.segmented`, `.icon-button` ou `.button-donate`
+(`css/core/controls.css`, medidas em `DESIGN-SYSTEM.md`, seção 6). O CSS de página define posição e layout, nunca
+cor, raio, altura ou estado ativo de um controle. O botão de apoio é sempre `.button-donate` (tamanho `-sm`, padrão ou
+`-lg`). `controls.css` carrega antes do CSS da página e depois de `navbar.css`.
 
 ### Navbar
 
