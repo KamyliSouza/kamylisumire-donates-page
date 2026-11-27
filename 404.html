@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UGnkBm0UIahFGAk+gz8v3WqeiWq3ZkxdkvnnDHqgQF0=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-qRdwWEUxKuVPoQr9mE7L1urtr6Ar/Y41nKyonLnVrgM=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UGnkBm0UIahFGAk+gz8v3WqeiWq3ZkxdkvnnDHqgQF0=' 'sha256-B2nmIOH78HlWlqC3odisIGGJC5bnqI6VHFIeK7pBUio=' 'sha256-ULCFlIuja2awpXTqwCcP3My/NNVlI9PZPVa2Kt6kl+s=' 'sha256-sjq+rXeMw+lahMmvmQaBmHeQqeF+pAW1RkcJtoCT5jA='; style-src 'self' 'sha256-ZekRn8vVW7NsPVQeouyvuOBIhOevzeAIVK2+GUa5TPY=' 'sha256-i2ZYRs5rS3GdNNE40sc16Pj5CFdT0gJd5b2utZEvM3I='; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://api.kamylisumire.com https://delicate-waterfall-52e1-api-donates-kamyli.annakamyli.workers.dev https://assets.kamylisumire.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
 
     <link rel="preconnect" href="https://assets.kamylisumire.com">
 
@@ -329,7 +329,29 @@
             .site-loader {
                 display: none !important;
             }
+
+            /* Sem JavaScript o conteúdo é montado e ordenado por scripts: mostra só o aviso. */
+            main,
+            #site-footer {
+                display: none !important;
+            }
+
+            .no-js-notice {
+                width: min(32rem, calc(100% - 32px));
+                margin: 18vh auto 0;
+                padding: 20px 22px;
+                color: var(--text-color);
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                border-radius: var(--radius-card);
+                font-weight: 800;
+                text-align: center;
+            }
         </style>
+    </noscript>
+
+    <noscript>
+        <p class="no-js-notice" role="alert">Este site precisa de JavaScript. Ative-o no navegador e recarregue a página.</p>
     </noscript>
 
     <header id="site-navbar"></header>

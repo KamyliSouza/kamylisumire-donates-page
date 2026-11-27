@@ -86,6 +86,13 @@ reais. Qualquer mudança (inclusive de espaço em branco) em um bloco inline exi
 a meta CSP da página. O bootstrap inline do `<head>` é **idêntico em todas as páginas**
 (e nos artigos do Blog): ao editá-lo, recalcule o hash e atualize a CSP de todas.
 
+### Sem JavaScript
+
+As páginas montam e ordenam o conteúdo por scripts. Com JavaScript desligado, o `<noscript>` de cada página
+esconde `main` e `#site-footer` e mostra só o aviso `.no-js-notice`; o conteúdo permanece no HTML. A exceção é
+`doacoes/index.html`, que carrega normalmente e só esconde `.ranking-card`. O estilo do `<noscript>` é inline e
+tem hash na CSP: ao editá-lo, recalcule o hash (o validador aponta). O texto do aviso é fixo e curto.
+
 ### Fallbacks espelhados
 
 `defaults.navbar` e `defaults.blogConfig` em `js/core/content.js` são fallbacks de

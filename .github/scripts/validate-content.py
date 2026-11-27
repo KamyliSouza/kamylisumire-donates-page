@@ -1140,6 +1140,31 @@ def validate_jogos() -> None:
 
 
 
+NO_JS_NOTICE = "Este site precisa de JavaScript. Ative-o no navegador e recarregue a página."
+NO_JS_PAGES = (
+    "index.html", "agenda/index.html", "jogos/index.html", "artes/index.html", "blog/index.html",
+    "privacidade/index.html", "uso-de-ia/index.html", "404.html",
+)
+
+
+def validate_no_js() -> None:
+    """V48.6.1: sem JavaScript só a página de Doações carrega (sem o ranking); as demais mostram um aviso curto."""
+    for rel in NO_JS_PAGES:
+        html = read_text(rel)
+        styles = re.findall(r"<noscript>\s*<style>([\s\S]*?)</style>\s*</noscript>", html)
+        notices = re.findall(r'<noscript>\s*<p class="no-js-notice" role="alert">([^<]*)</p>\s*</noscript>', html)
+        if len(styles) != 1 or "main," not in styles[0] or "#site-footer" not in styles[0] or ".no-js-notice" not in styles[0]:
+            error(f"{rel}: V48.6.1 exige o <noscript><style> que esconde main/rodapé e estiliza .no-js-notice.")
+        if notices != [NO_JS_NOTICE]:
+            error(f"{rel}: V48.6.1 exige o aviso <noscript> curto: \"{NO_JS_NOTICE}\".")
+    don = read_text("doacoes/index.html")
+    don_styles = re.findall(r"<noscript>\s*<style>([\s\S]*?)</style>\s*</noscript>", don)
+    if len(don_styles) != 1 or ".ranking-card" not in don_styles[0] or "display: none !important" not in don_styles[0]:
+        error("doacoes/index.html: V48.6.1 exige esconder .ranking-card sem JavaScript.")
+    if "no-js-notice" in don or re.search(r"main\s*[,{]", don_styles[0] if don_styles else ""):
+        error("doacoes/index.html: a página de Doações carrega sem JavaScript; não esconda o conteúdo nem mostre o aviso.")
+
+
 def validate_view_mode() -> None:
     """V48.5.2: preferência de visualização (padrão/compacto) da Agenda e de Jogos."""
     module = read_text("js/core/view-mode.js")
@@ -4424,6 +4449,7 @@ def main() -> int:
     validate_jogos()
     validate_jogos_editorial()
     validate_view_mode()
+    validate_no_js()
     validate_lives()
     validate_blog()
     validate_agenda()

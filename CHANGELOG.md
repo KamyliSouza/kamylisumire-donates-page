@@ -7,6 +7,16 @@ Formato de cada entrada: `## Vx.y.z — título curto`, seguido de uma lista do 
 contratos (JSON, Worker/KV, Helpers). Nem toda versão numerada gerou entrada; as ausentes não foram
 publicadas ou não foram registradas aqui.
 
+## V48.6.1 — Sem JavaScript: aviso curto e Doações sem ranking
+
+- Home, Agenda, Jogos, Artes, Blog, Privacidade, Uso de IA e 404 deixam de mostrar a ordem fixa do HTML quando o
+  JavaScript está desligado: o `<noscript>` esconde `main` e o rodapé e mostra só "Este site precisa de JavaScript.
+  Ative-o no navegador e recarregue a página." O conteúdo continua no HTML (prévias, buscadores, textos espelhados).
+- Doações segue carregando sem JavaScript (links do LivePix e do Pixie estáticos), mas o ranking fica escondido.
+- O estilo do `<noscript>` mudou, então o hash CSP de cada página foi atualizado. O validador (`validate_no_js`) e
+  `no-js.test.mjs` exigem o aviso, o estilo e o hash. Artigos do Blog gerados pelo helper herdam o estilo; o aviso é
+  copiado a partir do helper 1.0.10.
+
 ## V48.6.0 — Controles padronizados e botão de apoio único
 
 - Novo `css/core/controls.css` (carregado antes do CSS da página, depois de `navbar.css`) com quatro componentes:
